@@ -1,0 +1,17 @@
+{
+  "name": "Lie Detector V2",
+  "short_name": "Lie Detector",
+  "description": "Sacred RSI Regime Simulator",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#07090f",
+  "theme_color": "#00e8a2",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2521/2521118.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

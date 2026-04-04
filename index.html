@@ -1,12 +1,112 @@
 <!DOCTYPE html>
+<!--
+================================================================================
+  LIE DETECTOR  LD241A4
+  Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
+================================================================================
+
+  ARCHITECTURE OVERVIEW
+  ─────────────────────
+  Single-file HTML/CSS/JS application.  No build step, no external JS libs.
+  All persistence is via IndexedDB (offline-first NAV cache).
+
+  ┌─ STYLE ────────────────────────────────────────────────────────────────────┐
+  │  Design Tokens · Reset · Canvas Overlay · Spinner · Setup Screen          │
+  │  App Header · Net Worth Strip · Alert Banner · Simulator Layout            │
+  │  Chart Container · Live Benchmark Box · HUD Overlay · Indicator Row        │
+  │  Psychology Box · Action Bar · Modals · Trade Log Table                    │
+  │  Live Analytics Cards · Timeframe Row · Review/Audit UI                    │
+  │  Toggle/Notifications · Responsive Overrides                               │
+  └────────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ HTML SCREENS (z-index layering) ──────────────────────────────────────────┐
+  │  #ov                    Loading / sync overlay (z 1000)                    │
+  │  #setupScreen           Home / fund picker (z 500)                         │
+  │  #gameUI                Simulator game loop (inline flex)                  │
+  │  #liveChartModal        Live Cockpit (z 600)                               │
+  │  #liveAnalyticsModal    Live Analytics dashboard (z 600)                   │
+  │  #logModal              Trade history table (z 700)                        │
+  │  #reviewModal           Process audit / score report (z 600)               │
+  │  #rrgScannerModal       RRG Leading / Improving scanner (z 600)            │
+  │  #rrgDetailModal        RRG Alpha Dashboard + 3-pane chart (z 600)         │
+  │  #regimeChangeModal     Regime shift scanner (z 600)                       │
+  │  #regimeA2ScannerModal  Regime A Invest / Hold / Profit scanner (z 600)   │
+  └────────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ JAVASCRIPT SECTIONS ──────────────────────────────────────────────────────┐
+  │   §1   Benchmark & Ticker Maps          (NSE index ↔ Yahoo Finance ticker) │
+  │   §2   Fund Catalogue                  (52 MF + NPS codes, 4 AMCs)        │
+  │   §3   Runtime State                   (global mutable state variables)    │
+  │   §4   Date Normalizer & Zoom Reset    (utility helpers, window.**)        │
+  │   §5   Fund Selection UI Helpers       (AMC picker, localStorage persist)  │
+  │   §6   Modal DOM Cleanup & Lookback    (canvas teardown, TF button sync)   │
+  │   §7   Data Fetch                      (mfapi.in / npsnav.in, IDB fallback)│
+  │   §8   Live Benchmark Estimate         (Yahoo Finance via CORS proxies)    │
+  │  §10   Technical Indicator Library     (RSI / WMA / SMA — pure functions)  │
+  │  §11   LOWESS-Gaussian Math Engine     (V14 adaptive smoothing / TSL floor)│
+  │  §12   Consolidation Pattern Detector  (PC breakout / NC breakdown)        │
+  │  §13   Change-of-Character Detector    (ChoCh — swing high/low)            │
+  │  §14   Engine Snapshot Builder         (single source-of-truth per bar)    │
+  │  §15   Trade Execution Engine          (buy/sell/tax, FIFO STCG calc)      │
+  │  §16   Live Cockpit                    (initLiveChart / updateLiveChartOnly)│
+  │  §17   Live Analytics                  (initLiveAnalytics / updateLiveChart)│
+  │  §18   Simulator Game Loop             (initGame / updateDisplay)          │
+  │  §19   Simulator Actions               (trade / nextDay / flashBanner)     │
+  │  §20   Trade Log Modal                 (showLog / closeLog)                │
+  │  §21   Process Audit (End & Review)    (endAndReview — scoring engine)     │
+  │  §22   RSI Cache Engine (IIFE)         (buildDailyRsiFast / buildWeeklyRsi)│
+  │  §23   V14B Main Price Chart Renderer  (canvas, anchor-EMA, ChoCh, PC)    │
+  │  §24   Sacred Momentum Pane Renderer   (RSI bands, gap bars, proxy line)   │
+  │  §25   RRG Scanner — Helper Math       (return, WMA series, HMA, ADX)     │
+  │  §26   RRG Bottom Pane Renderer        (RS vs HMA dynamic canvas)          │
+  │  §27   Regime A & Regime Change Scanners (batch fetch, zone classify)      │
+  │  §28   RRG Scanner UI Renderer         (Leading / Improving result list)   │
+  │  §29   Chart Bridge                    (syncNativeChartsWithEngine)         │
+  │  §30   RRG Alpha Dashboard             (openRRGDetail — 3-pane chart)      │
+  │  §31   RRG → Live Cockpit Handoff      (launchLiveFromRRG)                 │
+  │  §32   Touch Pinch-Zoom Engine (IIFE)  (attachZoom, showPill)              │
+  │  §33   Offline-First IDB Engine (IIFE) (monkey-patched fetch + syncAllData)│
+  └────────────────────────────────────────────────────────────────────────────┘
+
+  DATA FLOW
+  ─────────
+  User picks fund → fetchFundData() → IDB cache (12 h TTL)
+  → buildDailyRsiFast / buildWeeklyRsiFast / buildLowessGaussianFast
+  → buildEngineSnapshot (per bar) → updateDisplay / updateLiveChartOnly
+  → syncNativeChartsWithEngine → V14B_MainChart + SacredMomentum (canvas)
+
+  EXTERNAL APIs
+  ─────────────
+  https://api.mfapi.in/mf/{code}           — Mutual fund NAV history
+  https://npsnav.in/api/historical/{code}  — NPS scheme NAV history
+  https://query1.finance.yahoo.com/...     — Live benchmark quote (via CORS proxies)
+
+  NOTES
+  ─────
+  • Sections §9 is intentionally absent; §8 flows directly into §10.
+  • All canvas operations are DPR-aware (devicePixelRatio scaling).
+  • STCG tax: 20% on gains from units held < 365 calendar days (simulator).
+  • Regime: A = W-RSI ≥ 50 (Bull), B = 40–49 (Transition), C < 40 (Bear).
+================================================================================
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Lie Detector LD241A1</title>
+<title>Lie Detector LD241A4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
+/*
+ * ============================================================================
+ * STYLESHEET  — LIE DETECTOR LD241A4
+ * Sections:  Design Tokens · Reset · Loading Overlay · Setup Screen
+ *            App Chrome · Chart UI · Indicator Row · Psychology Box
+ *            Action Bar · Modals · Analytics Cards · Review / Audit
+ *            Toggle Switches · Responsive Overrides
+ * ============================================================================
+ */
+
 /* ── DESIGN TOKENS ──────────────────────────────────────────── */
 :root {
 --bg: #ffffff;
@@ -54,7 +154,9 @@ pointer-events: none;
 z-index: 5;
 }
 
-/* ── LOADING SPINNER ────────────────────────────────────────── */
+/* ── LOADING / SYNC OVERLAY SPINNER ────────────────────────── */
+/* Fullscreen semi-transparent overlay shown during API fetch   */
+/* and background sync.  z-index 1000 sits above all modals.   */
 #ov {
 display: none;
 position: fixed;
@@ -84,7 +186,9 @@ opacity: 0.8;
 transition: color 0.2s;
 }
 
-/* ── SETUP SCREEN (SCROLLABLE FIX) ──────────────────────────── */
+/* ── SETUP SCREEN ───────────────────────────────────────────── */
+/* Fixed fullscreen entry point (z 500).  Scrollable on small   */
+/* phones so the notification settings panel is always reachable.*/
 #setupScreen {
 position: fixed;
 inset: 0;
@@ -226,6 +330,8 @@ background: transparent;
 .setup-btn-live:hover { border-color: var(--muted2); color: var(--text); }
 
 /* ── APP HEADER ─────────────────────────────────────────────── */
+/* Top bar shown inside #gameUI (Simulator).  Contains logo,    */
+/* mode tag, fund name, and the END & REVIEW button.            */
 .app-header {
 display: flex;
 justify-content: space-between;
@@ -274,6 +380,8 @@ transition: all 0.15s;
 .btn-review:hover { background: rgba(251, 191, 36, 0.15); }
 
 /* ── NET WORTH STRIP ────────────────────────────────────────── */
+/* Three-column summary bar (Net Worth | Max DD | Cash) shown   */
+/* at the top of the Simulator below the app header.            */
 .networth-header {
 display: flex;
 justify-content: space-around;
@@ -288,6 +396,10 @@ flex-shrink: 0;
 .nw-divider { width: 1px; background: var(--border); align-self: stretch; }
 
 /* ── ALERT BANNER ───────────────────────────────────────────── */
+/* Single-line signal bar used in Simulator, Live Cockpit, and  */
+/* Live Analytics.  Pulses via keyframe animation when active.  */
+/* Colour classes: .alert-danger (red) · .alert-buy (green)    */
+/*                 .alert-profit (amber)                         */
 #alertBanner,
 #liveAlertBanner,
 #liveChartAlertBanner {
@@ -318,10 +430,21 @@ color: var(--muted2);
 @keyframes pulseAlert { 0%, 100% { opacity: 1; } 50% { opacity: 0.72; } }
 
 /* ── SIMULATOR LAYOUT ───────────────────────────────────────── */
+/* .main-sim       — flex column that grows to fill viewport     */
+/* .main-sim-scroll— scrollable sub-section below the chart     */
+/*                   (indicator row + psychology box).           */
+/*                   bottom padding (96 px) prevents the fixed  */
+/*                   action bar from obscuring content.          */
 .main-sim { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 .main-sim-scroll { flex-shrink: 0; overflow-y: auto; padding-bottom: 96px; }
 
 /* ── CHART CONTAINER ────────────────────────────────────────── */
+/* Hosts the two-pane canvas split (main price pane + RSI pane).*/
+/* Fixed at 52 vh / 380 px min to ensure legible chart area.    */
+/* .chart-split    — flex column parent of both panes;           */
+/*                   touch-action:none required for pinch-zoom.  */
+/* .chart-main-pane— price chart; flex weight 3.5               */
+/* .chart-rsi-pane — RSI/momentum chart; flex weight 2.5        */
 .chart-container {
 background: var(--bg);
 padding: 6px 8px;
@@ -394,6 +517,9 @@ display: none;
 }
 
 /* ── LIVE BENCHMARK BOX ─────────────────────────────────────── */
+/* Absolute-positioned overlay on the price chart showing the   */
+/* intraday % change of the fund's benchmark index.             */
+/* Background colour: green tint (+), red tint (−), amber (≈0). */
 #liveEstBox {
 position: absolute;
 bottom: 6px;
@@ -422,6 +548,10 @@ font-weight: 400;
 }
 
 /* ── HUD OVERLAY ────────────────────────────────────────────── */
+/* Crosshair tooltip shown on the chart canvas when the user    */
+/* hovers (desktop) or touches (mobile).  Repositions to left   */
+/* or right half based on cursor position to avoid clipping.    */
+/* pointer-events:none so it never blocks chart interactions.   */
 .chart-hud {
 position: absolute;
 left: 4px;
@@ -450,6 +580,10 @@ width: calc(60% - 8px);
 }
 
 /* ── INDICATOR ROW ──────────────────────────────────────────── */
+/* Horizontal strip of indicator boxes below the chart.         */
+/* Each .ind-box holds a label + value.  The .ind-val element   */
+/* carries one of three regime colour classes:                  */
+/*   .reg-A (green) · .reg-B (amber) · .reg-C (red)            */
 .indicator-row {
 display: flex;
 justify-content: space-between;
@@ -485,6 +619,9 @@ text-overflow: ellipsis;
 .reg-C { color: var(--red); background: var(--red-dim); border: 1px solid rgba(240, 64, 96, 0.3); }
 
 /* ── PSYCHOLOGY BOX ─────────────────────────────────────────── */
+/* Protocol / SOP text rendered below the indicator row in the  */
+/* Simulator.  The left border colour mirrors the active regime. */
+/* Each .psy-line is a numbered protocol instruction.           */
 .psy-box {
 padding: 4px 14px 10px;
 background: var(--surface);
@@ -504,6 +641,10 @@ margin-top: 6px;
 .psy-logic .psy-line:first-child { color: var(--text); font-weight: 400; }
 
 /* ── ACTION BAR ─────────────────────────────────────────────── */
+/* Fixed bottom bar in the Simulator — 4-column grid of trade   */
+/* buttons.  Height 88 px; z-index 200.                         */
+/* .btn-buy (green) · .btn-hold (neutral) · .btn-sell (red)    */
+/* .btn-profit (amber) · disabled state dims to 35 % opacity.   */
 .action-bar {
 position: fixed;
 bottom: 0;
@@ -550,6 +691,10 @@ background: transparent !important;
 .btn-profit:hover:not(:disabled) { background: var(--accent2-dim); }
 
 /* ── MODALS ─────────────────────────────────────────────────── */
+/* All modals share .modal-overlay: fixed inset-0, z 600, flex  */
+/* column.  Shown by setting display:'flex'; hidden via 'none'. */
+/* .modal-close     — sticky header row (title + close button)  */
+/* .modal-close-btn — right-aligned [X] / [BACK] action         */
 .modal-overlay {
 display: none;
 position: fixed;
@@ -580,6 +725,9 @@ font-weight: 400;
 .modal-title { font-size: 0.72rem; letter-spacing: 0.1em; font-weight: 400; }
 
 /* ── TRADE LOG TABLE ────────────────────────────────────────── */
+/* Full-width table inside #logModal.  Colour-codes rows by     */
+/* action: .log-buy (green) · .log-sell (red) · .log-profit    */
+/* (amber).  Tax column uses .log-tax (muted, smaller text).    */
 #logModal { z-index: 700; }
 .log-table {
 width: 100%;
@@ -604,6 +752,13 @@ font-weight: 400;
 .log-tax { color: var(--muted); font-size: 0.65rem; }
 
 /* ── LIVE ANALYTICS CARDS ───────────────────────────────────── */
+/* Card system used in #liveAnalyticsModal.                     */
+/* .la-card  — standard card with 8 px padding                  */
+/* .la-card2 — compact card with 4 px padding (metric grids)    */
+/* .la-label — uppercase micro label above a value              */
+/* .la-val   — primary numeric / text display                   */
+/* .la-sub / .la-sub2 — secondary descriptor text below value   */
+/* .la-check — signal checklist row (icon | text | value)       */
 #liveAnalyticsModal .indicator-row { background: var(--surface2); }
 .la-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 10px; }
 .la-card2 { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 6px; }
@@ -627,6 +782,10 @@ border-bottom: 1px solid var(--border);
 .la-check-val { color: var(--muted2); flex-shrink: 0; font-size: 0.58rem; }
 
 /* ── TIMEFRAME ROW + RESET ZOOM ─────────────────────────────── */
+/* Horizontal strip of .tf-btn timeframe buttons (1W / 2W / 1M  */
+/* / 3M / 6M / 1Y / ALL).  Active button highlighted in accent. */
+/* .reset-zoom — small secondary button to restore default zoom. */
+/* z-index 20 ensures the row sits above chart canvas overlays.  */
 .tf-row {
 display: flex;
 justify-content: space-around;
@@ -668,6 +827,13 @@ font-weight: 400;
 .reset-zoom:hover { border-color: var(--muted); color: var(--text); }
 
 /* ── REVIEW / AUDIT UI ──────────────────────────────────────── */
+/* Score cards and audit sections rendered by endAndReview()    */
+/* (§21) into #reviewModal.                                     */
+/* .score-card    — top-level KPI card (Net Worth / DD / Score) */
+/* .audit-section — per-discipline scoring block                */
+/* .remarks-box   — colour-bordered behavioural feedback block  */
+/* Score colour: .pos-score (green) · .neg-score (red)          */
+/*               .neu-score (default text)                      */
 .review-container {
 padding: 6px 10px 24px;
 overflow-y: scroll;
@@ -738,6 +904,12 @@ margin-top: 6px;
 }
 
 /* ── TOGGLE SWITCH & NOTIFICATIONS ──────────────────────────── */
+/* CSS toggle switch used in the Alert Guard settings panel on  */
+/* the Setup screen.  The .switch / .slider pattern is a pure   */
+/* CSS checkbox-to-pill toggle — no JavaScript for the visual.  */
+/* .setting-group — full-width settings container               */
+/* .setting-row   — label + switch on one line                  */
+/* .time-input    — compact time picker (Daily Digest sync)     */
 .setting-group { 
     width: 100%; 
     max-width: 350px; 
@@ -774,8 +946,10 @@ input:checked + .slider:before { transform: translateX(16px); }
 .time-input:focus { border-color: var(--accent); }
 
 /* ── RESPONSIVE OVERRIDES ───────────────────────────────────── */
-
-@media (max-width: 600px) {
+/* Breakpoint: max-width 600 px (typical phone in portrait).    */
+/* Reduces font sizes in HUD, indicator values, and psychology  */
+/* text.  Also shrinks chart height from 52 vh → 44 vh to       */
+/* preserve space for the action bar on short screens.          */
 .chart-hud { font-size: 0.50rem; letter-spacing: -0.05em; width: calc(100% - 50px); line-height: 1.2; }
 .ind-val { font-size: 0.95rem !important; padding: 2px 4px !important; }
 .chart-container { height: 44vh; min-height: 300px; }
@@ -793,7 +967,7 @@ input:checked + .slider:before { transform: translateX(16px); }
 
 <div id="setupScreen">
 <div class="setup-logo">Sacred RSI Regime System</div>
-<h1 class="setup-title">Lie Detector <span style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A1</span></h1>
+<h1 class="setup-title">Lie Detector <span style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A4</span></h1>
 <p class="setup-sub">Train your discipline before real money does.</p>
 
 <div class="fund-grid" id="fundGrid">
@@ -1434,7 +1608,14 @@ Regime</div>
 // =============================================================================
 // SECTION 1 · BENCHMARK & TICKER MAPS
 // =============================================================================
-
+//
+// NSE_BENCHMARK_MAP  : fund MFAPI code → benchmark index name
+//   Used to label the overlay box on the Live Cockpit price chart.
+//
+// YAHOO_TICKER_MAP   : benchmark index name → Yahoo Finance ticker symbol
+//   Used by §8 (updateLiveEstimate) to fetch the intraday % change for the
+//   relevant index via the Yahoo Finance REST API (queried through CORS proxies).
+//
 const NSE_BENCHMARK_MAP = {
 '118989': 'NIFTY 500', '119062': 'NIFTY 500', '120166': 'NIFTY 500',
 '120517': 'NIFTY 500', '152778': 'NIFTY 500',
@@ -1517,7 +1698,14 @@ const YAHOO_TICKER_MAP = {
 // =============================================================================
 // SECTION 2 · FUND CATALOGUE
 // =============================================================================
-
+//
+// Complete list of 52 instruments (Mutual Funds + NPS Tier I/II) organised
+// by AMC.  Codes prefixed "SM" route to the npsnav.in API; all others to
+// api.mfapi.in.
+//
+// Exposed on window.amcFunds so the offline background-sync engine (§33)
+// can iterate all funds on page load without importing this module.
+//
 const amcFunds = {
 HDFC: [
 { name: 'HDFC Flexi Cap - Growth', code: '118989' },
@@ -1590,7 +1778,22 @@ window.amcFunds = amcFunds;
 // =============================================================================
 // SECTION 3 · RUNTIME STATE
 // =============================================================================
-
+//
+// All mutable global state lives here.  No hidden module-level variables are
+// scattered elsewhere — any function that reads or writes application state
+// does so through the variables declared in this section.
+//
+// Simulator state   : fullHistory, simWeeklyRsiCache, simDailyRsiCache,
+//                     simLowessCache, currentIdx, simStartIdx, simEndIdx,
+//                     cash, tranches, tradeLog, totalTaxPaid,
+//                     peakNetWorth, maxDrawdown, prevRegime, currentRegimeLog
+//
+// Live Cockpit state: globalLiveData, globalWeeklyRsiCache, globalDailyRsiCache,
+//                     globalLowessCache, _lastFetchedCode, _lastRsiLength
+//
+// Shared            : userRsiLength, buyDeltaLevel, _activeScannerToken,
+//                     window.currentLiveLookback, window.currentSimLookback
+//
 let fullHistory = [];
 let simWeeklyRsiCache = [];
 let simDailyRsiCache = [];
@@ -1628,7 +1831,13 @@ window.currentSimLookback = 250;
 // =============================================================================
 // SECTION 4 · UNIVERSAL DATE NORMALIZER & ZOOM RESET
 // =============================================================================
-
+//
+// normalizeDate  — converts both "DD-MM-YYYY" (mfapi) and "YYYY/MM/DD"
+//                  (npsnav) into ISO "YYYY-MM-DD" for consistent comparisons.
+// formatHudDate  — converts ISO "YYYY-MM-DD" → display format "DD-MM-YYYY".
+// resetSimZoom   — resets the Simulator chart to the default 1Y (250-bar) view.
+// resetLiveZoom  — resets the Live Cockpit chart to the default 1Y view.
+//
 window.normalizeDate = function(dStr) {
 if (!dStr) return '';
 dStr = dStr.replace(/\//g, '-');
@@ -1668,7 +1877,16 @@ updateLiveChartOnly(250, btns[6]);
 // =============================================================================
 // SECTION 5 · FUND SELECTION UI HELPERS
 // =============================================================================
-
+//
+// selectAMC        — switches the fund dropdown to the chosen AMC and
+//                    re-populates its <option> list.
+// saveFundSelection— persists the current AMC, fund code, and RSI length
+//                    to localStorage so the choice survives page reloads.
+// getBriefFundName — strips "[NPS]", "- Growth", "- Direct" suffixes for
+//                    compact display in headers / banners.
+// DOMContentLoaded — restores the last saved selection on startup and wires
+//                    up the Alert Guard notification permission UI.
+//
 function selectAMC(amc, el, isInit = false) {
 document.querySelectorAll('#fundGrid .fund-box').forEach(b => b.classList.remove('active'));
 el.classList.add('active');
@@ -1789,7 +2007,16 @@ updatePermissionUI();
 // =============================================================================
 // SECTION 6 · MODAL DOM CLEANUP & LOOKBACK CONTROL
 // =============================================================================
-
+//
+// cleanupModalDOM    — removes canvas elements and the crosshair vLine from a
+//                      chart-split container when a modal is closed, preventing
+//                      stale listeners and duplicate canvas overlays from
+//                      accumulating across repeated open/close cycles.
+// updateSimLookback  — updates window.currentSimLookback, syncs the active
+//                      state on the timeframe button row, and re-renders.
+// openLiveAnalytics  — convenience bridge: closes the Live Cockpit and opens
+// FromCockpit          the Live Analytics modal without returning to Setup.
+//
 function updateSimLookback(days, btn) {
 window.currentSimLookback = days;
 if (btn) {
@@ -1820,7 +2047,22 @@ split._hasCrosshair = false;
 // =============================================================================
 // SECTION 7 · DATA FETCH
 // =============================================================================
-
+//
+// fetchFundData   — primary data loader.
+//   • Routes to mfapi.in (MF) or npsnav.in (NPS) based on fund code prefix.
+//   • The monkey-patched window.fetch (§33) intercepts the request and serves
+//     from IndexedDB if a fresh (< 12 h) cache entry exists.
+//   • On network failure or timeout (12 s), falls back to reading IDB directly
+//     and shows an "OFFLINE — SERVING CACHED DATA" banner.
+//   • Returns an ascending chronological array: [{ nav, date }, …]
+//
+// ensureLiveData  — memoizes the last fetched fund code and RSI length.
+//   Rebuilds all indicator caches (daily RSI, weekly RSI, LOWESS) only when
+//   the selected fund or RSI period changes, avoiding redundant computation.
+//
+// _fetchLock      — binary semaphore preventing concurrent fetch calls from
+//                   racing when the user taps buttons rapidly.
+//
 let _fetchLock = false;
 
 async function fetchFundData() {
@@ -1935,15 +2177,23 @@ _lastRsiLength = userRsiLength;
 return true;
 }
 // =============================================================================
-// SECTION 8 · LIVE BENCHMARK ESTIMATE (Yahoo Finance via CORS proxies)
+// SECTION 8 · LIVE BENCHMARK ESTIMATE  (Yahoo Finance via CORS proxies)
 // =============================================================================
-
-/**
-* Fetch today's intraday % change for the benchmark index linked to the
-* currently selected fund, and update both the Cockpit overlay box and
-* the Analytics benchmark row.
-* Tries multiple CORS proxies in sequence; silently shows 'N/A' on total failure.
-*/
+//
+// updateLiveEstimate  — fetches today's intraday % change for the benchmark
+//   index that corresponds to the currently selected fund.
+//
+//   Flow:
+//     fund code  →  NSE_BENCHMARK_MAP  →  benchmark name
+//                →  YAHOO_TICKER_MAP   →  Yahoo Finance ticker
+//                →  Yahoo /v8/finance/chart  (15-min interval, 1-day range)
+//
+//   Four public CORS proxies are fired in parallel via Promise.any().
+//   The first successful response wins; failures are silently discarded.
+//   On total failure, the overlay shows "Change: N/A".
+//
+//   Called once on modal open, then on a 15-minute setInterval.
+//
 async function updateLiveEstimate() {
 const cockpitVisible = document.getElementById('liveChartModal').style.display === 'flex';
 const analyticsVisible = document.getElementById('liveAnalyticsModal').style.display === 'flex';
@@ -2023,13 +2273,32 @@ setInterval(updateLiveEstimate, 900_000);
 // =============================================================================
 // SECTION 10 · TECHNICAL INDICATOR LIBRARY
 // =============================================================================
+//
+// Pure mathematical functions — no DOM side-effects, no global state reads.
+// All accept a prices[] array and return a single numeric value.
+//
+// calculateRSI(prices, period)
+//   Wilder-smoothed RSI.  The first `period` bars use a simple average seed;
+//   subsequent bars apply the standard Wilder EMA smoothing (α = 1/period).
+//   Returns a value in the range [0, 100].  Defaults to 50 on insufficient data.
+//
+// calculateWMA(prices, period)
+//   Linearly-weighted moving average over the last `period` values.
+//   Weight of the most recent bar = period; oldest bar in window = 1.
+//   Returns null when fewer than `period` values are available.
+//
+// calculateSMA(prices, period)
+//   Simple (equally-weighted) moving average of the last `period` values.
+//   Returns null when fewer than `period` values are available.
+//
 
 /**
-* Wilder-smoothed RSI over the supplied price array.
-* @param {number[]} prices
-* @param {number} period - default 14
-* @returns {number} RSI value 0–100
-*/
+ * Wilder-smoothed RSI over the supplied price array.
+ *
+ * @param {number[]} prices - Chronological NAV / price series.
+ * @param {number}   period - Lookback period (default 14; app uses 4).
+ * @returns {number} RSI in [0, 100].  Returns 50 on insufficient data.
+ */
 function calculateRSI(prices, period = 14) {
 if (prices.length <= 2) return 50;
 const p = Math.min(period, prices.length - 1);
@@ -2054,11 +2323,15 @@ return al === 0 ? 100 : 100 - (100 / (1 + ag / al));
 }
 
 /**
-* Linearly-weighted WMA of the last `period` values in prices[].
-* @param {number[]} prices
-* @param {number} period - default 20
-* @returns {number|null} null when insufficient data
-*/
+ * Linearly-weighted WMA of the last `period` values in prices[].
+ *
+ * Weight formula: most-recent bar × period, next bar × (period-1), …, oldest × 1.
+ * Used for: NAV WMA20 on price chart, RSI WMA20 for momentum-state detection.
+ *
+ * @param {number[]} prices - Full price series (only the tail `period` bars are used).
+ * @param {number}   period - Window size (default 20).
+ * @returns {number|null} WMA value, or null if fewer than `period` bars exist.
+ */
 function calculateWMA(prices, period = 20) {
 if (prices.length < period) return null;
 const weightSum = (period * (period + 1)) / 2;
@@ -2076,6 +2349,15 @@ return sum / weightSum;
 * @returns {number|null} null when insufficient data
 */
 
+/**
+ * Simple (equally-weighted) moving average of the last `period` values.
+ *
+ * Used for the SMA50 overlay displayed in the Live Analytics dashboard.
+ *
+ * @param {number[]} prices - Full price series.
+ * @param {number}   period - Window size (default 50).
+ * @returns {number|null} SMA value, or null if fewer than `period` bars exist.
+ */
 function calculateSMA(prices, period = 50) {
 if (prices.length < period) return null;
 let sum = 0;
@@ -2084,8 +2366,22 @@ return sum / period;
 }
 
 // =============================================================================
-// V14 LOWESS-GAUSSIAN MATH ENGINE
+// SECTION 11 · LOWESS-GAUSSIAN MATH ENGINE (V14)
 // =============================================================================
+//
+// Computes the adaptive TSL (Trailing Stop Loss) floor used in the Simulator,
+// Live Cockpit, and Live Analytics.
+//
+// Algorithm (per bar):
+//   1. Gaussian-weighted moving average (GMA) over a rolling `gLen`-bar window.
+//      Bandwidth σ = (ATR + StDev) / 2  so it automatically widens in volatile
+//      markets and tightens in calm ones.
+//   2. LOWESS intercept (local weighted mean, tricubic kernel, `lowessLen` bars)
+//      applied on top of the GMA series to produce the final smoothed floor.
+//
+// The result is a price-adaptive, non-lagging support line that forms the
+// basis of the TSL breach signal.
+//
 function calcStdev(arr, period) {
     if (arr.length < period) return 0;
     const slice = arr.slice(-period);
@@ -2103,6 +2399,21 @@ function calcMFATR(arr, period) {
     return trSum / period;
 }
 
+/**
+ * Builds the LOWESS-Gaussian adaptive smoothed floor array used as the TSL line.
+ *
+ * Pass 1 (Gaussian MA):  For each bar, compute a Gaussian-kernel weighted mean
+ *   over a `gLen`-bar window.  σ = (ATR + StDev) / 2 adapts bandwidth to
+ *   current volatility.
+ *
+ * Pass 2 (LOWESS intercept):  Apply a tricubic locally-weighted mean over
+ *   the last `lowessLen` GMA values to produce the final smooth floor.
+ *
+ * @param {number[]} prices    - Chronological NAV series.
+ * @param {number}   gLen      - Gaussian window size (default 8).
+ * @param {number}   lowessLen - LOWESS window size (default 10).
+ * @returns {Array<number|null>} Smoothed floor value per bar; null for early bars.
+ */
 window.buildLowessGaussianFast = function(prices, gLen = 8, lowessLen = 10) {
     const gmaArray = new Array(prices.length).fill(null);
     const smoothedArray = new Array(prices.length).fill(null);
@@ -2153,18 +2464,24 @@ smoothedArray[idx] = sum_wy / sum_w;
 // =============================================================================
 // SECTION 12 · CONSOLIDATION PATTERN DETECTION
 // =============================================================================
+//
+// calculateConsolidation(prices)
+//
+//   Detects two high-probability trade setups based on price compression:
+//
+//   PC (Positive Consolidation) Breakout
+//     Condition: The last 5 bars form a tight box (≤ 2 % range) near the
+//     WMA20 (within 4 %), AND the current bar breaks above the prior 50-bar
+//     high.  Interpreted as accumulated buying pressure resolving upward.
+//
+//   NC (Negative Consolidation) Breakdown
+//     Mirror image: same tight-box condition but price breaks below the
+//     prior 50-bar low.  Acts as a trap signal — avoid new entries.
+//
+//   @param  {number[]} prices
+//   @returns {{ pcAlert: boolean, ncAlert: boolean }}
+//
 
-/**
-* Detect Positive Consolidation (PC) breakout and
-* Negative Consolidation (NC) breakdown traps.
-*
-* Logic: the last 5 bars form a tight box (≤ 2% range) near the WMA20.
-* A PC fires when current price breaks above the prior 50-bar high.
-* An NC fires when it breaks below the prior 50-bar low.
-*
-* @param {number[]} prices
-* @returns {{ pcAlert: boolean, ncAlert: boolean }}
-*/
 function calculateConsolidation(prices) {
 let pcAlert = false;
 let ncAlert = false;
@@ -2194,14 +2511,25 @@ return { pcAlert, ncAlert };
 // =============================================================================
 // SECTION 13 · CHANGE OF CHARACTER (ChoCh) DETECTOR
 // =============================================================================
+//
+// calculateChoCh(prices)
+//
+//   Scans backward from the current bar to find the most recent unambiguous
+//   swing high and swing low (requiring 2 bars of confirmation on each side).
+//
+//   If the current price breaks ABOVE the most recent swing high → BULL ChoCh.
+//   If the current price breaks BELOW the most recent swing low  → BEAR ChoCh.
+//   Otherwise → INSIDE (no structural break).
+//
+//   Used in:
+//     • buildEngineSnapshot — snap.choch field
+//     • Live Analytics      — "Structure" card
+//     • V14B_MainChart      — dashed ChoCh horizontal line on the price pane
+//
+//   @param  {number[]} prices
+//   @returns {{ status: 'BULL'|'BEAR'|'INSIDE', lastHigh: number|null, lastLow: number|null }}
+//
 
-/**
-* Identify whether price has made a bullish or bearish change of character
-* relative to the most recent swing high / swing low.
-*
-* @param {number[]} prices
-* @returns {{ status: 'BULL'|'BEAR'|'INSIDE', lastHigh: number|null, lastLow: number|null }}
-*/
 function calculateChoCh(prices) {
 if (prices.length < 5) {
 return { status: 'INSIDE', lastHigh: null, lastLow: null };
@@ -2240,22 +2568,29 @@ return { status, lastHigh, lastLow };
 // =============================================================================
 // SECTION 14 · ENGINE SNAPSHOT BUILDER
 // =============================================================================
-
-/**
-* Build a complete state snapshot for a given day index.
-* This is the single source of truth consumed by the display, chart-sync,
-* alert logic, and process-audit functions.
-*
-* @param {number} dayIndex - Index into allPricesArr
-* @param {number[]} allPricesArr - Full NAV array
-* @param {number} simStartIdx - Day the simulator started
-* @param {number[]} cachedDrsiArr - Pre-built daily RSI cache
-* @param {number[]} cachedWrsiArr - Pre-built weekly RSI cache
-* @param {number} currentCash - Current cash balance
-* @param {Array} currentTranches - Active position tranches
-* @param {number} peakNW - Running peak net worth
-* @returns {Object} Full snapshot object
-*/
+//
+// buildEngineSnapshot(dayIndex, allPricesArr, simStartIdx,
+//                     cachedDrsiArr, cachedWrsiArr, cachedLowessArr,
+//                     currentCash, currentTranches, peakNW)
+//
+//   SINGLE SOURCE OF TRUTH for all indicator values at a given bar.
+//   Called by every display path (Simulator, Live Cockpit, Live Analytics,
+//   Process Audit, Scanners) to guarantee consistent signal logic.
+//
+//   Returns a flat snapshot object containing:
+//     nav, wma20, sma50, drsi, wrsi, delta
+//     regime   ('A' | 'B' | 'C')
+//     tsl      { tslVal, tslHit, reclaimed }
+//     pcAlert, ncAlert        (from §12)
+//     choch                   (from §13)
+//     momentum ('ACCELERATING' | 'FAKE RALLY' | 'DECELERATING' | 'HIDDEN BUYING' | 'NEUTRAL')
+//     portfolio { currentNetWorth, peakNetWorth, currentDrawdown }
+//
+//   Regime definition:
+//     A = Weekly RSI ≥ 50  (structural bull — deploy capital)
+//     B = Weekly RSI 40–49 (transition — stand aside)
+//     C = Weekly RSI < 40  (structural bear — stay in cash)
+//
 
 function buildEngineSnapshot(
 dayIndex, allPricesArr, simStartIdx,
@@ -2335,22 +2670,41 @@ currentDrawdown: newPeakNW > 0
 // =============================================================================
 // SECTION 15 · TRADE EXECUTION ENGINE
 // =============================================================================
+//
+// executeTradeEngine(action, currentState)
+//
+//   Executes a single buy or sell instruction against the supplied portfolio
+//   state.  PURE FUNCTION — never mutates its arguments; always returns a
+//   new state object.
+//
+//   Supported actions:
+//     BUY 10%      — invest 10 % of remaining cash as a new tranche
+//     BUY 25%      — invest 25 % of remaining cash
+//     BUY 50%      — invest 50 % of remaining cash
+//     SELL ALL     — liquidate all tranches at current NAV
+//     SELL REGIME  — same as SELL ALL (used on regime-crash signal)
+//     SELL PROFIT  — sell only the unrealised-gain units (lock profit, keep cost basis)
+//     SELL TSL     — sell 50 % on TSL breach in Regime A, 100 % in B / C
+//
+//   STCG Tax rule:
+//     20 % on gains from units held < 365 calendar days.
+//     Uses fullHistory[] calendar dates for precision; approximates with
+//     (dayNum × 1.45) as a fallback if date parsing fails.
+//
+//   @param  {string} action        - One of the action strings above.
+//   @param  {Object} currentState  - { cash, tranches, tradeLog, totalTaxPaid,
+//                                      currentNav, dayNum, currentRegimeLog, currentIdx }
+//   @returns {Object} Updated state + optional { alert } string.
+//
 
 /**
-* Execute a buy or sell action against the current portfolio state.
-* Returns the updated state; never mutates arguments directly.
-*
-* Tax rule: 20% STCG on gains from tranches held < 365 calendar days.
-*
-* @param {string} action - One of the 8 action strings
-* @param {Object} currentState - { cash, tranches, tradeLog, totalTaxPaid,
-* currentNav, dayNum, currentRegimeLog }
-* @returns {Object} Updated state + optional alert string
-*/
+ * @see section-header above for full documentation.
+ */
 function executeTradeEngine(action, currentState) {
 let {
 cash, tranches, tradeLog, totalTaxPaid,
-currentNav, dayNum, currentRegimeLog, currentIdx, // Add currentIdx here
+currentNav, dayNum, currentRegimeLog,
+currentIdx, // Absolute history index — needed for calendar-date STCG calculation
 } = currentState;
 
 if (!currentNav || currentNav <= 0) return currentState;
@@ -2455,11 +2809,18 @@ return { cash, tranches, tradeLog, totalTaxPaid, alert: null };
 // =============================================================================
 // SECTION 16 · LIVE COCKPIT
 // =============================================================================
+//
+// initLiveChart()
+//   Entry point — fetches / reuses live data, shows the modal, renders the
+//   initial 1Y chart, and fires updateLiveEstimate() for the benchmark box.
+//
+// updateLiveChartOnly(days, btnEl)
+//   Called by timeframe buttons AND by the pinch-zoom engine (§32).
+//   Rebuilds the indicator strip, alert banner, returns strip, and
+//   re-renders both canvas panes via syncNativeChartsWithEngine (§29).
+//   `btnEl` may be null when called programmatically from the zoom handler.
+//
 
-/**
-* Entry point for the Live Cockpit page.
-* Fetches data, shows the modal, renders charts and benchmark estimate.
-*/
 async function initLiveChart() {
 saveFundSelection();
 document.getElementById('liveChartFundName').textContent = getBriefFundName();
@@ -2604,11 +2965,21 @@ globalDailyRsiCache, globalWeeklyRsiCache, globalLowessCache, 'live'
 // =============================================================================
 // SECTION 17 · LIVE ANALYTICS
 // =============================================================================
+//
+// initLiveAnalytics()
+//   Entry point — fetches / reuses live data, shows the modal, then calls
+//   updateLiveChart(250) and updateLiveEstimate().
+//
+// updateLiveChart(days)
+//   Populates every card in the Live Analytics dashboard from the current
+//   global snapshot.  Covers: NAV header, Regime, W-RSI, D-RSI, Delta,
+//   TSL floor, WMA20, SMA50, Momentum / Structure / Velocity cards,
+//   Growth % row (1D→1Y), Alert Banner, Verdict card, and Signal Checklist.
+//
+// closeLive()
+//   Closes the Live Analytics modal and returns to the Setup screen.
+//
 
-/**
-* Entry point for the Live Analytics page.
-* Fetches data, shows the modal, populates all analytics cards.
-*/
 async function initLiveAnalytics() {
 saveFundSelection();
 document.getElementById('liveFundName').textContent = getBriefFundName();
@@ -2842,6 +3213,29 @@ document.getElementById('setupScreen').style.display = 'flex';
 // =============================================================================
 // SECTION 18 · SIMULATOR GAME LOOP
 // =============================================================================
+//
+// runStressTest()    — maps the stress-test dropdown to hard-coded date ranges
+//                      and delegates to initGame('stress', start, end).
+//
+// runCustomRange()   — reads user-supplied start/end dates and delegates to
+//                      initGame('custom', start, end).
+//
+// initGame(mode, startDate, endDate)
+//   Full session initialiser.  Responsibilities:
+//     • Fetch NAV data via fetchFundData().
+//     • Build all indicator caches (Daily RSI, Weekly RSI, LOWESS).
+//     • Determine simStartIdx and simEndIdx based on mode
+//       ('random' | 'stress' | 'custom').
+//     • Reset all portfolio state variables to ₹1,00,000 cash.
+//     • Show #gameUI and call updateDisplay() for the first bar.
+//
+// updateDisplay()
+//   Master re-render for the Simulator.  Called after every HOLD, every
+//   trade action, and on lookback / zoom change.  Reads current bar state
+//   from buildEngineSnapshot(), then updates: net-worth strip, indicator
+//   row, alert banner, protocol (psychology) text, and both chart panes
+//   via syncNativeChartsWithEngine().
+//
 
 function runStressTest() {
     const scenario = document.getElementById('stressSelect').value;
@@ -3077,13 +3471,23 @@ simDailyRsiCache, simWeeklyRsiCache, simLowessCache, 'sim'
 // =============================================================================
 // SECTION 19 · SIMULATOR ACTIONS
 // =============================================================================
+//
+// flashBanner(text, cls, ms)
+//   Temporarily overrides the alert banner with a feedback message
+//   (e.g. "INSUFFICIENT CASH") for `ms` milliseconds, then restores the
+//   default "WAITING FOR SIGNS" state.
+//
+// trade(action)
+//   Bundles current portfolio state, calls executeTradeEngine() (§15),
+//   applies the returned state back to global variables, and advances the
+//   simulator by one day via nextDay().  Handles the "SIMULATION COMPLETE"
+//   end-of-range condition by disabling all action buttons.
+//
+// nextDay()
+//   Increments currentIdx (bounded by simEndIdx) and calls updateDisplay().
+//   Triggers the "SIMULATION COMPLETE" alert when the range end is reached.
+//
 
-/**
-* Flash the alert banner with a temporary message then restore it.
-* @param {string} text - Message to display
-* @param {string} cls - CSS class (e.g. 'alert-danger')
-* @param {number} ms - Duration in milliseconds (default 1800)
-*/
 function flashBanner(text, cls, ms = 1_800) {
 const b = document.getElementById('alertBanner');
 b.textContent = text;
@@ -3153,8 +3557,15 @@ document.querySelectorAll('.action-bar .btn').forEach(b => b.disabled = true);
 // =============================================================================
 // SECTION 20 · TRADE LOG MODAL
 // =============================================================================
+//
+// showLog()   — Renders all entries from tradeLog[] into the #logBody table
+//               (columns: Day | Action | NAV | Regime | Tax) and shows #logModal.
+//               Displays a "No trades executed yet" placeholder when empty.
+//
+// closeLog()  — Hides #logModal (returns to wherever it was opened from,
+//               typically the Process Audit review modal).
+//
 
-/** Render and show the trade history modal. */
 function showLog() {
 const tbody = document.getElementById('logBody');
 tbody.innerHTML = '';
@@ -3190,14 +3601,36 @@ document.getElementById('logModal').style.display = 'none';
 </script>
 <script>
 // =============================================================================
-// SECTION 21 · PROCESS AUDIT (END & REVIEW)
+// SECTION 21 · PROCESS AUDIT  (End & Review)
 // =============================================================================
+//
+// endAndReview()
+//
+//   Scores the player's decision-making across the entire simulation session
+//   by replaying every bar from simStartIdx → currentIdx and evaluating
+//   each trade against the Sacred Regime Rule.
+//
+//   Three independent scoring dimensions:
+//
+//   Entry Score (0–100)
+//     Rewards buying during confirmed Regime A signals (D-RSI < 40, PC
+//     breakout, Slingshot Δ < −15) and penalises buying during Regime C,
+//     TSL breach, or NC breakdown traps.
+//
+//   Exit Score (0–100)
+//     Rewards selling when TSL or Regime C triggers fire; penalises holding
+//     through regime crashes or continuing to hold multiple days after a
+//     TSL breach.
+//
+//   Profit Discipline Score (0–100)
+//     Rewards using the SELL PROFIT action near momentum peaks (high delta);
+//     penalises failing to take any profit across the session.
+//
+//   The audit also counts regime-day distribution (A / B / C), missed buy
+//   events, panic sells, and generates personalised behavioural remarks.
+//   Results are rendered into #reviewModal.
+//
 
-/**
-* Score the player's decision-making across the entire simulation session.
-* Evaluates Entry, Exit, and Profit disciplines independently, then renders
-* the full audit report in the review modal.
-*/
 function endAndReview() {
 
 // ── Score accumulators ─────────────────────────────────────────────────
@@ -3506,8 +3939,28 @@ document.getElementById('reviewModal').style.display = 'flex';
 </script>
 <script>
 // =============================================================================
-// SECTION 22 · FAST RSI CACHE BUILDERS
+// SECTION 22 · FAST RSI CACHE BUILDERS  (IIFE — exposed on window)
 // =============================================================================
+//
+// Pre-computes full RSI arrays for an entire NAV history in a single pass,
+// avoiding the O(n²) per-bar recalculation that would result from calling
+// calculateRSI() naively inside initGame() or ensureLiveData().
+//
+// buildDailyRsiFast(allPrices, period)
+//   Returns an array[i] = D-RSI at bar i, computed with Wilder smoothing.
+//   The EMA is seeded with a simple average over the first `period` bars, then
+//   updated incrementally — one array traversal for the entire dataset.
+//
+// buildWeeklyRsiFast(allPrices, period, allDates)
+//   Uses real calendar-week boundaries (Monday-anchored) when dates are
+//   supplied, so each "weekly bar" closes on the last trading day of that
+//   ISO week.  Falls back to every 5th bar when dates are unavailable.
+//   The resulting weekly RSI value is back-filled onto every daily bar
+//   within its week, producing an array aligned to the daily index.
+//
+// Both functions are attached to `window` so they can be called from the
+// main script block that is loaded later in the HTML.
+//
 
 (function () {
 'use strict';
@@ -3638,12 +4091,47 @@ window.buildWeeklyRsiFast = buildWeeklyRsiFast;
 // ===========================================================================
 // SECTION 23 · V14B MAIN PRICE CHART RENDERER
 // ===========================================================================
+//
+// window.V14B_MainChart.renderChart(canvas, data, lookback)
+//
+//   Renders the "Auto-Anchored Average Price" chart onto the supplied canvas.
+//   DPR-aware: canvas is scaled by devicePixelRatio for sharp rendering on
+//   retina / high-DPI displays.
+//
+//   Layers drawn (in paint order — bottom to top):
+//
+//   1. Raw price line (black, 1.5 px)
+//      The unprocessed NAV series for the visible window.
+//
+//   2. Anchor-EMA trend lines (green / red, 1.5 px)
+//      Exponential average anchored at each new swing high (LH) or swing low
+//      (HL).  Direction change triggers a new anchor; the segment colour
+//      reflects the prevailing bias (green = uptrend, red = downtrend).
+//      HL / LH labels are rendered at anchor points.
+//
+//   3. ChoCh dashed lines (§13 logic ported to canvas)
+//      A dashed horizontal line is drawn only on a CHANGE OF CHARACTER — i.e.
+//      the first break through a prior fractal swing level after a trend flip.
+//      Subsequent same-direction breaks (BOS) are intentionally suppressed to
+//      reduce noise.  Labelled "ChoCH" in green (bullish) or red (bearish).
+//
+//   4. PC boxes (§12 logic ported to canvas)
+//      A semi-transparent green rectangle highlights consolidation pivot-low
+//      setups where a PC breakout is forming.  "PC" label at box base.
+//
+//   5. TSL dashed floor (red, 1.5 px dashed)
+//      The LOWESS-Gaussian smoothed support floor from §11.  Steps with the
+//      price series; absent when the floor value is 0 (insufficient history).
+//
+//   6. WMA20 solid blue line (1.5 px)
+//      The 20-bar linearly-weighted moving average of NAV, plotted as a solid
+//      blue line.  Used as the momentum-breach reference in alert logic.
+//
+//   @param {HTMLCanvasElement}                canvas
+//   @param {Array<{nav,tsl,wma20,date}>}      data     — full aligned array
+//   @param {number}                           lookback — visible bar count
+//
 
-/**
-* Renders the Auto-Anchored Average Price chart onto a canvas element.
-* Draws: raw price line, anchor-EMA trend lines (green/red), HL/LH labels,
-* ChoCh dashed lines, PC boxes, and TSL dashed floor line.
-*/
 window.V14B_MainChart = {
 
 /**
@@ -3927,13 +4415,47 @@ ctx.fillText(`Main Render Error: ${err.message}`, 10, 20);
 // ===========================================================================
 // SECTION 24 · SACRED MOMENTUM / RSI PANE RENDERER
 // ===========================================================================
+//
+// window.SacredMomentum.renderChart(canvas, data, lookback)
+//
+//   Renders the "Sacred Velocity Gap & Momentum Oscillator" pane.
+//   DPR-aware, with a fully DYNAMIC Y-scale so all visible values fill
+//   approximately 90 % of the pane height regardless of the lookback window.
+//
+//   Layers drawn (bottom to top):
+//
+//   1. Regime background bands
+//      Per-bar vertical strips: green (W-RSI ≥ 50), amber (40–49), red (< 40).
+//      Opacity is intentionally set high enough to be clearly legible.
+//
+//   2. Reference lines
+//      Horizontal lines at 0 (solid), ±15 (solid faint green), ±35 (dashed).
+//
+//   3. D-RSI / WMA area fill
+//      Semi-transparent green fill when D-RSI > WMA (momentum above its own
+//      average), red fill when below.  Produces the "velocity gap" visual.
+//
+//   4. Gap spike bars
+//      Vertical bars at bars where |D-RSI − W-RSI| ≥ 35 ("slingshot" zone).
+//      Colour: dark green / dark red for extreme spikes (≥ 15 / ≤ −15);
+//      lighter for moderate spikes.
+//
+//   5. W-RSI (WMA of D-RSI) line — 2 px, regime-coloured
+//      The smoothed weekly regime reference line.  Colour tracks the current
+//      regime to give an immediate visual read of structural bias.
+//
+//   6. D-RSI line — 1.5 px, white / grey
+//      The raw daily RSI oscillating around the W-RSI line.
+//
+//   7. Proxy gap line (D-RSI − WMA) — 2 px, green / red
+//      The velocity gap expressed as a signed oscillator line.  Crosses zero
+//      as D-RSI crosses its own 20-bar WMA.
+//
+//   @param {HTMLCanvasElement}              canvas
+//   @param {Array<{dr,wr,wma}>}             data     — aligned to lookback
+//   @param {number}                         lookback
+//
 
-/**
-* Renders the Sacred Velocity Gap & Momentum Oscillator chart.
-* Draws: regime background bands, reference lines, D-RSI/W-RSI area fill,
-* gap spike bars, W-RSI (WMA) line, D-RSI line, and proxy gap line.
-* Uses a DYNAMIC Y-scale so all visuals fill ~90% of the pane height.
-*/
 window.SacredMomentum = {
 
 /**
@@ -4085,6 +4607,30 @@ ctx.fillText(`Render Error: ${err.message}`, 10, 20);
 // =============================================================================
 // SECTION 25 · RRG SCANNER — HELPER MATH
 // =============================================================================
+//
+// Pure math utilities used exclusively by the RRG (Relative Rotation Graph)
+// scanner and detail view.  No DOM side-effects.
+//
+// calcReturn(prices, lookback)
+//   Simple percentage return over the last `lookback` bars.
+//   ((current − past) / past) × 100.
+//
+// calcWMASeries(prices, period)
+//   Full WMA series (not just the tail value) — returns an array[prices.length]
+//   where each element is the WMA at that index.  null for early bars.
+//   Required by calcHMA and by the crosshair WMA20 overlay in §29.
+//
+// calcHMA(prices, period)
+//   Hull Moving Average: 2 × WMA(period/2) − WMA(period), then WMA(√period)
+//   applied on the result.  Reduces lag vs a plain WMA.
+//   Used as the RS-ratio trend reference in the RRG detail view.
+//
+// calcCloseOnlyADX(prices, period=14)
+//   Close-only ADX (no OHLC needed).  Uses absolute close-to-close differences
+//   as a proxy for True Range, Plus/Minus DM.
+//   Returns the final ADX value for the series.
+//   isChoppy = ADX < 15 → fund classified as CHOPPY in the RRG quadrant logic.
+//
 
 function calcReturn(prices, lookback) {
 if (prices.length <= lookback) return 0;
@@ -4174,7 +4720,25 @@ return adx[adx.length - 1];
 // =============================================================================
 // SECTION 26 · RRG BOTTOM PANE RENDERER
 // =============================================================================
-
+//
+// renderRRGChartDynamic(canvas, rsArray, hmaArray, overrideLookback)
+//
+//   Renders the "Relative Strength vs HMA(30)" panel in the RRG Alpha
+//   Dashboard detail view.  DPR-aware canvas sizing.
+//
+//   Layers:
+//     1. HMA(30) line — steel-blue, 1.5 px — the trend-smoothed RS baseline.
+//     2. RS line — 1.5 px, colour-coded green when RS ≥ HMA (outperforming
+//        the universe average), red when RS < HMA (underperforming).
+//
+//   The Y-scale is computed dynamically from visible RS and HMA values with
+//   a 10 % padding margin on each side.
+//
+//   @param {HTMLCanvasElement} canvas
+//   @param {number[]}          rsArray          — RS ratio series
+//   @param {Array<number|null>} hmaArray         — HMA(30) series (may contain nulls)
+//   @param {number}            overrideLookback  — bar count (from pinch-zoom)
+//
 
 function renderRRGChartDynamic(canvas, rsArray, hmaArray, overrideLookback) {
 if (!canvas) return;
@@ -4229,8 +4793,36 @@ ctx.stroke();
 }
 
 // =============================================================================
-// SECTION 27 · RRG SCANNER & REGIME A SCANNER LOGIC
+// SECTION 27 · REGIME A SCANNER & REGIME CHANGE SCANNER
 // =============================================================================
+//
+// runRegimeAScanner(zone)
+//   Fetches all 52 funds in parallel batches of 6, builds W-RSI + D-RSI caches
+//   for each, and filters into one of three Regime A sub-zones:
+//
+//     INVEST — W-RSI ≥ 50 AND (D-RSI ≤ 50 OR Delta < −15 OR PC alert active)
+//              i.e. structural bull with a pullback / entry signal.
+//     HOLD   — W-RSI ≥ 50 AND D-RSI > 50 AND Delta ≤ 15, no PC
+//              i.e. structural bull but no fresh entry trigger.
+//     PROFIT — W-RSI ≥ 50 AND Delta > 15
+//              i.e. structural bull with an extended slingshot — trim position.
+//
+//   Uses _activeScannerToken to abort stale async batches if the user
+//   navigates away or fires a new scan before the current one completes.
+//
+// renderRegimeAScannerUI(results, zone)
+//   Renders the filtered fund list into #regimeA2ScannerModal sorted by
+//   delta descending.  Each row is clickable and launches the Live Cockpit.
+//
+// runRegimeChangeScanner()
+//   Detects funds that CROSSED a regime boundary (A↔B↔C) between yesterday
+//   and today, by comparing the last two weekly RSI values.
+//   Results split into Mutual Funds and NPS Tier I/II sections.
+//
+// renderRegimeChangeScannerUI(results)
+//   Renders the shift list into #regimeChangeModal.  Each row is clickable
+//   and launches the Live Cockpit for that fund.
+//
 
 let currentRRGSelectedFundCode = null;
 
@@ -4580,6 +5172,29 @@ renderRRGScannerUI(allFunds, targetQuadrant, bench1m, bench2m, bench3m);
 // =============================================================================
 // SECTION 28 · RRG SCANNER — UI RENDERER
 // =============================================================================
+//
+// runRRGScanner(targetQuadrant, forceRefresh)
+//   Orchestrates the full RRG data pipeline:
+//     1. Check IDB for a < 12 h RRG cache (key: 'ld_v3_rrg_cache_ALL_v2').
+//        Render immediately from cache if fresh (avoids re-fetching 52 funds).
+//     2. On cache miss: fetch all funds in batches of 6, compute momentum
+//        returns (1M / 2M / 3M) and alpha vs the universe average.
+//     3. Build RS ratio array vs a 50-bar SMA proxy, compute HMA(30) on RS,
+//        and derive ADX.  Classify each fund into one quadrant:
+//          LEADING   — RS trending up AND alpha > 0      (outperforming + accelerating)
+//          WEAKENING — RS trending up AND alpha ≤ 0      (pulling back from lead)
+//          IMPROVING — RS trending down AND alpha > 0    (recovering from lag)
+//          LAGGING   — RS trending down AND alpha ≤ 0    (underperforming)
+//          CHOPPY    — ADX < 15 (no directional bias — skip)
+//     4. Write computed data back to IDB.
+//     5. Delegate rendering to renderRRGScannerUI().
+//
+// renderRRGScannerUI(allFunds, targetQuadrant, bench1m, bench2m, bench3m)
+//   Filters to the requested quadrant, splits into MF and NPS sub-lists,
+//   sorts by 1M alpha descending, and renders into #rrgScannerModal.
+//   Each row opens the RRG Alpha Dashboard (§30) on tap.
+//   A [ REFRESH ] button forces forceRefresh=true to bypass the IDB cache.
+//
 
 function renderRRGScannerUI(allFunds, targetQuadrant, bench1m, bench2m, bench3m) {
 document.getElementById('setupScreen').style.display = 'none';
@@ -4662,6 +5277,33 @@ document.getElementById('rrgScannerModal').style.display = 'flex';
 // =============================================================================
 // SECTION 29 · CHART BRIDGE — syncNativeChartsWithEngine
 // =============================================================================
+//
+// window.syncNativeChartsWithEngine(allData, currIdx, drsiArr, wrsiArr,
+//                                   lowessArr, mode)
+//
+//   Single entry point that connects the indicator engine to the canvas
+//   renderers for BOTH the Simulator ('sim') and the Live Cockpit ('live').
+//
+//   Responsibilities:
+//   1. Locate the correct chart container (#gameUI or #liveChartModal).
+//   2. Create or reuse the two canvas elements (main pane + RSI pane).
+//   3. Build topChartData[], botChartData[], and crosshairData[] arrays
+//      for the slice [startIdx … currIdx].
+//      — topChartData  : { nav, tsl, date, wma20 }
+//      — botChartData  : { dr, wr, wma }
+//      — crosshairData : full merged row for HUD display on hover / touch
+//   4. Call V14B_MainChart.renderChart() and SacredMomentum.renderChart()
+//      with the computed actual lookback.
+//   5. Attach crosshair event listeners (mousemove / touchmove) ONCE per
+//      chart-split container (_hasCrosshair guard), updating the HUD overlays
+//      (#simHudMain / #liveHudMainChart and #simRsiHud / #liveRsiHud).
+//
+//   The `renderHistory` window is intentionally wider than the visible
+//   lookback (+ 100 or + 400 bars) so that the anchor-EMA and ChoCh logic
+//   in V14B has enough history to establish its state before the visible
+//   portion begins.
+//
+
 window.syncNativeChartsWithEngine = function (allData, currIdx, drsiArr, wrsiArr, lowessArr, mode) {
 const containerSel = mode === 'sim' ? '#gameUI' : '#liveChartModal';
 const lookback = mode === 'sim' ? window.currentSimLookback : window.currentLiveLookback;
@@ -4809,6 +5451,28 @@ chartSplit.addEventListener('touchend', hideCursor);
 // =============================================================================
 // SECTION 30 · RRG ALPHA DASHBOARD — DETAIL VIEW
 // =============================================================================
+//
+// openRRGDetail(fundData, b1, b2, b3)
+//   Opens the full 3-pane RRG Alpha Dashboard for a selected fund:
+//     Pane 1 (top)    — Main price chart (V14B_MainChart, §23)
+//     Pane 2 (middle) — Sacred Momentum / RSI oscillator (SacredMomentum, §24)
+//     Pane 3 (bottom) — Relative Strength vs HMA(30) (renderRRGChartDynamic, §26)
+//
+//   Also populates:
+//     • Current quadrant badge and description
+//     • Regime badge (A / B / C) with colour
+//     • RS trend direction and ADX trend-intensity reading
+//     • 1M / 2M / 3M return table (Fund | Universe Index Proxy | Alpha)
+//     • Last RS-cross-below-HMA date
+//
+//   Raw chart arrays are stored on chartSplit._raw* for use by
+//   updateRRGChartLookback (called by the pinch-zoom engine §32).
+//
+// window.updateRRGChartLookback(lookback)
+//   Re-renders all three panes at the requested bar count.
+//   Attaches the crosshair listener once (_hasCrosshair guard), updating
+//   three HUD overlays: #rrgHudMain, #rrgHudMom, #rrgHudBot.
+//
 
 async function openRRGDetail(fundData, b1, b2, b3) {
 currentRRGSelectedFundCode = fundData.code;
@@ -5097,6 +5761,18 @@ chartSplit.addEventListener('touchend', hideCursor);
 // =============================================================================
 // SECTION 31 · RRG → LIVE COCKPIT HANDOFF
 // =============================================================================
+//
+// launchLiveFromRRG()
+//   Called when the user taps [ LAUNCH LIVE ] in the RRG Detail Modal,
+//   or taps a fund row in the Regime A / Regime Change scanner result lists.
+//
+//   Flow:
+//     1. Look up currentRRGSelectedFundCode in amcFunds to find its AMC.
+//     2. Programmatically click the correct AMC tab (selectAMC).
+//     3. Set the fund dropdown value to the selected code.
+//     4. Hide all scanner / detail modals.
+//     5. Call initLiveChart() to open the Live Cockpit for that fund.
+//
 
 function launchLiveFromRRG() {
 if (!currentRRGSelectedFundCode) return;
@@ -5127,6 +5803,36 @@ initLiveChart();
 </script>
 
 <script>
+// =============================================================================
+// SECTION 32 · TOUCH PINCH-ZOOM ENGINE  (IIFE)
+// =============================================================================
+//
+// Adds native pinch-to-zoom and double-tap-to-reset gesture support to the
+// three zoomable chart containers: #gameUI (Simulator), #liveChartModal
+// (Live Cockpit), and #rrgDetailModal (RRG Alpha Dashboard).
+//
+// showPill(el, bars)
+//   Shows a centred "⟵ N bars ⟶" pill tooltip at the bottom of the chart
+//   while the user is actively pinching.  Auto-fades after 1.2 s.
+//
+// attachZoom(containerId, isRRG)
+//   Binds touchstart / touchmove / touchend listeners to the .chart-split
+//   element inside the given container.
+//
+//   Pinch logic:
+//     • touchstart  — records initial finger distance and current lookback.
+//     • touchmove   — computes scale = initDist / currDist, applies to initBars.
+//                     Clamped: MIN_BARS (21) ≤ newBars ≤ 9999.
+//                     Hardware-accelerated with requestAnimationFrame throttle
+//                     (_zoomRAF lock) to drop frames if rendering can't keep up.
+//     • touchend    — double-tap (< 300 ms) resets to default zoom.
+//                     _didPinch flag prevents a pinch-end from accidentally
+//                     triggering a double-tap reset.
+//
+//   Routing: isRRG=true → window.updateRRGChartLookback()
+//            Simulator  → window.currentSimLookback + updateDisplay()
+//            Live       → window.currentLiveLookback + updateLiveChartOnly()
+//
 (function () {
 'use strict';
 
@@ -5260,8 +5966,45 @@ attachZoom('rrgDetailModal', true);
 <script>
 
 // =============================================================================
-// SECTION 32 · OFFLINE-FIRST ENGINE — IndexedDB Incremental NAV Cache
+// SECTION 33 · OFFLINE-FIRST ENGINE — IndexedDB Incremental NAV Cache  (IIFE)
 // =============================================================================
+//
+// Implements a transparent, offline-first caching layer for all NAV API calls
+// by monkey-patching window.fetch.  No call-site changes are required in any
+// other section — all fetch() calls automatically go through this layer.
+//
+// Database layout (IndexedDB):
+//   DB name  : 'LD240C_IncrementalDB'   version 1
+//   Stores   : 'fundData'  (key = full API URL, value = parsed JSON response)
+//              'syncMeta'  (key = full API URL, value = { timestamp: ms })
+//   TTL      : 12 hours (CACHE_EXPIRY_MS)
+//
+// openDB()
+//   Opens the IDB connection once and memoises the promise (dbPromise).
+//   Subsequent calls return the same promise — no redundant connections.
+//   On version upgrade, creates both object stores if absent.
+//
+// Patched window.fetch (intercepts mfapi.in and npsnav.in requests only)
+//   Cache-hit (fresh)    → serve from IDB; never touch the network.
+//   Cache-miss / stale   → fetch from network, then:
+//       Has existing cache? → merge new entries (deduplicate by date).
+//       No existing cache?  → store full response.
+//       Network failure + stale cache? → serve stale cache as fallback.
+//   AbortError            → re-thrown immediately so callers can handle it.
+//   Other error           → falls back to the real window.fetch transparently.
+//
+// syncAllData()
+//   Called once on DOMContentLoaded.  Iterates all 52 funds in batches of 4,
+//   fetching any whose cache is stale or absent.  Shows the loading overlay
+//   (#ov) with a percentage progress counter.  On network failure, shows
+//   "OFFLINE — CACHED DATA READY" in amber.
+//
+// Exposed globals (used by §28 RRG scanner for direct IDB writes):
+//   window._idbOpenDB   = openDB
+//   window._idbSetCache = setCache
+//   window._idbGetCache = getCache
+//   window._idbStores   = { STORE_DATA, STORE_META }
+//
 (function() {
     'use strict';
 

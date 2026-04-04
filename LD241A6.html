@@ -3604,20 +3604,58 @@ function renderReplayChart() {
     navs.forEach((v, i) => i === 0 ? ctx.moveTo(mapX(i), mapY(v)) : ctx.lineTo(mapX(i), mapY(v)));
     ctx.stroke();
 
-    // Trade markers
-    ctx.font = 'bold 11px monospace';
+// Trade markers
     tradeLog.forEach(t => {
         const i = t.day;
         if (i < 0 || i >= data.length) return;
         const x = mapX(i), y = mapY(data[i].nav);
         const isBuy = t.action.includes('BUY') || t.action.includes('SIP');
-        ctx.fillStyle = isBuy ? '#009e70' : '#c8102e';
-        ctx.fillText(isBuy ? '▲' : '▼', x - 4, isBuy ? y + 14 : y - 5);
+        
+        // Draw vertical dashed line
         ctx.beginPath(); ctx.setLineDash([2,2]);
         ctx.strokeStyle = isBuy ? 'rgba(0,158,112,0.4)' : 'rgba(200,16,46,0.4)';
         ctx.lineWidth = 1;
         ctx.moveTo(x, 0); ctx.lineTo(x, h);
         ctx.stroke(); ctx.setLineDash([]);
+
+        // Draw Triangle Marker
+        ctx.font = 'bold 11px monospace';
+        ctx.fillStyle = isBuy ? '#009e70' : '#c8102e';
+        ctx.fillText(isBuy ? '▲' : '▼', x - 4, isBuy ? y + 12 : y - 5);
+
+        // Extract metrics for this specific bar
+        const absIdx = simStartIdx + i;
+        const dRsi = Math.round(simDailyRsiCache[absIdx] || 50);
+        const wRsi = Math.round(simWeeklyRsiCache[absIdx] || 50);
+        const tsl = (simLowessCache[absIdx] || 0).toFixed(1);
+        const wmaSlice = fullHistory.map(v => v.nav).slice(0, absIdx + 1);
+        const wma20 = (calculateWMA(wmaSlice, 20) || 0).toFixed(1);
+
+        // Draw Data Box (Slightly offset from the marker)
+        const boxW = 58;
+        const boxH = 44;
+        let boxX = x + 6;
+        let boxY = isBuy ? y + 16 : y - 50;
+
+        // Keep box within canvas bounds so it doesn't clip off-screen
+        if (boxX + boxW > w) boxX = x - boxW - 6; 
+        if (boxY < 0) boxY = 2; 
+        if (boxY + boxH > h) boxY = h - boxH - 2; 
+
+        // Box Background & Border
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.fillRect(boxX, boxY, boxW, boxH);
+        ctx.strokeStyle = isBuy ? 'rgba(0,158,112,0.5)' : 'rgba(200,16,46,0.5)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+        // Box Text
+        ctx.fillStyle = isBuy ? '#007a50' : '#a00000';
+        ctx.font = '7px monospace';
+        ctx.fillText(`Reg: ${t.regime}`, boxX + 4, boxY + 10);
+        ctx.fillText(`D:${dRsi} W:${wRsi}`, boxX + 4, boxY + 20);
+        ctx.fillText(`TSL: ${tsl}`, boxX + 4, boxY + 30);
+        ctx.fillText(`WMA: ${wma20}`, boxX + 4, boxY + 40);
     });
 
     const totalRet = navs.length > 1 ? ((navs[navs.length-1] - navs[0]) / navs[0] * 100).toFixed(1) : '0.0';

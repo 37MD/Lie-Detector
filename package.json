@@ -1,0 +1,1 @@
+{"name": "lie-detector", "version": "1.0.0", "dependencies": {"puppeteer": "^10.0.0", "@octokit/rest": "^18.0.0"}}

@@ -1,0 +1,52 @@
+name: Trading Detector
+
+on:
+  schedule:
+    - cron: '30 22 * * 0-4'
+    - cron: '30 5 * * 0-4'
+    - cron: '30 7 * * 0-4'
+    - cron: '30 8 * * 0-4'
+    - cron: '30 14 * * 0-4'
+
+jobs:
+  detect_funds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install Puppeteer
+        run: |
+          npm install puppeteer
+
+      - name: Run detector script
+        run: |
+          node scripts/detector.js
+
+      - name: Create GitHub issue if alerts found
+        run: |
+          const { Octokit } = require('octokit');
+
+          const octokit = new Octokit({
+            auth: process.env.GITHUB_TOKEN
+          });
+
+          const alerts = getAlerts(); // Assuming this function extracts fund alerts
+
+          if (alerts.length > 0) {
+            for (const alert of alerts) {
+              await octokit.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Alert: ${alert.fundName}`,
+                body: alert.alertText
+              });
+            }
+          }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

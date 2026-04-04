@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD241A4
+  LIE DETECTOR  LD241A6
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
 
@@ -93,13 +93,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Lie Detector LD241A4</title>
+<title>Lie Detector LD241A6</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 /*
  * ============================================================================
- * STYLESHEET  — LIE DETECTOR LD241A4
+ * STYLESHEET  — LIE DETECTOR LD241A6
  * Sections:  Design Tokens · Reset · Loading Overlay · Setup Screen
  *            App Chrome · Chart UI · Indicator Row · Psychology Box
  *            Action Bar · Modals · Analytics Cards · Review / Audit
@@ -198,41 +198,57 @@ display: flex;
 flex-direction: column;
 align-items: center;
 justify-content: flex-start;
-padding: 3rem 1.5rem 4rem 1.5rem;
+padding: 1.5rem 1.5rem 2rem 1.5rem;
 text-align: center;
 overflow-y: auto;
 -webkit-overflow-scrolling: touch;
 }
+
 .setup-logo {
 font-size: 0.65rem;
 color: var(--accent);
 letter-spacing: 0.18em;
 text-transform: uppercase;
-margin-bottom: 1.2rem;
+margin-bottom: 0.1rem;
 opacity: 0.7;
 }
+
+.streak-badge {
+font-size: 0.6rem;
+color: var(--accent2);
+letter-spacing: 0.1em;
+margin-bottom: 0.1rem;
+font-weight: 400;
+min-height: 1em;
+}
+
+
 .setup-title {
 font-size: 1.75rem;
 font-weight: 400;
 letter-spacing: -0.02em;
-margin-bottom: 0.3rem;
+margin-bottom: 0.2rem;
 }
 .setup-sub {
 color: var(--muted);
 font-size: 0.75rem;
-margin-bottom: 1.4rem;
+margin-bottom: 0.8rem;
 letter-spacing: 0.04em;
 }
+
+
 .fund-grid {
 display: grid;
 grid-template-columns: repeat(4, 1fr);
 gap: 6px;
 width: 100%;
 max-width: 350px;
-margin-bottom: 0.75rem;
+margin-bottom: 0.4rem;
 flex-shrink: 0;
 }
 .fund-box {
+
+
 background: var(--surface2);
 border: 1.5px solid var(--border);
 color: var(--muted2);
@@ -254,7 +270,7 @@ color: var(--text);
 padding: 11px 12px;
 width: 100%;
 max-width: 350px;
-margin-bottom: 0.75rem;
+margin-bottom: 0.4rem;
 border-radius: var(--radius);
 font-size: 0.75rem;
 font-family: var(--mono);
@@ -268,9 +284,10 @@ display: flex;
 gap: 8px;
 width: 100%;
 max-width: 350px;
-margin-bottom: 0.75rem;
+margin-bottom: 0.4rem;
 flex-shrink: 0;
 }
+
 .c-input-box {
 flex: 1;
 background: var(--surface2);
@@ -298,14 +315,16 @@ outline: none;
 text-align: center;
 color: inherit;
 }
+
 .setup-btns {
 display: flex;
 gap: 8px;
 width: 100%;
 max-width: 350px;
-margin-top: 1rem;
+margin-top: 0.5rem;
 flex-shrink: 0;
 }
+
 .setup-btn {
 flex: 1;
 font-size: 0.68rem;
@@ -363,6 +382,18 @@ overflow: hidden;
 text-overflow: ellipsis;
 max-width: 180px;
 }
+.data-freshness-badge {
+display: none;
+font-size: 0.52rem;
+padding: 2px 7px;
+border-radius: 10px;
+letter-spacing: 0.08em;
+font-weight: 400;
+flex-shrink: 0;
+}
+.badge-live   { background: var(--accent-dim);  color: var(--accent);  border: 1px solid var(--accent); }
+.badge-cached { background: var(--accent2-dim); color: var(--accent2); border: 1px solid var(--accent2); }
+.badge-stale  { background: var(--red-dim);     color: var(--red);     border: 1px solid var(--red); }
 .hdr-btns { display: flex; gap: 8px; align-items: center; }
 .btn-review {
 background: var(--gold-dim);
@@ -750,6 +781,32 @@ font-weight: 400;
 .log-sell { color: var(--red); }
 .log-profit { color: var(--accent2); }
 .log-tax { color: var(--muted); font-size: 0.65rem; }
+#rationaleBar {
+display: none;
+position: fixed;
+bottom: 88px;
+left: 0; width: 100%;
+background: var(--surface2);
+border-top: 1px solid var(--accent);
+padding: 6px 10px;
+z-index: 300;
+flex-direction: row;
+align-items: center;
+gap: 8px;
+font-size: 0.62rem;
+}
+#rationaleInput {
+flex: 1;
+background: var(--bg);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+padding: 5px 8px;
+font-family: var(--mono);
+font-size: 0.62rem;
+outline: none;
+color: var(--text);
+}
+#rationaleInput:focus { border-color: var(--accent); }
 
 /* ── LIVE ANALYTICS CARDS ───────────────────────────────────── */
 /* Card system used in #liveAnalyticsModal.                     */
@@ -910,14 +967,16 @@ margin-top: 6px;
 /* .setting-group — full-width settings container               */
 /* .setting-row   — label + switch on one line                  */
 /* .time-input    — compact time picker (Daily Digest sync)     */
+
 .setting-group { 
     width: 100%; 
     max-width: 350px; 
-    margin-top: 1rem; 
+    margin-top: 1.5rem; 
     border-top: 1px dashed var(--border); 
-    padding-top: 1rem; 
+    padding-top: 1.5rem; 
     text-align: left; 
 }
+
 .setting-title {
     font-size: 0.65rem;
     color: var(--muted);
@@ -967,7 +1026,8 @@ input:checked + .slider:before { transform: translateX(16px); }
 
 <div id="setupScreen">
 <div class="setup-logo">Sacred RSI Regime System</div>
-<h1 class="setup-title">Lie Detector <span style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A4</span></h1>
+<div class="streak-badge" id="streakBadge"></div>
+<h1 class="setup-title">Lie Detector <span style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A6</span></h1>
 <p class="setup-sub">Train your discipline before real money does.</p>
 
 <div class="fund-grid" id="fundGrid">
@@ -994,16 +1054,28 @@ style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelec
 
 <button class="setup-btn setup-btn-sim" style="width: 100%; max-width: 350px; padding: 12px; font-size: 0.75rem;" onclick="initGame('random')">Random Simulation</button>
 
-<div class="custom-inputs" style="margin-top:8px;">
+<div class="custom-inputs" style="margin-top:4px;">
+<div class="c-input-box">
+<span class="c-label">Monthly SIP (₹)</span>
+<input type="number" id="sipAmount" class="c-num" style="color:var(--accent);" value="10000" min="1000" step="1000">
+</div>
+<button class="setup-btn" style="border-color:var(--accent);color:var(--accent);flex:1.2;" onclick="initGame('sip')">▶ SIP SIM</button>
+</div>
+
+<div class="custom-inputs" style="margin-top:4px;">
 <select id="stressSelect" class="dropdown" style="margin-bottom:0; flex: 2;">
 <option value="covid">Stress: COVID Crash ('20)</option>
 <option value="ukraine">Stress: Global Slump ('22)</option>
 <option value="demo">Stress: Demonetization ('16)</option>
+<option value="_sep" disabled>── Auto-Detect ──</option>
+<option value="auto1" id="autoStress1" disabled>Load fund first…</option>
+<option value="auto2" id="autoStress2" disabled></option>
+<option value="auto3" id="autoStress3" disabled></option>
 </select>
 <button class="setup-btn" style="border-color:var(--red);color:var(--red);flex: 1;" onclick="runStressTest()">RUN STRESS</button>
 </div>
 
-<div class="custom-inputs" style="margin-top:8px;">
+<div class="custom-inputs" style="margin-top:4px;">
 <div class="c-input-box" style="padding:4px 6px;">
 <span class="c-label">Start Date</span>
 <input type="date" id="customStart" class="c-num" style="font-size:0.65rem;">
@@ -1017,19 +1089,25 @@ style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelec
 
 </div>
 
-<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;border-top:1px dashed var(--border);padding-top:16px;width:100%;max-width:350px;">
+<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px;border-top:1px dashed var(--border);padding-top:10px;width:100%;max-width:350px;">
+
 <button class="setup-btn setup-btn-live" onclick="initLiveChart()">Live Market</button>
 <button class="setup-btn" style="border-color:var(--gold);color:var(--gold);" onclick="initLiveAnalytics()">Live Analytics</button>
 </div>
+<div class="setup-btns" style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px;width:100%;max-width:350px;">
 
-<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+<button class="setup-btn" style="border-color:var(--border2);color:var(--muted2);" onclick="openCompareModal()">⇄ Compare Two Funds</button>
+</div>
+
+<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
 <button class="setup-btn" style="border-color:#00e8a2;color:#00e8a2;"
 onclick="runRRGScanner('LEADING')">SCAN - RRG LEADING</button>
 <button class="setup-btn" style="border-color:#3b82f6;color:#3b82f6;"
 onclick="runRRGScanner('IMPROVING')">SCAN - RRG IMPROVING</button>
 </div>
 
-<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;">
+<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px;">
+
 <button class="setup-btn" style="border-color:#00e8a2;color:#00e8a2;font-size:0.55rem;"
 onclick="runRegimeAScanner('INVEST')">Regime A<br>Invest</button>
 <button class="setup-btn" style="border-color:#f59e0b;color:#f59e0b;font-size:0.55rem;"
@@ -1072,25 +1150,27 @@ onclick="runRegimeAScanner('PROFIT')">Regime A<br>Profit</button>
 </div>
 
 
-
 <div id="liveChartModal" class="modal-overlay">
-<div class="modal-close">
-<div style="display:flex;gap:8px;align-items:center;flex:1;min-width:0;">
-<span class="modal-title" style="color:var(--accent2);flex-shrink:0;">LIVE COCKPIT</span>
+<div class="modal-close" style="padding-left: 4px; padding-right: 4px;">
+<div style="display:flex;gap:4px;align-items:center;flex:1;min-width:0;">
+<span class="modal-title" style="color:var(--accent2);flex-shrink:0;letter-spacing:0.02em;">LIVE COCKPIT</span>
 <span id="liveChartFundName" class="fund-name-tag"
-style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
+style="margin-left:2px;padding-left:4px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
+<span id="dataFreshnessBadge" class="data-freshness-badge" style="margin-right:2px;"></span>
 </div>
-<div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
-<button class="reset-zoom"
-onclick="if(window.resetLiveZoom) window.resetLiveZoom()">RESET ZOOM</button>
-<button class="reset-zoom" style="color:var(--accent);border-color:var(--accent);"
+<div style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
+<button class="reset-zoom" style="padding:3px 4px;font-size:0.55rem;letter-spacing:0.02em;"
+onclick="if(window.resetLiveZoom) window.resetLiveZoom()">RESET</button>
+<button class="reset-zoom" style="color:var(--accent);border-color:var(--accent);padding:3px 4px;font-size:0.55rem;letter-spacing:0.02em;"
 onclick="openLiveAnalyticsFromCockpit()">ANALYTICS</button>
-<span class="modal-close-btn"
+<span class="modal-close-btn" style="letter-spacing:0.02em;"
 onclick="document.getElementById('liveChartModal').style.display='none';
 document.getElementById('setupScreen').style.display='flex';
 if(window.cleanupModalDOM) window.cleanupModalDOM('#liveChartModal .chart-split');">[ X ]</span>
 </div>
 </div>
+
+
 
 <div id="liveChartAlertBanner">WAITING FOR SIGNS : HOLD ...</div>
 
@@ -1168,13 +1248,14 @@ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:65%;"></span
 
 <div id="liveAlertBanner">WAITING FOR SIGNS : HOLD ...</div>
 
-<div style="flex-grow:1;overflow-y:auto;padding:3px 7px 6px;
+<div style="flex-grow:1;overflow-y:auto;padding:3px 7px 24px;
 display:flex;flex-direction:column;gap:4px;min-height:0;">
 
 <div id="laVerdict"
-style="border-radius:var(--radius);padding:6px 10px;background:var(--surface2);
+style="border-radius:var(--radius);padding:3px 10px;background:var(--surface2);
 border:2px solid var(--border);display:flex;align-items:center;
-justify-content:space-between;gap:8px;min-height:72px;">
+justify-content:space-between;gap:8px;min-height:48px;">
+
 <div style="flex:1;">
 <div style="font-size:0.5rem;color:var(--muted);letter-spacing:0.1em;
 text-transform:uppercase;margin-bottom:1px;
@@ -1257,6 +1338,21 @@ text-transform:uppercase;margin-bottom:4px;">Growth %</div>
 style="display:grid;grid-template-columns:repeat(6,1fr);gap:3px;"></div>
 </div>
 
+<div style="background:var(--surface2);border:1px solid var(--border);
+border-radius:var(--radius);padding:6px 9px;">
+<div style="font-size:0.5rem;color:var(--muted);letter-spacing:0.1em;
+text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between;">
+<span>24-Month Regime History</span>
+<span style="display:flex;gap:8px;">
+<span style="color:var(--accent);">■ A</span>
+<span style="color:var(--accent2);">■ B</span>
+<span style="color:var(--red);">■ C</span>
+</span>
+</div>
+<div id="laRegimeCalendar"
+style="display:grid;grid-template-columns:repeat(6,1fr);gap:3px;"></div>
+</div>
+
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;">
 <div class="la-card2">
 <div class="la-label">Momentum</div>
@@ -1291,7 +1387,7 @@ Signal Checklist</div>
 <div style="flex-grow:1;overflow-y:auto;padding:12px;">
 <table class="log-table">
 <thead>
-<tr><th>Day</th><th>Action</th><th>NAV</th><th>Reg</th><th>Tax</th></tr>
+<tr><th>Day</th><th>Action</th><th>NAV</th><th>Reg</th><th>Tax</th><th>Note</th></tr>
 </thead>
 <tbody id="logBody"></tbody>
 </table>
@@ -1299,13 +1395,17 @@ Signal Checklist</div>
 </div>
 
 <div id="reviewModal" class="modal-overlay">
-<div class="modal-close">
+<div class="modal-close" style="padding-left: 4px; padding-right: 6px;">
 <span class="modal-title" style="color:var(--gold);">Process Audit</span>
-<div style="display:flex;gap:10px;align-items:center;">
-<span class="modal-close-btn" style="color:var(--muted2);" onclick="showLog()">[ LOG ]</span>
-<span class="modal-close-btn" onclick="location.reload()">[ RESTART ]</span>
+<div style="display:flex;gap:5px;align-items:center;">
+<span class="modal-close-btn" style="color:var(--muted2);letter-spacing:0.02em;" onclick="showLog()">[ LOG ]</span>
+<span class="modal-close-btn" style="color:var(--accent2);letter-spacing:0.02em;" onclick="showReplay()">[ REPLAY ]</span>
+<span class="modal-close-btn" style="color:var(--accent);letter-spacing:0.02em;" onclick="exportShareCard()">[ SHARE ]</span>
+<span class="modal-close-btn" style="letter-spacing:0.02em;" onclick="location.reload()">[ RESTART ]</span>
 </div>
 </div>
+
+
 <div class="review-container">
 <div class="score-card" style="border-color:var(--gold);">
 <div>
@@ -1325,6 +1425,8 @@ Signal Checklist</div>
 </div>
 </div>
 <div id="auditContent"></div>
+<p class="section-title">Rule Violation Log</p>
+<div id="violationLogContainer" style="margin-bottom:8px;"></div>
 <p class="section-title">Overall Behavioral Remarks</p>
 <div id="feedbackContainer"></div>
 </div>
@@ -1417,6 +1519,11 @@ style="border-top:1px solid var(--border);padding:4px 0 2px;margin-top:2px;">
 </div>
 </main>
 
+<div id="rationaleBar">
+<span style="color:var(--muted);flex-shrink:0;">Why? (3 words)</span>
+<input id="rationaleInput" type="text" maxlength="40" placeholder="e.g. regime A dip">
+<span onclick="submitRationale()" style="color:var(--accent);cursor:pointer;flex-shrink:0;padding:4px 8px;border:1px solid var(--accent);border-radius:var(--radius-sm);">OK</span>
+</div>
 <footer class="action-bar">
 <button class="btn btn-buy" id="btnBuy10" onclick="trade('BUY 10%')">BUY 10%</button>
 <button class="btn btn-hold" onclick="nextDay()">HOLD</button>
@@ -1427,6 +1534,38 @@ style="border-top:1px solid var(--border);padding:4px 0 2px;margin-top:2px;">
 <button class="btn btn-sell" id="btnRegime" onclick="trade('SELL REGIME')">REGIME</button>
 <button class="btn btn-sell" id="btnAll" onclick="trade('SELL ALL')">SELL ALL</button>
 </footer>
+</div>
+
+<div id="replayModal" class="modal-overlay">
+<div class="modal-close">
+<span class="modal-title" style="color:var(--accent2);">TRADE REPLAY</span>
+<span class="modal-close-btn"
+onclick="document.getElementById('replayModal').style.display='none';
+document.getElementById('reviewModal').style.display='flex'">[ BACK ]</span>
+</div>
+<div style="padding:4px 8px;font-size:0.55rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
+▲ BUY &nbsp;▼ SELL &nbsp;|&nbsp; Red dashed = Lowess floor &nbsp;|&nbsp; Regime bands: Green A / Amber B / Red C
+</div>
+<div style="flex-grow:1;position:relative;padding:4px 6px;overflow:hidden;">
+<canvas id="replayCanvas" style="width:100%;height:100%;display:block;"></canvas>
+</div>
+<div id="replayScrubBar" style="flex-shrink:0;padding:6px 8px;background:var(--surface);
+border-top:1px solid var(--border);font-size:0.58rem;color:var(--muted);text-align:center;"></div>
+</div>
+
+<div id="compareModal" class="modal-overlay">
+<div class="modal-close">
+<span class="modal-title" style="color:var(--border2);">FUND COMPARISON</span>
+<span class="modal-close-btn"
+onclick="document.getElementById('compareModal').style.display='none';
+document.getElementById('setupScreen').style.display='flex'">[ X ] CLOSE</span>
+</div>
+<div style="padding:8px;display:flex;gap:6px;flex-shrink:0;border-bottom:1px solid var(--border);">
+<select id="cmpFundA" class="dropdown" style="margin-bottom:0;flex:1;font-size:0.62rem;"></select>
+<select id="cmpFundB" class="dropdown" style="margin-bottom:0;flex:1;font-size:0.62rem;"></select>
+<button class="setup-btn" style="border-color:var(--accent);color:var(--accent);padding:8px;flex-shrink:0;white-space:nowrap;" onclick="runComparison()">GO</button>
+</div>
+<div id="cmpResult" style="flex-grow:1;overflow-y:auto;padding:8px;"></div>
 </div>
 
 <div id="rrgScannerModal" class="modal-overlay">
@@ -1828,6 +1967,51 @@ let _activeScannerToken = 0;
 window.currentLiveLookback = 250;
 window.currentSimLookback = 250;
 
+// ── Discipline Streak Tracker ─────────────────────────────────────────────
+const _streak = {
+    get count() { return parseInt(localStorage.getItem('ld_streak_count') || '0'); },
+    get best()  { return parseInt(localStorage.getItem('ld_streak_best')  || '0'); },
+    save(c, b)  { localStorage.setItem('ld_streak_count', c); localStorage.setItem('ld_streak_best', b); },
+    update(won) {
+        let c = won ? this.count + 1 : 0;
+        let b = Math.max(this.best, c);
+        this.save(c, b);
+        this.render();
+    },
+    render() {
+        const el = document.getElementById('streakBadge');
+        if (!el) return;
+        const c = this.count, b = this.best;
+        if (c === 0 && b === 0) { el.textContent = ''; return; }
+        const flame = c >= 5 ? '🔥' : c >= 3 ? '⚡' : '✦';
+        el.textContent = c > 0
+            ? `${flame} ${c}-SESSION STREAK  ·  BEST: ${b}`
+            : `STREAK BROKEN  ·  BEST: ${b}`;
+        el.style.color = c >= 3 ? 'var(--accent)' : c > 0 ? 'var(--accent2)' : 'var(--red)';
+    }
+};
+
+// ── Data Freshness Badge ──────────────────────────────────────────────────
+let _lastFetchTimestamp = null;
+let _lastFetchWasCached = false;
+
+function updateFreshnessBadge() {
+    const el = document.getElementById('dataFreshnessBadge');
+    if (!el || !_lastFetchTimestamp) return;
+    const ageMs = Date.now() - _lastFetchTimestamp;
+    const ageH = ageMs / 3600000;
+    el.style.display = 'inline-block';
+    if (_lastFetchWasCached) {
+        const label = ageH < 1 ? `CACHED · ${Math.round(ageMs/60000)}m ago`
+            : `CACHED · ${ageH.toFixed(1)}h ago`;
+        el.textContent = ageH > 8 ? `⚠ ${label}` : label;
+        el.className = `data-freshness-badge ${ageH > 8 ? 'badge-stale' : 'badge-cached'}`;
+    } else {
+        el.textContent = '● LIVE';
+        el.className = 'data-freshness-badge badge-live';
+    }
+}
+
 // =============================================================================
 // SECTION 4 · UNIVERSAL DATE NORMALIZER & ZOOM RESET
 // =============================================================================
@@ -1946,6 +2130,9 @@ if (savedRsi !== null) document.getElementById('rsiLengthIn').value = savedRsi;
 
 sel.removeEventListener('change', updateLiveEstimate);
 sel.addEventListener('change', updateLiveEstimate);
+sel.addEventListener('change', populateAutoStressScenarios);
+_streak.render();
+populateAutoStressScenarios();
 
 // --- ALERT GUARD NOTIFICATION LOGIC ---
 const enableBtn = document.getElementById('enable-notif-btn');
@@ -2101,6 +2288,8 @@ if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
 const data = await res.json();
 ovEl.style.display = 'none';
+_lastFetchWasCached = false;
+_lastFetchTimestamp = Date.now();
 
 if (!data?.data || !Array.isArray(data.data)) return [];
 
@@ -2127,6 +2316,8 @@ dbReq.onerror = () => resolve(null);
 if (cached?.data && Array.isArray(cached.data) && cached.data.length > 0) {
 ovTxt.textContent = 'OFFLINE — SERVING CACHED DATA';
 ovTxt.style.color = 'var(--accent2)';
+_lastFetchWasCached = true;
+_lastFetchTimestamp = Date.now();
 setTimeout(() => { ovEl.style.display = 'none'; }, 1_500);
 return cached.data
 .map(d => ({ nav: parseFloat(d.nav), date: window.normalizeDate(d.date) }))
@@ -2861,6 +3052,7 @@ btns[6].classList.add('active'); // 1Y default
 
 updateLiveChartOnly(250, btns[6]);
 updateLiveEstimate();
+updateFreshnessBadge();
 }
 
 /**
@@ -3017,6 +3209,7 @@ document.getElementById('liveAnalyticsModal').style.display = 'flex';
 
 updateLiveChart(250);
 updateLiveEstimate();
+updateFreshnessBadge();
 }
 
 /**
@@ -3147,6 +3340,43 @@ ${tf.lbl}</div>
 ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
 }).join('');
 
+// ── Regime Calendar (24 months) ──────────────────────────────────────────
+const calContainer = document.getElementById('laRegimeCalendar');
+if (calContainer && globalLiveData.length > 21) {
+    const months = [];
+    for (let m = 23; m >= 0; m--) {
+        const refDate = new Date();
+        refDate.setDate(1);
+        refDate.setMonth(refDate.getMonth() - m);
+        const yr = refDate.getFullYear(), mo = String(refDate.getMonth() + 1).padStart(2,'0');
+        const prefix = `${yr}-${mo}`;
+        const idxs = [];
+        for (let i = 0; i < globalLiveData.length; i++) {
+            if (globalLiveData[i].date && globalLiveData[i].date.startsWith(prefix)) idxs.push(i);
+        }
+        if (idxs.length === 0) { months.push(null); continue; }
+        let cA = 0, cB = 0, cC = 0;
+        idxs.forEach(i => {
+            const wr = globalWeeklyRsiCache[i] ?? 50;
+            if (wr >= 50) cA++; else if (wr >= 40) cB++; else cC++;
+        });
+        const dom = cA >= cB && cA >= cC ? 'A' : cB >= cC ? 'B' : 'C';
+        const pct = Math.max(cA, cB, cC) / idxs.length * 100;
+        months.push({ label: `${yr.toString().slice(2)}${mo}`, dom, pct });
+    }
+    calContainer.innerHTML = months.map(m => {
+        if (!m) return `<div style="height:28px;"></div>`;
+        const col = m.dom === 'A' ? '#009e70' : m.dom === 'B' ? '#c97a00' : '#c8102e';
+        const bg  = m.dom === 'A' ? 'rgba(0,158,112,0.15)' : m.dom === 'B' ? 'rgba(201,122,0,0.15)' : 'rgba(200,16,46,0.15)';
+        return `<div title="Regime ${m.dom} (${m.pct.toFixed(0)}% of month)"
+        style="background:${bg};border:1px solid ${col};border-radius:3px;
+        padding:3px 2px;text-align:center;font-size:0.48rem;color:${col};line-height:1.4;">
+        <div style="font-weight:700;">${m.dom}</div>
+        <div style="color:var(--muted);font-size:0.44rem;">${m.label}</div>
+        </div>`;
+    }).join('');
+}
+
 // ── Alert banner ─────────────────────────────────────────────────────────
 let alertText = '';
 let alertClass = '';
@@ -3223,6 +3453,301 @@ ${c.text}</span>
 }
 
 /** Close Live Analytics and return to Setup screen. */
+// =============================================================================
+// FEATURE 7 · FUND COMPARISON VIEW
+// =============================================================================
+
+function openCompareModal() {
+    const allFunds = Object.values(amcFunds).flat();
+    ['cmpFundA','cmpFundB'].forEach((id, k) => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        sel.innerHTML = allFunds.map(f =>
+            `<option value="${f.code}">${f.name.replace(/\[NPS\] | - Growth| - Direct/gi,'').trim()}</option>`
+        ).join('');
+        if (k === 1 && allFunds.length > 1) sel.selectedIndex = 1;
+    });
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('compareModal').style.display = 'flex';
+}
+
+async function runComparison() {
+    const codeA = document.getElementById('cmpFundA').value;
+    const codeB = document.getElementById('cmpFundB').value;
+    const resEl = document.getElementById('cmpResult');
+    resEl.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);">Loading…</div>`;
+
+    const fetchMeta = async (code) => {
+        const url = code.startsWith('SM')
+            ? `https://npsnav.in/api/historical/${code}`
+            : `https://api.mfapi.in/mf/${code}`;
+        const res = await fetch(url);
+        const raw = await res.json();
+        const hist = raw.data
+            .map(d => ({ nav: parseFloat(d.nav), date: window.normalizeDate(d.date) }))
+            .filter(d => Number.isFinite(d.nav) && d.nav > 0).reverse();
+        const navs = hist.map(d => d.nav);
+        const dates = hist.map(d => d.date);
+        const wRsi = window.buildWeeklyRsiFast(navs, userRsiLength, dates);
+        const dRsi = window.buildDailyRsiFast(navs, userRsiLength);
+        const lastIdx = navs.length - 1;
+        const wr = wRsi[lastIdx], dr = dRsi[lastIdx];
+        const regime = wr >= 50 ? 'A' : wr >= 40 ? 'B' : 'C';
+        const lowess = window.buildLowessGaussianFast(navs, 8, 10);
+        const tslFloor = lowess[lastIdx] ?? 0;
+        const tslHit = tslFloor > 0 && navs[lastIdx] < tslFloor;
+        const ret = (p) => navs.length > p ? ((navs[lastIdx]-navs[lastIdx-p])/navs[lastIdx-p]*100).toFixed(1) : '--';
+        return { name: raw.meta?.fund_name || code, nav: navs[lastIdx], regime, wr, dr, delta: dr-wr, tslHit,
+            r1d: ret(1), r1w: ret(5), r1m: ret(21), r3m: ret(63), r1y: ret(250) };
+    };
+
+    try {
+        const [a, b] = await Promise.all([fetchMeta(codeA), fetchMeta(codeB)]);
+        const regCol = r => r === 'A' ? 'var(--accent)' : r === 'B' ? 'var(--accent2)' : 'var(--red)';
+        const row = (lbl, va, vb, higherBetter=true) => {
+            const numA = parseFloat(va), numB = parseFloat(vb);
+            const aWins = !isNaN(numA) && !isNaN(numB) && (higherBetter ? numA > numB : numA < numB);
+            const bWins = !isNaN(numA) && !isNaN(numB) && (higherBetter ? numB > numA : numB < numA);
+            return `<div style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:4px;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.62rem;align-items:center;">
+            <div style="${aWins?'font-weight:700;':''}color:${aWins?'var(--accent)':'var(--text)'}">${va}</div>
+            <div style="text-align:center;font-size:0.52rem;color:var(--muted);text-transform:uppercase;">${lbl}</div>
+            <div style="${bWins?'font-weight:700;':''}color:${bWins?'var(--accent)':'var(--text)'};text-align:right">${vb}</div>
+            </div>`;
+        };
+
+   const selA = document.getElementById('cmpFundA');
+        const selB = document.getElementById('cmpFundB');
+        const nameA = selA.options[selA.selectedIndex].text.replace(/fund/gi,'').trim().slice(0,22);
+        const nameB = selB.options[selB.selectedIndex].text.replace(/fund/gi,'').trim().slice(0,22);
+        resEl.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:4px;padding:4px 0;margin-bottom:4px;">
+        <div style="font-size:0.55rem;color:var(--accent);font-weight:700;line-height:1.3;">${nameA}</div>
+        <div></div>
+        <div style="font-size:0.55rem;color:var(--accent);font-weight:700;line-height:1.3;text-align:right;">${nameB}</div>
+        </div>
+        ${row('NAV ₹',`₹${a.nav.toFixed(2)}`,`₹${b.nav.toFixed(2)}`)}
+        <div style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:4px;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.62rem;">
+        <div style="color:${regCol(a.regime)};font-weight:700;">Regime ${a.regime}</div>
+        <div style="text-align:center;font-size:0.52rem;color:var(--muted);text-transform:uppercase;">Regime</div>
+        <div style="color:${regCol(b.regime)};font-weight:700;text-align:right;">Regime ${b.regime}</div>
+        </div>
+        ${row('W-RSI',Math.round(a.wr),Math.round(b.wr))}
+        ${row('D-RSI',Math.round(a.dr),Math.round(b.dr))}
+        ${row('Delta Δ',a.delta.toFixed(1),b.delta.toFixed(1))}
+        <div style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:4px;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.62rem;">
+        <div style="color:${a.tslHit?'var(--red)':'var(--accent)'};">${a.tslHit?'🚨 BREACH':'✅ SAFE'}</div>
+        <div style="text-align:center;font-size:0.52rem;color:var(--muted);text-transform:uppercase;">TSL Floor</div>
+        <div style="color:${b.tslHit?'var(--red)':'var(--accent)'};text-align:right;">${b.tslHit?'🚨 BREACH':'✅ SAFE'}</div>
+        </div>
+        ${row('1D %',a.r1d+'%',b.r1d+'%')}
+        ${row('1W %',a.r1w+'%',b.r1w+'%')}
+        ${row('1M %',a.r1m+'%',b.r1m+'%')}
+        ${row('3M %',a.r3m+'%',b.r3m+'%')}
+        ${row('1Y %',a.r1y+'%',b.r1y+'%')}`;
+    } catch(e) {
+        resEl.innerHTML = `<div style="color:var(--red);padding:20px;text-align:center;">Error: ${e.message}</div>`;
+    }
+}
+
+// =============================================================================
+// FEATURE 9 · SIMULATOR REPLAY
+// =============================================================================
+
+function showReplay() {
+    document.getElementById('reviewModal').style.display = 'none';
+    document.getElementById('replayModal').style.display = 'flex';
+    requestAnimationFrame(renderReplayChart);
+}
+
+function renderReplayChart() {
+    const canvas = document.getElementById('replayCanvas');
+    if (!canvas || !fullHistory.length) return;
+    const container = canvas.parentElement;
+    const rect = container.getBoundingClientRect();
+    if (rect.width < 10 || rect.height < 10) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width  = rect.width  * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width  = rect.width  + 'px';
+    canvas.style.height = rect.height + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    const w = rect.width, h = rect.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const data = fullHistory.slice(simStartIdx, currentIdx + 1);
+    if (data.length < 2) return;
+
+    const navs = data.map(d => d.nav);
+    const lows = simLowessCache.slice(simStartIdx, currentIdx + 1);
+    const validLows = lows.filter(Boolean);
+    const minNav = Math.min(...navs, ...(validLows.length ? validLows : navs)) * 0.97;
+    const maxNav = Math.max(...navs, ...(validLows.length ? validLows : navs)) * 1.03;
+    const mapX = i => (i / Math.max(1, data.length - 1)) * w;
+    const mapY = v => h - ((v - minNav) / (maxNav - minNav)) * h;
+
+    // Regime background bands
+    for (let i = 1; i < data.length; i++) {
+        const wr = simWeeklyRsiCache[simStartIdx + i] ?? 50;
+        ctx.fillStyle = wr >= 50 ? 'rgba(0,158,112,0.07)' : wr >= 40 ? 'rgba(201,122,0,0.07)' : 'rgba(200,16,46,0.07)';
+        ctx.fillRect(mapX(i-1), 0, mapX(i) - mapX(i-1), h);
+    }
+
+    // Lowess floor line
+    ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(200,16,46,0.5)'; ctx.setLineDash([3,3]);
+    let started = false;
+    lows.forEach((v, i) => {
+        if (!v || i < 18) return;
+        const x = mapX(i), y = mapY(v);
+        started ? ctx.lineTo(x, y) : (ctx.moveTo(x, y), started = true);
+    });
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // Price line
+    ctx.beginPath(); ctx.lineWidth = 1.5; ctx.strokeStyle = '#000';
+    navs.forEach((v, i) => i === 0 ? ctx.moveTo(mapX(i), mapY(v)) : ctx.lineTo(mapX(i), mapY(v)));
+    ctx.stroke();
+
+// Trade markers
+    tradeLog.forEach(t => {
+        const i = t.day;
+        if (i < 0 || i >= data.length) return;
+        const x = mapX(i), y = mapY(data[i].nav);
+        const isBuy = t.action.includes('BUY') || t.action.includes('SIP');
+        
+        // Draw vertical dashed line
+        ctx.beginPath(); ctx.setLineDash([2,2]);
+        ctx.strokeStyle = isBuy ? 'rgba(0,158,112,0.4)' : 'rgba(200,16,46,0.4)';
+        ctx.lineWidth = 1;
+        ctx.moveTo(x, 0); ctx.lineTo(x, h);
+        ctx.stroke(); ctx.setLineDash([]);
+
+        // Draw Triangle Marker
+        ctx.font = 'bold 11px monospace';
+        ctx.fillStyle = isBuy ? '#009e70' : '#c8102e';
+        ctx.fillText(isBuy ? '▲' : '▼', x - 4, isBuy ? y + 12 : y - 5);
+
+        // Extract metrics for this specific bar
+        const absIdx = simStartIdx + i;
+        const dRsi = Math.round(simDailyRsiCache[absIdx] || 50);
+        const wRsi = Math.round(simWeeklyRsiCache[absIdx] || 50);
+        const tsl = (simLowessCache[absIdx] || 0).toFixed(1);
+        const wmaSlice = fullHistory.map(v => v.nav).slice(0, absIdx + 1);
+        const wma20 = (calculateWMA(wmaSlice, 20) || 0).toFixed(1);
+
+        // Draw Data Box (Slightly offset from the marker)
+        const boxW = 58;
+        const boxH = 44;
+        let boxX = x + 6;
+        let boxY = isBuy ? y + 16 : y - 50;
+
+        // Keep box within canvas bounds so it doesn't clip off-screen
+        if (boxX + boxW > w) boxX = x - boxW - 6; 
+        if (boxY < 0) boxY = 2; 
+        if (boxY + boxH > h) boxY = h - boxH - 2; 
+
+        // Box Background & Border
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.fillRect(boxX, boxY, boxW, boxH);
+        ctx.strokeStyle = isBuy ? 'rgba(0,158,112,0.5)' : 'rgba(200,16,46,0.5)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+        // Box Text
+        ctx.fillStyle = isBuy ? '#007a50' : '#a00000';
+        ctx.font = '7px monospace';
+        ctx.fillText(`Reg: ${t.regime}`, boxX + 4, boxY + 10);
+        ctx.fillText(`D:${dRsi} W:${wRsi}`, boxX + 4, boxY + 20);
+        ctx.fillText(`TSL: ${tsl}`, boxX + 4, boxY + 30);
+        ctx.fillText(`WMA: ${wma20}`, boxX + 4, boxY + 40);
+    });
+
+    const totalRet = navs.length > 1 ? ((navs[navs.length-1] - navs[0]) / navs[0] * 100).toFixed(1) : '0.0';
+    const buys  = tradeLog.filter(t => t.action.includes('BUY') || t.action.includes('SIP')).length;
+    const sells = tradeLog.filter(t => t.action.includes('SELL')).length;
+    document.getElementById('replayScrubBar').textContent =
+        `${data.length} trading days  ·  ${buys} buys  ·  ${sells} sells  ·  Fund moved ${totalRet >= 0 ? '+' : ''}${totalRet}%`;
+}
+
+// =============================================================================
+// FEATURE 10 · EXPORT / SHARE PNG CARD
+// =============================================================================
+
+function exportShareCard() {
+    const canvas = document.createElement('canvas');
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width  = 360 * dpr;
+    canvas.height = 220 * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    const W = 360, H = 220;
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#b0bece'; ctx.lineWidth = 1;
+    ctx.strokeRect(1, 1, W - 2, H - 2);
+
+    const totalUnits = tranches.reduce((s,t) => s + t.units, 0);
+    const finalNW = cash + totalUnits * (fullHistory[currentIdx]?.nav || 0);
+    const retPct  = ((finalNW - 100000) / 100000 * 100);
+    const score   = parseInt(document.getElementById('totalScore')?.textContent || '0');
+    const retColor = retPct >= 0 ? '#009e70' : '#c8102e';
+
+    ctx.fillStyle = '#f2f5f9';
+    ctx.fillRect(0, 0, W, 44);
+    ctx.fillStyle = '#009e70'; ctx.font = 'bold 10px monospace';
+    ctx.fillText('LIE DETECTOR LD241A6 · SIMULATION RESULT', 12, 16);
+    ctx.fillStyle = '#304058'; ctx.font = '8px monospace';
+    ctx.fillText(`${getBriefFundName() || 'Fund Simulator'}`, 12, 30);
+    ctx.fillStyle = '#b0bece'; ctx.fillRect(0, 44, W, 1);
+
+    // Mini equity curve
+    const data = fullHistory.slice(simStartIdx, currentIdx + 1);
+    if (data.length > 2) {
+        const navs = data.map(d => d.nav);
+        const mn = Math.min(...navs), mx = Math.max(...navs);
+        const mX = (i) => 12 + (i / Math.max(1, data.length - 1)) * (W - 24);
+        const mY = (v) => 54 + (1 - (v - mn) / Math.max(0.001, mx - mn)) * 80;
+        ctx.beginPath(); ctx.lineWidth = 1.5; ctx.strokeStyle = retColor;
+        navs.forEach((v, i) => i === 0 ? ctx.moveTo(mX(i), mY(v)) : ctx.lineTo(mX(i), mY(v)));
+        ctx.stroke();
+        tradeLog.forEach(t => {
+            const i = t.day;
+            if (i < 0 || i >= data.length) return;
+            ctx.fillStyle = (t.action.includes('BUY') || t.action.includes('SIP')) ? '#009e70' : '#c8102e';
+            ctx.fillRect(mX(i) - 2, mY(data[i].nav) - 2, 4, 4);
+        });
+    }
+
+    ctx.fillStyle = '#b0bece'; ctx.fillRect(0, 140, W, 1);
+    const stats = [
+        { lbl: 'RETURN', val: `${retPct >= 0 ? '+' : ''}${retPct.toFixed(1)}%`, col: retColor },
+        { lbl: 'MAX DD',  val: `-${maxDrawdown.toFixed(1)}%`,                    col: '#c8102e' },
+        { lbl: 'SCORE',   val: `${score > 0 ? '+' : ''}${score}`,               col: score > 0 ? '#009e70' : '#c8102e' },
+        { lbl: 'DAYS',    val: `${currentIdx - simStartIdx}`,                    col: '#000000' },
+    ];
+    stats.forEach((s, k) => {
+        const x = 12 + k * 84;
+        ctx.fillStyle = '#404060'; ctx.font = '7px monospace';
+        ctx.fillText(s.lbl, x, 158);
+        ctx.fillStyle = s.col; ctx.font = 'bold 14px monospace';
+        ctx.fillText(s.val, x, 176);
+    });
+
+    ctx.fillStyle = '#b0bece'; ctx.fillRect(0, 186, W, 1);
+    ctx.fillStyle = '#b0bece'; ctx.font = '7px monospace';
+    ctx.fillText('Sacred RSI Regime System · LD241A6', 12, 200);
+    const streak = _streak.count;
+    if (streak > 0) ctx.fillText(`🔥 ${streak}-session streak`, W - 110, 200);
+
+    const link = document.createElement('a');
+    link.download = `LD241A6-${getBriefFundName().replace(/\s+/g,'_') || 'result'}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+}
+
+/** Close Live Analytics and return to Setup screen. */
 function closeLive() {
 document.getElementById('liveAnalyticsModal').style.display = 'none';
 document.getElementById('setupScreen').style.display = 'flex';
@@ -3255,8 +3780,60 @@ document.getElementById('setupScreen').style.display = 'flex';
 //   via syncNativeChartsWithEngine().
 //
 
+async function populateAutoStressScenarios() {
+    const code = document.getElementById('fundSelect').value;
+    if (!code) return;
+    const url = code.startsWith('SM')
+        ? `https://npsnav.in/api/historical/${code}`
+        : `https://api.mfapi.in/mf/${code}`;
+    try {
+        const res = await fetch(url);
+        const raw = await res.json();
+        if (!raw?.data) return;
+        const hist = raw.data
+            .map(d => ({ nav: parseFloat(d.nav), date: window.normalizeDate(d.date) }))
+            .filter(d => Number.isFinite(d.nav) && d.nav > 0)
+            .reverse();
+        if (hist.length < 60) return;
+        const drawdowns = [];
+        let peak = hist[0].nav, peakDate = hist[0].date;
+        for (let i = 1; i < hist.length; i++) {
+            if (hist[i].nav > peak) { peak = hist[i].nav; peakDate = hist[i].date; }
+            const dd = (peak - hist[i].nav) / peak * 100;
+            if (dd >= 10) {
+                let troughIdx = i, troughNav = hist[i].nav;
+                for (let j = i + 1; j < Math.min(i + 120, hist.length); j++) {
+                    if (hist[j].nav < troughNav) { troughNav = hist[j].nav; troughIdx = j; }
+                    else if (hist[j].nav > peak * 0.98) break;
+                }
+                drawdowns.push({ dd: (peak - troughNav) / peak * 100,
+                    start: peakDate, end: hist[Math.min(troughIdx + 40, hist.length-1)].date,
+                    label: `Auto −${((peak - troughNav)/peak*100).toFixed(1)}% (${peakDate.slice(0,7)})` });
+                i = troughIdx;
+                peak = hist[i].nav; peakDate = hist[i].date;
+            }
+        }
+        drawdowns.sort((a, b) => b.dd - a.dd);
+        const top3 = drawdowns.slice(0, 3);
+        ['autoStress1','autoStress2','autoStress3'].forEach((id, k) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (top3[k]) {
+                el.value = `auto_${top3[k].start}_${top3[k].end}`;
+                el.textContent = `Auto Crash #${k+1}: ${top3[k].label}`;
+                el.disabled = false;
+            } else { el.textContent = ''; el.disabled = true; }
+        });
+    } catch(e) { /* silently fail */ }
+}
+
 function runStressTest() {
     const scenario = document.getElementById('stressSelect').value;
+    if (scenario.startsWith('auto_')) {
+        const parts = scenario.split('_');
+        initGame('stress', parts[1], parts[2]);
+        return;
+    }
     let start = '', end = '';
     if (scenario === 'covid') { start = '2020-01-15'; end = '2020-07-31'; }
     else if (scenario === 'ukraine') { start = '2021-12-01'; end = '2022-07-31'; }
@@ -3281,6 +3858,7 @@ document.getElementById('simFundName').textContent = getBriefFundName();
 let tagText = 'SIMULATOR';
 if (mode === 'stress') tagText = 'STRESS TEST';
 if (mode === 'custom') tagText = 'CUSTOM SIM';
+if (mode === 'sip')    tagText = 'SIP SIM';
 
 document.getElementById('simModeTag').textContent = tagText;
 
@@ -3328,9 +3906,9 @@ if (mode === 'custom' || mode === 'stress') {
     // Safety check to prevent instant game-over
     if (simEndIdx <= simStartIdx) simEndIdx = fullHistory.length - 1;
 
+} else if (mode === 'sip') {
+    simStartIdx = Math.max(20, fullHistory.length - 750);
 } else {
-
-
     simStartIdx = Math.floor(Math.random() * (fullHistory.length - 450)) + 200;
 }
 
@@ -3524,15 +4102,37 @@ b.style.color = 'var(--muted2)';
 * @param {string} action - One of the 8 action strings
 */
 
+let _pendingTradeAction = null;
+
 function trade(action) {
+_pendingTradeAction = action;
+const bar = document.getElementById('rationaleBar');
+const inp = document.getElementById('rationaleInput');
+if (bar) {
+    bar.style.display = 'flex';
+    if (inp) { inp.value = ''; inp.focus(); }
+    return;
+}
+_executeTrade(action, '');
+}
+
+function submitRationale() {
+const inp = document.getElementById('rationaleInput');
+const note = inp ? inp.value.trim() : '';
+const bar = document.getElementById('rationaleBar');
+if (bar) bar.style.display = 'none';
+_executeTrade(_pendingTradeAction, note);
+_pendingTradeAction = null;
+}
+
+function _executeTrade(action, note) {
 const state = {
 cash, tranches, tradeLog, totalTaxPaid,
 currentNav: fullHistory[currentIdx].nav,
 dayNum: currentIdx - simStartIdx,
 currentRegimeLog,
-currentIdx, // FIXED: Required for accurate calendar tax tracking
+currentIdx,
 };
-
 
 const result = executeTradeEngine(action, state);
 
@@ -3546,6 +4146,10 @@ tranches = result.tranches;
 tradeLog = result.tradeLog;
 totalTaxPaid = result.totalTaxPaid;
 
+if (note && tradeLog.length > 0) {
+tradeLog[tradeLog.length - 1].note = note;
+}
+
 const endTarget = simEndIdx !== null ? simEndIdx : fullHistory.length - 1;
 
 if (currentIdx < endTarget) {
@@ -3557,12 +4161,49 @@ document.querySelectorAll('.action-bar .btn').forEach(b => b.disabled = true);
 }
 }
 
+let _lastSipIdx = -1;
+
 /** Advance the simulator by one day and re-render. */
 function nextDay() {
 const endTarget = simEndIdx !== null ? simEndIdx : fullHistory.length - 1;
 
 if (currentIdx < endTarget) {
 currentIdx++;
+
+// ── SIP auto-invest: fire once per ~21 trading days ──────────────────
+const tagEl = document.getElementById('simModeTag');
+if (tagEl && tagEl.textContent === 'SIP SIM') {
+    const dayNum = currentIdx - simStartIdx;
+    if (dayNum > 0 && dayNum % 21 === 0) {
+        const sipAmt = parseInt(document.getElementById('sipAmount')?.value) || 10000;
+        const snap = buildEngineSnapshot(currentIdx, fullHistory.map(v=>v.nav),
+            simStartIdx, simDailyRsiCache, simWeeklyRsiCache, simLowessCache, cash, tranches, peakNetWorth);
+        const autoAction = snap.regime === 'C' ? null
+            : snap.tsl.tslHit ? null
+            : (snap.drsi < 40 || snap.delta < buyDeltaLevel || snap.pcAlert)
+                ? 'SIP_BOOST' : 'SIP_AUTO';
+
+        if (autoAction) {
+            const boost = autoAction === 'SIP_BOOST' ? 1.5 : 1.0;
+            const amt = Math.min(sipAmt * boost, cash);
+            if (amt > 10 && snap.nav > 0) {
+                tranches.push({ day: dayNum, idx: currentIdx,
+                    units: amt / snap.nav, price: snap.nav, regime: snap.regime });
+                cash -= amt;
+                tradeLog.push({ day: dayNum,
+                    action: autoAction === 'SIP_BOOST' ? 'SIP BOOST (+50%)' : 'SIP AUTO',
+                    nav: snap.nav, units: amt / snap.nav, tax: 0, regime: snap.regime,
+                    note: autoAction === 'SIP_BOOST' ? 'Signal confirmed' : 'Scheduled' });
+                flashBanner(autoAction === 'SIP_BOOST'
+                    ? `🟢 SIP BOOST ₹${Math.round(amt).toLocaleString('en-IN')} — Signal confirmed`
+                    : `💰 SIP ₹${Math.round(amt).toLocaleString('en-IN')} — Auto-invested`, 'alert-buy', 2500);
+            }
+        } else {
+            flashBanner(`⏸ SIP PAUSED — ${snap.tsl.tslHit ? 'TSL Breach' : 'Regime C'}`, 'alert-danger', 2500);
+        }
+    }
+}
+
 updateDisplay();
 } else {
 updateDisplay();
@@ -3596,7 +4237,7 @@ No trades executed yet.
 </td></tr>`;
 } else {
 tradeLog.forEach(t => {
-const cls = t.action.includes('BUY') ? 'log-buy'
+const cls = (t.action.includes('BUY') || t.action.includes('SIP')) ? 'log-buy'
 : t.action.includes('PROFIT') ? 'log-profit' : 'log-sell';
 tbody.innerHTML +=
 `<tr>
@@ -3605,6 +4246,7 @@ tbody.innerHTML +=
 <td>₹${t.nav.toFixed(2)}</td>
 <td style="font-weight:700;">${t.regime}</td>
 <td class="log-tax">₹${Math.round(t.tax)}</td>
+<td style="font-size:0.58rem;color:var(--muted2);font-style:italic;">${t.note || '—'}</td>
 </tr>`;
 });
 }
@@ -3677,6 +4319,7 @@ let regimeCBlock = 0; // consecutive days held in Regime C
 let lastMissedBuyDay = -10;
 
 const totalDays = currentIdx - simStartIdx;
+const violationLog = [];
 
 // ── Day-by-day audit loop ──────────────────────────────────────────────
 
@@ -3706,22 +4349,28 @@ let hasBuy = false;
 
 // ── Score each trade on this day ──────────────────────────────────
 dayTrades.forEach(t => {
-if (t.action.includes('BUY')) {
+if (t.action.includes('BUY') || t.action.includes('SIP')) {
 hasBuy = true;
 runningUnits += t.units;
 
-if (regime === 'A') {
+// SIP auto-trades are regime-aware by design — score neutrally
+if (t.action.includes('SIP')) {
+    if (regime === 'A') { scoreEntry += 5; goodBuys++; } // minor credit
+    // SIP in C/B: engine already pauses SIP; if somehow executed, no penalty
+} else if (regime === 'A') {
 if (dr < 40 || pcAlert || d < buyDeltaLevel) {
 scoreEntry += 20; goodBuys++;
 } else {
 scoreEntry -= 5; prematureBuys++;
+violationLog.push({ day: dayNum, rule: `PREMATURE BUY — Regime A but no signal (D-RSI:${Math.round(dr)}, Δ:${d.toFixed(1)})`, severity: 'warn' });
 }
 
 } else if (regime === 'C') {
 if (pcAlert) { goodBuys++; }
-else { scoreEntry -= 20; badBuys++; }
+else { scoreEntry -= 20; badBuys++; violationLog.push({ day: dayNum, rule: `KNIFE CATCH — Bought in Regime C (W-RSI:${Math.round(wr)})`, severity: 'danger' }); }
 } else if (regime === 'B') {
 scoreEntry -= 10; badBuys++;
+violationLog.push({ day: dayNum, rule: `CONTRA-TREND BUY — Bought in Regime B (W-RSI:${Math.round(wr)})`, severity: 'warn' });
 }
 
 } else if (t.action.includes('SELL')) {
@@ -3753,11 +4402,13 @@ if (runningUnits > 0.001) {
 if (tslHit) {
 daysTslBreachHeld++;
 scoreExit -= 10;
+if (daysTslBreachHeld === 1) violationLog.push({ day: dayNum, rule: 'TSL FLOOR BREACHED — held position instead of executing TSL Sell', severity: 'danger' });
 }
 
 if (regime === 'C') {
 daysRegimeCHeld++;
 regimeCBlock++;
+if (daysRegimeCHeld === 1) violationLog.push({ day: dayNum, rule: 'REGIME C ENTERED — held position instead of exiting', severity: 'danger' });
 // Escalating penalty: 20, 40, 60 … capped at 100
 const penNow = Math.min(regimeCBlock * 20, 100);
 const penPrev = Math.min((regimeCBlock - 1) * 20, 100);
@@ -3775,6 +4426,8 @@ if (isBuySignal && !hasBuy && (dayNum - lastMissedBuyDay) > 5) {
 missedBuyEvents++;
 scoreEntry -= 10;
 lastMissedBuyDay = dayNum;
+const sigType = dr < 40 ? 'RSI < 40 Oversold' : d < buyDeltaLevel ? `Slingshot Δ<${buyDeltaLevel}` : 'PC Breakout';
+violationLog.push({ day: dayNum, rule: `MISSED BUY SIGNAL — ${sigType} in Regime A ignored`, severity: 'warn' });
 }
 }
 
@@ -3957,7 +4610,31 @@ This is exactly how the system is meant to be played.
 }
 
 document.getElementById('feedbackContainer').innerHTML = remarks;
+
+// ── Violation log ─────────────────────────────────────────────────────────
+let violHtml = '';
+if (violationLog.length === 0) {
+    violHtml = `<div style="font-size:0.62rem;color:var(--accent);padding:6px 0;">✅ Zero rule violations recorded.</div>`;
+} else {
+    violHtml = violationLog.map(v => {
+        const col = v.severity === 'danger' ? 'var(--red)' : 'var(--accent2)';
+        const icon = v.severity === 'danger' ? '🚨' : '⚠️';
+        return `<div style="display:flex;gap:6px;align-items:flex-start;padding:4px 0;
+        border-bottom:1px solid var(--border);font-size:0.58rem;">
+        <span style="flex-shrink:0;">${icon}</span>
+        <span style="color:var(--muted2);flex-shrink:0;min-width:50px;">Day ${v.day}</span>
+        <span style="color:${col};flex:1;">${v.rule}</span>
+        </div>`;
+    }).join('');
+}
+const violContainer = document.getElementById('violationLogContainer');
+if (violContainer) violContainer.innerHTML = violHtml;
+
 document.getElementById('reviewModal').style.display = 'flex';
+
+// ── Update discipline streak ──────────────────────────────────────────────
+const _streakWon = totalScore > 0 && panicSells === 0 && daysTslBreachHeld === 0;
+_streak.update(_streakWon);
 }
 </script>
 <script>

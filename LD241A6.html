@@ -3514,8 +3514,11 @@ async function runComparison() {
             <div style="${bWins?'font-weight:700;':''}color:${bWins?'var(--accent)':'var(--text)'};text-align:right">${vb}</div>
             </div>`;
         };
-        const nameA = a.name.replace(/fund|direct|growth/gi,'').trim().slice(0,22);
-        const nameB = b.name.replace(/fund|direct|growth/gi,'').trim().slice(0,22);
+
+   const selA = document.getElementById('cmpFundA');
+        const selB = document.getElementById('cmpFundB');
+        const nameA = selA.options[selA.selectedIndex].text.replace(/fund/gi,'').trim().slice(0,22);
+        const nameB = selB.options[selB.selectedIndex].text.replace(/fund/gi,'').trim().slice(0,22);
         resEl.innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:4px;padding:4px 0;margin-bottom:4px;">
         <div style="font-size:0.55rem;color:var(--accent);font-weight:700;line-height:1.3;">${nameA}</div>

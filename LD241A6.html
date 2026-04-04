@@ -1150,26 +1150,27 @@ onclick="runRegimeAScanner('PROFIT')">Regime A<br>Profit</button>
 </div>
 
 
-
 <div id="liveChartModal" class="modal-overlay">
-<div class="modal-close">
-<div style="display:flex;gap:8px;align-items:center;flex:1;min-width:0;">
-<span class="modal-title" style="color:var(--accent2);flex-shrink:0;">LIVE COCKPIT</span>
+<div class="modal-close" style="padding-left: 4px; padding-right: 4px;">
+<div style="display:flex;gap:4px;align-items:center;flex:1;min-width:0;">
+<span class="modal-title" style="color:var(--accent2);flex-shrink:0;letter-spacing:0.02em;">LIVE COCKPIT</span>
 <span id="liveChartFundName" class="fund-name-tag"
-style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
-<span id="dataFreshnessBadge" class="data-freshness-badge"></span>
+style="margin-left:2px;padding-left:4px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
+<span id="dataFreshnessBadge" class="data-freshness-badge" style="margin-right:2px;"></span>
 </div>
-<div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
-<button class="reset-zoom"
-onclick="if(window.resetLiveZoom) window.resetLiveZoom()">RESET ZOOM</button>
-<button class="reset-zoom" style="color:var(--accent);border-color:var(--accent);"
+<div style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
+<button class="reset-zoom" style="padding:3px 4px;font-size:0.55rem;letter-spacing:0.02em;"
+onclick="if(window.resetLiveZoom) window.resetLiveZoom()">RESET</button>
+<button class="reset-zoom" style="color:var(--accent);border-color:var(--accent);padding:3px 4px;font-size:0.55rem;letter-spacing:0.02em;"
 onclick="openLiveAnalyticsFromCockpit()">ANALYTICS</button>
-<span class="modal-close-btn"
+<span class="modal-close-btn" style="letter-spacing:0.02em;"
 onclick="document.getElementById('liveChartModal').style.display='none';
 document.getElementById('setupScreen').style.display='flex';
 if(window.cleanupModalDOM) window.cleanupModalDOM('#liveChartModal .chart-split');">[ X ]</span>
 </div>
 </div>
+
+
 
 <div id="liveChartAlertBanner">WAITING FOR SIGNS : HOLD ...</div>
 

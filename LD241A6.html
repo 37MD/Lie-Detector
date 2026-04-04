@@ -203,12 +203,13 @@ text-align: center;
 overflow-y: auto;
 -webkit-overflow-scrolling: touch;
 }
+
 .setup-logo {
 font-size: 0.65rem;
 color: var(--accent);
 letter-spacing: 0.18em;
 text-transform: uppercase;
-margin-bottom: 0.4rem;
+margin-bottom: 0.1rem;
 opacity: 0.7;
 }
 
@@ -216,10 +217,12 @@ opacity: 0.7;
 font-size: 0.6rem;
 color: var(--accent2);
 letter-spacing: 0.1em;
-margin-bottom: 0.4rem;
+margin-bottom: 0.1rem;
 font-weight: 400;
 min-height: 1em;
 }
+
+
 .setup-title {
 font-size: 1.75rem;
 font-weight: 400;
@@ -1086,7 +1089,8 @@ style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelec
 
 </div>
 
-<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;border-top:1px dashed var(--border);padding-top:10px;width:100%;max-width:350px;">
+<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px;border-top:1px dashed var(--border);padding-top:10px;width:100%;max-width:350px;">
+
 <button class="setup-btn setup-btn-live" onclick="initLiveChart()">Live Market</button>
 <button class="setup-btn" style="border-color:var(--gold);color:var(--gold);" onclick="initLiveAnalytics()">Live Analytics</button>
 </div>

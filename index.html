@@ -1971,11 +1971,19 @@ function updatePermissionUI() {
 }
 
 async function registerServiceWorker() {
+    // FIXED (Bug 5): sw.js does not ship with this single-file app.
+    // Catch the registration failure and update the UI so the user
+    // sees "ALERTS ACTIVE (no bg-sync)" rather than a misleading "ACTIVE".
     if ('serviceWorker' in navigator) {
         try {
             await navigator.serviceWorker.register('sw.js');
         } catch (err) {
-            console.warn('Service Worker registration failed:', err);
+            console.warn('Service Worker not available (single-file mode):', err);
+            const st = document.getElementById('perm-status');
+            if (st) {
+                st.textContent = 'ACTIVE (no bg-sync)';
+                st.style.color = 'var(--accent2)';
+            }
         }
     }
 }
@@ -2446,7 +2454,7 @@ for (let idx = 1; idx < prices.length; idx++) {
         if (idx < lowessLen) {
     smoothedArray[idx] = gmaArray[idx];
 } else {
-    let sum_w = 0.0, sum_wx = 0.0, sum_wy = 0.0;
+    let sum_w = 0.0, sum_wy = 0.0; // sum_wx removed (slope term eliminated — intercept-only LOWESS)
     for (let i = 0; i < lowessLen; i++) {
         const w = Math.pow(1 - Math.pow(i / lowessLen, 3), 3);
         sum_w += w;
@@ -2717,14 +2725,24 @@ const pct = action.includes('10') ? 0.10
 const amt = cash * pct;
 
 if (amt > 10) {
+const boughtUnits = amt / currentNav;
 tranches.push({
     day: dayNum,
     idx: currentIdx, // CRITICAL: Store the absolute index for tax calculation
-    units: amt / currentNav,
+    units: boughtUnits,
     price: currentNav,
     regime: currentRegimeLog,
 });
 cash -= amt;
+// FIXED (Bug 1): Log BUY to tradeLog so endAndReview audit loop can score entry decisions
+tradeLog.push({
+    day: dayNum,
+    action,
+    nav: currentNav,
+    units: boughtUnits,
+    tax: 0,
+    regime: currentRegimeLog,
+});
 }
 
 return {
@@ -3003,9 +3021,9 @@ updateLiveEstimate();
 
 /**
 * Populate all Live Analytics cards from the current global live snapshot.
-* @param {number} days - (reserved for future TF filtering; currently unused)
+* @param {number} _days - Reserved for future TF filtering; not yet wired to the analytics cards.
 */
-function updateLiveChart(days) {
+function updateLiveChart(_days) {
 const prices = globalLiveData.map(d => d.nav);
 
 const snap = buildEngineSnapshot(
@@ -3073,7 +3091,7 @@ document.getElementById('laTSL').style.color = tslHit ? 'var(--red)'
 : tslDist !== null && tslDist < 3 ? 'var(--accent2)' : 'var(--accent)';
 document.getElementById('laTSLDesc').textContent = tslHit
 ? '🚨 BREACHED — Floor Gone'
-: tslVal === 0 ? 'No TSL detected'
+: tslDist === null ? 'No TSL detected'
 : tslDist < 2 ? `⚠️ Only ${tslDist.toFixed(1)}% above TSL`
 : tslDist < 5 ? `${tslDist.toFixed(1)}% above TSL — Watch closely`
 : `${tslDist.toFixed(1)}% above TSL — Safe`;
@@ -3669,6 +3687,11 @@ const wr = simWeeklyRsiCache[i] ?? 50;
 const regime = wr >= 50 ? 'A' : wr >= 40 ? 'B' : 'C';
 const d = dr - wr;
 const dayNum = i - simStartIdx;
+
+// FIXED (Bug 2): Tally regime-day distribution for the review header
+if (regime === 'A') regimeADays++;
+else if (regime === 'B') regimeBDays++;
+else regimeCDays++;
 
 const currentDayNav = allNavs[i];
 const lowessFloor = simLowessCache[i] ?? currentDayNav;
@@ -4345,12 +4368,10 @@ data[i].nav <= data[i+1].nav && data[i].nav <= data[i+2].nav;
 
 if (isPvtLo) {
 let setupValid = true;
-let failCount = 0;
 for (let k = 1; k <= 3; k++) {
-if (data[i+k].nav <= data[i].nav) failCount++;
 if (data[i+k].nav < data[i].nav) setupValid = false;
 }
-if (setupValid && failCount <= 0 && i + 3 >= startVis - 2) {
+if (setupValid && i + 3 >= startVis - 2) {
 const x1 = mapX(i), x2 = mapX(i + 3);
 const yBox = mapY(data[i].nav);
 const yTop = mapY(data[i].nav * 1.015);

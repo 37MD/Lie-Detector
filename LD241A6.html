@@ -198,7 +198,7 @@ display: flex;
 flex-direction: column;
 align-items: center;
 justify-content: flex-start;
-padding: 3rem 1.5rem 4rem 1.5rem;
+padding: 1.5rem 1.5rem 2rem 1.5rem;
 text-align: center;
 overflow-y: auto;
 -webkit-overflow-scrolling: touch;
@@ -211,11 +211,12 @@ text-transform: uppercase;
 margin-bottom: 0.4rem;
 opacity: 0.7;
 }
+
 .streak-badge {
 font-size: 0.6rem;
 color: var(--accent2);
 letter-spacing: 0.1em;
-margin-bottom: 1.0rem;
+margin-bottom: 0.4rem;
 font-weight: 400;
 min-height: 1em;
 }
@@ -223,24 +224,28 @@ min-height: 1em;
 font-size: 1.75rem;
 font-weight: 400;
 letter-spacing: -0.02em;
-margin-bottom: 0.3rem;
+margin-bottom: 0.2rem;
 }
 .setup-sub {
 color: var(--muted);
 font-size: 0.75rem;
-margin-bottom: 1.4rem;
+margin-bottom: 0.8rem;
 letter-spacing: 0.04em;
 }
+
+
 .fund-grid {
 display: grid;
 grid-template-columns: repeat(4, 1fr);
 gap: 6px;
 width: 100%;
 max-width: 350px;
-margin-bottom: 0.75rem;
+margin-bottom: 0.4rem;
 flex-shrink: 0;
 }
 .fund-box {
+
+
 background: var(--surface2);
 border: 1.5px solid var(--border);
 color: var(--muted2);
@@ -262,7 +267,7 @@ color: var(--text);
 padding: 11px 12px;
 width: 100%;
 max-width: 350px;
-margin-bottom: 0.75rem;
+margin-bottom: 0.4rem;
 border-radius: var(--radius);
 font-size: 0.75rem;
 font-family: var(--mono);
@@ -276,9 +281,10 @@ display: flex;
 gap: 8px;
 width: 100%;
 max-width: 350px;
-margin-bottom: 0.75rem;
+margin-bottom: 0.4rem;
 flex-shrink: 0;
 }
+
 .c-input-box {
 flex: 1;
 background: var(--surface2);
@@ -306,14 +312,16 @@ outline: none;
 text-align: center;
 color: inherit;
 }
+
 .setup-btns {
 display: flex;
 gap: 8px;
 width: 100%;
 max-width: 350px;
-margin-top: 1rem;
+margin-top: 0.5rem;
 flex-shrink: 0;
 }
+
 .setup-btn {
 flex: 1;
 font-size: 0.68rem;
@@ -956,14 +964,16 @@ margin-top: 6px;
 /* .setting-group — full-width settings container               */
 /* .setting-row   — label + switch on one line                  */
 /* .time-input    — compact time picker (Daily Digest sync)     */
+
 .setting-group { 
     width: 100%; 
     max-width: 350px; 
-    margin-top: 1rem; 
+    margin-top: 1.5rem; 
     border-top: 1px dashed var(--border); 
-    padding-top: 1rem; 
+    padding-top: 1.5rem; 
     text-align: left; 
 }
+
 .setting-title {
     font-size: 0.65rem;
     color: var(--muted);
@@ -1041,7 +1051,7 @@ style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelec
 
 <button class="setup-btn setup-btn-sim" style="width: 100%; max-width: 350px; padding: 12px; font-size: 0.75rem;" onclick="initGame('random')">Random Simulation</button>
 
-<div class="custom-inputs" style="margin-top:8px;">
+<div class="custom-inputs" style="margin-top:4px;">
 <div class="c-input-box">
 <span class="c-label">Monthly SIP (₹)</span>
 <input type="number" id="sipAmount" class="c-num" style="color:var(--accent);" value="10000" min="1000" step="1000">
@@ -1049,7 +1059,7 @@ style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelec
 <button class="setup-btn" style="border-color:var(--accent);color:var(--accent);flex:1.2;" onclick="initGame('sip')">▶ SIP SIM</button>
 </div>
 
-<div class="custom-inputs" style="margin-top:8px;">
+<div class="custom-inputs" style="margin-top:4px;">
 <select id="stressSelect" class="dropdown" style="margin-bottom:0; flex: 2;">
 <option value="covid">Stress: COVID Crash ('20)</option>
 <option value="ukraine">Stress: Global Slump ('22)</option>
@@ -1062,7 +1072,7 @@ style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelec
 <button class="setup-btn" style="border-color:var(--red);color:var(--red);flex: 1;" onclick="runStressTest()">RUN STRESS</button>
 </div>
 
-<div class="custom-inputs" style="margin-top:8px;">
+<div class="custom-inputs" style="margin-top:4px;">
 <div class="c-input-box" style="padding:4px 6px;">
 <span class="c-label">Start Date</span>
 <input type="date" id="customStart" class="c-num" style="font-size:0.65rem;">
@@ -1076,22 +1086,24 @@ style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelec
 
 </div>
 
-<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;border-top:1px dashed var(--border);padding-top:16px;width:100%;max-width:350px;">
+<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;border-top:1px dashed var(--border);padding-top:10px;width:100%;max-width:350px;">
 <button class="setup-btn setup-btn-live" onclick="initLiveChart()">Live Market</button>
 <button class="setup-btn" style="border-color:var(--gold);color:var(--gold);" onclick="initLiveAnalytics()">Live Analytics</button>
 </div>
-<div class="setup-btns" style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px;width:100%;max-width:350px;">
+<div class="setup-btns" style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px;width:100%;max-width:350px;">
+
 <button class="setup-btn" style="border-color:var(--border2);color:var(--muted2);" onclick="openCompareModal()">⇄ Compare Two Funds</button>
 </div>
 
-<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
 <button class="setup-btn" style="border-color:#00e8a2;color:#00e8a2;"
 onclick="runRRGScanner('LEADING')">SCAN - RRG LEADING</button>
 <button class="setup-btn" style="border-color:#3b82f6;color:#3b82f6;"
 onclick="runRRGScanner('IMPROVING')">SCAN - RRG IMPROVING</button>
 </div>
 
-<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;">
+<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px;">
+
 <button class="setup-btn" style="border-color:#00e8a2;color:#00e8a2;font-size:0.55rem;"
 onclick="runRegimeAScanner('INVEST')">Regime A<br>Invest</button>
 <button class="setup-btn" style="border-color:#f59e0b;color:#f59e0b;font-size:0.55rem;"

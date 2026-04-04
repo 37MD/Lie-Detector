@@ -1393,15 +1393,17 @@ Signal Checklist</div>
 </div>
 
 <div id="reviewModal" class="modal-overlay">
-<div class="modal-close">
+<div class="modal-close" style="padding-left: 4px; padding-right: 6px;">
 <span class="modal-title" style="color:var(--gold);">Process Audit</span>
-<div style="display:flex;gap:10px;align-items:center;">
-<span class="modal-close-btn" style="color:var(--muted2);" onclick="showLog()">[ LOG ]</span>
-<span class="modal-close-btn" style="color:var(--accent2);" onclick="showReplay()">[ REPLAY ]</span>
-<span class="modal-close-btn" style="color:var(--accent);" onclick="exportShareCard()">[ SHARE ]</span>
-<span class="modal-close-btn" onclick="location.reload()">[ RESTART ]</span>
+<div style="display:flex;gap:5px;align-items:center;">
+<span class="modal-close-btn" style="color:var(--muted2);letter-spacing:0.02em;" onclick="showLog()">[ LOG ]</span>
+<span class="modal-close-btn" style="color:var(--accent2);letter-spacing:0.02em;" onclick="showReplay()">[ REPLAY ]</span>
+<span class="modal-close-btn" style="color:var(--accent);letter-spacing:0.02em;" onclick="exportShareCard()">[ SHARE ]</span>
+<span class="modal-close-btn" style="letter-spacing:0.02em;" onclick="location.reload()">[ RESTART ]</span>
 </div>
 </div>
+
+
 <div class="review-container">
 <div class="score-card" style="border-color:var(--gold);">
 <div>

@@ -1,20 +1,37 @@
 const puppeteer = require('puppeteer');
-const fs = require('fs');
 
-(async () => {
+async function loadAlertData() {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    await page.goto('path/to/your/LieDetector.html');
+    try {
+        // Load the live app URL
+        await page.goto('https://37md.github.io/Lie-Detector/index.html', { waitUntil: 'domcontentloaded' });
+        console.log('Page loaded successfully');
 
-    // Extract fund names and alert text
-    const results = await page.evaluate(() => {
-        const fundNames = Array.from(document.querySelectorAll('.fund-name')).map(el => el.innerText);
-        const alertTexts = Array.from(document.querySelectorAll('.alert-text')).map(el => el.innerText);
-        return { fundNames, alertTexts };
-    });
+        // Extract the fund name
+        const fundName = await page.$eval('.fund-name-tag', el => el.innerText);
+        console.log(`Fund Name: ${fundName}`);
 
-    // Saving results to alerts.json
-    fs.writeFileSync('alerts.json', JSON.stringify(results, null, 2));
+        // Extract alerts from multiple selectors
+        const alerts = await Promise.all([
+            page.$eval('#liveChartAlertBanner', el => el ? el.innerText : null),
+            page.$eval('#alertBanner', el => el ? el.innerText : null),
+            page.$eval('#liveAlertBanner', el => el ? el.innerText : null)
+        ]);
 
-    await browser.close();
-});
+        // Filter out any null values
+        const extractedAlerts = alerts.filter(alert => alert !== null);
+        console.log('Extracted Alerts:', extractedAlerts);
+
+        // Save results to alerts.json
+        const fs = require('fs');
+        fs.writeFileSync('alerts.json', JSON.stringify({ fundName, extractedAlerts }, null, 2));
+        console.log('Alerts saved to alerts.json');
+    } catch (error) {
+        console.error('Error extracting data:', error);
+    } finally {
+        await browser.close();
+    }
+}
+
+loadAlertData();

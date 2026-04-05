@@ -1009,7 +1009,6 @@ input:checked + .slider:before { transform: translateX(16px); }
 /* Reduces font sizes in HUD, indicator values, and psychology  */
 /* text.  Also shrinks chart height from 52 vh → 44 vh to       */
 /* preserve space for the action bar on short screens.          */
-@media (max-width:600px) {
 .chart-hud { font-size: 0.50rem; letter-spacing: -0.05em; width: calc(100% - 50px); line-height: 1.2; }
 .ind-val { font-size: 0.95rem !important; padding: 2px 4px !important; }
 .chart-container { height: 44vh; min-height: 300px; }
@@ -1121,6 +1120,23 @@ input:checked + .slider:before { transform: translateX(16px); }
 .donut-legend{font-size:0.52rem;display:flex;flex-direction:column;gap:4px;}
 .donut-legend-item{display:flex;align-items:center;gap:5px;}
 .donut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── RATIONALE CHIPS ─────────────────────────────────────── */
+.rationale-chip{font-size:0.52rem;padding:3px 7px;border-radius:10px;cursor:pointer;
+  background:var(--surface2);border:1px solid var(--border);color:var(--muted2);
+  font-family:var(--mono);white-space:nowrap;transition:all 0.12s;letter-spacing:0.04em;}
+.rationale-chip:hover{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+.rationale-chip-custom{border-style:dashed;color:var(--muted);}
+.rationale-chip-custom:hover{background:var(--surface3);border-color:var(--border2);color:var(--text);}
+
+/* ── WATCHLIST ROW ────────────────────────────────────────── */
+.wl-row{display:flex;align-items:center;gap:6px;padding:7px 8px;border:1px solid var(--border);
+  border-radius:var(--radius-sm);background:var(--surface);cursor:pointer;transition:all 0.12s;}
+.wl-row:hover{border-color:var(--border2);background:var(--surface2);}
+.wl-reg{font-size:0.6rem;font-weight:700;padding:2px 6px;border-radius:3px;flex-shrink:0;}
+.wl-name{flex:1;font-size:0.58rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wl-rsi{font-size:0.55rem;color:var(--muted2);flex-shrink:0;}
+.wl-alert{font-size:0.65rem;flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -1163,16 +1179,29 @@ style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelec
 
 <button class="setup-btn setup-btn-sim" style="width: 100%; max-width: 350px; padding: 12px; font-size: 0.75rem;" onclick="initGame('random')">Random Simulation</button>
 
+<!-- SIP embedded in simulator row -->
 <div class="custom-inputs" style="margin-top:4px;">
-<div class="c-input-box">
-<span class="c-label">Monthly SIP (₹)</span>
-<input type="number" id="sipAmount" class="c-num" style="color:var(--accent);" value="10000" min="1000" step="1000">
+<div class="c-input-box" style="padding:4px 6px;">
+<span class="c-label">SIP Amount (₹)</span>
+<input type="number" id="sipAmount" class="c-num" style="color:var(--accent);font-size:0.85rem;" value="10000" min="1000" step="1000">
 </div>
-<button class="setup-btn" style="border-color:var(--accent);color:var(--accent);flex:1.2;" onclick="initGame('sip')">▶ SIP SIM</button>
+<div class="c-input-box" style="padding:4px 6px;flex:0.9;">
+<span class="c-label">SIP Mode</span>
+<select id="sipMode" class="c-num" style="font-size:0.6rem;background:transparent;border:none;outline:none;font-family:var(--mono);width:100%;color:var(--text);">
+<option value="weekly">Weekly (day)</option>
+<option value="autobuy">AutoBuy Slingshot</option>
+</select>
+</div>
+<div class="c-input-box" style="padding:4px 6px;flex:0.6;" id="sipDayBox">
+<span class="c-label">Day (1=Mon)</span>
+<input type="number" id="sipWeekDay" class="c-num" style="font-size:0.85rem;" value="1" min="1" max="5">
+</div>
+<button class="setup-btn" style="border-color:var(--accent);color:var(--accent);flex:1;" onclick="initGame('sip')">▶ SIP</button>
 </div>
 
+<!-- Stress + Dates merged -->
 <div class="custom-inputs" style="margin-top:4px;">
-<select id="stressSelect" class="dropdown" style="margin-bottom:0; flex: 2;">
+<select id="stressSelect" class="dropdown" style="margin-bottom:0;flex:2.2;">
 <option value="covid">Stress: COVID Crash ('20)</option>
 <option value="ukraine">Stress: Global Slump ('22)</option>
 <option value="demo">Stress: Demonetization ('16)</option>
@@ -1180,12 +1209,15 @@ style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelec
 <option value="auto1" id="autoStress1" disabled>Load fund first…</option>
 <option value="auto2" id="autoStress2" disabled></option>
 <option value="auto3" id="autoStress3" disabled></option>
+<option value="_sep2" disabled>── Custom Range ──</option>
+<option value="custom_dates">Custom Dates ▼</option>
 </select>
-<button class="setup-btn" style="border-color:var(--red);color:var(--red);flex: 1;" onclick="runStressTest()">STRESS</button>
+<button class="setup-btn" style="border-color:var(--red);color:var(--red);flex:0.9;" onclick="runStressOrCustom()">RUN</button>
 <button class="setup-btn" style="border-color:#f59e0b;color:#f59e0b;flex:1;font-size:0.58rem;" onclick="openRegimeDrill()">REGIME DRILL</button>
 </div>
 
-<div class="custom-inputs" style="margin-top:4px;">
+<!-- Custom date row — shown only when custom_dates selected -->
+<div class="custom-inputs" style="margin-top:2px;" id="customDateRow">
 <div class="c-input-box" style="padding:4px 6px;">
 <span class="c-label">Start Date</span>
 <input type="date" id="customStart" class="c-num" style="font-size:0.65rem;">
@@ -1194,15 +1226,12 @@ style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelec
 <span class="c-label">End Date</span>
 <input type="date" id="customEnd" class="c-num" style="font-size:0.65rem;">
 </div>
-
-<button class="setup-btn setup-btn-custom" style="flex: 0.8;" onclick="runCustomRange()">RUN DATES</button>
-
 </div>
 
-<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px;border-top:1px dashed var(--border);padding-top:10px;width:100%;max-width:350px;">
-
+<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:2px;border-top:1px dashed var(--border);padding-top:10px;width:100%;max-width:350px;">
 <button class="setup-btn setup-btn-live" onclick="initLiveChart()">Live Market</button>
 <button class="setup-btn" style="border-color:var(--gold);color:var(--gold);" onclick="initLiveAnalytics()">Live Analytics</button>
+<button class="setup-btn" style="border-color:#a855f7;color:#a855f7;" onclick="openWatchlist()">📌 Watchlist</button>
 </div>
 <div class="setup-btns" style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px;width:100%;max-width:350px;">
 
@@ -1259,6 +1288,28 @@ onclick="runRegimeAScanner('PROFIT')">Regime A<br>Profit</button>
 
 </div>
 
+
+<!-- ══════════ WATCHLIST MODAL ══════════ -->
+<div id="watchlistModal" class="modal-overlay" style="z-index:610;">
+<div class="modal-close">
+<div style="display:flex;flex-direction:column;">
+<span class="modal-title" style="color:#a855f7;">📌 WATCHLIST</span>
+<span style="font-size:0.48rem;color:var(--muted);margin-top:1px;">Pinned funds — live Regime · D-RSI · Alert</span>
+</div>
+<div style="display:flex;gap:6px;align-items:center;">
+<button class="setup-btn" style="border-color:#a855f7;color:#a855f7;padding:4px 8px;font-size:0.55rem;" onclick="addCurrentToWatchlist()">+ PIN THIS FUND</button>
+<span class="modal-close-btn" onclick="document.getElementById('watchlistModal').style.display='none';document.getElementById('setupScreen').style.display='flex';">[ X ]</span>
+</div>
+</div>
+<div style="padding:6px 8px;font-size:0.5rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
+Auto-refreshes every 60s · Tap row to open Live Cockpit
+</div>
+<div id="watchlistBody" style="flex-grow:1;overflow-y:auto;padding:4px 6px;display:flex;flex-direction:column;gap:4px;"></div>
+<div style="padding:6px 8px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:6px;">
+<button class="setup-btn" style="border-color:var(--border2);color:var(--muted2);flex:1;font-size:0.55rem;" onclick="refreshWatchlist()">↺ REFRESH ALL</button>
+<button class="setup-btn" style="border-color:var(--red);color:var(--red);flex:0.6;font-size:0.55rem;" onclick="clearWatchlist()">CLEAR</button>
+</div>
+</div>
 
 <div id="liveChartModal" class="modal-overlay">
 
@@ -1710,9 +1761,21 @@ style="border-top:1px solid var(--border);padding:4px 0 2px;margin-top:2px;">
 </main>
 
 <div id="rationaleBar">
-<span style="color:var(--muted);flex-shrink:0;">Why? (3 words)</span>
-<input id="rationaleInput" type="text" maxlength="40" placeholder="e.g. regime A dip">
-<span onclick="submitRationale()" style="color:var(--accent);cursor:pointer;flex-shrink:0;padding:4px 8px;border:1px solid var(--accent);border-radius:var(--radius-sm);">OK</span>
+<div id="rationaleChips" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;">
+<span class="rationale-chip" onclick="submitRationaleCode('TSL breach')">TSL</span>
+<span class="rationale-chip" onclick="submitRationaleCode('Slingshot signal')">SLING</span>
+<span class="rationale-chip" onclick="submitRationaleCode('Regime change')">REG↑</span>
+<span class="rationale-chip" onclick="submitRationaleCode('Oversold RSI<40')">RSI<40</span>
+<span class="rationale-chip" onclick="submitRationaleCode('PC Breakout')">PC BOX</span>
+<span class="rationale-chip" onclick="submitRationaleCode('Regime C exit')">REG C</span>
+<span class="rationale-chip" onclick="submitRationaleCode('Profit booking')">PROFIT</span>
+<span class="rationale-chip rationale-chip-custom" onclick="showCustomRationale()">CUSTOM…</span>
+</div>
+<div id="rationaleCustomRow" style="display:none;flex:1;gap:6px;align-items:center;">
+<input id="rationaleInput" type="text" maxlength="40" placeholder="type reason…" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 8px;font-family:var(--mono);font-size:0.6rem;outline:none;color:var(--text);">
+<span onclick="submitRationale()" style="color:var(--accent);cursor:pointer;flex-shrink:0;padding:4px 8px;border:1px solid var(--accent);border-radius:var(--radius-sm);font-size:0.6rem;">OK</span>
+<span onclick="hideRationaleBar()" style="color:var(--muted);cursor:pointer;flex-shrink:0;font-size:0.6rem;">✕</span>
+</div>
 </div>
 <footer class="action-bar">
 <button class="btn btn-buy" id="btnBuy10" onclick="trade('BUY 10%')">BUY 10%</button>
@@ -1755,7 +1818,7 @@ document.getElementById('setupScreen').style.display='flex'">[ X ] CLOSE</span>
 <select id="cmpFundB" class="dropdown" style="margin-bottom:0;flex:1;font-size:0.62rem;"></select>
 <button class="setup-btn" style="border-color:var(--accent);color:var(--accent);padding:8px;flex-shrink:0;white-space:nowrap;" onclick="runComparison()">GO</button>
 </div>
-<div id="cmpResult" style="flex-grow:1;overflow-y:auto;padding:8px;"></div>
+<div id="cmpResult" style="flex-grow:1;overflow-y:auto;padding:8px;font-size:0.72rem;"></div>
 </div>
 
 <div id="rrgScannerModal" class="modal-overlay">
@@ -2162,22 +2225,47 @@ const _streak = {
     get count() { return parseInt(localStorage.getItem('ld_streak_count') || '0'); },
     get best()  { return parseInt(localStorage.getItem('ld_streak_best')  || '0'); },
     save(c, b)  { localStorage.setItem('ld_streak_count', c); localStorage.setItem('ld_streak_best', b); },
-    update(won) {
+    // Derive trading style from session stats
+    getStyle(stats) {
+        // stats: { goodBuys, badBuys, prematureBuys, panicSells, missedBuyEvents, profitTrades, exitTrades, totalTrades }
+        if (!stats || stats.totalTrades === 0) return { label: 'Ghost Player', icon: '👻', color: 'var(--muted)' };
+        const { goodBuys=0, badBuys=0, prematureBuys=0, panicSells=0, missedBuyEvents=0, profitTrades=0 } = stats;
+        // Rule-based style classification
+        if (badBuys >= 3) return { label: 'Knife Catcher', icon: '🔪', color: 'var(--red)' };
+        if (panicSells >= 3) return { label: 'Fearful Seller', icon: '😱', color: 'var(--red)' };
+        if (prematureBuys >= 4) return { label: 'Trigger Happy', icon: '🎯', color: 'var(--accent2)' };
+        if (missedBuyEvents >= 4) return { label: 'Analysis Paralysis', icon: '🧊', color: 'var(--accent2)' };
+        if (profitTrades >= 3 && panicSells === 0) return { label: 'Prompt Seller', icon: '💰', color: 'var(--gold)' };
+        if (goodBuys >= 4 && badBuys === 0) return { label: 'Disciplined Buyer', icon: '🎯', color: 'var(--accent)' };
+        if (goodBuys >= 3 && profitTrades >= 2) return { label: 'Sacred Trader', icon: '🔥', color: 'var(--accent)' };
+        if (goodBuys >= 2 && badBuys <= 1) return { label: 'Good Buyer', icon: '✅', color: 'var(--accent)' };
+        if (badBuys >= 1 && prematureBuys >= 2) return { label: 'Aggressive Buyer', icon: '⚡', color: 'var(--accent2)' };
+        return { label: 'Learning Trader', icon: '📈', color: 'var(--muted2)' };
+    },
+    update(won, stats) {
         let c = won ? this.count + 1 : 0;
         let b = Math.max(this.best, c);
         this.save(c, b);
+        // Save last style
+        if (stats) localStorage.setItem('ld_last_style', JSON.stringify(this.getStyle(stats)));
         this.render();
     },
     render() {
         const el = document.getElementById('streakBadge');
         if (!el) return;
         const c = this.count, b = this.best;
-        if (c === 0 && b === 0) { el.textContent = ''; return; }
-        const flame = c >= 5 ? '🔥' : c >= 3 ? '⚡' : '✦';
-        el.textContent = c > 0
-            ? `${flame} ${c}-SESSION STREAK  ·  BEST: ${b}`
-            : `STREAK BROKEN  ·  BEST: ${b}`;
-        el.style.color = c >= 3 ? 'var(--accent)' : c > 0 ? 'var(--accent2)' : 'var(--red)';
+        // Show style if available
+        const savedStyle = (() => { try { return JSON.parse(localStorage.getItem('ld_last_style') || 'null'); } catch(e) { return null; } })();
+        if (c === 0 && b === 0 && !savedStyle) { el.textContent = ''; return; }
+        if (savedStyle) {
+            const streakTxt = c > 0 ? ` · ${c}-STREAK` : b > 0 ? ` · BEST: ${b}` : '';
+            el.innerHTML = `${savedStyle.icon} <span style="color:${savedStyle.color}">${savedStyle.label}</span>${streakTxt}`;
+            el.style.color = 'var(--muted2)';
+        } else {
+            const flame = c >= 5 ? '🔥' : c >= 3 ? '⚡' : '✦';
+            el.textContent = c > 0 ? `${flame} ${c}-SESSION STREAK  ·  BEST: ${b}` : `BEST: ${b}`;
+            el.style.color = c >= 3 ? 'var(--accent)' : c > 0 ? 'var(--accent2)' : 'var(--muted)';
+        }
     }
 };
 
@@ -2481,9 +2569,11 @@ ovEl.style.display = 'none';
 _lastFetchWasCached = false;
 _lastFetchTimestamp = Date.now();
 
-if (!data?.data || !Array.isArray(data.data)) return [];
+// Handle both { data: [...] } (mfapi / npsnav wrapped) and raw array (npsnav direct)
+const rows = Array.isArray(data) ? data : (data?.data && Array.isArray(data.data) ? data.data : null);
+if (!rows) return [];
 
-return data.data
+return rows
 .map(d => ({ nav: parseFloat(d.nav), date: window.normalizeDate(d.date) }))
 .filter(d => Number.isFinite(d.nav) && d.nav > 0)
 .reverse();
@@ -2730,6 +2820,13 @@ sum += prices[prices.length - 1 - i] * (period - i);
 }
 return sum / weightSum;
 }
+
+/**
+* Simple moving average of the last `period` values.
+* @param {number[]} prices
+* @param {number} period - default 50
+* @returns {number|null} null when insufficient data
+*/
 
 /**
  * Simple (equally-weighted) moving average of the last `period` values.
@@ -3585,13 +3682,21 @@ if (calContainer && globalLiveData.length > 21) {
         const pct = Math.max(cA, cB, cC) / idxs.length * 100;
         months.push({ label: `${yr.toString().slice(2)}${mo}`, dom, pct });
     }
-    calContainer.innerHTML = months.map(m => {
+    calContainer.innerHTML = months.map((m, idx) => {
         if (!m) return `<div style="height:28px;"></div>`;
         const col = m.dom === 'A' ? '#009e70' : m.dom === 'B' ? '#c97a00' : '#c8102e';
         const bg  = m.dom === 'A' ? 'rgba(0,158,112,0.15)' : m.dom === 'B' ? 'rgba(201,122,0,0.15)' : 'rgba(200,16,46,0.15)';
-        return `<div title="Regime ${m.dom} (${m.pct.toFixed(0)}% of month)"
+        // Compute start/end dates for ±1 month sim launch
+        const mOffset = 23 - idx;
+        const d0 = new Date(); d0.setDate(1); d0.setMonth(d0.getMonth() - mOffset - 1);
+        const d1 = new Date(); d1.setDate(1); d1.setMonth(d1.getMonth() - mOffset + 1);
+        const fmt = d => d.toISOString().slice(0,7) + '-01';
+        const startD = fmt(d0), endD = fmt(d1);
+        return `<div title="Tap to drill: Regime ${m.dom} (${m.pct.toFixed(0)}% of month)"
+        onclick="launchRegimeHistoryDrill('${startD}','${endD}')"
         style="background:${bg};border:1px solid ${col};border-radius:3px;
-        padding:3px 2px;text-align:center;font-size:0.48rem;color:${col};line-height:1.4;">
+        padding:3px 2px;text-align:center;font-size:0.48rem;color:${col};line-height:1.4;cursor:pointer;transition:opacity 0.15s;"
+        onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
         <div style="font-weight:700;">${m.dom}</div>
         <div style="color:var(--muted);font-size:0.44rem;">${m.label}</div>
         </div>`;
@@ -3739,9 +3844,9 @@ async function runComparison() {
             const numA = parseFloat(va), numB = parseFloat(vb);
             const aWins = !isNaN(numA) && !isNaN(numB) && (higherBetter ? numA > numB : numA < numB);
             const bWins = !isNaN(numA) && !isNaN(numB) && (higherBetter ? numB > numA : numB < numA);
-            return `<div style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:4px;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.62rem;align-items:center;">
+            return `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;padding:5px 0;border-bottom:1px solid var(--border);font-size:0.70rem;align-items:center;">
             <div style="${aWins?'font-weight:700;':''}color:${aWins?'var(--accent)':'var(--text)'}">${va}</div>
-            <div style="text-align:center;font-size:0.52rem;color:var(--muted);text-transform:uppercase;">${lbl}</div>
+            <div style="text-align:center;font-size:0.58rem;color:var(--muted);text-transform:uppercase;">${lbl}</div>
             <div style="${bWins?'font-weight:700;':''}color:${bWins?'var(--accent)':'var(--text)'};text-align:right">${vb}</div>
             </div>`;
         };
@@ -3812,9 +3917,20 @@ function renderReplayChart() {
 
     const navs = data.map(d => d.nav);
     const lows = simLowessCache.slice(simStartIdx, currentIdx + 1);
+
+    // Compute WMA20 for the slice
+    const wma20Vals = navs.map((_, i) => {
+        if (i < 19) return null;
+        const slice = navs.slice(i - 19, i + 1);
+        let num = 0, den = 0;
+        slice.forEach((v, j) => { num += v * (j + 1); den += (j + 1); });
+        return num / den;
+    });
+
     const validLows = lows.filter(Boolean);
-    const minNav = Math.min(...navs, ...(validLows.length ? validLows : navs)) * 0.97;
-    const maxNav = Math.max(...navs, ...(validLows.length ? validLows : navs)) * 1.03;
+    const validWma  = wma20Vals.filter(Boolean);
+    const minNav = Math.min(...navs, ...(validLows.length ? validLows : []), ...(validWma.length ? validWma : [])) * 0.97;
+    const maxNav = Math.max(...navs, ...(validLows.length ? validLows : []), ...(validWma.length ? validWma : [])) * 1.03;
     const mapX = i => (i / Math.max(1, data.length - 1)) * w;
     const mapY = v => h - ((v - minNav) / (maxNav - minNav)) * h;
 
@@ -3825,8 +3941,8 @@ function renderReplayChart() {
         ctx.fillRect(mapX(i-1), 0, mapX(i) - mapX(i-1), h);
     }
 
-    // Lowess floor line
-    ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(200,16,46,0.5)'; ctx.setLineDash([3,3]);
+    // TSL (Lowess) floor line — red dashed
+    ctx.beginPath(); ctx.lineWidth = 1.2; ctx.strokeStyle = 'rgba(200,16,46,0.7)'; ctx.setLineDash([3,3]);
     let started = false;
     lows.forEach((v, i) => {
         if (!v || i < 18) return;
@@ -3835,70 +3951,105 @@ function renderReplayChart() {
     });
     ctx.stroke(); ctx.setLineDash([]);
 
+    // WMA20 line — blue solid
+    ctx.beginPath(); ctx.lineWidth = 1.2; ctx.strokeStyle = 'rgba(59,130,246,0.8)';
+    let wmaStarted = false;
+    wma20Vals.forEach((v, i) => {
+        if (!v) return;
+        const x = mapX(i), y = mapY(v);
+        wmaStarted ? ctx.lineTo(x, y) : (ctx.moveTo(x, y), wmaStarted = true);
+    });
+    ctx.stroke();
+
     // Price line
     ctx.beginPath(); ctx.lineWidth = 1.5; ctx.strokeStyle = '#000';
     navs.forEach((v, i) => i === 0 ? ctx.moveTo(mapX(i), mapY(v)) : ctx.lineTo(mapX(i), mapY(v)));
     ctx.stroke();
 
-// Trade markers
+    // Trade markers — non-overlapping boxes using occupancy grid
+    const occupied = []; // list of {x1,y1,x2,y2}
+    const boxW = 62, boxH = 46;
+
+    const findFreeBox = (cx, cy, isBuy) => {
+        const candidates = [
+            { x: cx + 6,      y: isBuy ? cy + 16 : cy - boxH - 5 },
+            { x: cx - boxW - 6, y: isBuy ? cy + 16 : cy - boxH - 5 },
+            { x: cx + 6,      y: cy - boxH / 2 },
+            { x: cx - boxW - 6, y: cy - boxH / 2 },
+            { x: cx + 6,      y: cy + boxH + 5 },
+        ];
+        for (const pos of candidates) {
+            const bx = Math.max(0, Math.min(pos.x, w - boxW));
+            const by = Math.max(0, Math.min(pos.y, h - boxH));
+            const overlaps = occupied.some(o =>
+                bx < o.x2 && bx + boxW > o.x1 && by < o.y2 && by + boxH > o.y1
+            );
+            if (!overlaps) {
+                occupied.push({ x1: bx, y1: by, x2: bx + boxW, y2: by + boxH });
+                return { x: bx, y: by };
+            }
+        }
+        // fallback
+        const fb = { x: Math.max(0, Math.min(cx + 6, w - boxW)), y: Math.max(0, cy - boxH / 2) };
+        occupied.push({ x1: fb.x, y1: fb.y, x2: fb.x + boxW, y2: fb.y + boxH });
+        return fb;
+    };
+
     tradeLog.forEach(t => {
         const i = t.day;
         if (i < 0 || i >= data.length) return;
         const x = mapX(i), y = mapY(data[i].nav);
         const isBuy = t.action.includes('BUY') || t.action.includes('SIP');
-        
-        // Draw vertical dashed line
+
         ctx.beginPath(); ctx.setLineDash([2,2]);
         ctx.strokeStyle = isBuy ? 'rgba(0,158,112,0.4)' : 'rgba(200,16,46,0.4)';
         ctx.lineWidth = 1;
         ctx.moveTo(x, 0); ctx.lineTo(x, h);
         ctx.stroke(); ctx.setLineDash([]);
 
-        // Draw Triangle Marker
         ctx.font = 'bold 11px monospace';
         ctx.fillStyle = isBuy ? '#009e70' : '#c8102e';
         ctx.fillText(isBuy ? '▲' : '▼', x - 4, isBuy ? y + 12 : y - 5);
 
-        // Extract metrics for this specific bar
         const absIdx = simStartIdx + i;
-        const dRsi = Math.round(simDailyRsiCache[absIdx] || 50);
-        const wRsi = Math.round(simWeeklyRsiCache[absIdx] || 50);
-        const tsl = (simLowessCache[absIdx] || 0).toFixed(1);
-        const wmaSlice = fullHistory.map(v => v.nav).slice(0, absIdx + 1);
-        const wma20 = (calculateWMA(wmaSlice, 20) || 0).toFixed(1);
+        const dRsi  = Math.round(simDailyRsiCache[absIdx] || 50);
+        const wRsi  = Math.round(simWeeklyRsiCache[absIdx] || 50);
+        const tsl   = (simLowessCache[absIdx] || 0).toFixed(1);
+        const wma20v = wma20Vals[i] ? wma20Vals[i].toFixed(1) : '--';
+        const tagLbl = t.tag || '';
 
-        // Draw Data Box (Slightly offset from the marker)
-        const boxW = 58;
-        const boxH = 44;
-        let boxX = x + 6;
-        let boxY = isBuy ? y + 16 : y - 50;
+        const pos = findFreeBox(x, y, isBuy);
+        const { x: boxX, y: boxY } = pos;
 
-        // Keep box within canvas bounds so it doesn't clip off-screen
-        if (boxX + boxW > w) boxX = x - boxW - 6; 
-        if (boxY < 0) boxY = 2; 
-        if (boxY + boxH > h) boxY = h - boxH - 2; 
+        // Connector line from marker to box
+        ctx.beginPath(); ctx.setLineDash([1,2]);
+        ctx.strokeStyle = isBuy ? 'rgba(0,158,112,0.3)' : 'rgba(200,16,46,0.3)';
+        ctx.lineWidth = 0.8;
+        ctx.moveTo(x, y); ctx.lineTo(boxX + boxW / 2, boxY + boxH / 2);
+        ctx.stroke(); ctx.setLineDash([]);
 
-        // Box Background & Border
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.fillStyle = 'rgba(255,255,255,0.92)';
         ctx.fillRect(boxX, boxY, boxW, boxH);
-        ctx.strokeStyle = isBuy ? 'rgba(0,158,112,0.5)' : 'rgba(200,16,46,0.5)';
+        ctx.strokeStyle = isBuy ? 'rgba(0,158,112,0.6)' : 'rgba(200,16,46,0.6)';
         ctx.lineWidth = 1;
         ctx.strokeRect(boxX, boxY, boxW, boxH);
 
-        // Box Text
         ctx.fillStyle = isBuy ? '#007a50' : '#a00000';
         ctx.font = '7px monospace';
-        ctx.fillText(`Reg: ${t.regime}`, boxX + 4, boxY + 10);
-        ctx.fillText(`D:${dRsi} W:${wRsi}`, boxX + 4, boxY + 20);
-        ctx.fillText(`TSL: ${tsl}`, boxX + 4, boxY + 30);
-        ctx.fillText(`WMA: ${wma20}`, boxX + 4, boxY + 40);
+        ctx.fillText(`Reg:${t.regime} ${tagLbl}`, boxX + 3, boxY + 9);
+        ctx.fillText(`D-RSI:${dRsi}  W:${wRsi}`, boxX + 3, boxY + 19);
+        ctx.fillText(`TSL: ${tsl}`, boxX + 3, boxY + 29);
+        ctx.fillText(`WMA20: ${wma20v}`, boxX + 3, boxY + 39);
+        if (t.note) ctx.fillText(t.note.slice(0,10), boxX + 3, boxY + 46);
     });
 
     const totalRet = navs.length > 1 ? ((navs[navs.length-1] - navs[0]) / navs[0] * 100).toFixed(1) : '0.0';
     const buys  = tradeLog.filter(t => t.action.includes('BUY') || t.action.includes('SIP')).length;
     const sells = tradeLog.filter(t => t.action.includes('SELL')).length;
-    document.getElementById('replayScrubBar').textContent =
-        `${data.length} trading days  ·  ${buys} buys  ·  ${sells} sells  ·  Fund moved ${totalRet >= 0 ? '+' : ''}${totalRet}%`;
+    document.getElementById('replayScrubBar').innerHTML =
+        `${data.length} days &nbsp;·&nbsp; ${buys} buys &nbsp;·&nbsp; ${sells} sells &nbsp;·&nbsp; Fund: ${totalRet >= 0 ? '+' : ''}${totalRet}%`
+        + `&nbsp;&nbsp;<span style="color:#3b82f6">— WMA20</span>`
+        + `&nbsp;&nbsp;<span style="color:rgba(200,16,46,0.8)">--- TSL</span>`;
 }
 
 // =============================================================================
@@ -4155,6 +4306,7 @@ maxDrawdown = 0;
 totalTaxPaid = 0;
 window.currentSimLookback = 250;
 _infractionCount = 0;
+_sipFreezeUntilDay = -1;
 const badge = document.getElementById('infractionBadge');
 if (badge) badge.style.display = 'none';
 
@@ -4348,7 +4500,7 @@ b.style.color = 'var(--muted2)';
 
 let _pendingTradeAction = null; // kept for legacy rationaleBar no-op
 
-let _lastSipBuyIdx = -1; // tracks last SIP buy bar index for T+2 freeze
+let _lastSipIdx = -1;
 
 /** Advance the simulator by one day and re-render. */
 function nextDay() {
@@ -4357,38 +4509,11 @@ const endTarget = simEndIdx !== null ? simEndIdx : fullHistory.length - 1;
 if (currentIdx < endTarget) {
 currentIdx++;
 
-// ── SIP auto-invest: fire once per ~21 trading days ──────────────────
+// ── SIP auto-invest: delegated to _handleSipAutoInvest (A9) ─────────────
 const tagEl = document.getElementById('simModeTag');
 if (tagEl && tagEl.textContent === 'SIP SIM') {
     const dayNum = currentIdx - simStartIdx;
-    if (dayNum > 0 && dayNum % 21 === 0) {
-        const sipAmt = parseInt(document.getElementById('sipAmount')?.value) || 10000;
-        const snap = buildEngineSnapshot(currentIdx, fullHistory.map(v=>v.nav),
-            simStartIdx, simDailyRsiCache, simWeeklyRsiCache, simLowessCache, cash, tranches, peakNetWorth);
-        const autoAction = snap.regime === 'C' ? null
-            : snap.tsl.tslHit ? null
-            : (snap.drsi < 40 || snap.delta < buyDeltaLevel || snap.pcAlert)
-                ? 'SIP_BOOST' : 'SIP_AUTO';
-
-        if (autoAction) {
-            const boost = autoAction === 'SIP_BOOST' ? 1.5 : 1.0;
-            const amt = Math.min(sipAmt * boost, cash);
-            if (amt > 10 && snap.nav > 0) {
-                tranches.push({ day: dayNum, idx: currentIdx,
-                    units: amt / snap.nav, price: snap.nav, regime: snap.regime });
-                cash -= amt;
-                tradeLog.push({ day: dayNum,
-                    action: autoAction === 'SIP_BOOST' ? 'SIP BOOST (+50%)' : 'SIP AUTO',
-                    nav: snap.nav, units: amt / snap.nav, tax: 0, regime: snap.regime,
-                    note: autoAction === 'SIP_BOOST' ? 'Signal confirmed' : 'Scheduled' });
-                flashBanner(autoAction === 'SIP_BOOST'
-                    ? `🟢 SIP BOOST ₹${Math.round(amt).toLocaleString('en-IN')} — Signal confirmed`
-                    : `💰 SIP ₹${Math.round(amt).toLocaleString('en-IN')} — Auto-invested`, 'alert-buy', 2500);
-            }
-        } else {
-            flashBanner(`⏸ SIP PAUSED — ${snap.tsl.tslHit ? 'TSL Breach' : 'Regime C'}`, 'alert-danger', 2500);
-        }
-    }
+    if (dayNum > 0) _handleSipAutoInvest(dayNum);
 }
 
 updateDisplay();
@@ -4821,9 +4946,12 @@ document.getElementById('reviewModal').style.display = 'flex';
 // ── Switch to audit tab on open ───────────────────────────────────────────
 switchRevTab('audit', document.querySelector('.rev-tab'));
 
-// ── Update discipline streak ──────────────────────────────────────────────
+// ── Update discipline streak + trading style ─────────────────────────────
 const _streakWon = totalScore > 0 && panicSells === 0 && daysTslBreachHeld === 0;
-_streak.update(_streakWon);
+const _styleStats = { goodBuys, badBuys, prematureBuys, panicSells, missedBuyEvents,
+    profitTrades: tradeLog.filter(t => t.tag === 'PROFIT').length,
+    totalTrades: tradeLog.length };
+_streak.update(_streakWon, _styleStats);
 
 // ── F1: Trade Classification Summary ─────────────────────────────────────
 const totalTrades = tradeLog.length;
@@ -4861,7 +4989,7 @@ renderWhatIfPanel();
 }
 
 // =============================================================================
-// LD241A8 · FEATURE IMPLEMENTATIONS
+// LD241A9 · FEATURE IMPLEMENTATIONS
 // =============================================================================
 
 // ── F6: Review Tab Switcher ───────────────────────────────────────────────
@@ -5047,37 +5175,30 @@ function _showPreTradeChecklist(action, snap) {
 }
 
 // ── Rewired trade() — now goes: violation check → checklist → execute ────
-let _tradePending = false; // B5: re-entry guard
 async function trade(action) {
-    if (_tradePending) return; // B5: prevent double-tap race condition
-    _tradePending = true;
-    try {
-        const snap = buildEngineSnapshot(
-            currentIdx, fullHistory.map(v => v.nav),
-            simStartIdx, simDailyRsiCache, simWeeklyRsiCache, simLowessCache,
-            cash, tranches, peakNetWorth
-        );
+    const snap = buildEngineSnapshot(
+        currentIdx, fullHistory.map(v => v.nav),
+        simStartIdx, simDailyRsiCache, simWeeklyRsiCache, simLowessCache,
+        cash, tranches, peakNetWorth
+    );
 
-        // F4: Rule violation gate (buy actions only)
-        if (action.includes('BUY')) {
-            const violation = _getRuleViolation(action, snap);
-            if (violation) {
-                const proceed = await _showViolationConfirm(violation);
-                if (!proceed) return;
-            }
+    // F4: Rule violation gate (buy actions only)
+    if (action.includes('BUY')) {
+        const violation = _getRuleViolation(action, snap);
+        if (violation) {
+            const proceed = await _showViolationConfirm(violation);
+            if (!proceed) return;
         }
-
-        // F3+F9: Pre-trade checklist
-        const { proceed, note } = await _showPreTradeChecklist(action, snap);
-        if (!proceed) return;
-
-        // F1: Tag the trade before execution
-        const tag = _classifyTrade(action, snap);
-
-        _executeTrade(action, note, tag);
-    } finally {
-        _tradePending = false; // B5: always release lock
     }
+
+    // F3+F9: Pre-trade checklist
+    const { proceed, note } = await _showPreTradeChecklist(action, snap);
+    if (!proceed) return;
+
+    // F1: Tag the trade before execution
+    const tag = _classifyTrade(action, snap);
+
+    _executeTrade(action, note, tag);
 }
 
 function _executeTrade(action, note, tag = 'CORRECT') {
@@ -5484,6 +5605,256 @@ function renderRegimeDonut(containerId, aCount, bCount, cCount) {
         </div>
     </div>`;
 }
+
+// =============================================================================
+// LD241A9 · NEW FEATURE JS
+// =============================================================================
+
+// ── (8) RATIONALE BAR: chip-first, custom OK only ────────────────────────
+function showCustomRationale() {
+    document.getElementById('rationaleChips').style.display = 'none';
+    document.getElementById('rationaleCustomRow').style.display = 'flex';
+    const inp = document.getElementById('rationaleInput');
+    if (inp) { inp.value = ''; inp.focus(); }
+}
+function hideRationaleBar() {
+    const bar = document.getElementById('rationaleBar');
+    if (bar) bar.style.display = 'none';
+    document.getElementById('rationaleChips').style.display = 'flex';
+    document.getElementById('rationaleCustomRow').style.display = 'none';
+}
+function submitRationaleCode(code) {
+    hideRationaleBar();
+    _executeTrade(_pendingTradeAction, code);
+    _pendingTradeAction = null;
+}
+function submitRationale() {
+    const inp = document.getElementById('rationaleInput');
+    const note = inp ? inp.value.trim() : '';
+    hideRationaleBar();
+    _executeTrade(_pendingTradeAction, note);
+    _pendingTradeAction = null;
+}
+
+// ── (9) MERGED STRESS + CUSTOM DATE HANDLER ──────────────────────────────
+function runStressOrCustom() {
+    const val = document.getElementById('stressSelect').value;
+    if (val === 'custom_dates') {
+        const s = document.getElementById('customStart').value;
+        const e = document.getElementById('customEnd').value;
+        if (!s) { alert('Please select a Start Date.'); return; }
+        initGame('custom', s, e || null);
+    } else {
+        runStressTest();
+    }
+}
+// Toggle custom date row visibility when dropdown changes
+document.addEventListener('DOMContentLoaded', () => {
+    const sel = document.getElementById('stressSelect');
+    const row = document.getElementById('customDateRow');
+    if (sel && row) {
+        row.style.display = 'none';
+        sel.addEventListener('change', () => {
+            row.style.display = sel.value === 'custom_dates' ? 'flex' : 'none';
+        });
+    }
+    // SIP mode toggle: show/hide sipDayBox
+    const sipSel = document.getElementById('sipMode');
+    const sipDayBox = document.getElementById('sipDayBox');
+    if (sipSel && sipDayBox) {
+        sipDayBox.style.display = sipSel.value === 'weekly' ? '' : 'none';
+        sipSel.addEventListener('change', () => {
+            sipDayBox.style.display = sipSel.value === 'weekly' ? '' : 'none';
+        });
+    }
+    _streak.render();
+});
+
+// ── (1) REGIME HISTORY DRILL — click calendar cell → sim ─────────────────
+function launchRegimeHistoryDrill(startDate, endDate) {
+    document.getElementById('liveAnalyticsModal').style.display = 'none';
+    initGame('custom', startDate, endDate);
+}
+
+// ── (4) SIP MODE: weekly-day + T+2 freeze + slingshot autobuy ────────────
+// These variables persist across SIP sessions
+let _sipFreezeUntilDay = -1; // T+2 freeze: no buy until this day
+
+// Patched SIP logic inside nextDay() — called by the existing nextDay function
+// We override the SIP handling block only:
+function _handleSipAutoInvest(dayNum) {
+    const sipMode = document.getElementById('sipMode')?.value || 'weekly';
+    const sipAmt  = parseInt(document.getElementById('sipAmount')?.value) || 10000;
+    const snap = buildEngineSnapshot(currentIdx, fullHistory.map(v=>v.nav),
+        simStartIdx, simDailyRsiCache, simWeeklyRsiCache, simLowessCache, cash, tranches, peakNetWorth);
+
+    if (sipMode === 'autobuy') {
+        // AutoBuy: fire on slingshot signal, then freeze for T+2 (2 trading days)
+        if (dayNum <= _sipFreezeUntilDay) return; // frozen
+        const isSignal = snap.regime === 'A' && !snap.tsl.tslHit &&
+            (snap.drsi < 40 || snap.delta < buyDeltaLevel || snap.pcAlert);
+        if (!isSignal) return;
+        const amt = Math.min(sipAmt, cash);
+        if (amt > 10 && snap.nav > 0) {
+            tranches.push({ day: dayNum, idx: currentIdx, units: amt/snap.nav, price: snap.nav, regime: snap.regime });
+            cash -= amt;
+            tradeLog.push({ day: dayNum, action: 'SIP SLING', nav: snap.nav, units: amt/snap.nav, tax: 0, regime: snap.regime, note: 'Slingshot AutoBuy', tag: 'CORRECT' });
+            _sipFreezeUntilDay = dayNum + 2;
+            flashBanner(`🟢 SIP SLING ₹${Math.round(amt).toLocaleString('en-IN')} — Slingshot buy`, 'alert-buy', 2500);
+        }
+    } else {
+        // Weekly SIP: fire on the user-defined weekday (1=Mon…5=Fri) every ~5 days
+        const targetDay = parseInt(document.getElementById('sipWeekDay')?.value) || 1; // 1-5
+        if (dayNum % 5 !== (targetDay - 1) % 5) return;
+        if (snap.regime === 'C' || snap.tsl.tslHit) {
+            flashBanner(`⏸ WEEKLY SIP PAUSED — ${snap.tsl.tslHit ? 'TSL Breach' : 'Regime C'}`, 'alert-danger', 2500);
+            return;
+        }
+        const isBoost = snap.drsi < 40 || snap.delta < buyDeltaLevel || snap.pcAlert;
+        const amt = Math.min(sipAmt * (isBoost ? 1.5 : 1.0), cash);
+        if (amt > 10 && snap.nav > 0) {
+            tranches.push({ day: dayNum, idx: currentIdx, units: amt/snap.nav, price: snap.nav, regime: snap.regime });
+            cash -= amt;
+            tradeLog.push({ day: dayNum, action: isBoost ? 'SIP BOOST' : 'SIP WEEKLY',
+                nav: snap.nav, units: amt/snap.nav, tax: 0, regime: snap.regime,
+                note: isBoost ? 'Signal boost' : 'Scheduled', tag: 'CORRECT' });
+            flashBanner(isBoost
+                ? `🟢 SIP BOOST ₹${Math.round(amt).toLocaleString('en-IN')} — Signal confirmed`
+                : `💰 SIP WEEKLY ₹${Math.round(amt).toLocaleString('en-IN')}`, 'alert-buy', 2500);
+        }
+    }
+}
+
+// ── (6) WATCHLIST ─────────────────────────────────────────────────────────
+let _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+let _watchlistRefreshTimer = null;
+
+function openWatchlist() {
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('watchlistModal').style.display = 'flex';
+    renderWatchlistStubs();
+    refreshWatchlist();
+    _watchlistRefreshTimer = setInterval(refreshWatchlist, 60_000);
+}
+
+function addCurrentToWatchlist() {
+    const code = document.getElementById('fundSelect')?.value;
+    const name = document.getElementById('fundSelect')?.options[document.getElementById('fundSelect').selectedIndex]?.text || code;
+    if (!code) return;
+    if (_watchlist.find(w => w.code === code)) { alert('Already pinned.'); return; }
+    _watchlist.push({ code, name });
+    localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+    renderWatchlistStubs();
+    refreshWatchlist();
+}
+
+function clearWatchlist() {
+    if (!confirm('Clear all pinned funds?')) return;
+    _watchlist = [];
+    localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+    document.getElementById('watchlistBody').innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No funds pinned. Select a fund and tap "+ PIN THIS FUND".</div>';
+}
+
+function renderWatchlistStubs() {
+    const body = document.getElementById('watchlistBody');
+    if (!body) return;
+    if (_watchlist.length === 0) {
+        body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No funds pinned. Select a fund and tap "+ PIN THIS FUND".</div>';
+        return;
+    }
+    body.innerHTML = _watchlist.map((w, i) =>
+        `<div class="wl-row" id="wlrow-${i}" onclick="_launchFromWatchlist('${w.code}')">
+            <div class="wl-reg" style="background:var(--surface2);color:var(--muted);" id="wlreg-${i}">…</div>
+            <div class="wl-name">${w.name.replace(/\[NPS\] | - Growth| - Direct/gi,'').trim()}</div>
+            <div class="wl-rsi" id="wlrsi-${i}">D:-- W:--</div>
+            <div class="wl-alert" id="wlalert-${i}">🔘</div>
+            <span onclick="event.stopPropagation();_removeWatchlistItem(${i})" style="font-size:0.5rem;color:var(--muted);padding:2px 4px;cursor:pointer;">✕</span>
+        </div>`
+    ).join('');
+}
+
+async function refreshWatchlist() {
+    const rsiLen = parseInt(document.getElementById('rsiLengthIn')?.value) || 4;
+    for (let i = 0; i < _watchlist.length; i++) {
+        const w = _watchlist[i];
+        try {
+            const url = w.code.startsWith('SM')
+                ? `https://npsnav.in/api/historical/${w.code}`
+                : `https://api.mfapi.in/mf/${w.code}`;
+            const res = await fetch(url);
+            const raw = await res.json();
+            const rows = Array.isArray(raw) ? raw : (raw?.data || []);
+            const hist = rows.map(d => ({ nav: parseFloat(d.nav), date: window.normalizeDate(d.date) }))
+                .filter(d => Number.isFinite(d.nav) && d.nav > 0).reverse();
+            if (hist.length < 20) continue;
+            const navs  = hist.map(d => d.nav);
+            const dates = hist.map(d => d.date);
+            const wRsi  = window.buildWeeklyRsiFast(navs, rsiLen, dates);
+            const dRsi  = window.buildDailyRsiFast(navs, rsiLen);
+            const last  = navs.length - 1;
+            const wr = wRsi[last] ?? 50, dr = dRsi[last] ?? 50;
+            const regime = wr >= 50 ? 'A' : wr >= 40 ? 'B' : 'C';
+            const lowess = window.buildLowessGaussianFast(navs, 8, 10);
+            const tslHit = lowess[last] > 0 && navs[last] < lowess[last];
+            const delta  = dr - wr;
+            // Determine alert
+            let alertIcon = '🟡', alertTip = 'Hold';
+            if (tslHit || regime === 'C') { alertIcon = '🚨'; alertTip = 'Exit'; }
+            else if (regime === 'A' && (dr < 40 || delta < buyDeltaLevel)) { alertIcon = '🟢'; alertTip = 'Buy'; }
+            // Update row
+            const regEl = document.getElementById(`wlreg-${i}`);
+            const rsiEl = document.getElementById(`wlrsi-${i}`);
+            const alEl  = document.getElementById(`wlalert-${i}`);
+            if (regEl) {
+                regEl.textContent = `Reg ${regime}`;
+                regEl.style.background = regime === 'A' ? 'var(--accent-dim)' : regime === 'B' ? 'var(--accent2-dim)' : 'var(--red-dim)';
+                regEl.style.color = regime === 'A' ? 'var(--accent)' : regime === 'B' ? 'var(--accent2)' : 'var(--red)';
+            }
+            if (rsiEl) rsiEl.textContent = `D:${Math.round(dr)} W:${Math.round(wr)}`;
+            if (alEl) { alEl.textContent = alertIcon; alEl.title = alertTip; }
+        } catch(e) { /* silent fail per fund */ }
+    }
+}
+
+function _removeWatchlistItem(i) {
+    _watchlist.splice(i, 1);
+    localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+    renderWatchlistStubs();
+}
+
+function _launchFromWatchlist(code) {
+    // Switch fund select to this code, then open live chart
+    const allFunds = Object.values(amcFunds).flat();
+    const fund = allFunds.find(f => f.code === code);
+    if (fund) {
+        // Find which AMC and select it
+        for (const [amc, funds] of Object.entries(amcFunds)) {
+            if (funds.find(f => f.code === code)) {
+                const amcBtn = document.querySelector(`#fundGrid .fund-box`);
+                document.querySelectorAll('#fundGrid .fund-box').forEach(b => {
+                    if (b.textContent.trim() === amc) { selectAMC(amc, b); }
+                });
+                break;
+            }
+        }
+        document.getElementById('fundSelect').value = code;
+    }
+    clearInterval(_watchlistRefreshTimer);
+    document.getElementById('watchlistModal').style.display = 'none';
+    initLiveChart();
+}
+
+// Close watchlist clears the auto-refresh timer
+document.addEventListener('DOMContentLoaded', () => {
+    const wm = document.getElementById('watchlistModal');
+    if (wm) {
+        const closeBtn = wm.querySelector('.modal-close-btn');
+        if (closeBtn) {
+            const orig = closeBtn.onclick;
+            closeBtn.onclick = () => { clearInterval(_watchlistRefreshTimer); if (orig) orig(); };
+        }
+    }
+});
 
 </script>
 <script>

@@ -1037,6 +1037,20 @@ input:checked + .slider:before { transform: translateX(16px); }
 #blindToggle{font-size:0.52rem;padding:3px 8px;border:1px solid var(--border2);border-radius:var(--radius-sm);cursor:pointer;background:transparent;font-family:var(--mono);color:var(--muted);transition:all 0.15s;letter-spacing:0.05em;}
 #blindToggle.active{border-color:var(--red);color:var(--red);background:var(--red-dim);}
 .blind-mode-active #simNav{letter-spacing:0.08em;color:var(--muted);}
+/* Blind mode price pane overlay */
+#blindOverlay{
+  display:none;position:absolute;inset:0;z-index:20;
+  background:rgba(242,245,249,0.82);
+  backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+  align-items:center;justify-content:center;flex-direction:column;gap:6px;
+  pointer-events:none;
+}
+#blindOverlay .bo-label{
+  font-size:0.58rem;color:var(--muted2);letter-spacing:0.12em;text-transform:uppercase;
+  font-family:var(--mono);text-align:center;line-height:1.6;
+}
+#blindOverlay .bo-icon{font-size:1.6rem;}
+.blind-mode-active #blindOverlay{display:flex;}
 
 /* ── F3+F9: PRE-TRADE BOTTOM SHEET ────────────────────── */
 #preTradeModal{position:fixed;inset:0;z-index:850;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;}
@@ -1668,6 +1682,11 @@ LIE DETECTOR
 </div>
 <div class="hdr-btns">
 <span id="infractionBadge">0 INFRACTIONS</span>
+<button id="blindToggleHdr" onclick="toggleBlindMode()"
+  style="font-size:0.5rem;padding:4px 8px;border:1px solid var(--border2);border-radius:var(--radius-sm);
+  cursor:pointer;background:transparent;font-family:var(--mono);color:var(--muted);letter-spacing:0.05em;">
+  BLIND: OFF
+</button>
 <button class="btn-review" onclick="endAndReview()">END &amp; REVIEW</button>
 </div>
 </header>
@@ -1714,6 +1733,11 @@ style="font-size:0.5rem;padding:2px 6px;">RESET ZOOM</button>
 <div class="delta-label">Auto Anchored Average Price</div>
 <div class="chart-hud" id="simHudMain" style="top:18px;"></div>
 <div class="canvas-box"></div>
+<!-- F2: Blind Mode overlay -->
+<div id="blindOverlay">
+  <div class="bo-icon">🙈</div>
+  <div class="bo-label">BLIND MODE<br>React to RSI &amp; Regime signals only<br>Price chart hidden</div>
+</div>
 </div>
 <div class="chart-rsi-pane">
 <div class="delta-label">Sacred Velocity Gap &amp; Momentum Oscillator</div>
@@ -4309,6 +4333,14 @@ _infractionCount = 0;
 _sipFreezeUntilDay = -1;
 const badge = document.getElementById('infractionBadge');
 if (badge) badge.style.display = 'none';
+// Sync blind toggle header button to current state
+const hdrBtn = document.getElementById('blindToggleHdr');
+if (hdrBtn) {
+    hdrBtn.textContent = `BLIND: ${_blindModeOn ? 'ON' : 'OFF'}`;
+    hdrBtn.style.borderColor = _blindModeOn ? 'var(--red)' : 'var(--border2)';
+    hdrBtn.style.color       = _blindModeOn ? 'var(--red)' : 'var(--muted)';
+    hdrBtn.style.background  = _blindModeOn ? 'var(--red-dim)' : 'transparent';
+}
 
 const tfBtns = document.getElementById('simTfRow');
 if (tfBtns) {
@@ -4441,9 +4473,21 @@ document.getElementById('psyMsg').innerHTML = psyText;
 
 prevRegime = snap.regime;
 
-// ── F2: Blind mode NAV override ──────────────────────────────────────────
+// ── F2: Blind mode — suppress NAV text and price HUD ────────────────────
 if (_blindModeOn) {
     document.getElementById('simNav').textContent = 'NAV: ████';
+    const hud = document.getElementById('simHudMain');
+    if (hud) hud.textContent = '';
+    // Keep header button state in sync (e.g. after initGame resets UI)
+    const hdrBtn = document.getElementById('blindToggleHdr');
+    if (hdrBtn) {
+        hdrBtn.textContent = 'BLIND: ON';
+        hdrBtn.style.borderColor = 'var(--red)';
+        hdrBtn.style.color       = 'var(--red)';
+        hdrBtn.style.background  = 'var(--red-dim)';
+    }
+    const ui = document.getElementById('gameUI');
+    if (ui) ui.classList.add('blind-mode-active');
 }
 
 // ── F7: Delta Heatmap ────────────────────────────────────────────────────
@@ -5008,17 +5052,33 @@ let _blindModeOn = false;
 // ── F2: Blind Mode ────────────────────────────────────────────────────────
 function toggleBlindMode() {
     _blindModeOn = !_blindModeOn;
-    const btn = document.getElementById('blindToggle');
-    const ui  = document.getElementById('gameUI');
-    if (btn) btn.classList.toggle('active', _blindModeOn);
-    if (ui)  ui.classList.toggle('blind-mode-active', _blindModeOn);
-    // When blind: replace NAV text with dashes; updateDisplay restores on toggle off
-    const navEl = document.getElementById('simNav');
-    if (navEl) navEl.textContent = _blindModeOn ? 'NAV: ████' : 'NAV: —';
-    // Also blank the chart HUD price if blind
-    if (_blindModeOn) {
-        const hud = document.getElementById('simHudMain');
-        if (hud) hud.textContent = '';
+
+    // Setup screen toggle button
+    const setupBtn = document.getElementById('blindToggle');
+    if (setupBtn) setupBtn.classList.toggle('active', _blindModeOn);
+
+    // In-game header toggle button
+    const hdrBtn = document.getElementById('blindToggleHdr');
+    if (hdrBtn) {
+        hdrBtn.textContent = `BLIND: ${_blindModeOn ? 'ON' : 'OFF'}`;
+        hdrBtn.style.borderColor = _blindModeOn ? 'var(--red)' : 'var(--border2)';
+        hdrBtn.style.color       = _blindModeOn ? 'var(--red)' : 'var(--muted)';
+        hdrBtn.style.background  = _blindModeOn ? 'var(--red-dim)' : 'transparent';
+    }
+
+    // Apply/remove blind-mode-active class on gameUI (activates CSS overlay)
+    const ui = document.getElementById('gameUI');
+    if (ui) ui.classList.toggle('blind-mode-active', _blindModeOn);
+
+    // If game is running, re-render so NAV text updates immediately
+    if (ui && ui.style.display === 'flex') {
+        const navEl = document.getElementById('simNav');
+        if (navEl) navEl.textContent = _blindModeOn ? 'NAV: ████' : `NAV: ₹${(fullHistory[currentIdx]?.nav || 0).toFixed(2)}`;
+        // Clear HUD so it doesn't leak price
+        if (_blindModeOn) {
+            const hud = document.getElementById('simHudMain');
+            if (hud) hud.textContent = '';
+        }
     }
 }
 

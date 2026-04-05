@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD241A6
+  LIE DETECTOR  LD241A8
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
 
@@ -93,13 +93,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Lie Detector LD241A6</title>
+<title>Lie Detector LD241A8</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 /*
  * ============================================================================
- * STYLESHEET  — LIE DETECTOR LD241A6
+ * STYLESHEET  — LIE DETECTOR LD241A8
  * Sections:  Design Tokens · Reset · Loading Overlay · Setup Screen
  *            App Chrome · Chart UI · Indicator Row · Psychology Box
  *            Action Bar · Modals · Analytics Cards · Review / Audit
@@ -1015,6 +1015,111 @@ input:checked + .slider:before { transform: translateX(16px); }
 .psy-logic { font-size: 0.65rem; line-height: 1.4; }
 .psy-logic .psy-line { margin-bottom: 2px; font-size: 0.62rem; line-height: 1.5; color: var(--text); }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   LD241A8 FEATURE STYLES
+   F1 Mistake Classifier · F2 Blind Mode · F3+F9 Pre-Trade Sheet
+   F4 Rule-Violation Confirm · F5 Regime Drill · F6 What-If
+   F7 Delta Heatmap · F8 Tranche Tracker · F11 Hold Distribution
+   F12 Entry Quality · F13 Regime Donut
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── F1: TRADE TAG BADGES ──────────────────────────────── */
+.trade-tag{font-size:0.48rem;padding:1px 4px;border-radius:3px;font-weight:700;letter-spacing:0.05em;white-space:nowrap;}
+.tag-correct{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent);}
+.tag-premature{background:var(--accent2-dim);color:var(--accent2);border:1px solid var(--accent2);}
+.tag-violation{background:var(--red-dim);color:var(--red);border:1px solid var(--red);}
+.tag-panic{background:var(--red-dim);color:var(--red);border:1px solid var(--red);}
+.tag-profit{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold);}
+.tag-exit{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent);}
+
+/* ── F2: BLIND MODE ────────────────────────────────────── */
+#blindToggle{font-size:0.52rem;padding:3px 8px;border:1px solid var(--border2);border-radius:var(--radius-sm);cursor:pointer;background:transparent;font-family:var(--mono);color:var(--muted);transition:all 0.15s;letter-spacing:0.05em;}
+#blindToggle.active{border-color:var(--red);color:var(--red);background:var(--red-dim);}
+.blind-mode-active #simNav{letter-spacing:0.08em;color:var(--muted);}
+
+/* ── F3+F9: PRE-TRADE BOTTOM SHEET ────────────────────── */
+#preTradeModal{position:fixed;inset:0;z-index:850;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;}
+.pretrade-sheet{background:var(--bg);width:100%;max-width:480px;border-radius:12px 12px 0 0;padding:14px 14px 24px;border-top:2px solid var(--border2);max-height:88vh;overflow-y:auto;}
+.pretrade-title{font-size:0.6rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.check-item{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:var(--radius-sm);margin-bottom:3px;font-size:0.6rem;border:1px solid transparent;}
+.check-item.pass{background:var(--accent-dim);border-color:rgba(0,158,112,0.3);}
+.check-item.fail{background:var(--red-dim);border-color:rgba(200,16,46,0.3);color:var(--red);}
+.check-item.warn{background:var(--accent2-dim);border-color:rgba(201,122,0,0.3);color:var(--accent2);}
+.advisor-badge{text-align:center;padding:8px 10px;border-radius:var(--radius);margin:6px 0;font-size:0.78rem;font-weight:700;border:2px solid;}
+.advisor-50{background:var(--accent-dim);color:var(--accent);border-color:var(--accent);}
+.advisor-25{background:rgba(0,200,130,0.07);color:var(--accent);border-color:rgba(0,158,112,0.5);}
+.advisor-10{background:var(--accent2-dim);color:var(--accent2);border-color:var(--accent2);}
+.advisor-skip{background:var(--red-dim);color:var(--red);border-color:var(--red);}
+.pt-rationale{display:flex;gap:6px;align-items:center;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);}
+.pt-rationale input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 8px;font-family:var(--mono);font-size:0.6rem;outline:none;color:var(--text);}
+.pt-rationale input:focus{border-color:var(--accent);}
+.pt-btn-row{display:grid;grid-template-columns:1fr 2fr;gap:6px;margin-top:8px;}
+.pt-btn{font-family:var(--mono);font-size:0.62rem;padding:9px 6px;border-radius:var(--radius-sm);cursor:pointer;border:1.5px solid;font-weight:700;letter-spacing:0.05em;}
+.pt-cancel{border-color:var(--border2);color:var(--muted2);background:transparent;}
+.pt-confirm{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+
+/* ── F4: RULE VIOLATION CONFIRM ────────────────────────── */
+#ruleViolateModal{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.65);display:none;align-items:center;justify-content:center;padding:20px;}
+.rule-sheet{background:var(--bg);border-radius:var(--radius);padding:16px;border:2px solid var(--red);width:100%;max-width:360px;text-align:center;}
+.rule-sheet-icon{font-size:2rem;margin-bottom:6px;}
+.rule-sheet-title{font-size:0.65rem;color:var(--red);letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px;}
+.rule-sheet-body{font-size:0.6rem;color:var(--muted2);line-height:1.55;margin-bottom:10px;text-align:left;border-left:2px solid var(--red);padding-left:8px;}
+.rule-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.rule-cancel{font-family:var(--mono);font-size:0.62rem;padding:9px;border-radius:var(--radius-sm);cursor:pointer;border:1.5px solid var(--accent);color:var(--accent);background:var(--accent-dim);font-weight:700;}
+.rule-override{font-family:var(--mono);font-size:0.62rem;padding:9px;border-radius:var(--radius-sm);cursor:pointer;border:1.5px solid var(--red);color:var(--red);background:var(--red-dim);font-weight:700;letter-spacing:0.04em;}
+#infractionBadge{display:none;font-size:0.48rem;color:var(--red);background:var(--red-dim);border:1px solid var(--red);padding:2px 5px;border-radius:10px;letter-spacing:0.04em;white-space:nowrap;}
+
+/* ── F5: REGIME DRILL MODAL ────────────────────────────── */
+#regimeDrillModal{z-index:620;}
+.drill-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:5px;cursor:pointer;font-size:0.6rem;transition:all 0.15s;}
+.drill-item:hover{border-color:var(--accent);background:var(--accent-dim);}
+.drill-a2c{border-left:3px solid var(--red);}
+.drill-c2a{border-left:3px solid var(--accent);}
+.drill-label{font-weight:700;font-size:0.58rem;padding:1px 5px;border-radius:3px;}
+.drill-label.crash{background:var(--red-dim);color:var(--red);}
+.drill-label.recovery{background:var(--accent-dim);color:var(--accent);}
+
+/* ── F6: REVIEW TABS + WHAT-IF ─────────────────────────── */
+.review-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface);}
+.rev-tab{flex:1;padding:7px 4px;text-align:center;font-size:0.55rem;cursor:pointer;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;border-bottom:2px solid transparent;transition:all 0.15s;}
+.rev-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--bg);}
+.rev-panel{display:none;}
+.rev-panel.active{display:block;}
+#whatIfCanvas{width:100%;height:160px;display:block;}
+.wi-legend{display:flex;gap:12px;font-size:0.52rem;color:var(--muted);margin-top:4px;justify-content:center;}
+.wi-legend span{display:flex;align-items:center;gap:3px;}
+
+/* ── F7: DELTA HEATMAP ──────────────────────────────────── */
+.delta-heatmap-wrap{height:11px;flex-shrink:0;position:relative;overflow:hidden;border-top:1px solid rgba(0,0,0,0.07);}
+.delta-heatmap-wrap canvas{position:absolute;inset:0;display:block;}
+
+/* ── F8: TRANCHE TRACKER ────────────────────────────────── */
+#tranchePanel{background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;overflow:hidden;max-height:24px;transition:max-height 0.22s ease;}
+#tranchePanel.expanded{max-height:200px;}
+.tranche-toggle{font-size:0.5rem;color:var(--muted);padding:3px 8px 3px 10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--surface2);user-select:none;}
+.tranche-tbl{width:100%;font-size:0.5rem;border-collapse:collapse;}
+.tranche-tbl th{padding:2px 6px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;border-bottom:1px solid var(--border);font-weight:400;font-size:0.46rem;text-align:left;}
+.tranche-tbl td{padding:2px 6px;border-bottom:1px solid var(--border);}
+
+/* ── F11: HOLDING DISTRIBUTION ─────────────────────────── */
+.hold-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:0.54rem;}
+.hold-lbl{width:52px;color:var(--muted);text-align:right;flex-shrink:0;}
+.hold-bar-wrap{flex:1;background:var(--surface2);border-radius:2px;overflow:hidden;height:11px;}
+.hold-bar-fill{height:100%;border-radius:2px;background:var(--accent);transition:width 0.3s;}
+.hold-count{width:22px;text-align:right;color:var(--text);font-weight:700;flex-shrink:0;}
+
+/* ── F12: ENTRY QUALITY ─────────────────────────────────── */
+.quality-pill{display:inline-block;font-size:0.46rem;padding:1px 4px;border-radius:3px;font-weight:700;border:1px solid;margin-left:4px;}
+.q-high{background:var(--accent-dim);color:var(--accent);border-color:var(--accent);}
+.q-mid{background:var(--accent2-dim);color:var(--accent2);border-color:var(--accent2);}
+.q-low{background:var(--red-dim);color:var(--red);border-color:var(--red);}
+
+/* ── F13: REGIME DONUT ──────────────────────────────────── */
+.donut-wrap{display:flex;align-items:center;gap:10px;}
+.donut-legend{font-size:0.52rem;display:flex;flex-direction:column;gap:4px;}
+.donut-legend-item{display:flex;align-items:center;gap:5px;}
+.donut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -1027,7 +1132,7 @@ input:checked + .slider:before { transform: translateX(16px); }
 <div id="setupScreen">
 <div class="setup-logo">Sacred RSI Regime System</div>
 <div class="streak-badge" id="streakBadge"></div>
-<h1 class="setup-title">Lie Detector <span style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A6</span></h1>
+<h1 class="setup-title">Lie Detector <span style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A8</span></h1>
 <p class="setup-sub">Train your discipline before real money does.</p>
 
 <div class="fund-grid" id="fundGrid">
@@ -1049,7 +1154,10 @@ style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelec
 <span class="c-label" style="color:var(--accent); font-weight:400; margin-bottom:2px; letter-spacing:0.05em;">SCAN</span>
 <span style="font-size:0.75rem; font-weight:400; color:var(--text);">REGIME CHANGE</span>
 </div>
-
+<div class="c-input-box" style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 2px;cursor:pointer;" onclick="toggleBlindMode()">
+<span class="c-label" style="margin-bottom:2px;">Training</span>
+<button id="blindToggle" style="pointer-events:none;">BLIND</button>
+</div>
 </div>
 
 <button class="setup-btn setup-btn-sim" style="width: 100%; max-width: 350px; padding: 12px; font-size: 0.75rem;" onclick="initGame('random')">Random Simulation</button>
@@ -1072,7 +1180,8 @@ style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelec
 <option value="auto2" id="autoStress2" disabled></option>
 <option value="auto3" id="autoStress3" disabled></option>
 </select>
-<button class="setup-btn" style="border-color:var(--red);color:var(--red);flex: 1;" onclick="runStressTest()">RUN STRESS</button>
+<button class="setup-btn" style="border-color:var(--red);color:var(--red);flex: 1;" onclick="runStressTest()">STRESS</button>
+<button class="setup-btn" style="border-color:#f59e0b;color:#f59e0b;flex:1;font-size:0.58rem;" onclick="openRegimeDrill()">REGIME DRILL</button>
 </div>
 
 <div class="custom-inputs" style="margin-top:4px;">
@@ -1151,6 +1260,8 @@ onclick="runRegimeAScanner('PROFIT')">Regime A<br>Profit</button>
 
 
 <div id="liveChartModal" class="modal-overlay">
+
+<!-- ── Header bar ─────────────────────────────────────────────── -->
 <div class="modal-close" style="padding-left: 4px; padding-right: 4px;">
 <div style="display:flex;gap:4px;align-items:center;flex:1;min-width:0;">
 <span class="modal-title" style="color:var(--accent2);flex-shrink:0;letter-spacing:0.02em;">LIVE COCKPIT</span>
@@ -1159,8 +1270,6 @@ style="margin-left:2px;padding-left:4px;flex:1;white-space:nowrap;overflow:hidde
 <span id="dataFreshnessBadge" class="data-freshness-badge" style="margin-right:2px;"></span>
 </div>
 <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
-<button class="reset-zoom" style="padding:3px 4px;font-size:0.55rem;letter-spacing:0.02em;"
-onclick="if(window.resetLiveZoom) window.resetLiveZoom()">RESET</button>
 <button class="reset-zoom" style="color:var(--accent);border-color:var(--accent);padding:3px 4px;font-size:0.55rem;letter-spacing:0.02em;"
 onclick="openLiveAnalyticsFromCockpit()">ANALYTICS</button>
 <span class="modal-close-btn" style="letter-spacing:0.02em;"
@@ -1170,46 +1279,19 @@ if(window.cleanupModalDOM) window.cleanupModalDOM('#liveChartModal .chart-split'
 </div>
 </div>
 
-
-
+<!-- ── Alert banner ────────────────────────────────────────────── -->
 <div id="liveChartAlertBanner">WAITING FOR SIGNS : HOLD ...</div>
 
-<div class="indicator-row">
-<div class="ind-box" style="flex:1.1;">
+<!-- ── Chart container (mirrors Simulator .chart-container) ───── -->
+<div class="chart-container">
+<div class="chart-header">
 <span class="label-sm" id="liveNavDate">NAV</span>
-<div id="liveNav" class="ind-val">--</div>
-</div>
-<div class="ind-box" style="flex:0.8;">
-<span class="label-sm">Daily RSI</span>
-<div id="liveDRsi" class="ind-val">--</div>
-</div>
-<div class="ind-box" style="flex:0.8;">
-<span class="label-sm">Weekly RSI</span>
-<div id="liveWRsi" class="ind-val">--</div>
-</div>
-<div class="ind-box" style="flex:1.3;">
-<span class="label-sm">Regime</span>
-<div id="liveRegimeBlock" class="ind-val">--</div>
+<div style="display:flex;gap:6px;align-items:center;">
+<button class="reset-zoom" style="font-size:0.5rem;padding:2px 6px;"
+onclick="if(window.resetLiveZoom) window.resetLiveZoom()">RESET ZOOM</button>
+<span class="chart-nav" id="liveNav">NAV: —</span>
 </div>
 </div>
-
-<div class="tf-row" id="liveChartTfRow">
-<button class="tf-btn" onclick="updateLiveChartOnly(3, this)">3D</button>
-<button class="tf-btn" onclick="updateLiveChartOnly(5, this)">1W</button>
-<button class="tf-btn" onclick="updateLiveChartOnly(10, this)">2W</button>
-<button class="tf-btn" onclick="updateLiveChartOnly(21, this)">1M</button>
-<button class="tf-btn" onclick="updateLiveChartOnly(63, this)">3M</button>
-<button class="tf-btn" onclick="updateLiveChartOnly(125, this)">6M</button>
-<button class="tf-btn active" onclick="updateLiveChartOnly(250, this)">1Y</button>
-<button class="tf-btn" onclick="updateLiveChartOnly(9999,this)">ALL</button>
-</div>
-
-<div id="cockpitReturns"
-style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;
-padding:3px 8px;background:var(--surface);
-border-bottom:1px solid var(--border);flex-shrink:0;"></div>
-
-<div style="flex-grow:1;padding:4px 8px 6px;display:flex;flex-direction:column;min-height:0;">
 <div class="chart-split">
 <div class="chart-main-pane">
 <div class="delta-label">Auto Anchored Average Price</div>
@@ -1226,6 +1308,51 @@ border-bottom:1px solid var(--border);flex-shrink:0;"></div>
 <div class="canvas-box-bottom"></div>
 </div>
 </div>
+<!-- TF row inside chart-container — same position as Simulator -->
+<div class="tf-row" id="liveChartTfRow"
+style="border-top:1px solid var(--border);padding:4px 0 2px;margin-top:2px;">
+<button class="tf-btn" onclick="updateLiveChartOnly(3, this)">3D</button>
+<button class="tf-btn" onclick="updateLiveChartOnly(5, this)">1W</button>
+<button class="tf-btn" onclick="updateLiveChartOnly(10, this)">2W</button>
+<button class="tf-btn" onclick="updateLiveChartOnly(21, this)">1M</button>
+<button class="tf-btn" onclick="updateLiveChartOnly(63, this)">3M</button>
+<button class="tf-btn" onclick="updateLiveChartOnly(125, this)">6M</button>
+<button class="tf-btn active" onclick="updateLiveChartOnly(250, this)">1Y</button>
+<button class="tf-btn" onclick="updateLiveChartOnly(9999,this)">ALL</button>
+</div>
+</div>
+
+<!-- ── Scrollable section below chart (mirrors .main-sim-scroll) ─ -->
+<div style="flex-shrink:0;overflow-y:auto;padding-bottom:20px;">
+
+<!-- Returns strip -->
+<div id="cockpitReturns"
+style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;
+padding:3px 8px;background:var(--surface);
+border-bottom:1px solid var(--border);"></div>
+
+<!-- Indicator row: Daily RSI | Weekly RSI | Regime (same position as Simulator) -->
+<div class="indicator-row">
+<div class="ind-box" style="flex:0.8;">
+<span class="label-sm">Daily RSI</span>
+<div id="liveDRsi" class="ind-val">--</div>
+</div>
+<div class="ind-box" style="flex:0.8;">
+<span class="label-sm">Weekly RSI</span>
+<div id="liveWRsi" class="ind-val">--</div>
+</div>
+<div class="ind-box" style="flex:1.4;">
+<span class="label-sm">Regime</span>
+<div id="liveRegimeBlock" class="ind-val">--</div>
+</div>
+</div>
+
+<!-- Psychology logic box (same position as Simulator) -->
+<div class="psy-box">
+<span class="label-sm">Psychology Logic</span>
+<div id="livePsyMsg" class="psy-logic">Analyzing institutional flow…</div>
+</div>
+
 </div>
 </div>
 
@@ -1376,6 +1503,14 @@ Signal Checklist</div>
 <div id="laChecklist" style="display:flex;flex-direction:column;gap:3px;"></div>
 </div>
 
+<!-- F13: Regime Time Allocation Donut -->
+<div style="background:var(--surface2);border:1px solid var(--border);
+border-radius:var(--radius);padding:6px 9px;">
+<div style="font-size:0.5rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">
+Regime Time Allocation (Full History)</div>
+<div id="laRegimeDonut"></div>
+</div>
+
 </div>
 </div>
 
@@ -1405,7 +1540,15 @@ Signal Checklist</div>
 </div>
 </div>
 
+<!-- Review Tabs -->
+<div class="review-tabs">
+<div class="rev-tab active" onclick="switchRevTab('audit',this)">AUDIT</div>
+<div class="rev-tab" onclick="switchRevTab('whatif',this)">WHAT-IF</div>
+<div class="rev-tab" onclick="switchRevTab('distribution',this)">HOLDING</div>
+</div>
 
+<!-- TAB: AUDIT -->
+<div id="revPanel-audit" class="rev-panel active">
 <div class="review-container">
 <div class="score-card" style="border-color:var(--gold);">
 <div>
@@ -1424,6 +1567,8 @@ Signal Checklist</div>
 <div id="revRegimes" style="font-size:0.55rem;color:var(--muted);margin-top:2px;text-align:right;"></div>
 </div>
 </div>
+<!-- Trade Classification Summary -->
+<div id="tradeClassSummary" style="margin-bottom:4px;"></div>
 <div id="auditContent"></div>
 <p class="section-title">Rule Violation Log</p>
 <div id="violationLogContainer" style="margin-bottom:8px;"></div>
@@ -1431,6 +1576,36 @@ Signal Checklist</div>
 <div id="feedbackContainer"></div>
 </div>
 </div>
+
+<!-- TAB: WHAT-IF -->
+<div id="revPanel-whatif" class="rev-panel">
+<div class="review-container">
+<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:8px;margin-bottom:6px;">
+<div style="font-size:0.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+<span>What-If: Perfect Sacred Rule Execution</span>
+<span id="wiAlphaBadge" style="font-size:0.6rem;font-weight:700;color:var(--accent);"></span>
+</div>
+<canvas id="whatIfCanvas"></canvas>
+<div class="wi-legend">
+<span><span style="display:inline-block;width:20px;height:2px;background:#000;vertical-align:middle;"></span> Your Path</span>
+<span><span style="display:inline-block;width:20px;height:2px;background:var(--accent);vertical-align:middle;border-top:2px dashed var(--accent);"></span> Sacred Rule</span>
+</div>
+</div>
+<div id="wiStats" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.55rem;"></div>
+</div>
+</div>
+
+<!-- TAB: HOLDING DISTRIBUTION -->
+<div id="revPanel-distribution" class="rev-panel">
+<div class="review-container">
+<p class="section-title" style="margin-top:0;">Holding Period Distribution</p>
+<div id="holdingDistChart" style="margin-bottom:12px;"></div>
+<p class="section-title">Entry Quality Breakdown</p>
+<div id="entryQualitySection"></div>
+</div>
+</div>
+
+</div><!-- /reviewModal -->
 
 <div id="gameUI" style="display:none;height:100vh;flex-direction:column;">
 <header class="app-header">
@@ -1440,6 +1615,7 @@ LIE DETECTOR
 <span id="simFundName" class="fund-name-tag"></span>
 </div>
 <div class="hdr-btns">
+<span id="infractionBadge">0 INFRACTIONS</span>
 <button class="btn-review" onclick="endAndReview()">END &amp; REVIEW</button>
 </div>
 </header>
@@ -1462,6 +1638,13 @@ LIE DETECTOR
 </div>
 
 <div id="alertBanner">WAITING FOR ALERT SIGNS : HOLD...</div>
+
+<!-- F8: Tranche Tracker Panel -->
+<div id="tranchePanel">
+<div class="tranche-toggle" onclick="this.parentElement.classList.toggle('expanded')">
+<span>OPEN TRANCHES — none</span><span>▸</span>
+</div>
+</div>
 
 <main class="main-sim">
 <div class="chart-container">
@@ -1486,13 +1669,19 @@ style="font-size:0.5rem;padding:2px 6px;">RESET ZOOM</button>
 <div class="canvas-box-bottom"></div>
 </div>
 </div>
+<!-- F7: Delta Heatmap strip -->
+<div class="delta-heatmap-wrap" title="Delta Heatmap: D-RSI minus W-RSI (green=bull, red=bear)">
+<canvas id="simDeltaHeatmap"></canvas>
+</div>
 <div class="tf-row" id="simTfRow"
 style="border-top:1px solid var(--border);padding:4px 0 2px;margin-top:2px;">
+<button class="tf-btn" onclick="updateSimLookback(3, this)">3D</button>
 <button class="tf-btn" onclick="updateSimLookback(5, this)">1W</button>
 <button class="tf-btn" onclick="updateSimLookback(10, this)">2W</button>
 <button class="tf-btn" onclick="updateSimLookback(21, this)">1M</button>
 <button class="tf-btn" onclick="updateSimLookback(63, this)">3M</button>
-<button class="tf-btn active" onclick="updateSimLookback(250, this)">1Y</button>
+<button class="tf-btn" onclick="updateSimLookback(125, this)">6M</button>
+<button class="tf-btn" onclick="updateSimLookback(250, this)">1Y</button>
 <button class="tf-btn" onclick="updateSimLookback(9999, this)">ALL</button>
 </div>
 </div>
@@ -2043,8 +2232,8 @@ return dStr;
 
 window.resetSimZoom = function () {
 const btns = document.querySelectorAll('#simTfRow .tf-btn');
-if (btns.length > 4 && typeof updateSimLookback === 'function') {
-updateSimLookback(250, btns[4]);
+if (btns.length > 6 && typeof updateSimLookback === 'function') {
+updateSimLookback(250, btns[6]); // 1Y = index 6 (3D,1W,2W,1M,3M,6M,1Y,ALL)
 } else {
 window.currentSimLookback = 250;
 if (typeof updateDisplay === 'function') updateDisplay();
@@ -3085,7 +3274,7 @@ const displayDate = (lastDate && lastDate.split('-').length === 3 && lastDate.sp
 
 // ── Indicator strip ──────────────────────────────────────────────────────
 document.getElementById('liveNavDate').textContent = `NAV (${displayDate})`;
-document.getElementById('liveNav').textContent = `₹${snap.nav.toFixed(2)}`;
+document.getElementById('liveNav').textContent = `NAV: ₹${snap.nav.toFixed(2)}`;
 
 const dEl = document.getElementById('liveDRsi');
 dEl.textContent = Math.round(snap.drsi);
@@ -3161,6 +3350,44 @@ return `<div style="text-align:center;">
 <div style="font-size:0.65rem;font-weight:400;color:${col};">
 ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
 }).join('');
+
+// ── Psychology logic (mirrors Simulator protocol text) ───────────────────
+const livePsyEl = document.getElementById('livePsyMsg');
+if (livePsyEl) {
+let psyText = '';
+if (snap.tsl.tslHit || snap.regime === 'C') {
+    psyText = `<div class='psy-line'>🚨 PROTOCOL: EMERGENCY EXIT</div>`
+            + `<div class='psy-line'>1. SELL ALL active tranches immediately.</div>`
+            + `<div class='psy-line'>2. Stay 100% in CASH until Regime A returns.</div>`;
+} else if (prevRegime !== 'C' && prevRegime === 'B' && snap.regime === 'A') {
+    psyText = `<div class='psy-line'>🟢 PROTOCOL: REGIME BREAKOUT</div>`
+            + `<div class='psy-line'>1. W-RSI crossed above 50 — Structural Bull begins.</div>`
+            + `<div class='psy-line'>2. Start deploying capital in tranches on dips.</div>`;
+} else if (prevRegime === 'C' && snap.regime === 'B') {
+    psyText = `<div class='psy-line'>🟡 PROTOCOL: RECOVERY WATCH</div>`
+            + `<div class='psy-line'>1. DO NOT BUY. Structural floor is still weak.</div>`
+            + `<div class='psy-line'>2. Stay in CASH. Wait for W-RSI > 50 (Regime A).</div>`;
+} else if (snap.ncAlert) {
+    psyText = `<div class='psy-line'>⚠️ PROTOCOL: TRAP DETECTED</div>`
+            + `<div class='psy-line'>1. DO NOT BUY the NC breakdown.</div>`
+            + `<div class='psy-line'>2. If holding, tighten TSL to box low.</div>`;
+} else if (snap.regime === 'A') {
+    if (snap.pcAlert || snap.drsi < 40 || snap.delta < buyDeltaLevel) {
+        psyText = `<div class='psy-line'>🟢 PROTOCOL: CAPITAL DEPLOYMENT</div>`
+                + `<div class='psy-line'>1. Buy 10-25% tranche (Signal Confirmed).</div>`
+                + `<div class='psy-line'>2. Verify TSL floor is set below entry.</div>`;
+    } else {
+        psyText = `<div class='psy-line'>🟡 PROTOCOL: TREND MAINTENANCE</div>`
+                + `<div class='psy-line'>1. HOLD existing tranches. Riding the trend.</div>`
+                + `<div class='psy-line'>2. Do not chase. Wait for next dip or PC box.</div>`;
+    }
+} else {
+    psyText = `<div class='psy-line'>🟡 PROTOCOL: TRANSITION (REGIME B)</div>`
+            + `<div class='psy-line'>1. Market in No-Man's Land. High risk of whip.</div>`
+            + `<div class='psy-line'>2. If from A: Scale out profits. If from C: Wait.</div>`;
+}
+livePsyEl.innerHTML = psyText;
+}
 
 // ── Native chart render ──────────────────────────────────────────────────
 if (typeof window.syncNativeChartsWithEngine === 'function') {
@@ -3450,6 +3677,16 @@ document.getElementById('laChecklist').innerHTML = checks.map(c => `
 ${c.text}</span>
 <span class="la-check-val">${c.val}</span>
 </div>`).join('');
+
+// ── F13: Regime Donut — compute from full history ─────────────────────────
+if (globalLiveData.length > 0 && globalWeeklyRsiCache.length > 0) {
+    let dA = 0, dB = 0, dC = 0;
+    for (let i = 0; i < globalLiveData.length; i++) {
+        const wr = globalWeeklyRsiCache[i] ?? 50;
+        if (wr >= 50) dA++; else if (wr >= 40) dB++; else dC++;
+    }
+    renderRegimeDonut('laRegimeDonut', dA, dB, dC);
+}
 }
 
 /** Close Live Analytics and return to Setup screen. */
@@ -3697,7 +3934,7 @@ function exportShareCard() {
     ctx.fillStyle = '#f2f5f9';
     ctx.fillRect(0, 0, W, 44);
     ctx.fillStyle = '#009e70'; ctx.font = 'bold 10px monospace';
-    ctx.fillText('LIE DETECTOR LD241A6 · SIMULATION RESULT', 12, 16);
+    ctx.fillText('LIE DETECTOR LD241A8 · SIMULATION RESULT', 12, 16);
     ctx.fillStyle = '#304058'; ctx.font = '8px monospace';
     ctx.fillText(`${getBriefFundName() || 'Fund Simulator'}`, 12, 30);
     ctx.fillStyle = '#b0bece'; ctx.fillRect(0, 44, W, 1);
@@ -3737,12 +3974,12 @@ function exportShareCard() {
 
     ctx.fillStyle = '#b0bece'; ctx.fillRect(0, 186, W, 1);
     ctx.fillStyle = '#b0bece'; ctx.font = '7px monospace';
-    ctx.fillText('Sacred RSI Regime System · LD241A6', 12, 200);
+    ctx.fillText('Sacred RSI Regime System · LD241A8', 12, 200);
     const streak = _streak.count;
     if (streak > 0) ctx.fillText(`🔥 ${streak}-session streak`, W - 110, 200);
 
     const link = document.createElement('a');
-    link.download = `LD241A6-${getBriefFundName().replace(/\s+/g,'_') || 'result'}.png`;
+    link.download = `LD241A8-${getBriefFundName().replace(/\s+/g,'_') || 'result'}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
 }
@@ -3923,11 +4160,14 @@ peakNetWorth = 100_000;
 maxDrawdown = 0;
 totalTaxPaid = 0;
 window.currentSimLookback = 250;
+_infractionCount = 0;
+const badge = document.getElementById('infractionBadge');
+if (badge) badge.style.display = 'none';
 
 const tfBtns = document.getElementById('simTfRow');
 if (tfBtns) {
 Array.from(tfBtns.children).forEach(b => b.classList.remove('active'));
-tfBtns.children[4].classList.add('active'); // 1Y default
+tfBtns.children[6].classList.add('active'); // 1Y default (idx 6 of 8: 3D,1W,2W,1M,3M,6M,1Y,ALL)
 }
 
 document.getElementById('setupScreen').style.display = 'none';
@@ -4055,6 +4295,17 @@ document.getElementById('psyMsg').innerHTML = psyText;
 
 prevRegime = snap.regime;
 
+// ── F2: Blind mode NAV override ──────────────────────────────────────────
+if (_blindModeOn) {
+    document.getElementById('simNav').textContent = 'NAV: ████';
+}
+
+// ── F7: Delta Heatmap ────────────────────────────────────────────────────
+renderDeltaHeatmap('simDeltaHeatmap', fullHistory, simDailyRsiCache, simWeeklyRsiCache, currentIdx, window.currentSimLookback || 250);
+
+// ── F8: Tranche Tracker ──────────────────────────────────────────────────
+renderTrancheTracker();
+
 // ── Sync charts ───────────────────────────────────────────────────────────
 if (typeof window.syncNativeChartsWithEngine === 'function') {
 window.syncNativeChartsWithEngine(
@@ -4097,69 +4348,11 @@ b.style.color = 'var(--muted2)';
 }
 
 /**
-* Execute a trade action for the current simulator day,
-* then advance to the next day.
-* @param {string} action - One of the 8 action strings
+* trade(), submitRationale(), _executeTrade() — replaced by A8 async versions below.
+* flashBanner() and nextDay() remain here.
 */
 
-let _pendingTradeAction = null;
-
-function trade(action) {
-_pendingTradeAction = action;
-const bar = document.getElementById('rationaleBar');
-const inp = document.getElementById('rationaleInput');
-if (bar) {
-    bar.style.display = 'flex';
-    if (inp) { inp.value = ''; inp.focus(); }
-    return;
-}
-_executeTrade(action, '');
-}
-
-function submitRationale() {
-const inp = document.getElementById('rationaleInput');
-const note = inp ? inp.value.trim() : '';
-const bar = document.getElementById('rationaleBar');
-if (bar) bar.style.display = 'none';
-_executeTrade(_pendingTradeAction, note);
-_pendingTradeAction = null;
-}
-
-function _executeTrade(action, note) {
-const state = {
-cash, tranches, tradeLog, totalTaxPaid,
-currentNav: fullHistory[currentIdx].nav,
-dayNum: currentIdx - simStartIdx,
-currentRegimeLog,
-currentIdx,
-};
-
-const result = executeTradeEngine(action, state);
-
-if (result.alert) {
-flashBanner(`⚠️ ${result.alert.replace('_', ' ')}`, 'alert-danger');
-return;
-}
-
-cash = result.cash;
-tranches = result.tranches;
-tradeLog = result.tradeLog;
-totalTaxPaid = result.totalTaxPaid;
-
-if (note && tradeLog.length > 0) {
-tradeLog[tradeLog.length - 1].note = note;
-}
-
-const endTarget = simEndIdx !== null ? simEndIdx : fullHistory.length - 1;
-
-if (currentIdx < endTarget) {
-nextDay();
-} else {
-updateDisplay();
-alert('🏁 SIMULATION COMPLETE.');
-document.querySelectorAll('.action-bar .btn').forEach(b => b.disabled = true);
-}
-}
+let _pendingTradeAction = null; // kept for legacy rationaleBar no-op
 
 let _lastSipIdx = -1;
 
@@ -4631,11 +4824,666 @@ const violContainer = document.getElementById('violationLogContainer');
 if (violContainer) violContainer.innerHTML = violHtml;
 
 document.getElementById('reviewModal').style.display = 'flex';
+// ── Switch to audit tab on open ───────────────────────────────────────────
+switchRevTab('audit', document.querySelector('.rev-tab'));
 
 // ── Update discipline streak ──────────────────────────────────────────────
 const _streakWon = totalScore > 0 && panicSells === 0 && daysTslBreachHeld === 0;
 _streak.update(_streakWon);
+
+// ── F1: Trade Classification Summary ─────────────────────────────────────
+const totalTrades = tradeLog.length;
+const correctTrades = tradeLog.filter(t => t.tag === 'CORRECT').length;
+const premTrades   = tradeLog.filter(t => t.tag === 'PREMATURE').length;
+const violTrades   = tradeLog.filter(t => t.tag === 'VIOLATION').length;
+const panicTrades  = tradeLog.filter(t => t.tag === 'PANIC').length;
+const profitTrades = tradeLog.filter(t => t.tag === 'PROFIT').length;
+const exitTrades   = tradeLog.filter(t => t.tag === 'EXIT').length;
+const tcEl = document.getElementById('tradeClassSummary');
+if (tcEl && totalTrades > 0) {
+    const mkTag = (label, cls, n) => n > 0
+        ? `<span class="trade-tag tag-${cls.toLowerCase()}" style="margin-right:4px;">${label}: ${n}</span>` : '';
+    tcEl.innerHTML = `<div style="background:var(--surface2);border:1px solid var(--border);
+    border-radius:var(--radius);padding:5px 8px;margin-bottom:4px;">
+    <div style="font-size:0.48rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Trade Classification</div>
+    <div style="display:flex;flex-wrap:wrap;gap:3px;">
+    ${mkTag('✅ Correct', 'correct', correctTrades)}
+    ${mkTag('⚠️ Premature', 'premature', premTrades)}
+    ${mkTag('🚨 Violation', 'violation', violTrades)}
+    ${mkTag('😱 Panic', 'panic', panicTrades)}
+    ${mkTag('💰 Profit', 'profit', profitTrades)}
+    ${mkTag('🛡 Exit', 'exit', exitTrades)}
+    </div></div>`;
 }
+
+// ── F11: Holding Period Distribution ─────────────────────────────────────
+renderHoldingDistribution();
+
+// ── F12: Entry Quality ────────────────────────────────────────────────────
+renderEntryQuality();
+
+// ── F6: What-If ───────────────────────────────────────────────────────────
+renderWhatIfPanel();
+}
+
+// =============================================================================
+// LD241A8 · FEATURE IMPLEMENTATIONS
+// =============================================================================
+
+// ── F6: Review Tab Switcher ───────────────────────────────────────────────
+function switchRevTab(name, clickedEl) {
+    document.querySelectorAll('.rev-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.rev-panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById('revPanel-' + name);
+    if (panel) panel.classList.add('active');
+    if (clickedEl) clickedEl.classList.add('active');
+}
+
+// ── NEW STATE: infraction counter + blind mode + session trade tags ───────
+let _infractionCount = 0;
+let _blindModeOn = false;
+
+// ── F2: Blind Mode ────────────────────────────────────────────────────────
+function toggleBlindMode() {
+    _blindModeOn = !_blindModeOn;
+    const btn = document.getElementById('blindToggle');
+    const ui  = document.getElementById('gameUI');
+    if (btn) btn.classList.toggle('active', _blindModeOn);
+    if (ui)  ui.classList.toggle('blind-mode-active', _blindModeOn);
+    // When blind: replace NAV text with dashes; updateDisplay restores on toggle off
+    const navEl = document.getElementById('simNav');
+    if (navEl) navEl.textContent = _blindModeOn ? 'NAV: ████' : 'NAV: —';
+    // Also blank the chart HUD price if blind
+    if (_blindModeOn) {
+        const hud = document.getElementById('simHudMain');
+        if (hud) hud.textContent = '';
+    }
+}
+
+// ── F1: Classify a trade in real-time ────────────────────────────────────
+function _classifyTrade(action, snap) {
+    const isBuy  = action.includes('BUY');
+    const isSell = action.includes('SELL');
+    if (action.includes('SIP')) return 'CORRECT';
+    if (isBuy) {
+        if (snap.regime === 'C' || snap.tsl.tslHit) return 'VIOLATION';
+        if (snap.regime === 'B') return 'VIOLATION';
+        if (snap.regime === 'A' && (snap.drsi < 40 || snap.pcAlert || snap.delta < buyDeltaLevel))
+            return 'CORRECT';
+        return 'PREMATURE';
+    }
+    if (isSell) {
+        if (action.includes('PROFIT')) return 'PROFIT';
+        if (action.includes('TSL') || action.includes('REGIME')) {
+            const wr = snap.wrsi;
+            return (snap.regime === 'A' && wr > 60 && !snap.tsl.tslHit) ? 'PANIC' : 'EXIT';
+        }
+        // SELL ALL in healthy regime = panic
+        if (action === 'SELL ALL' && snap.regime === 'A' && snap.wrsi > 55 && !snap.tsl.tslHit)
+            return 'PANIC';
+        return 'EXIT';
+    }
+    return 'CORRECT';
+}
+
+// ── F4: Rule Violation Check — returns violation descriptor or null ────────
+function _getRuleViolation(action, snap) {
+    if (!action.includes('BUY')) return null; // Only intercept buys for now
+    if (snap.regime === 'C')
+        return { title: 'Knife Catch Detected', body: `You are buying in Regime C (W-RSI ${Math.round(snap.wrsi)}). This is a structural bear phase.\n\nSacred Rule: Never catch falling knives. Stay in CASH until Regime A returns.\n\nAre you sure you want to override this rule?` };
+    if (snap.regime === 'B')
+        return { title: 'Contra-Trend Buy', body: `Regime B is No-Man's Land (W-RSI ${Math.round(snap.wrsi)}, Transition). No structural support yet.\n\nSacred Rule: Only deploy capital in confirmed Regime A.\n\nThink twice — is there a genuine signal here?` };
+    if (snap.tsl.tslHit)
+        return { title: 'TSL Floor Breached', body: `The TSL (Trailing Stop-Loss) floor has been broken. Price is below the Lowess support line.\n\nSacred Rule: TSL breach = exit signal, NOT an entry.\n\nAre you overriding the stop?` };
+    return null;
+}
+
+// Show rule-violation confirmation modal; resolve(true) = override, false = abort
+function _showViolationConfirm(violation) {
+    return new Promise(resolve => {
+        let m = document.getElementById('ruleViolateModal');
+        if (!m) {
+            m = document.createElement('div');
+            m.id = 'ruleViolateModal';
+            m.className = 'modal-overlay';
+            m.style.zIndex = '900';
+            m.style.background = 'rgba(0,0,0,0.65)';
+            m.style.alignItems = 'center';
+            m.style.justifyContent = 'center';
+            m.style.padding = '20px';
+            m.innerHTML = `<div class="rule-sheet">
+                <div class="rule-sheet-icon">⚠️</div>
+                <div class="rule-sheet-title" id="rvTitle"></div>
+                <div class="rule-sheet-body" id="rvBody"></div>
+                <div class="rule-btn-row">
+                    <button class="rule-cancel" id="rvCancel">← ABORT TRADE</button>
+                    <button class="rule-override" id="rvOverride">OVERRIDE RULE →</button>
+                </div>
+            </div>`;
+            document.body.appendChild(m);
+        }
+        document.getElementById('rvTitle').textContent = violation.title;
+        document.getElementById('rvBody').textContent  = violation.body;
+        m.style.display = 'flex';
+        const cleanup = (result) => { m.style.display = 'none'; resolve(result); };
+        document.getElementById('rvCancel').onclick   = () => cleanup(false);
+        document.getElementById('rvOverride').onclick = () => {
+            _infractionCount++;
+            const badge = document.getElementById('infractionBadge');
+            if (badge) {
+                badge.style.display = 'inline-block';
+                badge.textContent = `${_infractionCount} INFRACTION${_infractionCount > 1 ? 'S' : ''}`;
+            }
+            cleanup(true);
+        };
+    });
+}
+
+// ── F3+F9: Pre-Trade Checklist Bottom Sheet ───────────────────────────────
+function _showPreTradeChecklist(action, snap) {
+    return new Promise(resolve => {
+        let m = document.getElementById('preTradeModal');
+        if (!m) {
+            m = document.createElement('div');
+            m.id = 'preTradeModal';
+            m.innerHTML = `<div class="pretrade-sheet">
+                <div class="pretrade-title">
+                    <span id="ptActionLabel">PRE-TRADE CHECKLIST</span>
+                    <span style="font-size:0.52rem;color:var(--muted2);" id="ptDayLabel"></span>
+                </div>
+                <div id="ptChecklist"></div>
+                <div id="ptAdvisor"></div>
+                <div class="pt-rationale">
+                    <span style="font-size:0.55rem;color:var(--muted);flex-shrink:0;">Why? (3 words)</span>
+                    <input id="ptNote" type="text" maxlength="40" placeholder="e.g. regime A dip">
+                    <span id="ptSkip" style="font-size:0.52rem;color:var(--muted);cursor:pointer;padding:4px;border:1px solid var(--border);border-radius:var(--radius-sm);">SKIP</span>
+                </div>
+                <div class="pt-btn-row">
+                    <button class="pt-btn pt-cancel" id="ptCancel">CANCEL</button>
+                    <button class="pt-btn pt-confirm" id="ptConfirm">CONFIRM TRADE →</button>
+                </div>
+            </div>`;
+            document.body.appendChild(m);
+        }
+
+        const isBuy  = action.includes('BUY');
+        const isSell = action.includes('SELL');
+        document.getElementById('ptActionLabel').textContent = action.toUpperCase() + ' — CHECKLIST';
+        document.getElementById('ptDayLabel').textContent = `Day ${snap.dayNum}`;
+        document.getElementById('ptNote').value = '';
+
+        // Build checklist items
+        const checks = [];
+        if (isBuy) {
+            checks.push({ label: `Regime A (W-RSI ≥ 50)`, pass: snap.regime === 'A', val: `${Math.round(snap.wrsi)}` });
+            checks.push({ label: `Signal active (D-RSI<40 / PC / Slingshot)`, pass: snap.drsi < 40 || snap.pcAlert || snap.delta < buyDeltaLevel, val: snap.drsi < 40 ? `D-RSI ${Math.round(snap.drsi)}` : snap.pcAlert ? 'PC' : `Δ ${snap.delta.toFixed(1)}` });
+            checks.push({ label: `TSL floor intact`, pass: !snap.tsl.tslHit, val: snap.tsl.tslHit ? '🚨 BREACHED' : '✅ SAFE' });
+            checks.push({ label: `Not buying NC breakdown`, pass: !snap.ncAlert, val: snap.ncAlert ? '🚨 NC ACTIVE' : 'CLEAR' });
+        } else if (isSell) {
+            checks.push({ label: `Valid exit trigger (TSL/Regime/Profit)`, pass: snap.tsl.tslHit || snap.regime === 'C' || action.includes('PROFIT'), val: snap.tsl.tslHit ? 'TSL' : snap.regime === 'C' ? 'Regime C' : 'Manual' });
+            checks.push({ label: `Not panic-selling in Regime A`, pass: !(snap.regime === 'A' && snap.wrsi > 55 && !snap.tsl.tslHit), val: snap.regime === 'A' ? `Reg A, W-RSI ${Math.round(snap.wrsi)}` : 'OK' });
+            checks.push({ label: `Holding position exists`, pass: tranches.length > 0, val: tranches.length > 0 ? `${tranches.length} tranche(s)` : 'NONE' });
+        }
+
+        const passCount = checks.filter(c => c.pass).length;
+        document.getElementById('ptChecklist').innerHTML = checks.map(c => {
+            const cls = c.pass ? 'pass' : (isBuy ? 'fail' : 'warn');
+            const icon = c.pass ? '✅' : (isBuy ? '❌' : '⚠️');
+            return `<div class="check-item ${cls}"><span style="flex-shrink:0;">${icon}</span><span style="flex:1;">${c.label}</span><span style="font-size:0.55rem;font-weight:700;">${c.val}</span></div>`;
+        }).join('');
+
+        // Position size advisor (buy only)
+        let advisorHtml = '';
+        if (isBuy) {
+            let advice = '', cls = '';
+            if (snap.regime !== 'A' || snap.tsl.tslHit)       { advice = 'SKIP — Do NOT Buy'; cls = 'advisor-skip'; }
+            else if (passCount >= 3 && snap.drsi < 35)          { advice = 'BUY 50% — Strong Signal'; cls = 'advisor-50'; }
+            else if (passCount >= 3)                             { advice = 'BUY 25% — Confirmed Signal'; cls = 'advisor-25'; }
+            else if (snap.pcAlert || snap.delta < buyDeltaLevel) { advice = 'BUY 10% — Tentative Signal'; cls = 'advisor-10'; }
+            else                                                 { advice = 'HOLD — Signal Incomplete'; cls = 'advisor-skip'; }
+            advisorHtml = `<div class="advisor-badge ${cls}" style="font-size:0.65rem;margin-top:6px;">${advice}</div>`;
+        }
+        document.getElementById('ptAdvisor').innerHTML = advisorHtml;
+
+        m.style.display = 'flex';
+        document.getElementById('ptCancel').onclick  = () => { m.style.display = 'none'; resolve({ proceed: false, note: '' }); };
+        document.getElementById('ptConfirm').onclick = () => { m.style.display = 'none'; resolve({ proceed: true, note: document.getElementById('ptNote').value.trim() }); };
+        document.getElementById('ptSkip').onclick    = () => { m.style.display = 'none'; resolve({ proceed: true, note: '' }); };
+    });
+}
+
+// ── Rewired trade() — now goes: violation check → checklist → execute ────
+async function trade(action) {
+    const snap = buildEngineSnapshot(
+        currentIdx, fullHistory.map(v => v.nav),
+        simStartIdx, simDailyRsiCache, simWeeklyRsiCache, simLowessCache,
+        cash, tranches, peakNetWorth
+    );
+
+    // F4: Rule violation gate (buy actions only)
+    if (action.includes('BUY')) {
+        const violation = _getRuleViolation(action, snap);
+        if (violation) {
+            const proceed = await _showViolationConfirm(violation);
+            if (!proceed) return;
+        }
+    }
+
+    // F3+F9: Pre-trade checklist
+    const { proceed, note } = await _showPreTradeChecklist(action, snap);
+    if (!proceed) return;
+
+    // F1: Tag the trade before execution
+    const tag = _classifyTrade(action, snap);
+
+    _executeTrade(action, note, tag);
+}
+
+function _executeTrade(action, note, tag = 'CORRECT') {
+    const state = {
+        cash, tranches, tradeLog, totalTaxPaid,
+        currentNav: fullHistory[currentIdx].nav,
+        dayNum: currentIdx - simStartIdx,
+        currentRegimeLog, currentIdx,
+    };
+    const result = executeTradeEngine(action, state);
+    if (result.alert) { flashBanner(`⚠️ ${result.alert.replace('_', ' ')}`, 'alert-danger'); return; }
+    cash = result.cash;
+    tranches = result.tranches;
+    tradeLog = result.tradeLog;
+    totalTaxPaid = result.totalTaxPaid;
+    // Attach tag + note to last log entry
+    if (tradeLog.length > 0) {
+        tradeLog[tradeLog.length - 1].tag  = tag;
+        if (note) tradeLog[tradeLog.length - 1].note = note;
+    }
+    const endTarget = simEndIdx !== null ? simEndIdx : fullHistory.length - 1;
+    if (currentIdx < endTarget) { nextDay(); }
+    else { updateDisplay(); alert('🏁 SIMULATION COMPLETE.'); document.querySelectorAll('.action-bar .btn').forEach(b => b.disabled = true); }
+}
+
+// submitRationale() no longer needed but kept as no-op for safety
+function submitRationale() {
+    const inp = document.getElementById('rationaleInput');
+    const note = inp ? inp.value.trim() : '';
+    const bar = document.getElementById('rationaleBar');
+    if (bar) bar.style.display = 'none';
+}
+
+// ── F8: Tranche Tracker ───────────────────────────────────────────────────
+function renderTrancheTracker() {
+    let panel = document.getElementById('tranchePanel');
+    if (!panel) return;
+    const currentNav = fullHistory[currentIdx]?.nav || 0;
+    if (tranches.length === 0) {
+        panel.querySelector('.tranche-toggle').innerHTML = `<span>OPEN TRANCHES — none</span><span>▸</span>`;
+        const tbl = panel.querySelector('table');
+        if (tbl) tbl.style.display = 'none';
+        return;
+    }
+    const totalUnits = tranches.reduce((s, t) => s + t.units, 0);
+    const invested   = tranches.reduce((s, t) => s + t.units * t.price, 0);
+    const value      = totalUnits * currentNav;
+    const pnlPct     = invested > 0 ? (value - invested) / invested * 100 : 0;
+    const pnlCol     = pnlPct >= 0 ? 'var(--accent)' : 'var(--red)';
+    const rows = tranches.map((t, idx) => {
+        const tPnl = (currentNav - t.price) / t.price * 100;
+        const daysHeld = currentIdx - t.idx;
+        const stcgFlag = daysHeld < 252 ? '<span style="color:var(--accent2);font-size:0.44rem;">STCG</span>' : '';
+        return `<tr>
+            <td>#${idx + 1}</td>
+            <td>₹${t.price.toFixed(1)}</td>
+            <td style="color:${tPnl >= 0 ? 'var(--accent)' : 'var(--red)'};">${tPnl >= 0 ? '+' : ''}${tPnl.toFixed(1)}%</td>
+            <td>${daysHeld}d ${stcgFlag}</td>
+            <td style="color:var(--muted2);font-size:0.44rem;">${t.regime}</td>
+        </tr>`;
+    }).join('');
+    panel.querySelector('.tranche-toggle').innerHTML =
+        `<span>OPEN TRANCHES (${tranches.length}) · P&L: <span style="color:${pnlCol};">${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%</span></span><span>▾</span>`;
+    let tbl = panel.querySelector('table');
+    if (!tbl) {
+        tbl = document.createElement('table');
+        tbl.className = 'tranche-tbl';
+        tbl.innerHTML = `<thead><tr><th>#</th><th>Entry</th><th>P&L</th><th>Held</th><th>Reg</th></tr></thead><tbody></tbody>`;
+        panel.appendChild(tbl);
+    }
+    tbl.querySelector('tbody').innerHTML = rows;
+    tbl.style.display = '';
+}
+
+// ── F7: Delta Heatmap Renderer ────────────────────────────────────────────
+function renderDeltaHeatmap(canvasId, history, dRsiCache, wRsiCache, endIdx, lookback) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const wrap = canvas.parentElement;
+    if (!wrap) return;
+    const rect = wrap.getBoundingClientRect();
+    if (rect.width < 2) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width  = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width  = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    const w = rect.width, h = rect.height;
+    ctx.clearRect(0, 0, w, h);
+    const startIdx = Math.max(0, endIdx - lookback);
+    const len = endIdx - startIdx + 1;
+    if (len < 2) return;
+    const barW = w / len;
+    for (let i = 0; i < len; i++) {
+        const absIdx = startIdx + i;
+        const dr = dRsiCache[absIdx] ?? 50;
+        const wr = wRsiCache[absIdx] ?? 50;
+        const delta = dr - wr;
+        // Green for positive delta (bull drift), red for negative
+        const t = Math.min(Math.abs(delta) / 30, 1);
+        if (delta >= 0) {
+            ctx.fillStyle = `rgba(0,158,112,${0.15 + t * 0.55})`;
+        } else {
+            ctx.fillStyle = `rgba(200,16,46,${0.15 + t * 0.55})`;
+        }
+        ctx.fillRect(i * barW, 0, barW + 1, h);
+    }
+}
+
+// ── F5: Regime Transition Drill ───────────────────────────────────────────
+async function openRegimeDrill() {
+    const code = document.getElementById('fundSelect')?.value;
+    if (!code) { alert('Select a fund first.'); return; }
+    const ov = document.getElementById('ov');
+    const ovTxt = document.getElementById('ovTxt');
+    if (ov) ov.style.display = 'flex';
+    if (ovTxt) ovTxt.textContent = 'SCANNING TRANSITIONS…';
+    try {
+        const url = code.startsWith('SM')
+            ? `https://npsnav.in/api/historical/${code}`
+            : `https://api.mfapi.in/mf/${code}`;
+        const res = await fetch(url);
+        const raw = await res.json();
+        const hist = (raw.data || [])
+            .map(d => ({ nav: parseFloat(d.nav), date: window.normalizeDate(d.date) }))
+            .filter(d => Number.isFinite(d.nav) && d.nav > 0).reverse();
+        if (hist.length < 80) { alert('INSUFFICIENT DATA'); return; }
+        const navs  = hist.map(d => d.nav);
+        const dates = hist.map(d => d.date);
+        const rsiLen = parseInt(document.getElementById('rsiLengthIn')?.value) || 4;
+        const wRsi  = window.buildWeeklyRsiFast(navs, rsiLen, dates);
+        const transitions = [];
+        for (let i = 10; i < navs.length - 30; i++) {
+            const prev = wRsi[i - 1] ?? 50;
+            const cur  = wRsi[i]     ?? 50;
+            const prevR = prev >= 50 ? 'A' : prev >= 40 ? 'B' : 'C';
+            const curR  = cur  >= 50 ? 'A' : cur  >= 40 ? 'B' : 'C';
+            if (prevR !== curR && ((prevR !== 'C' && curR === 'C') || (prevR === 'C' && curR === 'A') || (prevR === 'B' && curR === 'A'))) {
+                transitions.push({ type: curR === 'C' ? 'A2C' : 'C2A', date: dates[i], idx: i, fromR: prevR, toR: curR });
+                i += 10; // skip nearby duplicates
+            }
+        }
+        if (ov) ov.style.display = 'none';
+        _showDrillModal(transitions, code, hist, rsiLen);
+    } catch (e) {
+        if (ov) ov.style.display = 'none';
+        alert('Error scanning fund: ' + e.message);
+    }
+}
+
+function _showDrillModal(transitions, code, hist, rsiLen) {
+    let m = document.getElementById('regimeDrillModal');
+    if (!m) {
+        m = document.createElement('div');
+        m.id = 'regimeDrillModal';
+        m.className = 'modal-overlay';
+        m.innerHTML = `<div class="modal-close">
+            <span class="modal-title" style="color:#f59e0b;">REGIME TRANSITION DRILL</span>
+            <span class="modal-close-btn" onclick="document.getElementById('regimeDrillModal').style.display='none';document.getElementById('setupScreen').style.display='flex';">[ X ]</span>
+        </div>
+        <div style="padding:8px 10px;font-size:0.58rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
+            ${transitions.length} transition points found — practice the hardest moments
+        </div>
+        <div id="drillList" style="flex-grow:1;overflow-y:auto;padding:6px 8px;display:flex;flex-direction:column;gap:5px;"></div>`;
+        document.body.appendChild(m);
+    }
+    const list = document.getElementById('drillList');
+    if (!list) return;
+    list.innerHTML = transitions.map((t, i) => {
+        const label = t.type === 'A2C' ? 'CRASH' : 'RECOVERY';
+        const cls   = t.type === 'A2C' ? 'crash' : 'recovery';
+        const arrow = t.type === 'A2C' ? '⬇️' : '⬆️';
+        return `<div class="drill-item drill-${t.type.toLowerCase()}" onclick="runDrillFrom('${code}',${t.idx})">
+            <div>
+                <span class="drill-label ${cls}">${arrow} ${label}</span>
+                <span style="font-size:0.55rem;color:var(--muted);margin-left:6px;">${t.date}</span>
+                <div style="font-size:0.5rem;color:var(--muted2);margin-top:2px;">Regime ${t.fromR} → ${t.toR}</div>
+            </div>
+            <span style="font-size:0.7rem;color:var(--border2);">▶</span>
+        </div>`;
+    }).join('') || '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No transitions found in this fund\'s history.</div>';
+    m.style.display = 'flex';
+    document.getElementById('setupScreen').style.display = 'none';
+}
+
+async function runDrillFrom(code, startIdx) {
+    document.getElementById('regimeDrillModal').style.display = 'none';
+    // Determine date at startIdx - 5 bars before transition for context
+    const url = code.startsWith('SM')
+        ? `https://npsnav.in/api/historical/${code}`
+        : `https://api.mfapi.in/mf/${code}`;
+    try {
+        const res = await fetch(url);
+        const raw = await res.json();
+        const hist = (raw.data || [])
+            .map(d => ({ nav: parseFloat(d.nav), date: window.normalizeDate(d.date) }))
+            .filter(d => Number.isFinite(d.nav) && d.nav > 0).reverse();
+        const safeStart = Math.max(20, startIdx - 5);
+        const safeEnd   = Math.min(hist.length - 1, startIdx + 120);
+        if (hist[safeStart]) {
+            await initGame('custom', hist[safeStart].date, hist[safeEnd].date);
+        }
+    } catch(e) { alert('Drill launch failed: ' + e.message); }
+}
+
+// ── F6: What-If Equity Curve ──────────────────────────────────────────────
+function renderWhatIfPanel() {
+    const canvas = document.getElementById('whatIfCanvas');
+    if (!canvas || !fullHistory.length) return;
+    // Simulate perfect Sacred Rule execution
+    const startNav = fullHistory[simStartIdx].nav;
+    let myNW  = 100_000;
+    let optNW = 100_000;
+    const myEq  = [myNW];
+    const optEq = [optNW];
+    let optCash = 100_000, optUnits = 0, optPeakNW = 100_000;
+
+    for (let i = simStartIdx + 1; i <= currentIdx; i++) {
+        const nav  = fullHistory[i].nav;
+        const dr   = simDailyRsiCache[i] ?? 50;
+        const wr   = simWeeklyRsiCache[i] ?? 50;
+        const d    = dr - wr;
+        const regime = wr >= 50 ? 'A' : wr >= 40 ? 'B' : 'C';
+        const tsl  = simLowessCache[i] ?? 0;
+        const tslHit = tsl > 0 && nav < tsl;
+        // Perfect logic: buy 25% on signal, sell all on regime C or TSL
+        if (regime === 'A' && !tslHit && (dr < 40 || d < buyDeltaLevel)) {
+            const amt = optCash * 0.25;
+            if (amt > 10) { optUnits += amt / nav; optCash -= amt; }
+        }
+        if ((regime === 'C' || tslHit) && optUnits > 0.001) {
+            optCash += optUnits * nav; optUnits = 0;
+        }
+        const optValNow = optCash + optUnits * nav;
+        optNW = optValNow;
+        optEq.push(optNW);
+
+        // My actual equity at this point
+        const myVal = tradeLog.filter(t => t.day <= i - simStartIdx && t.day >= 0);
+        // Approximate from final state (simplified — use tranche log replay)
+        myEq.push(myNW); // placeholder - overwritten below
+    }
+
+    // Rebuild my equity curve from tradeLog
+    let myCash2 = 100_000, myUnits2 = 0;
+    const myEq2 = new Array(currentIdx - simStartIdx + 1).fill(0);
+    myEq2[0] = 100_000;
+    for (let i = 1; i <= currentIdx - simStartIdx; i++) {
+        const absIdx = simStartIdx + i;
+        const nav = fullHistory[absIdx]?.nav || 0;
+        const dayTrades = tradeLog.filter(t => t.day === i);
+        dayTrades.forEach(t => {
+            if (t.action.includes('BUY') || t.action.includes('SIP')) {
+                myUnits2 += t.units; myCash2 -= t.units * t.nav;
+            } else if (t.action.includes('SELL')) {
+                const sold = Math.min(t.units, myUnits2);
+                myCash2 += sold * nav; myUnits2 = Math.max(0, myUnits2 - sold);
+            }
+        });
+        myEq2[i] = myCash2 + myUnits2 * nav;
+    }
+
+    // Render
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const cw = rect.width || 300, ch = 160;
+    canvas.width  = cw * dpr; canvas.height = ch * dpr;
+    canvas.style.width = cw + 'px'; canvas.style.height = ch + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cw, ch);
+
+    const allVals = [...myEq2, ...optEq].filter(v => v > 0);
+    if (allVals.length < 2) return;
+    const minV = Math.min(...allVals) * 0.97;
+    const maxV = Math.max(...allVals) * 1.03;
+    const mapX = i => (i / Math.max(1, myEq2.length - 1)) * cw;
+    const mapY = v => ch - ((v - minV) / (maxV - minV)) * ch;
+
+    // Sacred Rule curve
+    ctx.beginPath(); ctx.lineWidth = 1.5; ctx.strokeStyle = 'var(--accent)';
+    ctx.setLineDash([4, 3]);
+    optEq.forEach((v, i) => i === 0 ? ctx.moveTo(mapX(i), mapY(v)) : ctx.lineTo(mapX(i), mapY(v)));
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // My curve
+    ctx.beginPath(); ctx.lineWidth = 1.5; ctx.strokeStyle = '#000';
+    myEq2.forEach((v, i) => i === 0 ? ctx.moveTo(mapX(i), mapY(v)) : ctx.lineTo(mapX(i), mapY(v)));
+    ctx.stroke();
+
+    // Alpha badge
+    const myFinal  = myEq2[myEq2.length - 1] || 100_000;
+    const optFinal = optEq[optEq.length - 1] || 100_000;
+    const alpha    = ((myFinal - optFinal) / optFinal * 100).toFixed(1);
+    const alphaEl  = document.getElementById('wiAlphaBadge');
+    if (alphaEl) {
+        alphaEl.textContent = `${alpha >= 0 ? '+' : ''}${alpha}% vs Sacred Rule`;
+        alphaEl.style.color = alpha >= 0 ? 'var(--accent)' : 'var(--red)';
+    }
+
+    const wiStats = document.getElementById('wiStats');
+    if (wiStats) {
+        const fmt = v => `₹${Math.round(v).toLocaleString('en-IN')}`;
+        const pct = v => `${((v - 100_000) / 100_000 * 100).toFixed(1)}%`;
+        wiStats.innerHTML = [
+            { l: 'Your Final NW', v: myFinal }, { l: 'Sacred Rule NW', v: optFinal },
+            { l: 'Your Return', v: null, s: pct(myFinal) }, { l: 'Sacred Rule Return', v: null, s: pct(optFinal) }
+        ].map(r => `<div class="la-card2"><div class="la-label">${r.l}</div><div style="font-size:0.75rem;font-weight:400;">${r.v !== null ? fmt(r.v) : r.s}</div></div>`).join('');
+    }
+}
+
+// ── F11: Holding Period Distribution ─────────────────────────────────────
+function renderHoldingDistribution() {
+    const el = document.getElementById('holdingDistChart');
+    if (!el) return;
+    const closes = tradeLog.filter(t => t.action.includes('SELL'));
+    if (closes.length === 0) { el.innerHTML = '<div style="font-size:0.58rem;color:var(--muted);padding:8px 0;">No closed positions yet.</div>'; return; }
+    const buckets = { '<5d': 0, '5-21d': 0, '21-63d': 0, '63-125d': 0, '125-250d': 0, '>250d': 0 };
+    closes.forEach(t => {
+        // Find matching buy(s) — approximate by day difference
+        const matchBuys = tradeLog.filter(b => (b.action.includes('BUY') || b.action.includes('SIP')) && b.day <= t.day);
+        const held = matchBuys.length > 0 ? t.day - matchBuys[matchBuys.length - 1].day : 0;
+        if (held < 5)        buckets['<5d']++;
+        else if (held < 21)  buckets['5-21d']++;
+        else if (held < 63)  buckets['21-63d']++;
+        else if (held < 125) buckets['63-125d']++;
+        else if (held < 250) buckets['125-250d']++;
+        else                 buckets['>250d']++;
+    });
+    const max = Math.max(...Object.values(buckets), 1);
+    el.innerHTML = Object.entries(buckets).map(([lbl, n]) => {
+        const pct = (n / max * 100).toFixed(0);
+        const col = lbl === '<5d' ? 'var(--red)' : lbl.includes('>250') ? 'var(--accent)' : 'var(--accent)';
+        return `<div class="hold-row">
+            <span class="hold-lbl">${lbl}</span>
+            <div class="hold-bar-wrap"><div class="hold-bar-fill" style="width:${pct}%;background:${col};"></div></div>
+            <span class="hold-count">${n}</span>
+        </div>`;
+    }).join('');
+}
+
+// ── F12: Entry Quality ────────────────────────────────────────────────────
+function renderEntryQuality() {
+    const el = document.getElementById('entryQualitySection');
+    if (!el) return;
+    const buys = tradeLog.filter(t => t.action.includes('BUY') && !t.action.includes('SIP'));
+    if (buys.length === 0) { el.innerHTML = '<div style="font-size:0.58rem;color:var(--muted);">No manual buy trades.</div>'; return; }
+    el.innerHTML = buys.map(t => {
+        const absIdx = simStartIdx + t.day;
+        const dr   = simDailyRsiCache[absIdx] ?? 50;
+        const wr   = simWeeklyRsiCache[absIdx] ?? 50;
+        const delta = dr - wr;
+        let score = 0;
+        if (t.regime === 'A') score += 4;
+        if (dr < 40) score += 3;
+        else if (dr < 50) score += 1;
+        if (delta < buyDeltaLevel) score += 2;
+        if (delta < 0) score += 1;
+        const qClass = score >= 7 ? 'q-high' : score >= 4 ? 'q-mid' : 'q-low';
+        const qLabel = score >= 7 ? `${score}/10 HIGH` : score >= 4 ? `${score}/10 MED` : `${score}/10 LOW`;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;
+            padding:4px 0;border-bottom:1px solid var(--border);font-size:0.55rem;">
+            <span style="color:var(--muted);">Day ${t.day}</span>
+            <span>${t.action}</span>
+            <span>₹${t.nav.toFixed(2)}</span>
+            <span>Reg ${t.regime}</span>
+            <span class="quality-pill ${qClass}">${qLabel}</span>
+        </div>`;
+    }).join('');
+}
+
+// ── F13: Regime Time Allocation Donut (Live Analytics) ───────────────────
+function renderRegimeDonut(containerId, aCount, bCount, cCount) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const total = aCount + bCount + cCount;
+    if (total === 0) return;
+    const pA = aCount / total, pB = bCount / total, pC = cCount / total;
+    const size = 60, r = 22, cx = 30, cy = 30;
+    function slicePath(startFrac, endFrac, col) {
+        if (endFrac <= startFrac) return '';
+        const a1 = startFrac * Math.PI * 2 - Math.PI / 2;
+        const a2 = endFrac   * Math.PI * 2 - Math.PI / 2;
+        const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+        const x2 = cx + r * Math.cos(a2), y2 = cy + r * Math.sin(a2);
+        const large = (endFrac - startFrac) > 0.5 ? 1 : 0;
+        return `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} Z" fill="${col}" opacity="0.85"/>`;
+    }
+    const svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+        ${slicePath(0, pA, '#009e70')}
+        ${slicePath(pA, pA + pB, '#c97a00')}
+        ${slicePath(pA + pB, 1, '#c8102e')}
+        <circle cx="${cx}" cy="${cy}" r="12" fill="white"/>
+        <text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="7" font-family="monospace" fill="#304058">${Math.round(pA * 100)}%A</text>
+    </svg>`;
+    el.innerHTML = `<div class="donut-wrap">
+        ${svg}
+        <div class="donut-legend">
+            <div class="donut-legend-item"><span class="donut-dot" style="background:#009e70;"></span><span>${Math.round(pA*100)}% Regime A (${aCount}d)</span></div>
+            <div class="donut-legend-item"><span class="donut-dot" style="background:#c97a00;"></span><span>${Math.round(pB*100)}% Regime B (${bCount}d)</span></div>
+            <div class="donut-legend-item"><span class="donut-dot" style="background:#c8102e;"></span><span>${Math.round(pC*100)}% Regime C (${cCount}d)</span></div>
+        </div>
+    </div>`;
+}
+
 </script>
 <script>
 // =============================================================================

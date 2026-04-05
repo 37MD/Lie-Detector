@@ -1009,13 +1009,13 @@ input:checked + .slider:before { transform: translateX(16px); }
 /* Reduces font sizes in HUD, indicator values, and psychology  */
 /* text.  Also shrinks chart height from 52 vh → 44 vh to       */
 /* preserve space for the action bar on short screens.          */
-@media (max-width: 600px) {
-    .chart-hud { font-size: 0.50rem; letter-spacing: -0.05em; width: calc(100% - 50px); line-height: 1.2; }
-    .ind-val { font-size: 0.95rem !important; padding: 2px 4px !important; }
-    .chart-container { height: 44vh; min-height: 300px; }
-    .psy-logic { font-size: 0.65rem; line-height: 1.4; }
-    .psy-logic .psy-line { margin-bottom: 2px; font-size: 0.62rem; line-height: 1.5; color: var(--text); }
+.chart-hud { font-size: 0.50rem; letter-spacing: -0.05em; width: calc(100% - 50px); line-height: 1.2; }
+.ind-val { font-size: 0.95rem !important; padding: 2px 4px !important; }
+.chart-container { height: 44vh; min-height: 300px; }
+.psy-logic { font-size: 0.65rem; line-height: 1.4; }
+.psy-logic .psy-line { margin-bottom: 2px; font-size: 0.62rem; line-height: 1.5; color: var(--text); }
 }
+
 /* ══════════════════════════════════════════════════════════════
    LD241A8 FEATURE STYLES
    F1 Mistake Classifier · F2 Blind Mode · F3+F9 Pre-Trade Sheet
@@ -1120,6 +1120,7 @@ input:checked + .slider:before { transform: translateX(16px); }
 .donut-legend{font-size:0.52rem;display:flex;flex-direction:column;gap:4px;}
 .donut-legend-item{display:flex;align-items:center;gap:5px;}
 .donut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+</style>
 </head>
 <body>
 
@@ -3236,7 +3237,7 @@ const btns = document.getElementById('liveChartTfRow').children;
 Array.from(btns).forEach(b => b.classList.remove('active'));
 btns[6].classList.add('active'); // 1Y default
 
-setTimeout(() => updateLiveChartOnly(250, btns[6]), 10);
+updateLiveChartOnly(250, btns[6]);
 updateLiveEstimate();
 updateFreshnessBadge();
 }
@@ -4169,8 +4170,9 @@ tfBtns.children[6].classList.add('active'); // 1Y default (idx 6 of 8: 3D,1W,2W,
 
 document.getElementById('setupScreen').style.display = 'none';
 document.getElementById('gameUI').style.display = 'flex';
-setTimeout(updateDisplay, 10);
+updateDisplay();
 }
+
 /**
 * Re-render the entire simulator UI for the current day index.
 * Called after every HOLD, trade action, or zoom change.
@@ -7177,7 +7179,7 @@ chartSplit._rawRsArray = rsArray;
 chartSplit._rawHmaArray = rsHmaSeries;
 chartSplit._rawCrosshairData = rrgCrosshairData;
 
-setTimeout(() => window.updateRRGChartLookback(Math.min(84, fPrices.length)), 10);
+window.updateRRGChartLookback(Math.min(84, fPrices.length));
 
 } catch (err) {
 console.error('Fatal Error in openRRGDetail:', err);

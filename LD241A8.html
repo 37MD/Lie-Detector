@@ -3799,8 +3799,11 @@ function renderReplayChart() {
     if (!canvas || !fullHistory.length) return;
     const container = canvas.parentElement;
     const rect = container.getBoundingClientRect();
-    if (rect.width < 10 || rect.height < 10) return;
-
+    // Self-Healing
+    if (rect.width < 10 || rect.height < 10) {
+        setTimeout(renderReplayChart, 50);
+        return;
+    }
     const dpr = window.devicePixelRatio || 1;
     canvas.width  = rect.width  * dpr;
     canvas.height = rect.height * dpr;
@@ -5685,10 +5688,15 @@ window.V14B_MainChart = {
 * @param {Array<{nav:number, tsl:number, date:string}>} data
 * @param {number} lookback - Number of bars to display
 */
+
 renderChart(canvas, data, lookback) {
 const ctx = canvas.getContext('2d');
 const rect = canvas.parentElement.getBoundingClientRect();
-if (rect.width < 10 || rect.height < 10) return;
+// Self-Healing: If layout isn't ready, wait 50ms and try again
+if (rect.width < 10 || rect.height < 10) {
+    setTimeout(() => this.renderChart(canvas, data, lookback), 50);
+    return;
+}
 
 const dpr = window.devicePixelRatio || 1;
 canvas.width = rect.width * dpr;
@@ -5707,19 +5715,19 @@ lookback = Math.min(lookback, data.length);
 const startVis = data.length - lookback;
 const visibleData = data.slice(startVis);
 
-// ── Y-scale (FIXED: Now expands upward if TSL > NAV) ───────────────
-let minNav = Math.min(...visibleData.map(d => d.nav));
-let maxNav = Math.max(...visibleData.map(d => d.nav));
-const validTsls = visibleData.filter(d => d.tsl > 0).map(d => d.tsl);
-if (validTsls.length > 0) {
-minNav = Math.min(minNav, ...validTsls);
-maxNav = Math.max(maxNav, ...validTsls);
+
+// ── Y-scale (FIXED: Safely handles large arrays) ───────────────
+let minNav = Infinity, maxNav = -Infinity;
+for(let i=0; i<visibleData.length; i++) {
+    const d = visibleData[i];
+    if (d.nav < minNav) minNav = d.nav;
+    if (d.nav > maxNav) maxNav = d.nav;
+    if (d.tsl > 0 && d.tsl < minNav) minNav = d.tsl;
+    if (d.tsl > 0 && d.tsl > maxNav) maxNav = d.tsl;
+    if (d.wma20 != null && d.wma20 < minNav) minNav = d.wma20;
+    if (d.wma20 != null && d.wma20 > maxNav) maxNav = d.wma20;
 }
-const validWma20 = visibleData.filter(d => d.wma20 != null).map(d => d.wma20);
-if (validWma20.length > 0) {
-minNav = Math.min(minNav, ...validWma20);
-maxNav = Math.max(maxNav, ...validWma20);
-}
+if (minNav === Infinity) { minNav = 0; maxNav = 100; }
 
 
 
@@ -6007,11 +6015,15 @@ window.SacredMomentum = {
 * @param {Array<{dr:number, wr:number, wma:number}>} data
 * @param {number} lookback
 */
+
 renderChart(canvas, data, lookback) {
 const ctx = canvas.getContext('2d');
 const rect = canvas.parentElement.getBoundingClientRect();
-if (rect.width < 10 || rect.height < 10) return;
-
+// Self-Healing: If layout isn't ready, wait 50ms and try again
+if (rect.width < 10 || rect.height < 10) {
+    setTimeout(() => this.renderChart(canvas, data, lookback), 50);
+    return;
+}
 const dpr = window.devicePixelRatio || 1;
 canvas.width = rect.width * dpr;
 canvas.height = rect.height * dpr;
@@ -6038,8 +6050,11 @@ if (!isNaN(pt.wma)) allVals.push(pt.wma);
 if (!isNaN(pt.dr - pt.wma)) allVals.push(pt.dr - pt.wma);
 if (!isNaN(pt.dr - pt.wr)) allVals.push(pt.dr - pt.wr);
 });
-let dynMin = Math.min(...allVals);
-let dynMax = Math.max(...allVals);
+let dynMin = 0, dynMax = 0;
+allVals.forEach(v => {
+    if (v < dynMin) dynMin = v;
+    if (v > dynMax) dynMax = v;
+});
 const dynSpan = (dynMax - dynMin) || 1;
 const dynPad = dynSpan / 18; // ~5.5% each side → data ≈ 90% height
 dynMin -= dynPad;
@@ -6288,8 +6303,11 @@ function renderRRGChartDynamic(canvas, rsArray, hmaArray, overrideLookback) {
 if (!canvas) return;
 const ctx = canvas.getContext('2d');
 const rect = canvas.parentElement.getBoundingClientRect();
-if (rect.width < 10 || rect.height < 10) return;
-
+// Self-Healing
+if (rect.width < 10 || rect.height < 10) {
+    setTimeout(() => renderRRGChartDynamic(canvas, rsArray, hmaArray, overrideLookback), 50);
+    return;
+}
 const dpr = window.devicePixelRatio || 1;
 canvas.width = rect.width * dpr;
 canvas.height = rect.height * dpr;

@@ -9691,10 +9691,10 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             if (allocs.length > 0) {
                 rTable.style.display = 'block';
                 const makeMetric = (label, val) => {
-                    if(val === null) return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:4px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.55rem;color:var(--muted);font-weight:700;">${label}</span><span style="font-size:0.6rem;color:var(--muted2);">-</span></div>`;
-                    const c = val >= 0 ? '#00e8a2' : 'var(--red)';
+                    if(val === null) return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:4px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.55rem;color:var(--muted);font-weight:400;">${label}</span><span style="font-size:0.8rem;color:var(--muted2);">-</span></div>`;
+                    const c = val >= 0 ? '#059669' : 'var(--red)';
                     const sign = val > 0 ? '+' : '';
-                    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:4px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.55rem;color:var(--muted);margin-bottom:2px;font-weight:700;">${label}</span><span style="font-size:0.6rem;color:${c};font-weight:700;font-family:var(--mono);">${sign}${val.toFixed(1)}%</span></div>`;
+                    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:4px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.55rem;color:var(--muted);margin-bottom:2px;font-weight:400;">${label}</span><span style="font-size:0.8rem;color:${c};font-weight:400;font-family:var(--mono);">${sign}${val.toFixed(1)}%</span></div>`;
                 };
                 rTable.innerHTML = `<div style="display:flex; gap:6px; justify-content:space-between;">
                     ${makeMetric('1M', calcReturn(1))}
@@ -9755,7 +9755,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
                     let details = `<div style="margin-bottom:8px;"><strong>Selected Portfolio:</strong><br>🔹 <span style="color:var(--text);font-weight:700;">${alloc.top2[0].name}</span> — <strong style="color:var(--text);">${alloc.w1}%</strong> (W-RSI: ${Math.round(alloc.top2[0].wrsi)}, Regime: ${alloc.top2[0].regime})<br>🔹 <span style="color:var(--text);font-weight:700;">${alloc.top2[1].name}</span> — <strong style="color:var(--text);">${alloc.w2}%</strong> (W-RSI: ${Math.round(alloc.top2[1].wrsi)}, Regime: ${alloc.top2[1].regime})</div>`;
                     details += `<div><strong>Strategy & Catalyst:</strong><br>${alloc.logicText.replace(/\n/g, '<br>')}</div>`;
-                    details += `<div style="margin-top:8px;"><strong>Monthly Return Achieved:</strong><br><span style="font-size:0.8rem; font-weight:700; color:${r>=0?'#00e8a2':'var(--red)'};">${r > 0 ? '+' : ''}${r.toFixed(2)}%</span></div>`;
+                    details += `<div style="margin-top:8px;"><strong>Monthly Return Achieved:</strong><br><span style="font-size:0.8rem; font-weight:700; color:${r>=0?'#059669':'var(--red)'};">${r > 0 ? '+' : ''}${r.toFixed(2)}%</span></div>`;
                     
                     document.getElementById('allocLogicReason').innerHTML = details;
                 };

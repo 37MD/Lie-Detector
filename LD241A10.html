@@ -9691,10 +9691,15 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             if (allocs.length > 0) {
                 rTable.style.display = 'block';
                 const makeMetric = (label, val) => {
-                    if(val === null) return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 2px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.6rem;color:var(--muted);font-weight:normal;">${label}</span><span style="font-size:1.1rem;color:var(--muted2);font-weight:normal;">-</span></div>`;
-                    const c = val >= 0 ? '#006400' : 'var(--red)';
+                    if(val === null) return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 2px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.6rem;color:var(--muted);font-weight:normal;">${label}</span><span style="font-size:0.75rem;color:var(--muted2);font-weight:normal;">-</span></div>`;
+                    let bg = 'var(--surface2)';
+                    if (val <= -5) bg = 'rgba(200, 16, 46, 0.4)';
+                    else if (val < -1) bg = 'rgba(200, 16, 46, 0.15)';
+                    else if (val <= 1) bg = 'rgba(245, 158, 11, 0.2)';
+                    else if (val <= 5) bg = 'rgba(0, 232, 162, 0.15)';
+                    else bg = 'rgba(0, 232, 162, 0.4)';
                     const sign = val > 0 ? '+' : '';
-                    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 2px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.6rem;color:var(--muted);margin-bottom:4px;font-weight:normal;">${label}</span><span style="font-size:1.1rem;color:${c};font-weight:normal;font-family:var(--mono);">${sign}${val.toFixed(1)}%</span></div>`;
+                    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 2px;background:${bg};border-radius:var(--radius);border:1px solid rgba(0,0,0,0.1);"><span style="font-size:0.55rem;color:#000;margin-bottom:4px;font-weight:normal;">${label}</span><span style="font-size:0.75rem;color:#000;font-weight:normal;font-family:var(--mono);">${sign}${val.toFixed(1)}%</span></div>`;
                 };
                 rTable.innerHTML = `<div style="display:flex; gap:6px; justify-content:space-between;">
                     ${makeMetric('1M', calcReturn(1))}

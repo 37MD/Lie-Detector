@@ -442,12 +442,9 @@
             letter-spacing: 0.04em;
             white-space: normal;
             overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 145px;
+            max-width: 160px;
             line-height: 1.25;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            max-height: 2.5em;
         }
 
 
@@ -491,15 +488,21 @@
             background: var(--gold-dim);
             color: var(--gold);
             border: 1px solid var(--gold);
-            padding: 5px 10px;
-            font-size: 0.65rem;
+            padding: 4px 8px;
+            font-size: 0.62rem;
             font-family: var(--mono);
             font-weight: 400;
             cursor: pointer;
             border-radius: var(--radius-sm);
             letter-spacing: 0.08em;
             transition: all 0.15s;
+            text-align: center;
+            line-height: 1.4;
+            white-space: normal;
+            width: 52px;
+            flex-shrink: 0;
         }
+
 
         .btn-review:hover {
             background: rgba(251, 191, 36, 0.15);
@@ -2794,13 +2797,15 @@ border-radius:var(--radius);padding:6px 9px;">
                 <span id="simFundName" class="fund-name-tag"></span>
             </div>
             <div class="hdr-btns">
-                <span id="infractionBadge">0 INFRACTIONS</span>
-                <button id="blindToggleHdr" onclick="toggleBlindMode()" style="font-size:0.5rem;padding:4px 8px;border:1px solid var(--border2);border-radius:var(--radius-sm);
-  cursor:pointer;background:transparent;font-family:var(--mono);color:var(--muted);letter-spacing:0.05em;">
-                    BLIND: OFF
-                </button>
-                <button class="btn-review" onclick="endAndReview()">END &amp; REVIEW</button>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+                    <button id="blindToggleHdr" onclick="toggleBlindMode()"
+                        style="font-size:0.5rem;padding:3px 7px;border:1px solid var(--border2);border-radius:var(--radius-sm);cursor:pointer;background:transparent;font-family:var(--mono);color:var(--muted);letter-spacing:0.05em;">BLIND:
+                        OFF</button>
+                    <span id="infractionBadge">0 INFRACTIONS</span>
+                </div>
+                <button class="btn-review" onclick="endAndReview()">END &amp;<br>REVIEW</button>
             </div>
+
         </header>
 
         <div class="networth-header">

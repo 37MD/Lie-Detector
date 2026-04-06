@@ -9462,7 +9462,14 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
         // ASSET ALLOCATOR
         // =============================================================================
         function openAssetAllocator() {
-            const amc = localStorage.getItem('ld_v3_amc') || 'HDFC';
+            let amc = 'HDFC';
+            const activeAmcBox = document.querySelector('#fundGrid .fund-box.active');
+            if (activeAmcBox) {
+                amc = activeAmcBox.textContent.trim();
+                localStorage.setItem('ld_v3_amc', amc);
+            } else {
+                amc = localStorage.getItem('ld_v3_amc') || 'HDFC';
+            }
             document.getElementById('assetAllocSubtitle').textContent = `${amc} AMC`;
             document.getElementById('setupScreen').style.display = 'none';
             document.getElementById('assetAllocatorModal').style.display = 'flex';
@@ -9540,6 +9547,15 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             const allocations = [];
             let prevTop2 = [];
 
+            const getDtIdx = (arr, dt) => {
+                let i = arr.indexOf(dt);
+                if (i !== -1) return i;
+                for (let j = arr.length - 1; j >= 0; j--) {
+                    if (arr[j] <= dt) return j;
+                }
+                return -1;
+            };
+
             for (let m = 6; m < 30; m++) {
                 const evalDateRaw = refDates[targetEOMs[m]];
                 const endDateRaw = refDates[targetEOMs[m+1]];
@@ -9547,7 +9563,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 let fundStats = [];
                 for (const code in fundsData) {
                     const fd = fundsData[code];
-                    let idx = fd.dates.findIndex(d => d <= evalDateRaw);
+                    let idx = getDtIdx(fd.dates, evalDateRaw);
                     if (idx === -1 || idx < 42) continue;
 
                     const pCurr = fd.prices[idx];
@@ -9607,10 +9623,10 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 for (let f of top2) {
                     const fd = fundsData[f.code];
                     if (!fd) continue;
-                    let idxStart = fd.dates.findIndex(d => d <= evalDateRaw);
-                    let idxEnd = fd.dates.findIndex(d => d <= endDateRaw);
+                    let idxStart = getDtIdx(fd.dates, evalDateRaw);
+                    let idxEnd = getDtIdx(fd.dates, endDateRaw);
                     
-                    if (idxStart !== -1 && idxEnd !== -1 && idxStart >= idxEnd) {
+                    if (idxStart !== -1 && idxEnd !== -1 && idxStart <= idxEnd) {
                         const pStart = fd.prices[idxStart];
                         const pEnd = fd.prices[idxEnd];
                         portfolioReturn += ((pEnd - pStart) / pStart) * 100;

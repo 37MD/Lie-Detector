@@ -2237,16 +2237,23 @@
                 <span style="font-size:0.75rem; font-weight:400; color:var(--text);">REGIME CHANGE</span>
             </div>
             <div class="c-input-box"
-                style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 2px;cursor:pointer;"
-                onclick="toggleBlindMode()">
-                <span class="c-label" style="margin-bottom:2px;">Training</span>
-                <button id="blindToggle" style="pointer-events:none;">BLIND</button>
+                style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 2px;cursor:pointer; background:var(--gold-dim); border-color:var(--gold);"
+                onclick="openAssetAllocator()">
+                <span class="c-label" style="color:var(--gold); font-weight:400; margin-bottom:2px; letter-spacing:0.05em;">ANALYZE</span>
+                <span style="font-size:0.75rem; font-weight:700; color:var(--text); text-align:center; line-height:1.2; padding-bottom: 2px;">ASSET<br>ALLOCATOR</span>
             </div>
         </div>
 
-        <button class="setup-btn setup-btn-sim"
-            style="width: 100%; max-width: 350px; padding: 12px; font-size: 0.75rem;"
-            onclick="initGame('random')">Random Simulation</button>
+        <div style="display:flex; width:100%; max-width:350px; gap:8px;">
+            <button class="setup-btn setup-btn-sim"
+                style="flex:1; padding: 12px; font-size: 0.75rem; margin: 0;"
+                onclick="initGame('random')">Random Simulation</button>
+            <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 12px;cursor:pointer;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--surface2);"
+                onclick="toggleBlindMode()">
+                <span class="c-label" style="margin-bottom:2px;">Training</span>
+                <button id="blindToggle" style="pointer-events:none; font-family:var(--mono); font-size:0.6rem; background:transparent; border:none; color:var(--muted);">BLIND</button>
+            </div>
+        </div>
 
         <!-- SIP embedded in simulator row -->
         <div class="custom-inputs" style="margin-top:4px;">
@@ -2370,6 +2377,36 @@
             </div>
         </div>
 
+    </div>
+    </div>
+
+    <!-- ══════════ ASSET ALLOCATOR MODAL ══════════ -->
+    <div id="assetAllocatorModal" class="modal-overlay" style="z-index:620;">
+        <div class="modal-close">
+            <div style="display:flex;flex-direction:column;">
+                <span class="modal-title" style="color:var(--gold);">ASSET ALLOCATOR</span>
+                <span id="assetAllocSubtitle" style="font-size:0.55rem;color:var(--text);margin-top:2px;">HDFC AMC</span>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <select id="assetAllocType" class="dropdown" style="margin:0; padding:4px 8px; font-size:0.6rem; width:auto; border-color:var(--border);" onchange="runAssetAllocator()">
+                    <option value="MF">Mutual Funds</option>
+                    <option value="NPS_T1">NPS Tier 1</option>
+                    <option value="NPS_T2">NPS Tier 2</option>
+                </select>
+                <span class="modal-close-btn" onclick="document.getElementById('assetAllocatorModal').style.display='none'; document.getElementById('setupScreen').style.display='flex'">[ X ] CLOSE</span>
+            </div>
+        </div>
+
+        <div style="flex-grow:1;display:flex;flex-direction:column;min-height:0;overflow-y:auto;padding:10px;">
+             <!-- Top Part: 24 Boxes Grid -->
+             <div id="assetAllocBoxes" style="display:grid;grid-template-columns:repeat(4, 1fr);gap:6px;margin-bottom:12px;"></div>
+
+             <!-- Bottom Part: Analytics / Logic box -->
+             <div id="assetAllocAnalytics" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;display:none;">
+                 <div id="allocLogicTitle" style="font-size:0.75rem;font-weight:700;margin-bottom:6px;color:var(--accent);"></div>
+                 <div id="allocLogicReason" style="font-size:0.65rem;color:var(--text);line-height:1.5;"></div>
+             </div>
+        </div>
     </div>
 
 
@@ -9421,6 +9458,235 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             window._idbStores = { STORE_DATA, STORE_META };
         })();
 
+        // =============================================================================
+        // ASSET ALLOCATOR
+        // =============================================================================
+        function openAssetAllocator() {
+            const amc = localStorage.getItem('ld_v3_amc') || 'HDFC';
+            document.getElementById('assetAllocSubtitle').textContent = `${amc} AMC`;
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('assetAllocatorModal').style.display = 'flex';
+            document.getElementById('assetAllocType').value = 'MF';
+            runAssetAllocator();
+        }
+
+        async function runAssetAllocator() {
+            const amc = localStorage.getItem('ld_v3_amc') || 'HDFC';
+            const type = document.getElementById('assetAllocType').value;
+            const fundsList = window.amcFunds[amc];
+            
+            let baseFunds = [];
+            if (type === 'MF') {
+                baseFunds = fundsList.filter(f => !f.code.startsWith('SM'));
+            } else if (type === 'NPS_T1') {
+                baseFunds = fundsList.filter(f => f.code.startsWith('SM') && f.name.includes('Tier I') && !f.name.includes('Tier II'));
+            } else if (type === 'NPS_T2') {
+                baseFunds = fundsList.filter(f => f.code.startsWith('SM') && f.name.includes('Tier II'));
+            }
+
+            if (baseFunds.length < 2) {
+                document.getElementById('assetAllocBoxes').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;">Not enough funds for allocation.</div>';
+                document.getElementById('assetAllocAnalytics').style.display = 'none';
+                return;
+            }
+
+            const ovEl = document.getElementById('ov');
+            const ovTxt = document.getElementById('ovTxt');
+            ovEl.style.display = 'flex';
+            ovTxt.textContent = 'FETCHING DATA...';
+
+            const fundsData = {};
+            let completed = 0;
+            for (let f of baseFunds) {
+                try {
+                    const url = f.code.startsWith('SM') ? `https://npsnav.in/api/historical/${f.code}` : `https://api.mfapi.in/mf/${f.code}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    if (data && data.data) {
+                        const prices = data.data.map(d => parseFloat(d.nav)).filter(n => !isNaN(n)).reverse();
+                        const dates = data.data.map(d => window.normalizeDate(d.date)).reverse();
+                        const wRsiArr = window.buildWeeklyRsiFast(prices, window.userRsiLength || 4, dates);
+                        fundsData[f.code] = { name: f.name, prices, dates, wRsiArr };
+                    }
+                } catch(e) { console.error('Failed fetching', f.name); }
+                completed++;
+                ovTxt.textContent = `FETCHING DATA... ${Math.round((completed/baseFunds.length)*100)}%`;
+            }
+
+            ovTxt.textContent = 'CALCULATING ALLOCATIONS...';
+
+            let refDates = [];
+            for(const code in fundsData) {
+                if(fundsData[code].dates.length > refDates.length) refDates = fundsData[code].dates;
+            }
+
+            const eomIndices = [];
+            let curMonth = -1;
+            for (let i = 0; i < refDates.length; i++) {
+                const parts = refDates[i].split('-');
+                const m = parseInt(parts[1]);
+                if (i > 0 && m !== curMonth) eomIndices.push(i - 1);
+                curMonth = m;
+            }
+            eomIndices.push(refDates.length - 1);
+
+            if (eomIndices.length < 31) {
+                ovEl.style.display = 'none';
+                document.getElementById('assetAllocBoxes').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);">Not enough price history (Need 30+ months).</div>';
+                return;
+            }
+
+            const targetEOMs = eomIndices.slice(-31);
+            const allocations = [];
+            let prevTop2 = [];
+
+            for (let m = 6; m < 30; m++) {
+                const evalDateRaw = refDates[targetEOMs[m]];
+                const endDateRaw = refDates[targetEOMs[m+1]];
+                
+                let fundStats = [];
+                for (const code in fundsData) {
+                    const fd = fundsData[code];
+                    let idx = fd.dates.findIndex(d => d <= evalDateRaw);
+                    if (idx === -1 || idx < 42) continue;
+
+                    const pCurr = fd.prices[idx];
+                    const p1m = fd.prices[Math.max(0, idx - 21)];
+                    const r1m = (pCurr - p1m)/p1m * 100;
+                    const p2m = fd.prices[Math.max(0, idx - 42)];
+                    const r2m = (pCurr - p2m)/p2m * 100;
+
+                    const wrsi = fd.wRsiArr[idx] || 50;
+                    const regime = wrsi >= 50 ? 'A' : wrsi >= 40 ? 'B' : 'C';
+
+                    fundStats.push({
+                        code, name: fd.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim(),
+                        r1m, r2m, wrsi, regime, price: pCurr
+                    });
+                }
+
+                if (fundStats.length < 2) continue;
+
+                fundStats.sort((a,b) => b.r2m - a.r2m);
+
+                let top2 = [];
+                let logicText = '';
+                if (m === 6) {
+                    top2 = fundStats.slice(0, 2);
+                    logicText = `Initial Allocation: Selected Top 2 funds based on highest 2-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r2m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r2m.toFixed(1)}%`;
+                } else {
+                    let regimeA = fundStats.filter(f => f.regime === 'A').sort((a,b) => b.r1m - a.r1m);
+                    if(regimeA.length >= 2) {
+                        top2 = regimeA.slice(0, 2);
+                        logicText = `Regime Foundation: Selected Top 2 from Regime A based on 1-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
+                    } else if (regimeA.length === 1) {
+                        let others = fundStats.filter(f => f.regime !== 'A').sort((a,b) => b.r1m - a.r1m);
+                        top2 = [regimeA[0], others[0]];
+                        logicText = `Mixed Foundation: Only 1 fund in Regime A. Picked next best alternative by 1-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
+                    } else {
+                        let others = fundStats.sort((a,b) => b.r1m - a.r1m);
+                        top2 = others.slice(0, 2);
+                        logicText = `Bearish Mode: No Regime A funds available. Selected Top 2 by highest 1-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
+                    }
+                }
+
+                let isSwitch = false;
+                if (prevTop2.length === 2 && top2.length === 2) {
+                    const prevCodes = prevTop2.map(f => f.code).sort();
+                    const currCodes = top2.map(f=>f.code).sort();
+                    if (prevCodes[0] !== currCodes[0] || prevCodes[1] !== currCodes[1]) {
+                        isSwitch = true;
+                        logicText += `\n\n⚡ TRIGGER: Fund switch initiated due to change in rankings. Underperforming components were swapped out.`;
+                    } else {
+                        logicText += `\n\n✅ MAINTAIN: Top 2 funds maintained their relative outperformance. No switch needed.`;
+                    }
+                }
+
+                let portfolioReturn = 0;
+                let validFunds = 0;
+                for (let f of top2) {
+                    const fd = fundsData[f.code];
+                    if (!fd) continue;
+                    let idxStart = fd.dates.findIndex(d => d <= evalDateRaw);
+                    let idxEnd = fd.dates.findIndex(d => d <= endDateRaw);
+                    
+                    if (idxStart !== -1 && idxEnd !== -1 && idxStart >= idxEnd) {
+                        const pStart = fd.prices[idxStart];
+                        const pEnd = fd.prices[idxEnd];
+                        portfolioReturn += ((pEnd - pStart) / pStart) * 100;
+                        validFunds++;
+                    }
+                }
+                const monthReturn = validFunds > 0 ? (portfolioReturn / validFunds) : 0;
+
+                allocations.push({ month: m - 5, date: endDateRaw, top2, isSwitch, logicText, monthReturn });
+                prevTop2 = top2;
+            }
+
+            ovEl.style.display = 'none';
+            renderAssetAllocatorBoxes(allocations);
+        }
+
+        function renderAssetAllocatorBoxes(allocs) {
+            const boxContainer = document.getElementById('assetAllocBoxes');
+            boxContainer.innerHTML = '';
+            document.getElementById('assetAllocAnalytics').style.display = 'none';
+            
+            allocs.forEach(alloc => {
+                if(!alloc.top2 || alloc.top2.length < 2) return;
+
+                const div = document.createElement('div');
+                const r = alloc.monthReturn || 0;
+                let boxBg = 'var(--surface2)';
+                if (r <= -5) boxBg = 'rgba(200, 16, 46, 0.4)';
+                else if (r < -1) boxBg = 'rgba(200, 16, 46, 0.15)';
+                else if (r <= 1) boxBg = 'rgba(245, 158, 11, 0.2)';
+                else if (r <= 5) boxBg = 'rgba(0, 232, 162, 0.15)';
+                else boxBg = 'rgba(0, 232, 162, 0.4)';
+
+                let borderStyle = alloc.isSwitch ? '3.5px double var(--text)' : '1px solid rgba(0,0,0,0.1)';
+                div.style.cssText = `background:${boxBg}; border:${borderStyle}; border-radius:var(--radius); padding:6px 2px; cursor:pointer; text-align:center; min-height: 52px; display:flex; flex-direction:column; justify-content:center; align-items:center; transition: all 0.15s;`;
+                
+                const dtParts = window.formatHudDate(alloc.date).split('-');
+                const mth = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(dtParts[1])-1];
+                
+                const mLabel = document.createElement('div');
+                mLabel.style.cssText = 'font-size:0.5rem; color:var(--muted); text-transform:uppercase; margin-bottom:3px; letter-spacing:0.05em; font-weight:700;';
+                mLabel.textContent = `M${alloc.month} ${mth}'${dtParts[2].slice(-2)}`;
+                
+                const fBox = document.createElement('div');
+                fBox.style.cssText = 'font-size:0.55rem; font-weight:700; color:var(--text); line-height:1.2; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';
+                fBox.innerHTML = `<span>${alloc.top2[0].name.substring(0,10)}</span><br><span>${alloc.top2[1].name.substring(0,10)}</span>`;
+
+                const ratioLabel = document.createElement('div');
+                ratioLabel.style.cssText = 'font-size:0.55rem; margin-top:3px; font-weight:700; font-family:var(--mono); color:var(--text); background:rgba(0,0,0,0.05); padding:1px 6px; border-radius:10px; display:inline-flex; align-items:center; gap:4px;';
+                ratioLabel.innerHTML = `50:50 <span style="font-size:0.5rem;">${r > 0 ? '+' : ''}${r.toFixed(1)}%</span>`;
+
+                div.appendChild(mLabel);
+                div.appendChild(fBox);
+                div.appendChild(ratioLabel);
+
+                div.addEventListener('mouseenter', () => div.style.filter = 'brightness(0.95)');
+                div.addEventListener('mouseleave', () => { if(!div.classList.contains('active-alloc')) div.style.filter = 'none'; });
+
+                div.onclick = () => {
+                    Array.from(boxContainer.children).forEach(c => { c.classList.remove('active-alloc'); c.style.filter = 'none'; c.style.outline = 'none'; });
+                    div.classList.add('active-alloc');
+                    div.style.outline = '2px solid var(--text)';
+
+                    document.getElementById('assetAllocAnalytics').style.display = 'block';
+                    document.getElementById('allocLogicTitle').textContent = `Month ${alloc.month} (${mth} 20${dtParts[2].slice(-2)}) — Allocation Logic`;
+
+                    let details = `<div style="margin-bottom:8px;"><strong>Selected Portfolio:</strong><br>🔹 <span style="color:var(--text);font-weight:700;">${alloc.top2[0].name}</span> (W-RSI: ${Math.round(alloc.top2[0].wrsi)}, Regime: ${alloc.top2[0].regime})<br>🔹 <span style="color:var(--text);font-weight:700;">${alloc.top2[1].name}</span> (W-RSI: ${Math.round(alloc.top2[1].wrsi)}, Regime: ${alloc.top2[1].regime})</div>`;
+                    details += `<div><strong>Strategy & Catalyst:</strong><br>${alloc.logicText.replace(/\n/g, '<br>')}</div>`;
+                    details += `<div style="margin-top:8px;"><strong>Monthly Return Achieved:</strong><br><span style="font-size:0.8rem; font-weight:700; color:${r>=0?'#00e8a2':'var(--red)'};">${r > 0 ? '+' : ''}${r.toFixed(2)}%</span></div>`;
+                    
+                    document.getElementById('allocLogicReason').innerHTML = details;
+                };
+
+                boxContainer.appendChild(div);
+            });
+        }
     </script>
 
 

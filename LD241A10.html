@@ -9735,8 +9735,8 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 fBox.innerHTML = `<span>${alloc.top2[0].name.substring(0,10)}</span><br><span>${alloc.top2[1].name.substring(0,10)}</span>`;
 
                 const ratioLabel = document.createElement('div');
-                ratioLabel.style.cssText = 'font-size:0.55rem; margin-top:3px; font-weight:700; font-family:var(--mono); color:var(--text); background:rgba(0,0,0,0.05); padding:1px 6px; border-radius:10px; display:inline-flex; align-items:center; gap:4px;';
-                ratioLabel.innerHTML = `${alloc.w1}:${alloc.w2} <span style="font-size:0.5rem;">${r > 0 ? '+' : ''}${r.toFixed(1)}%</span>`;
+                ratioLabel.style.cssText = 'font-size:0.75rem; margin-top:4px; font-weight:400; font-family:var(--mono); color:var(--text); line-height: 1;';
+                ratioLabel.innerHTML = `${r > 0 ? '+' : ''}${r.toFixed(1)}%`;
 
                 div.appendChild(mLabel);
                 div.appendChild(fBox);

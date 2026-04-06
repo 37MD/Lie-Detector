@@ -2401,6 +2401,9 @@
              <!-- Top Part: 24 Boxes Grid -->
              <div id="assetAllocBoxes" style="display:grid;grid-template-columns:repeat(4, 1fr);gap:6px;margin-bottom:12px;"></div>
 
+             <!-- Performance Returns Table -->
+             <div id="assetAllocReturnsTable" style="display:none;margin-bottom:12px;"></div>
+
              <!-- Bottom Part: Analytics / Logic box -->
              <div id="assetAllocAnalytics" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;display:none;">
                  <div id="allocLogicTitle" style="font-size:0.75rem;font-weight:700;margin-bottom:6px;color:var(--accent);"></div>
@@ -9673,6 +9676,37 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             const boxContainer = document.getElementById('assetAllocBoxes');
             boxContainer.innerHTML = '';
             document.getElementById('assetAllocAnalytics').style.display = 'none';
+
+            const calcReturn = (count) => {
+                if (allocs.length < count) return null;
+                const slice = allocs.slice(-count);
+                let product = 1;
+                slice.forEach(a => {
+                    product *= (1 + ((a.monthReturn || 0) / 100));
+                });
+                return ((product - 1) * 100);
+            };
+
+            const rTable = document.getElementById('assetAllocReturnsTable');
+            if (allocs.length > 0) {
+                rTable.style.display = 'block';
+                const makeMetric = (label, val) => {
+                    if(val === null) return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:4px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.55rem;color:var(--muted);font-weight:700;">${label}</span><span style="font-size:0.6rem;color:var(--muted2);">-</span></div>`;
+                    const c = val >= 0 ? '#00e8a2' : 'var(--red)';
+                    const sign = val > 0 ? '+' : '';
+                    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:4px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.55rem;color:var(--muted);margin-bottom:2px;font-weight:700;">${label}</span><span style="font-size:0.6rem;color:${c};font-weight:700;font-family:var(--mono);">${sign}${val.toFixed(1)}%</span></div>`;
+                };
+                rTable.innerHTML = `<div style="display:flex; gap:6px; justify-content:space-between;">
+                    ${makeMetric('1M', calcReturn(1))}
+                    ${makeMetric('3M', calcReturn(3))}
+                    ${makeMetric('6M', calcReturn(6))}
+                    ${makeMetric('1Y', calcReturn(12))}
+                    ${makeMetric('1.5Y', calcReturn(18))}
+                    ${makeMetric('2Y', calcReturn(24))}
+                </div>`;
+            } else {
+                rTable.style.display = 'none';
+            }
             
             allocs.forEach(alloc => {
                 if(!alloc.top2 || alloc.top2.length < 2) return;

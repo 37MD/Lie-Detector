@@ -1471,6 +1471,64 @@
             border-color: var(--accent);
         }
 
+        /* ── SECTION 34: ALERTS SUMMARY STYLES ────────────────────────── */
+        .alert-badge {
+            font-size: 0.65rem;
+            color: var(--red);
+            font-weight: 700;
+            margin-left: 2px;
+        }
+
+        .alert-cat-btn {
+            width: 100%;
+            text-align: left;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 4px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            font-weight: 700;
+            transition: background 0.15s;
+        }
+
+        .alert-cat-btn:hover {
+            background: var(--surface3);
+        }
+
+        .alert-item-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .alert-item-row:hover {
+            background: var(--accent-dim);
+        }
+
+        .alert-item-name {
+            flex: 1;
+            font-size: 0.68rem;
+            color: var(--text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .alert-item-val {
+            font-size: 0.62rem;
+            color: var(--muted);
+            margin-left: 10px;
+        }
+
         /* ── RESPONSIVE OVERRIDES ───────────────────────────────────── */
         /* Breakpoint: max-width 600 px (typical phone in portrait).    */
         /* Reduces font sizes in HUD, indicator values, and psychology  */
@@ -2211,7 +2269,7 @@
         <div class="setup-logo">Sacred RSI Regime System</div>
         <div class="streak-badge" id="streakBadge"></div>
         <h1 class="setup-title">Lie Detector <span
-                style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A11</span></h1>
+                style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A10A</span></h1>
         <p class="setup-sub">Train your discipline before real money does.</p>
 
         <div class="fund-grid" id="fundGrid">
@@ -2316,15 +2374,13 @@
             <button class="setup-btn setup-btn-live" onclick="initLiveChart()">Live Market</button>
             <button class="setup-btn" style="border-color:var(--gold);color:var(--gold);"
                 onclick="initLiveAnalytics()">Live Analytics</button>
-            <button class="setup-btn" style="border-color:#f43f5e;color:#f43f5e;" onclick="openAlertSummary()">🔔 Alerts
-                Summary <span id="alertSummaryBadge"></span></button>
+            <button class="setup-btn" style="border-color:var(--red);color:var(--red);" onclick="openAlertSummary()">Alerts Summary <span id="alertSummaryBadge" class="alert-badge"></span></button>
         </div>
         <div class="setup-btns"
             style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;width:100%;max-width:350px;">
             <button class="setup-btn" style="border-color:var(--border2);color:var(--muted2);"
                 onclick="openCompareModal()">⇄ Compare 2 Funds</button>
-            <button class="setup-btn" style="border-color:#a855f7;color:#a855f7;" onclick="openWatchlist()">📌
-                Watchlist</button>
+            <button class="setup-btn" style="border-color:#a855f7;color:#a855f7;" onclick="openWatchlist()">📌 Watchlist</button>
         </div>
 
         <div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
@@ -2747,23 +2803,6 @@ border-radius:var(--radius);padding:6px 9px;">
                 </thead>
                 <tbody id="logBody"></tbody>
             </table>
-        </div>
-    </div>
-
-    <!-- ══════════ ALERT SUMMARY MODAL ══════════ -->
-    <div id="alertSummaryModal" class="modal-overlay" style="z-index:710;">
-        <div class="modal-close">
-            <div style="display:flex;flex-direction:column;">
-                <span class="modal-title" style="color:var(--red);">ALERTS SUMMARY</span>
-                <span id="alertSummarySub" style="font-size:0.52rem;color:var(--muted);margin-top:2px;">Scanning AMC
-                    Universe...</span>
-            </div>
-            <span class="modal-close-btn"
-                onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex'">[
-                X ] CLOSE</span>
-        </div>
-        <div id="alertSummaryContent" style="flex-grow:1;overflow-y:auto;padding:12px;">
-            <div style="text-align:center;padding:40px;color:var(--muted);">Initializing scanner...</div>
         </div>
     </div>
 
@@ -3721,9 +3760,6 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
 
             // ── 8. Auto-stress scenarios ──────────────────────────────────────────────
             populateAutoStressScenarios();
-
-            // ── 9. Alert Summary Badge ───────────────────────────────────────────────
-            refreshAlertSummaryBadge();
 
         }); // end DOMContentLoaded
 
@@ -9598,7 +9634,6 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 } finally { if (ov) ov.style.display = 'none'; }
             }
 
-            // DISABLE AUTO-SYNC AT BOOT: Let the staggered Alert Scanner handle it lazy-style
             // if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', syncAllData); }
             // else { syncAllData(); }
 
@@ -10022,26 +10057,137 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 boxContainer.appendChild(div);
             });
         }
-        // =============================================================================
-        // SECTION 34 · ALERTS SUMMARY SCANNER
-        // =============================================================================
-        // openAlertSummary()
-        //   Initializes the scan of all 52 funds in the amcFunds catalogue.
-        //   Groups active alerts by category and renders them in a unified modal.
-        //
-        // renderAlertSummaryUI(alerts)
-        //   Renders categories only if they contain at least one alerting fund.
-        //
-        // refreshAlertSummaryBadge()
-        //   Quietly scans AMC universe on load to update total alert count.
-        //
-        async function refreshAlertSummaryBadge() {
-            const allFunds = Object.values(window.amcFunds).flat();
-            let total = 0;
-            const badge = document.getElementById('alertSummaryBadge');
-            if (badge) badge.textContent = '(...)';
+    </script>
 
-            // ONE BY ONE SCAN: Sequential processing is safest for the main thread
+
+    <div id="alertSummaryModal" class="modal-overlay" style="z-index:900;">
+        <div class="modal-close">
+            <div style="display:flex;flex-direction:column;text-align:left;">
+                <span class="modal-title" style="color:var(--red);">ALERTS SUMMARY</span>
+                <span id="alertSummarySub" style="font-size:0.55rem;color:var(--muted);margin-top:2px;">Scanning Universe...</span>
+            </div>
+            <span class="modal-close-btn" onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';"> [ CLOSE ] </span>
+        </div>
+        <div id="alertSummaryContent" style="flex-grow:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;">
+        </div>
+    </div>
+
+    <script>
+        // =============================================================================
+        // SECTION 34 · ALERTS SUMMARY SCANNER (LD241A11)
+        // _activeScannerToken already declared at 3482
+
+        async function openAlertSummary() {
+            const currentToken = ++_activeScannerToken;
+            const modal = document.getElementById('alertSummaryModal');
+            const content = document.getElementById('alertSummaryContent');
+            modal.style.display = 'flex';
+            document.getElementById('setupScreen').style.display = 'none';
+
+            const allFunds = Object.values(window.amcFunds).flat();
+            content.innerHTML = `<div style="text-align:center;padding:80px 20px;color:var(--muted);font-size:0.7rem;">
+                <div class="spin" style="margin:0 auto 20px;"></div>
+                ENGINE STARTING...<br>
+                <span id="alertProg" style="font-size:0.6rem;opacity:0.7;">0/${allFunds.length} funds processed</span>
+            </div>`;
+            
+            const results = { TSL: [], REGIME_C: [], NC: [], PC: [], RSI_DIP: [] };
+            let processed = 0;
+
+            for (const fund of allFunds) {
+                if (currentToken !== _activeScannerToken) return;
+                try {
+                    const url = fund.code.startsWith('SM') ? `https://npsnav.in/api/historical/${fund.code}` : `https://api.mfapi.in/mf/${fund.code}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    const rawData = data.data || data;
+                    if (!Array.isArray(rawData)) throw "Err";
+
+                    // OPTIMIZATION: Only process tail for UI summary
+                    const prices = rawData.map(d => parseFloat(d.nav)).filter(n => !isNaN(n)).reverse();
+                    if (prices.length < 80) throw "Short";
+                    const scanPrices = prices.slice(-200);
+                    const scanDates = (rawData.map(d => window.normalizeDate(d.date)).reverse()).slice(-200);
+
+                    const wRsiArr = window.buildWeeklyRsiFast(scanPrices, userRsiLength, scanDates);
+                    const dRsiArr = window.buildDailyRsiFast(scanPrices, userRsiLength);
+                    const lowessArr = window.buildLowessGaussianFast(scanPrices);
+                    const snap = buildEngineSnapshot(scanPrices.length - 1, scanPrices, 0, dRsiArr, wRsiArr, lowessArr, 0, [], 0);
+
+                    const item = { name: fund.name.replace(/\[NPS\] | - Growth| - Direct/gi,'').trim(), code: fund.code, val: "" };
+
+                    if (snap.tsl.tslHit) { item.val = "BREACH"; results.TSL.push(item); }
+                    else if (snap.regime === 'C') { item.val = "BEAR"; results.REGIME_C.push(item); }
+                    else if (snap.ncAlert) { item.val = "BREAKDOWN"; results.NC.push(item); }
+                    else if (snap.pcAlert) { item.val = "BREAKOUT"; results.PC.push(item); }
+                    else if (snap.drsi < 40) { item.val = `RSI ${Math.round(snap.drsi)}`; results.RSI_DIP.push(item); }
+                } catch(e) {}
+                
+                processed++;
+                const prog = document.getElementById('alertProg');
+                if (prog) prog.textContent = `${processed}/${allFunds.length} funds processed`;
+                await new Promise(r => setTimeout(r, 10)); // Yield thread
+            }
+
+            renderAlertSummaryUI(results);
+        }
+
+        function renderAlertSummaryUI(res) {
+            const content = document.getElementById('alertSummaryContent');
+            const sub = document.getElementById('alertSummarySub');
+            const total = Object.values(res).flat().length;
+            sub.textContent = `Completed: ${total} Alerts Found`;
+            content.innerHTML = "";
+
+            const categories = [
+                { id: 'tsl', label: 'TSL FLOOR BREACH', list: res.TSL, color: 'var(--red)' },
+                { id: 'regc', label: 'REGIME C (BEAR)', list: res.REGIME_C, color: 'var(--red)' },
+                { id: 'nc', label: 'CONSOLIDATION BREAKDOWN', list: res.NC, color: '#f59e0b' },
+                { id: 'pc', label: 'CONSOLIDATION BREAKOUT', list: res.PC, color: 'var(--accent)' },
+                { id: 'rsi', label: 'RSI DIPS (<40)', list: res.RSI_DIP, color: 'var(--accent)' }
+            ];
+
+            categories.forEach(cat => {
+                if (cat.list.length === 0) return;
+                const btn = document.createElement('button');
+                btn.className = "alert-cat-btn";
+                btn.style.color = cat.color;
+                btn.innerHTML = `<span>${cat.label}</span><span>${cat.list.length} ▸</span>`;
+                
+                const pane = document.createElement('div');
+                pane.style.display = "none";
+                pane.style.background = "var(--surface)";
+                pane.style.marginBottom = "8px";
+                pane.style.borderRadius = "var(--radius-sm)";
+                
+                cat.list.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = "alert-item-row";
+                    row.onclick = () => launchLiveFromAlert(item.code);
+                    row.innerHTML = `<span class="alert-item-name">${item.name}</span><span class="alert-item-val">${item.val}</span>`;
+                    pane.appendChild(row);
+                });
+
+                btn.onclick = () => {
+                    const isOpen = pane.style.display === "block";
+                    pane.style.display = isOpen ? "none" : "block";
+                    btn.querySelector('span:last-child').textContent = cat.list.length + (isOpen ? " ▸" : " ▾");
+                };
+
+                content.appendChild(btn);
+                content.appendChild(pane);
+            });
+
+            if (total === 0) content.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--accent);font-size:0.7rem;">✓ UNIVERSE IS CLEAN<br>No critical alerts detected.</div>`;
+        }
+
+        async function refreshAlertSummaryBadge() {
+            const badge = document.getElementById('alertSummaryBadge');
+            if (!badge) return;
+            badge.textContent = "(...)";
+            const allFunds = Object.values(window.amcFunds).flat();
+            let count = 0;
+
             for (const fund of allFunds) {
                 try {
                     const url = fund.code.startsWith('SM') ? `https://npsnav.in/api/historical/${fund.code}` : `https://api.mfapi.in/mf/${fund.code}`;
@@ -10051,208 +10197,43 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                     if (!Array.isArray(rawData)) continue;
 
                     const prices = rawData.map(d => parseFloat(d.nav)).filter(n => !isNaN(n)).reverse();
-                    const dates = rawData.map(d => window.normalizeDate(d.date)).reverse();
                     if (prices.length < 80) continue;
+                    const scanPrices = prices.slice(-200);
+                    const scanDates = (rawData.map(d => window.normalizeDate(d.date)).reverse()).slice(-200);
 
-                    // Compute indicators
-                    const wRsiArr = window.buildWeeklyRsiFast(prices, userRsiLength, dates);
-                    const dRsiArr = window.buildDailyRsiFast(prices, userRsiLength);
-                    const lowessArr = window.buildLowessGaussianFast(prices);
-                    const snap = buildEngineSnapshot(prices.length - 1, prices, 0, dRsiArr, wRsiArr, lowessArr, 0, [], 0);
+                    const wRsiArr = window.buildWeeklyRsiFast(scanPrices, userRsiLength, scanDates);
+                    const dRsiArr = window.buildDailyRsiFast(scanPrices, userRsiLength);
+                    const lowessArr = window.buildLowessGaussianFast(scanPrices);
+                    const snap = buildEngineSnapshot(scanPrices.length - 1, scanPrices, 0, dRsiArr, wRsiArr, lowessArr, 0, [], 0);
 
-                    if (snap.tsl.tslHit || snap.regime === 'C' || snap.ncAlert || snap.pcAlert || snap.delta < buyDeltaLevel || snap.drsi < 40) {
-                        total++;
-                        if (badge) badge.textContent = `(${total})`;
+                    if (snap.tsl.tslHit || snap.regime === 'C' || snap.ncAlert || snap.pcAlert || snap.drsi < 40) {
+                        count++;
+                        badge.textContent = `(${count})`;
                     }
-                } catch (e) { }
-
-                // CRITICAL YIELD: Pause for 10ms after EVERY fund to keep UI fluid
+                } catch(e) {}
                 await new Promise(r => setTimeout(r, 10));
             }
-            if (badge) badge.textContent = `(${total})`;
-        }
-        async function openAlertSummary() {
-            const currentToken = ++_activeScannerToken;
-            const modal = document.getElementById('alertSummaryModal');
-            const content = document.getElementById('alertSummaryContent');
-            const ovEl = document.getElementById('ov');
-            const ovTxt = document.getElementById('ovTxt');
-
-            modal.style.display = 'flex';
-            document.getElementById('setupScreen').style.display = 'none';
-            const allFunds = Object.values(window.amcFunds).flat();
-            content.innerHTML = `<div style="text-align:center;padding:100px;color:var(--muted);"><div class="spin" style="margin:0 auto 20px;"></div>SCANNING ALL AMCs...<br><span id="alertProg" style="font-size:0.6rem;opacity:0.7;">0/${allFunds.length} funds processed</span></div>`;
-            if (document.getElementById('alertSummarySub')) document.getElementById('alertSummarySub').textContent = 'Scanning AMC Universe...';
-
-            const allFunds = Object.values(window.amcFunds).flat();
-            const results = {
-                TSL: [],
-                REGIME_C: [],
-                NC: [],
-                PC: [],
-                SLINGSHOT: [],
-                RSI_DIP: []
-            };
-
-            let completed = 0;
-            const BATCH_SIZE = 6;
-
-            const analyze = async (fund) => {
-                try {
-                    const url = fund.code.startsWith('SM') ? `https://npsnav.in/api/historical/${fund.code}` : `https://api.mfapi.in/mf/${fund.code}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    const rawData = data.data || data; // Handle both MF and NPS JSON
-                    if (!Array.isArray(rawData)) return;
-
-                    const prices = rawData.map(d => parseFloat(d.nav)).filter(n => !isNaN(n)).reverse();
-                    const dates = rawData.map(d => window.normalizeDate(d.date)).reverse();
-                    if (prices.length < 80) return;
-
-                    const wRsiArr = window.buildWeeklyRsiFast(prices, userRsiLength, dates);
-                    const dRsiArr = window.buildDailyRsiFast(prices, userRsiLength);
-                    const lowessArr = window.buildLowessGaussianFast(prices);
-
-                    const last = prices.length - 1;
-                    const snap = buildEngineSnapshot(last, prices, 0, dRsiArr, wRsiArr, lowessArr, 0, [], 0);
-
-                    // 1. TSL Breach
-                    if (snap.tsl.tslHit) results.TSL.push({ name: fund.name, code: fund.code, val: `NAV ₹${snap.nav.toFixed(2)} vs Floor ₹${snap.tsl.tslVal.toFixed(2)}` });
-
-                    // 2. Regime Crash
-                    if (snap.regime === 'C') results.REGIME_C.push({ name: fund.name, code: fund.code, val: `W-RSI ${Math.round(snap.wrsi)} (Structural Bear)` });
-
-                    // 3. NC Breakdown
-                    if (snap.ncAlert) results.NC.push({ name: fund.name, code: fund.code, val: 'NC Breakdown Trap' });
-
-                    // Only look for Buy signals if NOT in Regime C or TSL breach
-                    if (snap.regime !== 'C' && !snap.tsl.tslHit) {
-                        if (snap.pcAlert) results.PC.push({ name: fund.name, code: fund.code, val: 'PC Breakout Active' });
-                        if (snap.delta < buyDeltaLevel) results.SLINGSHOT.push({ name: fund.name, code: fund.code, val: `Delta ${snap.delta.toFixed(1)} Slingshot` });
-                        if (snap.drsi < 40) results.RSI_DIP.push({ name: fund.name, code: fund.code, val: `D-RSI ${Math.round(snap.drsi)} Over-extended` });
-                    }
-                } catch (e) {
-                    console.error('Alert Scanner Error:', fund.name, e);
-                }
-            };
-
-            for (let i = 0; i < allFunds.length; i += BATCH_SIZE) {
-                if (currentToken !== _activeScannerToken) return;
-                const batch = allFunds.slice(i, i + BATCH_SIZE);
-                await Promise.all(batch.map(analyze));
-                completed += batch.length;
-                const prog = document.getElementById('alertProg');
-                if (prog) prog.textContent = `${Math.min(completed, allFunds.length)}/${allFunds.length} funds processed`;
-            }
-
-            if (currentToken !== _activeScannerToken) return;
-            if (document.getElementById('alertSummarySub')) document.getElementById('alertSummarySub').textContent = `Scan Complete: ${allFunds.length}/${allFunds.length} Funds`;
-            renderAlertSummaryUI(results);
-        }
-
-        function renderAlertSummaryUI(res) {
-            const content = document.getElementById('alertSummaryContent');
-            let html = '';
-
-            const categories = [
-                { id: 'TSL', label: '🚨 TSL FLOOR BREACHED', data: res.TSL, col: 'var(--red)' },
-                { id: 'REGIME_C', label: '💀 REGIME C CRASH (SELL ALL)', data: res.REGIME_C, col: 'var(--red)' },
-                { id: 'NC', label: '⚠️ NC BREAKDOWN (TRAP)', data: res.NC, col: 'var(--red)' },
-                { id: 'PC', label: '🟢 PC BREAKOUT (BUY)', data: res.PC, col: 'var(--accent)' },
-                { id: 'SLINGSHOT', label: '🟢 SLINGSHOT DELTA (BUY)', data: res.SLINGSHOT, col: 'var(--accent)' },
-                { id: 'RSI_DIP', label: '🟢 RSI < 40 DIP (BUY)', data: res.RSI_DIP, col: 'var(--accent)' }
-            ];
-
-            let foundAny = false;
-            categories.forEach(cat => {
-                if (cat.data.length > 0) {
-                    foundAny = true;
-                    html += `
-                        <details open style="margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;">
-                            <summary style="font-size:0.65rem;font-weight:700;color:${cat.col};padding:6px 8px;background:var(--surface3);border-radius:var(--radius-sm);margin-bottom:6px;letter-spacing:0.04em;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
-                                <span>${cat.label}</span>
-                                <span style="background:${cat.col};color:white;padding:1px 6px;border-radius:10px;font-size:0.55rem;">${cat.data.length}</span>
-                            </summary>
-                            <div style="display:flex;flex-direction:column;gap:5px;padding:4px 2px;">
-                                ${cat.data.map(f => `
-                                    <div class="la-card2" style="cursor:pointer;padding:8px 12px;border:1px solid var(--border);border-left:3px solid ${cat.col};display:flex;justify-content:space-between;align-items:center;" onclick="launchLiveFromAlert('${f.code}')">
-                                        <div style="flex:1;">
-                                            <div style="font-size:0.68rem;font-weight:700;color:var(--text);">${f.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim()}</div>
-                                            <div style="font-size:0.52rem;color:var(--muted);">${f.val}</div>
-                                        </div>
-                                        <div style="color:var(--muted);font-size:0.8rem;padding-left:10px;">→</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </details>
-                    `;
-                }
-            });
-
-            if (!foundAny) {
-                html = `<div style="text-align:center;padding:100px;color:var(--muted);"><div style="font-size:2rem;margin-bottom:10px;">🛡️</div>NO CRITICAL ALERTS ACTIVE<br><span style="font-size:0.6rem;opacity:0.7;">Portfolio is technically safe.</span></div>`;
-            }
-
-            content.innerHTML = html;
+            badge.textContent = `(${count})`;
         }
 
         function launchLiveFromAlert(code) {
-            // Find which AMC this fund belongs to
-            let targetAMC = null;
-            for (const amc in window.amcFunds) {
-                if (window.amcFunds[amc].some(f => f.code === code)) {
-                    targetAMC = amc;
-                    break;
-                }
-            }
-
-            if (!targetAMC) {
-                console.error('Alert Scanner: Fund code not found in any AMC', code);
-                return;
-            }
-
-            // 1. Close alert modal
             document.getElementById('alertSummaryModal').style.display = 'none';
-
-            // 2. Identify and trigger the correct AMC box
-            const boxes = Array.from(document.querySelectorAll('#fundGrid .fund-box'));
-            const targetBox = boxes.find(b => b.textContent.trim() === targetAMC);
-
-            if (targetBox) {
-                // selectAMC repopulates the #fundSelect dropdown
-                selectAMC(targetAMC, targetBox, false);
-
-                // 3. Select the fund in the newly populated dropdown
-                const sel = document.getElementById('fundSelect');
-                sel.value = code;
-
-                if (sel.value !== code) {
-                    // Fallback: try finding by text or specific index if direct value fails
-                    for (let i = 0; i < sel.options.length; i++) {
-                        if (sel.options[i].value === code) {
-                            sel.selectedIndex = i;
-                            break;
-                        }
-                    }
-                }
-
-                saveFundSelection();
-
-                // 4. Force global mode to 'LIVE' to prevent simulator interference
-                document.getElementById('setupScreen').style.display = 'none';
-
-                // 5. Launch the Live Cockpit (Chart Page)
-                if (typeof initLiveChart === 'function') {
-                    initLiveChart();
-                } else {
-                    console.error('initLiveChart not found!');
-                }
+            // Switch AMC if needed
+            let amcMatch = "HDFC";
+            for (const amc in window.amcFunds) {
+                if (window.amcFunds[amc].some(f => f.code === code)) { amcMatch = amc; break; }
             }
+            const amcBtns = document.querySelectorAll('#fundGrid .fund-box');
+            amcBtns.forEach(b => {
+                if (b.textContent.trim() === amcMatch) selectAMC(amcMatch, b);
+            });
+            document.getElementById('fundSelect').value = code;
+            saveFundSelection();
+            initLiveChart();
         }
 
+        // Auto-boot scanner
+        setTimeout(refreshAlertSummaryBadge, 3000);
     </script>
-
-
 </body>
-
 </html>

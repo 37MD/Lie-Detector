@@ -10198,11 +10198,8 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
         }
 
         function launchLiveFromAlert(code) {
-            const modal = document.getElementById('alertSummaryModal');
-            modal.style.display = 'none';
-
             // Find which AMC this fund belongs to
-            let targetAMC = 'HDFC';
+            let targetAMC = null;
             for (const amc in window.amcFunds) {
                 if (window.amcFunds[amc].some(f => f.code === code)) {
                     targetAMC = amc;
@@ -10210,17 +10207,47 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 }
             }
 
-            // Find the correct fund-box element for this AMC
+            if (!targetAMC) {
+                console.error('Alert Scanner: Fund code not found in any AMC', code);
+                return;
+            }
+
+            // 1. Close alert modal
+            document.getElementById('alertSummaryModal').style.display = 'none';
+
+            // 2. Identify and trigger the correct AMC box
             const boxes = Array.from(document.querySelectorAll('#fundGrid .fund-box'));
             const targetBox = boxes.find(b => b.textContent.trim() === targetAMC);
 
             if (targetBox) {
+                // selectAMC repopulates the #fundSelect dropdown
                 selectAMC(targetAMC, targetBox, false);
+
+                // 3. Select the fund in the newly populated dropdown
                 const sel = document.getElementById('fundSelect');
                 sel.value = code;
+
+                if (sel.value !== code) {
+                    // Fallback: try finding by text or specific index if direct value fails
+                    for (let i = 0; i < sel.options.length; i++) {
+                        if (sel.options[i].value === code) {
+                            sel.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+
                 saveFundSelection();
-                // Navigate to Live Cockpit (Chart)
-                initLiveChart();
+
+                // 4. Force global mode to 'LIVE' to prevent simulator interference
+                document.getElementById('setupScreen').style.display = 'none';
+
+                // 5. Launch the Live Cockpit (Chart Page)
+                if (typeof initLiveChart === 'function') {
+                    initLiveChart();
+                } else {
+                    console.error('initLiveChart not found!');
+                }
             }
         }
 

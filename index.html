@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD241A10
+  LIE DETECTOR  LD241A11
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
 
@@ -94,14 +94,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lie Detector LD241A10A</title>
+    <title>Lie Detector LD241A11</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
         rel="stylesheet">
     <style>
         /*
  * ============================================================================
- * STYLESHEET  — LIE DETECTOR LD241A10
+ * STYLESHEET  — LIE DETECTOR LD241A11
  * Sections:  Design Tokens · Reset · Loading Overlay · Setup Screen
  *            App Chrome · Chart UI · Indicator Row · Psychology Box
  *            Action Bar · Modals · Analytics Cards · Review / Audit
@@ -1507,7 +1507,7 @@
         }
 
         /* ══════════════════════════════════════════════════════════════
-   LD241A10 FEATURE STYLES
+   LD241A11 FEATURE STYLES
    F1 Mistake Classifier · F2 Blind Mode · F3+F9 Pre-Trade Sheet
    F4 Rule-Violation Confirm · F5 Regime Drill · F6 What-If
    F7 Delta Heatmap · F8 Tranche Tracker · F11 Hold Distribution
@@ -2269,7 +2269,7 @@
         <div class="setup-logo">Sacred RSI Regime System</div>
         <div class="streak-badge" id="streakBadge"></div>
         <h1 class="setup-title">Lie Detector <span
-                style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A10A</span></h1>
+                style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A11</span></h1>
         <p class="setup-sub">Train your discipline before real money does.</p>
 
         <div class="fund-grid" id="fundGrid">
@@ -3235,13 +3235,15 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     </div>
                 </div>
 
-                <table class="log-table" style="border:1px solid var(--border);font-size:0.55rem;">
+<table class="log-table" style="border:1px solid var(--border);font-size:0.55rem;">
                     <thead>
                         <tr style="background:var(--surface2);">
                             <th style="font-weight:400;padding:4px 3px;">Metric</th>
                             <th style="font-weight:400;padding:4px 3px;">Fund Mom</th>
                             <th style="font-weight:400;padding:4px 3px;">Idx Proxy</th>
-                            <th style="font-weight:400;padding:4px 3px;">Alpha</th>
+                            <th style="font-weight:400;padding:4px 3px;">Idx Alpha</th>
+                            <th style="font-weight:400;padding:4px 3px;">BAF Proxy</th>
+                            <th style="font-weight:400;padding:4px 3px;">BAF Alpha</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -3250,21 +3252,28 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             <td id="rrg1mF" style="padding:4px 3px;">--</td>
                             <td id="rrg1mI" style="padding:4px 3px;">--</td>
                             <td id="rrg1mA" style="padding:4px 3px;">--</td>
+                            <td id="rrg1mBafP" style="padding:4px 3px;">--</td>
+                            <td id="rrg1mBafA" style="padding:4px 3px;">--</td>
                         </tr>
                         <tr>
                             <td style="padding:4px 3px;">2 Month (42d)</td>
                             <td id="rrg2mF" style="padding:4px 3px;">--</td>
                             <td id="rrg2mI" style="padding:4px 3px;">--</td>
                             <td id="rrg2mA" style="padding:4px 3px;">--</td>
+                            <td id="rrg2mBafP" style="padding:4px 3px;">--</td>
+                            <td id="rrg2mBafA" style="padding:4px 3px;">--</td>
                         </tr>
                         <tr>
                             <td style="padding:4px 3px;">3 Month (63d)</td>
                             <td id="rrg3mF" style="padding:4px 3px;">--</td>
                             <td id="rrg3mI" style="padding:4px 3px;">--</td>
                             <td id="rrg3mA" style="padding:4px 3px;">--</td>
+                            <td id="rrg3mBafP" style="padding:4px 3px;">--</td>
+                            <td id="rrg3mBafA" style="padding:4px 3px;">--</td>
                         </tr>
                     </tbody>
                 </table>
+
 
             </div>
         </div>
@@ -5443,7 +5452,7 @@ ${c.text}</span>
             ctx.fillStyle = '#f2f5f9';
             ctx.fillRect(0, 0, W, 44);
             ctx.fillStyle = '#009e70'; ctx.font = 'bold 10px monospace';
-            ctx.fillText('LIE DETECTOR LD241A10 · SIMULATION RESULT', 12, 16);
+            ctx.fillText('LIE DETECTOR LD241A11 · SIMULATION RESULT', 12, 16);
             ctx.fillStyle = '#304058'; ctx.font = '8px monospace';
             ctx.fillText(`${getBriefFundName() || 'Fund Simulator'}`, 12, 30);
             ctx.fillStyle = '#b0bece'; ctx.fillRect(0, 44, W, 1);
@@ -5483,12 +5492,12 @@ ${c.text}</span>
 
             ctx.fillStyle = '#b0bece'; ctx.fillRect(0, 186, W, 1);
             ctx.fillStyle = '#b0bece'; ctx.font = '7px monospace';
-            ctx.fillText('Sacred RSI Regime System · LD241A10', 12, 200);
+            ctx.fillText('Sacred RSI Regime System · LD241A11', 12, 200);
             const streak = _streak.count;
             if (streak > 0) ctx.fillText(`🔥 ${streak}-session streak`, W - 110, 200);
 
             const link = document.createElement('a');
-            link.download = `LD241A10-${getBriefFundName().replace(/\s+/g, '_') || 'result'}.png`;
+            link.download = `LD241A11-${getBriefFundName().replace(/\s+/g, '_') || 'result'}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
@@ -6328,7 +6337,7 @@ This is exactly how the system is meant to be played.
         }
 
         // =============================================================================
-        // LD241A10 · FEATURE IMPLEMENTATIONS
+        // LD241A11 · FEATURE IMPLEMENTATIONS
         // =============================================================================
 
         // ── F6: Review Tab Switcher ───────────────────────────────────────────────
@@ -6987,7 +6996,7 @@ This is exactly how the system is meant to be played.
         }
 
         // =============================================================================
-        // LD241A10 · NEW FEATURE JS
+        // LD241A11 · NEW FEATURE JS
         // =============================================================================
 
         // ── SIP vs Active Trading Comparison ─────────────────────────────────────
@@ -8737,8 +8746,10 @@ ${res.name.replace(/\[NPS\] | - Growth| - Direct/gi, '')}
 font-weight:400;">
 α ${res.alpha1m > 0 ? '+' : ''}${res.alpha1m.toFixed(1)}%
 </div>`;
-                el.onclick = () => openRRGDetail(res, bench1m, bench2m, bench3m);
-                return el;
+
+el.onclick = () => openRRGDetail(res, bench1m, bench2m, bench3m, allFunds);
+            return el;
+
             };
 
             const makeHdr = (label, mt = '8px') => {
@@ -8971,11 +8982,33 @@ ${d.tsl > 0
         //   three HUD overlays: #rrgHudMain, #rrgHudMom, #rrgHudBot.
         //
 
-        async function openRRGDetail(fundData, b1, b2, b3) {
-            currentRRGSelectedFundCode = fundData.code;
+async function openRRGDetail(fundData, b1, b2, b3, allFunds) {
+        currentRRGSelectedFundCode = fundData.code;
 
-            document.getElementById('rrgScannerModal').style.display = 'none';
-            document.getElementById('rrgDetailFundName').textContent = fundData.name;
+        // --- NEW LOGIC: FIND MATCHING AMC AND BAF DATA ---
+        let bafCode = null;
+        for (const [amc, funds] of Object.entries(amcFunds)) {
+            if (funds.some(f => f.code === fundData.code)) {
+                const bafFund = funds.find(f => f.name.toLowerCase().includes('balanced advantage'));
+                if (bafFund) bafCode = bafFund.code;
+                break;
+            }
+        }
+    
+        let baf1m = null, baf2m = null, baf3m = null;
+        if (bafCode && allFunds) {
+            const bafData = allFunds.find(f => f.code === bafCode);
+            if (bafData) {
+                baf1m = bafData.mom1m;
+                baf2m = bafData.mom2m;
+                baf3m = bafData.mom3m;
+            }
+        }
+        // --- END NEW LOGIC ---
+
+        document.getElementById('rrgScannerModal').style.display = 'none';
+        document.getElementById('rrgDetailFundName').textContent = fundData.name;
+
 
             const ovEl = document.getElementById('ov');
             const ovTxt = document.getElementById('ovTxt');
@@ -9112,11 +9145,23 @@ ${d.tsl > 0
                 document.getElementById('rrg1mI').innerHTML = fmt(b1);
                 document.getElementById('rrg2mI').innerHTML = fmt(b2);
                 document.getElementById('rrg3mI').innerHTML = fmt(b3);
-                document.getElementById('rrg1mA').innerHTML = fmt(fundData.alpha1m);
-                document.getElementById('rrg2mA').innerHTML = fmt(fundData.alpha2m);
-                document.getElementById('rrg3mA').innerHTML = fmt(fundData.alpha3m);
 
-                const rsTrendEl = document.getElementById('rrgRSTrend');
+document.getElementById('rrg1mA').innerHTML = fmt(fundData.alpha1m);
+        document.getElementById('rrg2mA').innerHTML = fmt(fundData.alpha2m);
+        document.getElementById('rrg3mA').innerHTML = fmt(fundData.alpha3m);
+
+        // --- NEW LOGIC: POPULATE BAF CELLS ---
+        document.getElementById('rrg1mBafP').innerHTML = fmt(baf1m);
+        document.getElementById('rrg2mBafP').innerHTML = fmt(baf2m);
+        document.getElementById('rrg3mBafP').innerHTML = fmt(baf3m);
+
+        document.getElementById('rrg1mBafA').innerHTML = baf1m != null ? fmt(fundData.mom1m - baf1m) : '--';
+        document.getElementById('rrg2mBafA').innerHTML = baf2m != null ? fmt(fundData.mom2m - baf2m) : '--';
+        document.getElementById('rrg3mBafA').innerHTML = baf3m != null ? fmt(fundData.mom3m - baf3m) : '--';
+        // --- END NEW LOGIC ---
+
+        const rsTrendEl = document.getElementById('rrgRSTrend');
+
                 rsTrendEl.textContent = fundData.rsTrendUp ? 'UP ⤴' : 'DOWN ⤵';
                 rsTrendEl.style.color = fundData.rsTrendUp ? 'var(--accent)' : 'var(--red)';
                 document.getElementById('rrgADX').textContent =
@@ -9780,56 +9825,72 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
                 fundStats.sort((a, b) => b.r2m - a.r2m);
 
+
+
                 let top2 = [];
                 let logicText = '';
-                if (m === 6) {
-                    top2 = fundStats.slice(0, 2);
-                    logicText = `Initial Allocation: Selected Top 2 funds based on highest 2-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r2m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r2m.toFixed(1)}%`;
+
+
+const bafFund = fundStats.find(f => f.name.toLowerCase().includes('balanced advantage'));
+            const bafMomentum = bafFund ? bafFund.r1m : -999;
+            const bafThreshold = bafMomentum + 2.0;
+
+            let qualifiedFunds = fundStats.filter(f => f.code !== (bafFund ? bafFund.code : null) && f.r1m > bafThreshold && f.regime === 'A');
+
+            qualifiedFunds.forEach(f => {
+                let baseScore = f.r2m > bafMomentum ? 10 : 6; 
+                let trendMod = f.r1m * 0.1; 
+                f.convictionScore = baseScore + trendMod; 
+                f.convictionScore = Math.max(0, f.convictionScore);
+            });
+
+            
+qualifiedFunds.sort((a, b) => b.convictionScore - a.convictionScore);
+
+            let w1 = 50, w2 = 50;
+            let allocReason = '';
+
+            if (qualifiedFunds.length >= 2) {
+
+                top2 = qualifiedFunds.slice(0, 2);
+                logicText = `Alpha Hunters: Top 2 funds are in Regime A AND cleared the BAF Gate (> ${bafThreshold.toFixed(1)}%).\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
+                
+                let totalConviction = top2[0].convictionScore + top2[1].convictionScore;
+                w1 = Math.round((top2[0].convictionScore / totalConviction) * 100);
+                w2 = 100 - w1;
+                allocReason = `RRG Dynamic Sizing: Weights calculated via Conviction Score (${top2[0].convictionScore.toFixed(1)} vs ${top2[1].convictionScore.toFixed(1)}). Capital allocated ${w1}:${w2} proportionally.`;
+
+            } else if (qualifiedFunds.length === 1 && bafFund) {
+                top2 = [qualifiedFunds[0], bafFund];
+                logicText = `Partial Retreat: Only 1 fund met Regime A + BAF Gate. Remaining capital safely parked in BAF.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
+                w1 = 60; w2 = 40;
+                allocReason = `Conviction Consolidation: Target fund clears hurdle, but lack of secondary options forces a defensive 60:40 split with the AMC BAF.`;
+
+            } else if (bafFund) {
+                top2 = [bafFund, bafFund];
+                logicText = `Defensive Retreat: No funds are in Regime A with +2% alpha. 100% parked in AMC BAF.\n👉 ${bafFund.name}: +${bafMomentum.toFixed(1)}%`;
+                w1 = 100; w2 = 0;
+                allocReason = `Full Defensive: 100% allocated to the AMC Balanced Advantage Fund as a safe harbor. Market conditions failed the conviction gate.`;
+
+            } else {
+                let regimeA = fundStats.filter(f => f.regime === 'A').sort((a, b) => b.r1m - a.r1m);
+                top2 = regimeA.length >= 2 ? regimeA.slice(0, 2) : fundStats.slice(0, 2);
+                logicText = `Fallback Allocation: BAF not found. Strict Regime A selection.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
+                w1 = 60; w2 = 40;
+                allocReason = 'Fallback Base Split applied.';
+            }
+
+            let isSwitch = false;
+            if (prevTop2.length === 2 && top2.length === 2) {
+                const prevCodes = prevTop2.map(f => f.code).sort();
+                const currCodes = top2.map(f => f.code).sort();
+                if (prevCodes[0] !== currCodes[0] || prevCodes[1] !== currCodes[1]) {
+                    isSwitch = true;
+                    logicText += `\n\n⚡ TRIGGER: Fund switch initiated due to change in rankings. Underperforming components were swapped out.`;
                 } else {
-                    let regimeA = fundStats.filter(f => f.regime === 'A').sort((a, b) => b.r1m - a.r1m);
-                    if (regimeA.length >= 2) {
-                        top2 = regimeA.slice(0, 2);
-                        logicText = `Regime Foundation: Selected Top 2 from Regime A based on 1-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
-                    } else if (regimeA.length === 1) {
-                        let others = fundStats.filter(f => f.regime !== 'A').sort((a, b) => b.r1m - a.r1m);
-                        top2 = [regimeA[0], others[0]];
-                        logicText = `Mixed Foundation: Only 1 fund in Regime A. Picked next best alternative by 1-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
-                    } else {
-                        let others = fundStats.sort((a, b) => b.r1m - a.r1m);
-                        top2 = others.slice(0, 2);
-                        logicText = `Bearish Mode: No Regime A funds available. Selected Top 2 by highest 1-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
-                    }
+                    logicText += `\n\n✅ MAINTAIN: Top 2 funds maintained their relative outperformance. No switch needed.`;
                 }
-
-                let isSwitch = false;
-                if (prevTop2.length === 2 && top2.length === 2) {
-                    const prevCodes = prevTop2.map(f => f.code).sort();
-                    const currCodes = top2.map(f => f.code).sort();
-                    if (prevCodes[0] !== currCodes[0] || prevCodes[1] !== currCodes[1]) {
-                        isSwitch = true;
-                        logicText += `\n\n⚡ TRIGGER: Fund switch initiated due to change in rankings. Underperforming components were swapped out.`;
-                    } else {
-                        logicText += `\n\n✅ MAINTAIN: Top 2 funds maintained their relative outperformance. No switch needed.`;
-                    }
-                }
-
-                let w1 = 50, w2 = 50;
-                let allocReason = '';
-                const f1 = top2[0];
-                const f2 = top2[1];
-
-                if (m === 6) {
-                    if (f1.r2m > 0 && f2.r2m <= 0) { w1 = 100; w2 = 0; allocReason = 'Capital Preservation (2M window): Rank 2 is negative. Shifted entirely to Rank 1.'; }
-                    else if (f1.r2m >= f2.r2m + 4 && f1.r2m > 0) { w1 = 70; w2 = 30; allocReason = 'Breakaway Momentum: Rank 1 holds a massive 4%+ lead in the 2M window.'; }
-                    else if (Math.abs(f1.r2m - f2.r2m) <= 2) { w1 = 50; w2 = 50; allocReason = 'Initial Parity: Both funds exhibit nearly equivalent 2M momentum.'; }
-                    else { w1 = 60; w2 = 40; allocReason = 'Standard Edge: Nominal Rank 1 superiority. Baseline 60:40 tilt applied.'; }
-                } else {
-                    if (f1.r1m > 0 && f2.r1m <= 0) { w1 = 100; w2 = 0; allocReason = 'Capital Preservation: Rank 2 exhibiting negative 1M momentum. Shifted 100% to positive Rank 1.'; }
-                    else if (f1.regime === 'A' && f2.regime !== 'A') { w1 = 80; w2 = 20; allocReason = 'Regime Divergence: Rank 1 holds firm Regime A foundation while Rank 2 is weakening.'; }
-                    else if (f1.r1m >= f2.r1m + 3 && f1.r1m > 0) { w1 = 70; w2 = 30; allocReason = 'Breakaway Momentum: Rank 1 is vastly outperforming Rank 2 (3%+ margin) in the short-term.'; }
-                    else if (f1.regime === 'A' && f2.regime === 'A' && Math.abs(f1.r1m - f2.r1m) <= 1.5) { w1 = 50; w2 = 50; allocReason = 'Uniform Strength: Both funds are in Regime A with nearly identical momentum. Exact parity maintained.'; }
-                    else { w1 = 60; w2 = 40; allocReason = 'Standard Edge: Nominal Rank 1 superiority. Baseline 60:40 algorithmic tilt applied.'; }
-                }
+            }
 
                 logicText += `\n\n⚖️ DYNAMIC WEIGHTING (${w1}:${w2}) : ${allocReason}`;
 
@@ -9893,27 +9954,30 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             const held1 = snapshot.find(f => f.code === heldCodes[0]);
             const held2 = snapshot.find(f => f.code === heldCodes[1]);
 
-            // ── Condition checks ──────────────────────────────────────────────────
-            // C1: Are BOTH current holdings still Regime A?
-            const c1held1Ok = held1?.regime === 'A';
-            const c1held2Ok = held2?.regime === 'A';
+// ── Condition checks ──────────────────────────────────────────────────
+            const bafLive = snapshot.find(f => f.name.toLowerCase().includes('balanced advantage'));
+            const bafLiveMom = bafLive ? bafLive.r1m : -999;
+            const bafThreshold = bafLiveMom + 2.0;
+
+            // C1: Regime C Exit (Whichever comes earlier)
+            const c1held1Ok = held1?.regime !== 'C';
+            const c1held2Ok = held2?.regime !== 'C';
             const c1trigger = !c1held1Ok || !c1held2Ok;
 
-            // C2: Spread between Rank 3 (unowned) and Rank 2 (owned) > 3%?
-            const heldRank2Live = snapshot.find(f => f.code === heldCodes[1]);
-            const c2spread = rank3Live && heldRank2Live ? (rank3Live.r1m - (heldRank2Live?.r1m ?? 0)) : null;
-            const c2trigger = c2spread !== null && c2spread > 3;
+            // C2: AMC BAF Gate Check (Momentum Drops below BAF + 2%)
+            const held1BeatsBAF = !held1 || held1.code === bafLive?.code || held1.r1m > bafThreshold;
+            const held2BeatsBAF = !held2 || held2.code === bafLive?.code || held2.r1m > bafThreshold;
+            const c2trigger = !held1BeatsBAF || !held2BeatsBAF;
 
-            // C3: Has Breakaway margin (70:30) narrowed below 3%?
-            const c3gap = rank1Live && rank2Live ? (rank1Live.r1m - rank2Live.r1m) : null;
-            const c3wasBreakaway = lastAlloc.w1 === 70;
-            const c3trigger = c3wasBreakaway && c3gap !== null && c3gap < 3;
+            // C3: Breakaway or Momentum Swap
+            const heldRank2Live = snapshot.find(f => f.code === heldCodes[1]);
+            const c3spread = rank3Live && heldRank2Live ? (rank3Live.r1m - (heldRank2Live?.r1m ?? 0)) : null;
+            const c3trigger = c3spread !== null && c3spread > 3;
 
             // ── Holding summary ───────────────────────────────────────────────────
-            document.getElementById('tmHolding').innerHTML =
-                `Current Holdings: <strong>${held1?.name ?? heldCodes[0]}</strong> (${lastAlloc.w1}%) &nbsp;+&nbsp; `
-                + `<strong>${held2?.name ?? heldCodes[1]}</strong> (${lastAlloc.w2}%) `
-                + `&nbsp;·&nbsp; Universe: ${snapshot.length} funds`;
+            document.getElementById('tmHolding').innerHTML = `Current Holdings: <strong>${held1?.name ?? heldCodes[0]}</strong> (${lastAlloc.w1}%) &nbsp;+&nbsp; ` +
+                `<strong>${held2?.name ?? heldCodes[1]}</strong> (${lastAlloc.w2}%) ` +
+                `&nbsp;·&nbsp; Universe: ${snapshot.length} funds`;
 
             // ── Helper: render one condition row ─────────────────────────────────
             const condHTML = (icon, label, detail, triggered, triggerLabel, safeLabel) => {
@@ -9921,45 +9985,38 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 const bdCol = triggered ? 'rgba(200,16,46,0.35)' : 'rgba(0,158,112,0.3)';
                 const badgeCol = triggered ? '#c8102e' : '#009e70';
                 const badgeTxt = triggered ? triggerLabel : safeLabel;
-                return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;
-                    border-radius:var(--radius-sm);border:1px solid ${bdCol};background:${bgCol};">
+
+                return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px; border-radius:var(--radius-sm);border:1px solid ${bdCol};background:${bgCol};">
                     <div style="font-size:0.9rem;flex-shrink:0;margin-top:1px;">${icon}</div>
                     <div style="flex:1;">
                         <div style="font-size:0.6rem;font-weight:700;color:var(--text);margin-bottom:2px;">${label}</div>
                         <div style="font-size:0.56rem;color:var(--muted2);line-height:1.5;">${detail}</div>
                     </div>
-                    <div style="flex-shrink:0;font-size:0.52rem;font-weight:700;color:${badgeCol};
-                        border:1px solid ${badgeCol};border-radius:3px;padding:2px 5px;white-space:nowrap;
-                        margin-top:1px;">${badgeTxt}</div>
+                    <div style="flex-shrink:0;font-size:0.52rem;font-weight:700;color:${badgeCol}; border:1px solid ${badgeCol};border-radius:3px;padding:2px 5px;white-space:nowrap; margin-top:1px;">${badgeTxt}</div>
                 </div>`;
             };
 
-            // ── Condition 1: Regime Exit ──────────────────────────────────────────
+            // ── Condition 1: Regime C Exit ──────────────────────────────────────────
             const c1detail = [
                 `${held1?.name ?? '—'}: W-RSI ${held1?.wrsi ?? '--'} → Regime ${held1?.regime ?? '?'} ${c1held1Ok ? '✓' : '✗'}`,
                 `${held2?.name ?? '—'}: W-RSI ${held2?.wrsi ?? '--'} → Regime ${held2?.regime ?? '?'} ${c1held2Ok ? '✓' : '✗'}`
             ].join('<br>');
-            document.getElementById('tmCond1').outerHTML =
-                `<div id="tmCond1">${condHTML('🔴', 'CONDITION 1 — REGIME EXIT', c1detail, c1trigger, '⚠ TRIGGER EXIT', '✓ SAFE')}</div>`;
+            document.getElementById('tmCond1').outerHTML = `<div id="tmCond1">${condHTML('🔴', 'CONDITION 1 — REGIME C EXIT', c1detail, c1trigger, '⚠ TRIGGER EXIT', '✓ SAFE')}</div>`;
 
-            // ── Condition 2: Momentum Swap ────────────────────────────────────────
-            const c2detail = c2spread !== null
-                ? `Rank 3 unowned (${rank3Live.name}): 1M = ${rank3Live.r1m.toFixed(1)}%`
-                + `<br>Rank 2 owned (${heldRank2Live?.name ?? '—'}): 1M = ${heldRank2Live?.r1m?.toFixed(1) ?? '--'}%`
-                + `<br>Spread = <strong>${c2spread.toFixed(1)}%</strong> (threshold: &gt; 3%)`
+            // ── Condition 2: AMC BAF Gate (+2% Alpha Hurdle) ────────────────────────
+            const c2detail = bafLive ? `AMC BAF (${bafLive.name}): 1M = ${bafLiveMom.toFixed(1)}%<br>Hurdle Rate (+2%) = <strong>${bafThreshold.toFixed(1)}%</strong><br>` +
+                `${held1?.name ?? '—'}: 1M = ${held1?.r1m?.toFixed(1) ?? '--'}% ${held1BeatsBAF ? '✓' : '✗'}<br>` +
+                `${held2?.name ?? '—'}: 1M = ${held2?.r1m?.toFixed(1) ?? '--'}% ${held2BeatsBAF ? '✓' : '✗'}` : 'BAF not found in AMC universe.';
+            document.getElementById('tmCond2').outerHTML = `<div id="tmCond2">${condHTML('🛡️', 'CONDITION 2 — BAF ALPHA GATE', c2detail, c2trigger, '⚠ RETREAT TO BAF', '✓ BEATING BAF')}</div>`;
+
+            // ── Condition 3: Momentum Swap ─────────────────────────────────────────
+            const c3detail = c3spread !== null
+                ? `Rank 3 unowned (${rank3Live.name}): 1M = ${rank3Live.r1m.toFixed(1)}%` +
+                `<br>Rank 2 owned (${heldRank2Live?.name ?? '—'}): 1M = ${heldRank2Live?.r1m?.toFixed(1) ?? '--'}%` +
+                `<br>Spread = <strong>${c3spread.toFixed(1)}%</strong> (threshold: &gt; 3%)`
                 : 'Insufficient data for spread calculation.';
-            document.getElementById('tmCond2').outerHTML =
-                `<div id="tmCond2">${condHTML('🔄', 'CONDITION 2 — MOMENTUM SWAP', c2detail, c2trigger, '⚠ TRIGGER SWAP', '✓ HOLD')}</div>`;
+            document.getElementById('tmCond3').outerHTML = `<div id="tmCond3">${condHTML('🔄', 'CONDITION 3 — MOMENTUM SWAP', c3detail, c3trigger, '⚠ TRIGGER SWAP', '✓ HOLD')}</div>`;
 
-            // ── Condition 3: Breakaway Rebalance ─────────────────────────────────
-            const c3detail = c3gap !== null
-                ? `Live Rank 1 (${rank1Live.name}): 1M = ${rank1Live.r1m.toFixed(1)}%`
-                + `<br>Live Rank 2 (${rank2Live.name}): 1M = ${rank2Live.r1m.toFixed(1)}%`
-                + `<br>Breakaway margin = <strong>${c3gap.toFixed(1)}%</strong> (threshold: &lt; 3% = narrowed)`
-                + (!c3wasBreakaway ? '<br><em>Last allocation was not 70:30 — condition inactive</em>' : '')
-                : 'Insufficient data.';
-            document.getElementById('tmCond3').outerHTML =
-                `<div id="tmCond3">${condHTML('⚖️', 'CONDITION 3 — BREAKAWAY REBALANCE', c3detail, c3trigger, '⚠ TRIGGER REBALANCE', '✓ MAINTAIN 70:30')}</div>`;
 
             el.style.display = 'block';
         }

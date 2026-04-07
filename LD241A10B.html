@@ -10124,7 +10124,8 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                         code: fund.code, 
                         val: "",
                         drsi: Math.round(snap.drsi),
-                        wrsi: Math.round(snap.wrsi)
+                        wrsi: Math.round(snap.wrsi),
+                        regime: snap.regime
                     };
 
                     if (snap.tsl.tslHit) { item.val = "BREACH"; results.TSL.push(item); }
@@ -10179,13 +10180,14 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 pane.style.borderRadius = "var(--radius-sm)";
 
                 cat.list.forEach(item => {
+                    const regimeColor = item.regime === 'A' ? 'var(--accent)' : item.regime === 'B' ? 'var(--gold)' : 'var(--red)';
                     const row = document.createElement('div');
                     row.className = "alert-item-row";
                     row.onclick = () => launchLiveFromAlert(item.code);
                     row.innerHTML = `<div style="flex:1; display:flex; flex-direction:column; min-width:0;">
                                         <span class="alert-item-name">${item.name}</span>
                                         <span style="font-size:0.55rem; color:var(--muted2); font-family:var(--mono);">
-                                            D-RSI: ${item.drsi} | W-RSI: ${item.wrsi}
+                                            D-RSI: ${item.drsi} | W-RSI: ${item.wrsi} | Regime: <strong style="color:${regimeColor};">${item.regime}</strong>
                                         </span>
                                      </div>
                                      <span class="alert-item-val">${item.val}</span>`;

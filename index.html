@@ -94,7 +94,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lie Detector LD241A10</title>
+    <title>Lie Detector LD241A10A</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
         rel="stylesheet">
@@ -2156,8 +2156,8 @@
         .wl-row {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 7px 8px;
+            gap: 3px;
+            padding: 6px 6px;
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             background: var(--surface);
@@ -2171,16 +2171,16 @@
         }
 
         .wl-reg {
-            font-size: 0.6rem;
+            font-size: 0.68rem;
             font-weight: 700;
-            padding: 2px 6px;
+            padding: 2px 5px;
             border-radius: 3px;
             flex-shrink: 0;
         }
 
         .wl-name {
             flex: 1;
-            font-size: 0.58rem;
+            font-size: 0.68rem;
             color: var(--text);
             overflow: hidden;
             text-overflow: ellipsis;
@@ -2188,14 +2188,72 @@
         }
 
         .wl-rsi {
-            font-size: 0.55rem;
+            font-size: 0.64rem;
             color: var(--muted2);
             flex-shrink: 0;
         }
 
         .wl-alert {
-            font-size: 0.65rem;
+            font-size: 0.72rem;
             flex-shrink: 0;
+        }
+
+        /* ── SECTION 34: ALERTS SUMMARY STYLES ────────────────────────── */
+        .alert-badge {
+            font-size: 0.65rem;
+            color: var(--red);
+            font-weight: 700;
+            margin-left: 2px;
+        }
+
+        .alert-cat-btn {
+            width: 100%;
+            text-align: left;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 4px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            font-weight: 700;
+            transition: background 0.15s;
+        }
+
+        .alert-cat-btn:hover {
+            background: var(--surface3);
+        }
+
+        .alert-item-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .alert-item-row:hover {
+            background: var(--accent-dim);
+        }
+
+        .alert-item-name {
+            flex: 1;
+            font-size: 0.68rem;
+            color: var(--text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .alert-item-val {
+            font-size: 0.62rem;
+            color: var(--muted);
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -2211,7 +2269,7 @@
         <div class="setup-logo">Sacred RSI Regime System</div>
         <div class="streak-badge" id="streakBadge"></div>
         <h1 class="setup-title">Lie Detector <span
-                style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A10</span></h1>
+                style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A10A</span></h1>
         <p class="setup-sub">Train your discipline before real money does.</p>
 
         <div class="fund-grid" id="fundGrid">
@@ -2239,19 +2297,21 @@
             <div class="c-input-box"
                 style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 2px;cursor:pointer; background:var(--gold-dim); border-color:var(--gold);"
                 onclick="openAssetAllocator()">
-                <span class="c-label" style="color:var(--gold); font-weight:400; margin-bottom:2px; letter-spacing:0.05em;">ANALYZE</span>
-                <span style="font-size:0.75rem; font-weight:700; color:var(--text); text-align:center; line-height:1.2; padding-bottom: 2px;">ASSET<br>ALLOCATOR</span>
+                <span class="c-label"
+                    style="color:var(--gold); font-weight:400; margin-bottom:2px; letter-spacing:0.05em;">ANALYZE</span>
+                <span
+                    style="font-size:0.75rem; font-weight:700; color:var(--text); text-align:center; line-height:1.2; padding-bottom: 2px;">ASSET<br>ALLOCATOR</span>
             </div>
         </div>
 
         <div style="display:flex; width:100%; max-width:350px; gap:8px;">
-            <button class="setup-btn setup-btn-sim"
-                style="flex:1; padding: 12px; font-size: 0.75rem; margin: 0;"
+            <button class="setup-btn setup-btn-sim" style="flex:1; padding: 12px; font-size: 0.75rem; margin: 0;"
                 onclick="initGame('random')">Random Simulation</button>
             <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 12px;cursor:pointer;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--surface2);"
                 onclick="toggleBlindMode()">
                 <span class="c-label" style="margin-bottom:2px;">Training</span>
-                <button id="blindToggle" style="pointer-events:none; font-family:var(--mono); font-size:0.6rem; background:transparent; border:none; color:var(--muted);">BLIND</button>
+                <button id="blindToggle"
+                    style="pointer-events:none; font-family:var(--mono); font-size:0.6rem; background:transparent; border:none; color:var(--muted);">BLIND</button>
             </div>
         </div>
 
@@ -2314,14 +2374,16 @@
             <button class="setup-btn setup-btn-live" onclick="initLiveChart()">Live Market</button>
             <button class="setup-btn" style="border-color:var(--gold);color:var(--gold);"
                 onclick="initLiveAnalytics()">Live Analytics</button>
-            <button class="setup-btn" style="border-color:#a855f7;color:#a855f7;" onclick="openWatchlist()">📌
-                Watchlist</button>
+            <button class="setup-btn" style="border-color:var(--red);color:var(--red);"
+                onclick="openAlertSummary()">Alerts Summary <span id="alertSummaryBadge"
+                    class="alert-badge"></span></button>
         </div>
         <div class="setup-btns"
-            style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px;width:100%;max-width:350px;">
-
+            style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;width:100%;max-width:350px;">
             <button class="setup-btn" style="border-color:var(--border2);color:var(--muted2);"
-                onclick="openCompareModal()">⇄ Compare Two Funds</button>
+                onclick="openCompareModal()">⇄ Compare 2 Funds</button>
+            <button class="setup-btn" style="border-color:#a855f7;color:#a855f7;" onclick="openWatchlist()">📌
+                Watchlist</button>
         </div>
 
         <div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
@@ -2385,30 +2447,59 @@
         <div class="modal-close">
             <div style="display:flex;flex-direction:column;">
                 <span class="modal-title" style="color:var(--gold);">ASSET ALLOCATOR</span>
-                <span id="assetAllocSubtitle" style="font-size:0.55rem;color:var(--text);margin-top:2px;">HDFC AMC</span>
+                <span id="assetAllocSubtitle" style="font-size:0.55rem;color:var(--text);margin-top:2px;">HDFC
+                    AMC</span>
             </div>
             <div style="display:flex;gap:8px;">
-                <select id="assetAllocType" class="dropdown" style="margin:0; padding:4px 8px; font-size:0.6rem; width:auto; border-color:var(--border);" onchange="runAssetAllocator()">
+                <select id="assetAllocType" class="dropdown"
+                    style="margin:0; padding:4px 8px; font-size:0.6rem; width:auto; border-color:var(--border);"
+                    onchange="runAssetAllocator()">
                     <option value="MF">Mutual Funds</option>
                     <option value="NPS_T1">NPS Tier 1</option>
                     <option value="NPS_T2">NPS Tier 2</option>
                 </select>
-                <span class="modal-close-btn" onclick="document.getElementById('assetAllocatorModal').style.display='none'; document.getElementById('setupScreen').style.display='flex'">[ X ] CLOSE</span>
+                <span class="modal-close-btn"
+                    onclick="document.getElementById('assetAllocatorModal').style.display='none'; document.getElementById('setupScreen').style.display='flex'">[
+                    X ] CLOSE</span>
             </div>
         </div>
 
         <div style="flex-grow:1;display:flex;flex-direction:column;min-height:0;overflow-y:auto;padding:10px;">
-             <!-- Top Part: 24 Boxes Grid -->
-             <div id="assetAllocBoxes" style="display:grid;grid-template-columns:repeat(4, 1fr);gap:6px;margin-bottom:12px;"></div>
+            <!-- Top Part: 24 Boxes Grid -->
+            <div id="assetAllocBoxes"
+                style="display:grid;grid-template-columns:repeat(4, 1fr);gap:6px;margin-bottom:12px;"></div>
 
-             <!-- Performance Returns Table -->
-             <div id="assetAllocReturnsTable" style="display:none;margin-bottom:12px;"></div>
+            <!-- Performance Returns Table -->
+            <div id="assetAllocReturnsTable" style="display:none;margin-bottom:12px;"></div>
 
-             <!-- Bottom Part: Analytics / Logic box -->
-             <div id="assetAllocAnalytics" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;display:none;">
-                 <div id="allocLogicTitle" style="font-size:0.75rem;font-weight:700;margin-bottom:6px;color:var(--accent);"></div>
-                 <div id="allocLogicReason" style="font-size:0.65rem;color:var(--text);line-height:1.5;"></div>
-             </div>
+            <!-- Trigger Monitor -->
+            <div id="triggerMonitor"
+                style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-bottom:12px;display:none;">
+                <div
+                    style="font-size:0.65rem;font-weight:700;color:var(--gold);letter-spacing:0.08em;margin-bottom:8px;">
+                    ⚡ TRIGGER MONITOR — LIVE DAILY CHECK</div>
+                <div id="tmHolding" style="font-size:0.58rem;color:var(--muted);margin-bottom:8px;line-height:1.5;">
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div id="tmCond1"
+                        style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+                    </div>
+                    <div id="tmCond2"
+                        style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+                    </div>
+                    <div id="tmCond3"
+                        style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Part: Analytics / Logic box -->
+            <div id="assetAllocAnalytics"
+                style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;display:none;">
+                <div id="allocLogicTitle"
+                    style="font-size:0.75rem;font-weight:700;margin-bottom:6px;color:var(--accent);"></div>
+                <div id="allocLogicReason" style="font-size:0.65rem;color:var(--text);line-height:1.5;"></div>
+            </div>
         </div>
     </div>
 
@@ -3321,8 +3412,9 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 { name: '[NPS] KOTAK Scheme E - Tier II', code: 'SM005004' },
                 { name: '[NPS] KOTAK Scheme C - Tier II', code: 'SM005005' },
             ],
+
             ABSL: [
-                { name: 'ABSL Flexi Cap - Growth', code: '120517' },
+                { name: 'ABSL Hybrid 95 - Growth', code: '120517' },
                 { name: 'ABSL Balanced Advantage - Growth', code: '131670' },
                 { name: 'ABSL Gold Fund - Growth', code: '120546' },
                 { name: 'ABSL Nifty Midcap 150 - Direct', code: '148807' },
@@ -3362,6 +3454,9 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
         let simDailyRsiCache = [];
         let currentIdx = 0;
         let simStartIdx = 0;
+        let _rpZoom = { s: 0, e: 1 };   // replay zoom window (fractions 0–1)
+        let _rpPinch = null;             // pinch gesture state
+        let _rpPan = null;               // pan gesture state
         let simEndIdx = null; // Tracks the end point for custom/stress ranges
 
         let cash = 100_000;
@@ -4684,12 +4779,19 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
 
         async function initLiveAnalytics() {
             saveFundSelection();
-            document.getElementById('liveFundName').textContent = getBriefFundName();
             userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
-
+            document.getElementById('liveFundName').textContent = getBriefFundName();
 
             const hasData = await ensureLiveData();
             if (!hasData) return;
+
+            // CRITICAL: Pre-calculate full momentum history for 24-month grid
+            const allPrices = globalLiveData.map(d => d.nav);
+            const allDates = globalLiveData.map(d => window.normalizeDate(d.date));
+            globalWeeklyRsiCache = window.buildWeeklyRsiFast(allPrices, userRsiLength, allDates);
+            globalDailyRsiCache = window.buildDailyRsiFast(allPrices, userRsiLength);
+            globalLowessCache = window.buildLowessGaussianFast(allPrices);
+
             if (globalLiveData.length < 80) {
                 alert('INSUFFICIENT DATA');
                 document.getElementById('ov').style.display = 'none';
@@ -4844,17 +4946,30 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                     const prefix = `${yr}-${mo}`;
                     const idxs = [];
                     for (let i = 0; i < globalLiveData.length; i++) {
-                        if (globalLiveData[i].date && globalLiveData[i].date.startsWith(prefix)) idxs.push(i);
+                        const dStr = globalLiveData[i].date;
+                        if (!dStr) continue;
+                        // Handle both YYYY-MM-DD and DD-MM-YYYY cases logically
+                        const parts = dStr.split(/[-/]/);
+                        let y, m;
+                        if (parts[0].length === 4) { y = parseInt(parts[0]); m = parseInt(parts[1]); }
+                        else { y = parseInt(parts[2]); m = parseInt(parts[1]); }
+
+                        if (y === yr && m === parseInt(mo)) idxs.push(i);
                     }
                     if (idxs.length === 0) { months.push(null); continue; }
-                    let cA = 0, cB = 0, cC = 0;
+                    // Check regime at the Month-End (EOM) to match Asset Allocator decision logic
+                    const lastIdx = idxs[idxs.length - 1];
+                    const wr = globalWeeklyRsiCache[lastIdx] ?? 50;
+                    const dom = wr >= 50 ? 'A' : (wr >= 40 ? 'B' : 'C');
+                    // % of days in the month spent in this specific regime
+                    let hits = 0;
                     idxs.forEach(i => {
-                        const wr = globalWeeklyRsiCache[i] ?? 50;
-                        if (wr >= 50) cA++; else if (wr >= 40) cB++; else cC++;
+                        const curWr = globalWeeklyRsiCache[i] ?? 50;
+                        const curR = curWr >= 50 ? 'A' : (curWr >= 40 ? 'B' : 'C');
+                        if (curR === dom) hits++;
                     });
-                    const dom = cA >= cB && cA >= cC ? 'A' : cB >= cC ? 'B' : 'C';
-                    const pct = Math.max(cA, cB, cC) / idxs.length * 100;
-                    months.push({ label: `${yr.toString().slice(2)}${mo}`, dom, pct });
+                    const pct = (hits / idxs.length) * 100;
+                    months.push({ label: `${yr.toString().slice(2)}${mo}`, dom, pct, wrsi: wr });
                 }
                 calContainer.innerHTML = months.map((m, idx) => {
                     if (!m) return `<div style="height:28px;"></div>`;
@@ -5085,6 +5200,58 @@ ${c.text}</span>
         function showReplay() {
             document.getElementById('reviewModal').style.display = 'none';
             document.getElementById('replayModal').style.display = 'flex';
+            _rpZoom = { s: 0, e: 1 };
+            _rpPinch = null; _rpPan = null;
+
+            const canvas = document.getElementById('replayCanvas');
+
+            canvas.ontouchstart = (e) => {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    _rpPan = null;
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    _rpPinch = {
+                        dist: Math.hypot(dx, dy),
+                        midFrac: ((e.touches[0].clientX + e.touches[1].clientX) / 2
+                            - canvas.getBoundingClientRect().left) / canvas.getBoundingClientRect().width,
+                        s: _rpZoom.s, e: _rpZoom.e
+                    };
+                } else if (e.touches.length === 1) {
+                    _rpPinch = null;
+                    _rpPan = { x: e.touches[0].clientX, s: _rpZoom.s, e: _rpZoom.e };
+                }
+            };
+
+            canvas.ontouchmove = (e) => {
+                e.preventDefault();
+                const span = _rpZoom.e - _rpZoom.s;
+                if (e.touches.length === 2 && _rpPinch) {
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    const newDist = Math.hypot(dx, dy);
+                    const scale = _rpPinch.dist / Math.max(newDist, 1);
+                    const newSpan = Math.min(1, Math.max(0.05, (_rpPinch.e - _rpPinch.s) * scale));
+                    let ns = _rpPinch.s + (_rpPinch.midFrac * (_rpPinch.e - _rpPinch.s)) - (_rpPinch.midFrac * newSpan);
+                    let ne = ns + newSpan;
+                    if (ns < 0) { ne -= ns; ns = 0; }
+                    if (ne > 1) { ns -= (ne - 1); ne = 1; }
+                    _rpZoom = { s: Math.max(0, ns), e: Math.min(1, ne) };
+                    requestAnimationFrame(renderReplayChart);
+                } else if (e.touches.length === 1 && _rpPan) {
+                    const deltaFrac = (e.touches[0].clientX - _rpPan.x)
+                        / canvas.getBoundingClientRect().width * span;
+                    let ns = _rpPan.s - deltaFrac;
+                    let ne = _rpPan.e - deltaFrac;
+                    if (ns < 0) { ne -= ns; ns = 0; }
+                    if (ne > 1) { ns -= (ne - 1); ne = 1; }
+                    _rpZoom = { s: Math.max(0, ns), e: Math.min(1, ne) };
+                    requestAnimationFrame(renderReplayChart);
+                }
+            };
+
+            canvas.ontouchend = () => { _rpPinch = null; _rpPan = null; };
+
             requestAnimationFrame(renderReplayChart);
         }
 
@@ -5105,11 +5272,17 @@ ${c.text}</span>
             const w = rect.width, h = rect.height;
             ctx.clearRect(0, 0, w, h);
 
-            const data = fullHistory.slice(simStartIdx, currentIdx + 1);
-            if (data.length < 2) return;
+            const _fullData = fullHistory.slice(simStartIdx, currentIdx + 1);
+            if (_fullData.length < 2) return;
+
+            // Apply zoom window
+            const _zs = Math.floor(_rpZoom.s * (_fullData.length - 1));
+            const _ze = Math.ceil(_rpZoom.e * (_fullData.length - 1));
+            const data = _fullData.slice(_zs, _ze + 1);
+            const _dataOffset = _zs;   // offset into _fullData for trade marker lookup
 
             const navs = data.map(d => d.nav);
-            const lows = simLowessCache.slice(simStartIdx, currentIdx + 1);
+            const lows = simLowessCache.slice(simStartIdx + _zs, simStartIdx + _ze + 1);
 
             // Compute WMA20 for the slice
             const wma20Vals = navs.map((_, i) => {
@@ -5189,7 +5362,7 @@ ${c.text}</span>
             };
 
             tradeLog.forEach(t => {
-                const i = t.day;
+                const i = t.day - _dataOffset;
                 if (i < 0 || i >= data.length) return;
                 const x = mapX(i), y = mapY(data[i].nav);
                 const isBuy = t.action.includes('BUY') || t.action.includes('SIP');
@@ -5204,7 +5377,7 @@ ${c.text}</span>
                 ctx.fillStyle = isBuy ? '#009e70' : '#c8102e';
                 ctx.fillText(isBuy ? '▲' : '▼', x - 4, isBuy ? y + 12 : y - 5);
 
-                const absIdx = simStartIdx + i;
+                const absIdx = simStartIdx + i + _dataOffset;
                 const dRsi = Math.round(simDailyRsiCache[absIdx] || 50);
                 const wRsi = Math.round(simWeeklyRsiCache[absIdx] || 50);
                 const tsl = (simLowessCache[absIdx] || 0).toFixed(1);
@@ -9401,21 +9574,33 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
                         const res = await originalFetch(resource, config);
                         if (res.ok) {
-                            const networkData = await res.clone().json();
-                            if (cachedData && cachedData.data && networkData.data) {
-                                const existingDates = new Set(cachedData.data.map(d => d.date));
-                                const newEntries = networkData.data.filter(d => !existingDates.has(d.date));
-                                if (newEntries.length > 0) cachedData.data = [...newEntries, ...cachedData.data];
-                                cachedData.meta = networkData.meta || cachedData.meta;
-                            } else {
-                                cachedData = networkData;
+                            let networkData;
+                            try { networkData = await res.clone().json(); } catch (e) { networkData = null; }
+
+                            if (networkData) {
+                                if (cachedData && cachedData.data && networkData.data) {
+                                    const existingDates = new Set(cachedData.data.map(d => d.date));
+                                    const newEntries = networkData.data.filter(d => !existingDates.has(d.date));
+                                    if (newEntries.length > 0) cachedData.data = [...newEntries, ...cachedData.data];
+                                    cachedData.meta = networkData.meta || cachedData.meta;
+                                } else if (Array.isArray(networkData)) {
+                                    cachedData = { data: networkData.map(d => ({ ...d, date: (d.date || '').replace(/\//g, '-') })) };
+                                } else {
+                                    cachedData = networkData;
+                                }
+                                await setCache(db, STORE_DATA, url, cachedData);
+                                await setCache(db, STORE_META, url, { timestamp: Date.now() });
                             }
-                            await setCache(db, STORE_DATA, url, cachedData);
-                            await setCache(db, STORE_META, url, { timestamp: Date.now() });
-                            return new Response(JSON.stringify(cachedData), {
-                                status: 200, headers: { 'Content-Type': 'application/json' }
-                            });
-                        } else if (cachedData) {
+
+                            if (cachedData) {
+                                return new Response(JSON.stringify(cachedData), {
+                                    status: 200, headers: { 'Content-Type': 'application/json' }
+                                });
+                            }
+                        }
+                        if (cachedData) {
+
+
                             return new Response(JSON.stringify(cachedData), {
                                 status: 200, headers: { 'Content-Type': 'application/json' }
                             });
@@ -9452,8 +9637,8 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 } finally { if (ov) ov.style.display = 'none'; }
             }
 
-            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', syncAllData); }
-            else { syncAllData(); }
+            // if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', syncAllData); }
+            // else { syncAllData(); }
 
             window._idbOpenDB = openDB;
             window._idbSetCache = setCache;
@@ -9484,7 +9669,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             const amc = localStorage.getItem('ld_v3_amc') || 'HDFC';
             const type = document.getElementById('assetAllocType').value;
             const fundsList = window.amcFunds[amc];
-            
+
             let baseFunds = [];
             if (type === 'MF') {
                 baseFunds = fundsList.filter(f => !f.code.startsWith('SM'));
@@ -9507,27 +9692,33 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
             const fundsData = {};
             let completed = 0;
+
             for (let f of baseFunds) {
                 try {
+                    // Slight delay between requests to prevent API rate-limiting
+                    await new Promise(r => setTimeout(r, 50));
                     const url = f.code.startsWith('SM') ? `https://npsnav.in/api/historical/${f.code}` : `https://api.mfapi.in/mf/${f.code}`;
                     const res = await fetch(url);
+                    if (!res.ok && !res.status === 200) throw new Error('Network busy');
                     const data = await res.json();
                     if (data && data.data) {
+
+
                         const prices = data.data.map(d => parseFloat(d.nav)).filter(n => !isNaN(n)).reverse();
                         const dates = data.data.map(d => window.normalizeDate(d.date)).reverse();
                         const wRsiArr = window.buildWeeklyRsiFast(prices, window.userRsiLength || 4, dates);
                         fundsData[f.code] = { name: f.name, prices, dates, wRsiArr };
                     }
-                } catch(e) { console.error('Failed fetching', f.name); }
+                } catch (e) { console.error('Failed fetching', f.name); }
                 completed++;
-                ovTxt.textContent = `FETCHING DATA... ${Math.round((completed/baseFunds.length)*100)}%`;
+                ovTxt.textContent = `FETCHING DATA... ${Math.round((completed / baseFunds.length) * 100)}%`;
             }
 
             ovTxt.textContent = 'CALCULATING ALLOCATIONS...';
 
             let refDates = [];
-            for(const code in fundsData) {
-                if(fundsData[code].dates.length > refDates.length) refDates = fundsData[code].dates;
+            for (const code in fundsData) {
+                if (fundsData[code].dates.length > refDates.length) refDates = fundsData[code].dates;
             }
 
             const eomIndices = [];
@@ -9540,9 +9731,9 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             }
             eomIndices.push(refDates.length - 1);
 
-            if (eomIndices.length < 31) {
+            if (eomIndices.length < 14) {
                 ovEl.style.display = 'none';
-                document.getElementById('assetAllocBoxes').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);">Not enough price history (Need 30+ months).</div>';
+                document.getElementById('assetAllocBoxes').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);">Not enough price history (Need 14+ months).</div>';
                 return;
             }
 
@@ -9559,10 +9750,11 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 return -1;
             };
 
-            for (let m = 6; m < 30; m++) {
+            const startM = Math.max(2, targetEOMs.length - 25);
+            for (let m = startM; m < targetEOMs.length - 1; m++) {
                 const evalDateRaw = refDates[targetEOMs[m]];
-                const endDateRaw = refDates[targetEOMs[m+1]];
-                
+                const endDateRaw = refDates[targetEOMs[m + 1]];
+
                 let fundStats = [];
                 for (const code in fundsData) {
                     const fd = fundsData[code];
@@ -9571,22 +9763,22 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
                     const pCurr = fd.prices[idx];
                     const p1m = fd.prices[Math.max(0, idx - 21)];
-                    const r1m = (pCurr - p1m)/p1m * 100;
+                    const r1m = (pCurr - p1m) / p1m * 100;
                     const p2m = fd.prices[Math.max(0, idx - 42)];
-                    const r2m = (pCurr - p2m)/p2m * 100;
+                    const r2m = (pCurr - p2m) / p2m * 100;
 
                     const wrsi = fd.wRsiArr[idx] || 50;
-                    const regime = wrsi >= 50 ? 'A' : wrsi >= 40 ? 'B' : 'C';
+                    const regime = wrsi >= 50 ? 'A' : (wrsi >= 40 ? 'B' : 'C');
 
                     fundStats.push({
                         code, name: fd.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim(),
-                        r1m, r2m, wrsi, regime, price: pCurr
+                        r1m, r2m, wrsi: parseFloat(wrsi.toFixed(2)), regime, price: pCurr
                     });
                 }
 
                 if (fundStats.length < 2) continue;
 
-                fundStats.sort((a,b) => b.r2m - a.r2m);
+                fundStats.sort((a, b) => b.r2m - a.r2m);
 
                 let top2 = [];
                 let logicText = '';
@@ -9594,16 +9786,16 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                     top2 = fundStats.slice(0, 2);
                     logicText = `Initial Allocation: Selected Top 2 funds based on highest 2-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r2m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r2m.toFixed(1)}%`;
                 } else {
-                    let regimeA = fundStats.filter(f => f.regime === 'A').sort((a,b) => b.r1m - a.r1m);
-                    if(regimeA.length >= 2) {
+                    let regimeA = fundStats.filter(f => f.regime === 'A').sort((a, b) => b.r1m - a.r1m);
+                    if (regimeA.length >= 2) {
                         top2 = regimeA.slice(0, 2);
                         logicText = `Regime Foundation: Selected Top 2 from Regime A based on 1-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
                     } else if (regimeA.length === 1) {
-                        let others = fundStats.filter(f => f.regime !== 'A').sort((a,b) => b.r1m - a.r1m);
+                        let others = fundStats.filter(f => f.regime !== 'A').sort((a, b) => b.r1m - a.r1m);
                         top2 = [regimeA[0], others[0]];
                         logicText = `Mixed Foundation: Only 1 fund in Regime A. Picked next best alternative by 1-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
                     } else {
-                        let others = fundStats.sort((a,b) => b.r1m - a.r1m);
+                        let others = fundStats.sort((a, b) => b.r1m - a.r1m);
                         top2 = others.slice(0, 2);
                         logicText = `Bearish Mode: No Regime A funds available. Selected Top 2 by highest 1-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
                     }
@@ -9612,7 +9804,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 let isSwitch = false;
                 if (prevTop2.length === 2 && top2.length === 2) {
                     const prevCodes = prevTop2.map(f => f.code).sort();
-                    const currCodes = top2.map(f=>f.code).sort();
+                    const currCodes = top2.map(f => f.code).sort();
                     if (prevCodes[0] !== currCodes[0] || prevCodes[1] !== currCodes[1]) {
                         isSwitch = true;
                         logicText += `\n\n⚡ TRIGGER: Fund switch initiated due to change in rankings. Underperforming components were swapped out.`;
@@ -9654,7 +9846,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                     if (!fd) continue;
                     let idxStart = getDtIdx(fd.dates, evalDateRaw);
                     let idxEnd = getDtIdx(fd.dates, endDateRaw);
-                    
+
                     if (idxStart !== -1 && idxEnd !== -1 && idxStart <= idxEnd) {
                         const pStart = fd.prices[idxStart];
                         const pEnd = fd.prices[idxEnd];
@@ -9664,12 +9856,112 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 }
                 const monthReturn = totalWeightProcessed > 0 ? (portfolioReturn / (totalWeightProcessed / 100)) : 0;
 
-                allocations.push({ month: m - 5, date: endDateRaw, top2, isSwitch, logicText, monthReturn, w1, w2 });
+                allocations.push({ month: allocations.length + 1, date: endDateRaw, top2, isSwitch, logicText, monthReturn, w1, w2 });
                 prevTop2 = top2;
             }
 
             ovEl.style.display = 'none';
             renderAssetAllocatorBoxes(allocations);
+            renderTriggerMonitor(fundsData, allocations);
+        }
+
+        function renderTriggerMonitor(fundsData, allocs) {
+            const el = document.getElementById('triggerMonitor');
+            if (!el || allocs.length === 0) return;
+
+            const lastAlloc = allocs[allocs.length - 1];
+            if (!lastAlloc.top2 || lastAlloc.top2.length < 2) return;
+
+            // ── Build current snapshot for every fund ─────────────────────────────
+            const snapshot = [];
+            for (const code in fundsData) {
+                const fd = fundsData[code];
+                const last = fd.prices.length - 1;
+                if (last < 21) continue;
+                const r1m = (fd.prices[last] - fd.prices[last - 21]) / fd.prices[last - 21] * 100;
+                const wrsi = fd.wRsiArr[last] || 50;
+                const regime = wrsi >= 50 ? 'A' : wrsi >= 40 ? 'B' : 'C';
+                snapshot.push({ code, name: fd.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim(), r1m, wrsi: Math.round(wrsi), regime });
+            }
+            snapshot.sort((a, b) => b.r1m - a.r1m);
+
+            const heldCodes = lastAlloc.top2.map(f => f.code);
+            const rank1Live = snapshot[0];
+            const rank2Live = snapshot[1];
+            const rank3Live = snapshot[2];
+
+            const held1 = snapshot.find(f => f.code === heldCodes[0]);
+            const held2 = snapshot.find(f => f.code === heldCodes[1]);
+
+            // ── Condition checks ──────────────────────────────────────────────────
+            // C1: Are BOTH current holdings still Regime A?
+            const c1held1Ok = held1?.regime === 'A';
+            const c1held2Ok = held2?.regime === 'A';
+            const c1trigger = !c1held1Ok || !c1held2Ok;
+
+            // C2: Spread between Rank 3 (unowned) and Rank 2 (owned) > 3%?
+            const heldRank2Live = snapshot.find(f => f.code === heldCodes[1]);
+            const c2spread = rank3Live && heldRank2Live ? (rank3Live.r1m - (heldRank2Live?.r1m ?? 0)) : null;
+            const c2trigger = c2spread !== null && c2spread > 3;
+
+            // C3: Has Breakaway margin (70:30) narrowed below 3%?
+            const c3gap = rank1Live && rank2Live ? (rank1Live.r1m - rank2Live.r1m) : null;
+            const c3wasBreakaway = lastAlloc.w1 === 70;
+            const c3trigger = c3wasBreakaway && c3gap !== null && c3gap < 3;
+
+            // ── Holding summary ───────────────────────────────────────────────────
+            document.getElementById('tmHolding').innerHTML =
+                `Current Holdings: <strong>${held1?.name ?? heldCodes[0]}</strong> (${lastAlloc.w1}%) &nbsp;+&nbsp; `
+                + `<strong>${held2?.name ?? heldCodes[1]}</strong> (${lastAlloc.w2}%) `
+                + `&nbsp;·&nbsp; Universe: ${snapshot.length} funds`;
+
+            // ── Helper: render one condition row ─────────────────────────────────
+            const condHTML = (icon, label, detail, triggered, triggerLabel, safeLabel) => {
+                const bgCol = triggered ? 'rgba(200,16,46,0.10)' : 'rgba(0,158,112,0.08)';
+                const bdCol = triggered ? 'rgba(200,16,46,0.35)' : 'rgba(0,158,112,0.3)';
+                const badgeCol = triggered ? '#c8102e' : '#009e70';
+                const badgeTxt = triggered ? triggerLabel : safeLabel;
+                return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;
+                    border-radius:var(--radius-sm);border:1px solid ${bdCol};background:${bgCol};">
+                    <div style="font-size:0.9rem;flex-shrink:0;margin-top:1px;">${icon}</div>
+                    <div style="flex:1;">
+                        <div style="font-size:0.6rem;font-weight:700;color:var(--text);margin-bottom:2px;">${label}</div>
+                        <div style="font-size:0.56rem;color:var(--muted2);line-height:1.5;">${detail}</div>
+                    </div>
+                    <div style="flex-shrink:0;font-size:0.52rem;font-weight:700;color:${badgeCol};
+                        border:1px solid ${badgeCol};border-radius:3px;padding:2px 5px;white-space:nowrap;
+                        margin-top:1px;">${badgeTxt}</div>
+                </div>`;
+            };
+
+            // ── Condition 1: Regime Exit ──────────────────────────────────────────
+            const c1detail = [
+                `${held1?.name ?? '—'}: W-RSI ${held1?.wrsi ?? '--'} → Regime ${held1?.regime ?? '?'} ${c1held1Ok ? '✓' : '✗'}`,
+                `${held2?.name ?? '—'}: W-RSI ${held2?.wrsi ?? '--'} → Regime ${held2?.regime ?? '?'} ${c1held2Ok ? '✓' : '✗'}`
+            ].join('<br>');
+            document.getElementById('tmCond1').outerHTML =
+                `<div id="tmCond1">${condHTML('🔴', 'CONDITION 1 — REGIME EXIT', c1detail, c1trigger, '⚠ TRIGGER EXIT', '✓ SAFE')}</div>`;
+
+            // ── Condition 2: Momentum Swap ────────────────────────────────────────
+            const c2detail = c2spread !== null
+                ? `Rank 3 unowned (${rank3Live.name}): 1M = ${rank3Live.r1m.toFixed(1)}%`
+                + `<br>Rank 2 owned (${heldRank2Live?.name ?? '—'}): 1M = ${heldRank2Live?.r1m?.toFixed(1) ?? '--'}%`
+                + `<br>Spread = <strong>${c2spread.toFixed(1)}%</strong> (threshold: &gt; 3%)`
+                : 'Insufficient data for spread calculation.';
+            document.getElementById('tmCond2').outerHTML =
+                `<div id="tmCond2">${condHTML('🔄', 'CONDITION 2 — MOMENTUM SWAP', c2detail, c2trigger, '⚠ TRIGGER SWAP', '✓ HOLD')}</div>`;
+
+            // ── Condition 3: Breakaway Rebalance ─────────────────────────────────
+            const c3detail = c3gap !== null
+                ? `Live Rank 1 (${rank1Live.name}): 1M = ${rank1Live.r1m.toFixed(1)}%`
+                + `<br>Live Rank 2 (${rank2Live.name}): 1M = ${rank2Live.r1m.toFixed(1)}%`
+                + `<br>Breakaway margin = <strong>${c3gap.toFixed(1)}%</strong> (threshold: &lt; 3% = narrowed)`
+                + (!c3wasBreakaway ? '<br><em>Last allocation was not 70:30 — condition inactive</em>' : '')
+                : 'Insufficient data.';
+            document.getElementById('tmCond3').outerHTML =
+                `<div id="tmCond3">${condHTML('⚖️', 'CONDITION 3 — BREAKAWAY REBALANCE', c3detail, c3trigger, '⚠ TRIGGER REBALANCE', '✓ MAINTAIN 70:30')}</div>`;
+
+            el.style.display = 'block';
         }
 
         function renderAssetAllocatorBoxes(allocs) {
@@ -9691,7 +9983,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             if (allocs.length > 0) {
                 rTable.style.display = 'block';
                 const makeMetric = (label, val) => {
-                    if(val === null) return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 2px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.6rem;color:var(--muted);font-weight:normal;">${label}</span><span style="font-size:0.75rem;color:var(--muted2);font-weight:normal;">-</span></div>`;
+                    if (val === null) return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 2px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.6rem;color:var(--muted);font-weight:normal;">${label}</span><span style="font-size:0.75rem;color:var(--muted2);font-weight:normal;">-</span></div>`;
                     let bg = 'var(--surface2)';
                     if (val <= -5) bg = 'rgba(200, 16, 46, 0.4)';
                     else if (val < -1) bg = 'rgba(200, 16, 46, 0.15)';
@@ -9712,9 +10004,9 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             } else {
                 rTable.style.display = 'none';
             }
-            
+
             allocs.forEach(alloc => {
-                if(!alloc.top2 || alloc.top2.length < 2) return;
+                if (!alloc.top2 || alloc.top2.length < 2) return;
 
                 const div = document.createElement('div');
                 const r = alloc.monthReturn || 0;
@@ -9727,20 +10019,20 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
                 let borderStyle = alloc.isSwitch ? '3.5px double var(--text)' : '1px solid rgba(0,0,0,0.1)';
                 div.style.cssText = `background:${boxBg}; border:${borderStyle}; border-radius:var(--radius); padding:6px 2px; cursor:pointer; text-align:center; min-height: 52px; display:flex; flex-direction:column; justify-content:center; align-items:center; transition: all 0.15s;`;
-                
+
                 const dtParts = window.formatHudDate(alloc.date).split('-');
-                const mth = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(dtParts[1])-1];
-                
+                const mth = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][parseInt(dtParts[1]) - 1];
+
                 const mLabel = document.createElement('div');
                 mLabel.style.cssText = 'font-size:0.5rem; color:var(--muted); text-transform:uppercase; margin-bottom:3px; letter-spacing:0.05em; font-weight:700;';
                 mLabel.textContent = `M${alloc.month} ${mth}'${dtParts[2].slice(-2)}`;
-                
+
                 const fBox = document.createElement('div');
                 fBox.style.cssText = 'font-size:0.55rem; font-weight:700; color:var(--text); line-height:1.2; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';
-                fBox.innerHTML = `<span>${alloc.top2[0].name.substring(0,10)}</span><br><span>${alloc.top2[1].name.substring(0,10)}</span>`;
+                fBox.innerHTML = `<span>${alloc.top2[0].name.substring(0, 10)}</span><br><span>${alloc.top2[1].name.substring(0, 10)}</span>`;
 
                 const ratioLabel = document.createElement('div');
-                ratioLabel.style.cssText = 'font-size:0.75rem; margin-top:4px; font-weight:400; font-family:var(--mono); color:var(--text); line-height: 1;';
+                ratioLabel.style.cssText = 'font-size:0.75rem; margin-top:4px; font-weight:400; font-family:var(--mono); color:black; line-height: 1;';
                 ratioLabel.innerHTML = `${r > 0 ? '+' : ''}${r.toFixed(1)}%`;
 
                 div.appendChild(mLabel);
@@ -9748,7 +10040,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 div.appendChild(ratioLabel);
 
                 div.addEventListener('mouseenter', () => div.style.filter = 'brightness(0.95)');
-                div.addEventListener('mouseleave', () => { if(!div.classList.contains('active-alloc')) div.style.filter = 'none'; });
+                div.addEventListener('mouseleave', () => { if (!div.classList.contains('active-alloc')) div.style.filter = 'none'; });
 
                 div.onclick = () => {
                     Array.from(boxContainer.children).forEach(c => { c.classList.remove('active-alloc'); c.style.filter = 'none'; c.style.outline = 'none'; });
@@ -9760,8 +10052,8 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
                     let details = `<div style="margin-bottom:8px;"><strong>Selected Portfolio:</strong><br>🔹 <span style="color:var(--text);font-weight:700;">${alloc.top2[0].name}</span> — <strong style="color:var(--text);">${alloc.w1}%</strong> (W-RSI: ${Math.round(alloc.top2[0].wrsi)}, Regime: ${alloc.top2[0].regime})<br>🔹 <span style="color:var(--text);font-weight:700;">${alloc.top2[1].name}</span> — <strong style="color:var(--text);">${alloc.w2}%</strong> (W-RSI: ${Math.round(alloc.top2[1].wrsi)}, Regime: ${alloc.top2[1].regime})</div>`;
                     details += `<div><strong>Strategy & Catalyst:</strong><br>${alloc.logicText.replace(/\n/g, '<br>')}</div>`;
-                    details += `<div style="margin-top:8px;"><strong>Monthly Return Achieved:</strong><br><span style="font-size:0.8rem; font-weight:700; color:${r>=0?'#059669':'var(--red)'};">${r > 0 ? '+' : ''}${r.toFixed(2)}%</span></div>`;
-                    
+                    details += `<div style="margin-top:8px;"><strong>Monthly Return Achieved:</strong><br><span style="font-size:0.8rem; font-weight:700; color:${r >= 0 ? '#059669' : 'var(--red)'};">${r > 0 ? '+' : ''}${r.toFixed(2)}%</span></div>`;
+
                     document.getElementById('allocLogicReason').innerHTML = details;
                 };
 
@@ -9770,6 +10062,205 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
         }
     </script>
 
+
+    <div id="alertSummaryModal" class="modal-overlay" style="z-index:900;">
+        <div class="modal-close">
+            <div style="display:flex;flex-direction:column;text-align:left;">
+                <span class="modal-title" style="color:var(--red);">ALERTS SUMMARY</span>
+                <span id="alertSummarySub" style="font-size:0.55rem;color:var(--muted);margin-top:2px;">Scanning
+                    Universe...</span>
+            </div>
+            <span class="modal-close-btn"
+                onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';">
+                [ CLOSE ] </span>
+        </div>
+        <div id="alertSummaryContent"
+            style="flex-grow:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;">
+        </div>
+    </div>
+
+    <script>
+        // =============================================================================
+        // SECTION 34 · ALERTS SUMMARY SCANNER
+        // =============================================================================
+
+        async function openAlertSummary() {
+            const modal = document.getElementById('alertSummaryModal');
+            const content = document.getElementById('alertSummaryContent');
+            modal.style.display = 'flex';
+            document.getElementById('setupScreen').style.display = 'none';
+
+            const allFunds = Object.values(window.amcFunds).flat();
+            content.innerHTML = `<div style="text-align:center;padding:80px 20px;color:var(--muted);font-size:0.7rem;">
+                <div class="spin" style="margin:0 auto 20px;"></div>
+                ENGINE STARTING...<br>
+                <span id="alertProg" style="font-size:0.6rem;opacity:0.7;">0/${allFunds.length} funds processed</span>
+            </div>`;
+
+            const results = { TSL: [], REGIME_C: [], NC: [], PC: [], RSI_DIP: [] };
+            let processed = 0;
+
+            for (const fund of allFunds) {
+                try {
+                    const url = fund.code.startsWith('SM') ? `https://npsnav.in/api/historical/${fund.code}` : `https://api.mfapi.in/mf/${fund.code}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    const rawData = data.data || data;
+                    if (!Array.isArray(rawData)) throw "Err";
+
+                    // OPTIMIZATION: Only process tail for UI summary
+                    const prices = rawData.map(d => parseFloat(d.nav)).filter(n => !isNaN(n)).reverse();
+                    if (prices.length < 80) throw "Short";
+                    const scanPrices = prices.slice(-200);
+                    const scanDates = (rawData.map(d => window.normalizeDate(d.date)).reverse()).slice(-200);
+
+                    const wRsiArr = window.buildWeeklyRsiFast(scanPrices, userRsiLength, scanDates);
+                    const dRsiArr = window.buildDailyRsiFast(scanPrices, userRsiLength);
+                    const lowessArr = window.buildLowessGaussianFast(scanPrices);
+                    const snap = buildEngineSnapshot(scanPrices.length - 1, scanPrices, 0, dRsiArr, wRsiArr, lowessArr, 0, [], 0);
+
+                    const item = { 
+                        name: fund.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim(), 
+                        code: fund.code, 
+                        val: "",
+                        drsi: Math.round(snap.drsi),
+                        wrsi: Math.round(snap.wrsi),
+                        regime: snap.regime
+                    };
+
+                    if (snap.tsl.tslHit) { item.val = "BREACH"; results.TSL.push(item); }
+                    else if (snap.regime === 'C') { item.val = "BEAR"; results.REGIME_C.push(item); }
+                    else if (snap.ncAlert) { item.val = "BREAKDOWN"; results.NC.push(item); }
+                    else if (snap.pcAlert) { item.val = "BREAKOUT"; results.PC.push(item); }
+                    else if (snap.drsi < 40) { item.val = `RSI ${Math.round(snap.drsi)}`; results.RSI_DIP.push(item); }
+                } catch (e) { }
+
+                processed++;
+                const prog = document.getElementById('alertProg');
+                if (prog) prog.textContent = `${processed}/${allFunds.length} funds processed`;
+                await new Promise(r => setTimeout(r, 10)); // Yield thread
+            }
+
+            renderAlertSummaryUI(results);
+        }
+
+        function renderAlertSummaryUI(res) {
+            const content = document.getElementById('alertSummaryContent');
+            const sub = document.getElementById('alertSummarySub');
+
+            const allFunds = Object.values(window.amcFunds).flat();
+            const uniqueCodes = new Set();
+            Object.values(res).flat().forEach(item => uniqueCodes.add(item.code));
+
+            const totalAlerts = Object.values(res).flat().length;
+            const holdCount = allFunds.length - uniqueCodes.size;
+
+            sub.textContent = `Completed ${totalAlerts}/${allFunds.length} Alerts found: ${holdCount}/${allFunds.length} in HOLD STATUS`;
+            content.innerHTML = "";
+
+            const categories = [
+                { id: 'tsl', label: 'TSL FLOOR BREACH', list: res.TSL, color: 'var(--red)' },
+                { id: 'regc', label: 'REGIME C (BEAR)', list: res.REGIME_C, color: 'var(--red)' },
+                { id: 'nc', label: 'CONSOLIDATION BREAKDOWN', list: res.NC, color: '#f59e0b' },
+                { id: 'pc', label: 'CONSOLIDATION BREAKOUT', list: res.PC, color: 'var(--accent)' },
+                { id: 'rsi', label: 'RSI DIPS (<40)', list: res.RSI_DIP, color: 'var(--accent)' }
+            ];
+
+            categories.forEach(cat => {
+                if (cat.list.length === 0) return;
+                const btn = document.createElement('button');
+                btn.className = "alert-cat-btn";
+                btn.style.color = cat.color;
+                btn.innerHTML = `<span>${cat.label}</span><span>${cat.list.length} ▸</span>`;
+
+                const pane = document.createElement('div');
+                pane.style.display = "none";
+                pane.style.background = "var(--surface)";
+                pane.style.marginBottom = "8px";
+                pane.style.borderRadius = "var(--radius-sm)";
+
+                cat.list.forEach(item => {
+                    const regimeColor = item.regime === 'A' ? 'var(--accent)' : item.regime === 'B' ? 'var(--gold)' : 'var(--red)';
+                    const row = document.createElement('div');
+                    row.className = "alert-item-row";
+                    row.onclick = () => launchLiveFromAlert(item.code);
+                    row.innerHTML = `<div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+                                        <span class="alert-item-name">${item.name}</span>
+                                        <span style="font-size:0.55rem; color:var(--muted2); font-family:var(--mono);">
+                                            D-RSI: ${item.drsi} | W-RSI: ${item.wrsi} | Regime: <strong style="color:${regimeColor};">${item.regime}</strong>
+                                        </span>
+                                     </div>
+                                     <span class="alert-item-val">${item.val}</span>`;
+                    pane.appendChild(row);
+                });
+
+                btn.onclick = () => {
+                    const isOpen = pane.style.display === "block";
+                    pane.style.display = isOpen ? "none" : "block";
+                    btn.querySelector('span:last-child').textContent = cat.list.length + (isOpen ? " ▸" : " ▾");
+                };
+
+                content.appendChild(btn);
+                content.appendChild(pane);
+            });
+
+            if (total === 0) content.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--accent);font-size:0.7rem;">✓ UNIVERSE IS CLEAN<br>No critical alerts detected.</div>`;
+        }
+
+        async function refreshAlertSummaryBadge() {
+            const badge = document.getElementById('alertSummaryBadge');
+            if (!badge) return;
+            badge.textContent = "(...)";
+            const allFunds = Object.values(window.amcFunds).flat();
+            let count = 0;
+
+            for (const fund of allFunds) {
+                try {
+                    const url = fund.code.startsWith('SM') ? `https://npsnav.in/api/historical/${fund.code}` : `https://api.mfapi.in/mf/${fund.code}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    const rawData = data.data || data;
+                    if (!Array.isArray(rawData)) continue;
+
+                    const prices = rawData.map(d => parseFloat(d.nav)).filter(n => !isNaN(n)).reverse();
+                    if (prices.length < 80) continue;
+                    const scanPrices = prices.slice(-200);
+                    const scanDates = (rawData.map(d => window.normalizeDate(d.date)).reverse()).slice(-200);
+
+                    const wRsiArr = window.buildWeeklyRsiFast(scanPrices, userRsiLength, scanDates);
+                    const dRsiArr = window.buildDailyRsiFast(scanPrices, userRsiLength);
+                    const lowessArr = window.buildLowessGaussianFast(scanPrices);
+                    const snap = buildEngineSnapshot(scanPrices.length - 1, scanPrices, 0, dRsiArr, wRsiArr, lowessArr, 0, [], 0);
+
+                    if (snap.tsl.tslHit || snap.regime === 'C' || snap.ncAlert || snap.pcAlert || snap.drsi < 40) {
+                        count++;
+                        badge.textContent = `(${count})`;
+                    }
+                } catch (e) { }
+                await new Promise(r => setTimeout(r, 10)); // Yield thread
+            }
+            badge.textContent = `(${count})`;
+        }
+
+        function launchLiveFromAlert(code) {
+            document.getElementById('alertSummaryModal').style.display = 'none';
+            // Switch AMC if needed
+            let amcMatch = "HDFC";
+            for (const amc in window.amcFunds) {
+                if (window.amcFunds[amc].some(f => f.code === code)) { amcMatch = amc; break; }
+            }
+            const amcBtns = document.querySelectorAll('#fundGrid .fund-box');
+            amcBtns.forEach(b => {
+                if (b.textContent.trim() === amcMatch) selectAMC(amcMatch, b);
+            });
+            document.getElementById('fundSelect').value = code;
+            saveFundSelection();
+            initLiveChart();
+        }
+
+        // Auto-boot scanner
+        setTimeout(refreshAlertSummaryBadge, 3000);
+    </script>
 
 </body>
 

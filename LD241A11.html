@@ -10072,7 +10072,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 if (badge) badge.textContent = `(${total})`;
 
                 // CRITICAL: Yield to main thread every batch to keep UI responsive
-                await new Promise(r => setTimeout(r, 10));
+                await new Promise(r => setTimeout(r, 30));
             }
         }
         async function openAlertSummary() {

@@ -2316,14 +2316,15 @@
             <button class="setup-btn setup-btn-live" onclick="initLiveChart()">Live Market</button>
             <button class="setup-btn" style="border-color:var(--gold);color:var(--gold);"
                 onclick="initLiveAnalytics()">Live Analytics</button>
-            <button class="setup-btn" style="border-color:#a855f7;color:#a855f7;" onclick="openWatchlist()">📌
-                Watchlist</button>
+            <button class="setup-btn" style="border-color:#f43f5e;color:#f43f5e;" onclick="openAlertSummary()">🔔 Alerts
+                Summary <span id="alertSummaryBadge"></span></button>
         </div>
         <div class="setup-btns"
-            style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px;width:100%;max-width:350px;">
-
+            style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;width:100%;max-width:350px;">
             <button class="setup-btn" style="border-color:var(--border2);color:var(--muted2);"
-                onclick="openCompareModal()">⇄ Compare Two Funds</button>
+                onclick="openCompareModal()">⇄ Compare 2 Funds</button>
+            <button class="setup-btn" style="border-color:#a855f7;color:#a855f7;" onclick="openWatchlist()">📌
+                Watchlist</button>
         </div>
 
         <div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
@@ -2748,7 +2749,7 @@ border-radius:var(--radius);padding:6px 9px;">
             </table>
         </div>
     </div>
- 
+
     <!-- ══════════ ALERT SUMMARY MODAL ══════════ -->
     <div id="alertSummaryModal" class="modal-overlay" style="z-index:710;">
         <div class="modal-close">
@@ -10039,8 +10040,8 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             if (badge) badge.textContent = '(...)'; // Loading state
 
             // Optimization: Process in larger batches for background task
-            const BATCH_SIZE = 12; 
-            
+            const BATCH_SIZE = 12;
+
             const countFundAlerts = async (fund) => {
                 try {
                     const url = fund.code.startsWith('SM') ? `https://npsnav.in/api/historical/${fund.code}` : `https://api.mfapi.in/mf/${fund.code}`;
@@ -10061,7 +10062,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                     if (snap.tsl.tslHit || snap.regime === 'C' || snap.ncAlert || snap.pcAlert || snap.delta < buyDeltaLevel || snap.drsi < 40) {
                         total++;
                     }
-                } catch (e) {}
+                } catch (e) { }
             };
 
             for (let i = 0; i < allFunds.length; i += BATCH_SIZE) {

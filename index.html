@@ -2404,40 +2404,8 @@
                 onclick="runRegimeAScanner('PROFIT')">Regime A<br>Profit</button>
         </div>
 
-        <div class="setting-group">
-            <div class="setting-title">
-                Alert Guard
-                <span id="perm-status" style="font-size:0.55rem; color:var(--red);">OFFLINE</span>
-            </div>
 
-            <button class="setup-btn setup-btn-sim" id="enable-notif-btn"
-                style="width: 100%; margin-bottom: 12px; padding: 8px;">
-                ENABLE BROWSER ALERTS
-            </button>
 
-            <div id="notif-prefs" style="opacity: 0.4; pointer-events: none;">
-                <div class="setting-row">
-                    <label for="alert-regime">Regime Crashes (A/B ➔ C)</label>
-                    <label class="switch"><input type="checkbox" id="alert-regime" checked><span
-                            class="slider"></span></label>
-                </div>
-                <div class="setting-row">
-                    <label for="alert-tsl">TSL Floor Breach</label>
-                    <label class="switch"><input type="checkbox" id="alert-tsl" checked><span
-                            class="slider"></span></label>
-                </div>
-                <div class="setting-row">
-                    <label for="alert-rsi">RSI < 40 / PC Breakout</label>
-                            <label class="switch"><input type="checkbox" id="alert-rsi"><span
-                                    class="slider"></span></label>
-                </div>
-                <div class="setting-row"
-                    style="margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px;">
-                    <label for="daily-time">Daily Digest Sync Time:</label>
-                    <input type="time" id="daily-time" class="time-input" value="16:00">
-                </div>
-            </div>
-        </div>
 
     </div>
     </div>
@@ -3710,54 +3678,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             sel.addEventListener('change', updateLiveEstimate);
             sel.addEventListener('change', populateAutoStressScenarios);
 
-            // ── 3. Notification / alert guard UI ─────────────────────────────────────
-            const enableBtn = document.getElementById('enable-notif-btn');
-            const statusText = document.getElementById('perm-status');
-            const prefsPanel = document.getElementById('notif-prefs');
-
-            function _updatePermissionUI() {
-                if (!('Notification' in window)) { statusText.textContent = 'UNSUPPORTED'; return; }
-                if (Notification.permission === 'granted') {
-                    statusText.textContent = 'ACTIVE';
-                    statusText.style.color = 'var(--accent)';
-                    enableBtn.style.display = 'none';
-                    prefsPanel.style.opacity = '1';
-                    prefsPanel.style.pointerEvents = 'auto';
-                    // Attempt service worker (gracefully fails in single-file mode)
-                    if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.register('sw.js').catch(() => {
-                            const st = document.getElementById('perm-status');
-                            if (st) { st.textContent = 'ACTIVE (no bg-sync)'; st.style.color = 'var(--accent2)'; }
-                        });
-                    }
-                } else if (Notification.permission === 'denied') {
-                    statusText.textContent = 'DENIED';
-                    statusText.style.color = 'var(--red)';
-                }
-            }
-
-            if (enableBtn) {
-                enableBtn.addEventListener('click', async () => {
-                    if (!('Notification' in window)) return alert('Browser does not support notifications.');
-                    await Notification.requestPermission();
-                    _updatePermissionUI();
-                });
-            }
-
-            const inputs = prefsPanel ? prefsPanel.querySelectorAll('input') : [];
-            inputs.forEach(input => {
-                const saved = localStorage.getItem(`ld_v3_notif_${input.id}`);
-                if (saved !== null) {
-                    if (input.type === 'checkbox') input.checked = saved === 'true';
-                    if (input.type === 'time') input.value = saved;
-                }
-                input.addEventListener('change', e => {
-                    const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-                    localStorage.setItem(`ld_v3_notif_${e.target.id}`, val);
-                });
-            });
-            _updatePermissionUI();
-
+	    // ── 3. Notification / alert guard UI ─────────────────────────────────────
+            			// (Alert Guard UI Removed - Replaced by Alerts Summary module)
             // ── 4. Streak / style badge ───────────────────────────────────────────────
             _streak.render();
 

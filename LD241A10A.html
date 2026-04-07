@@ -4886,7 +4886,15 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                     const prefix = `${yr}-${mo}`;
                     const idxs = [];
                     for (let i = 0; i < globalLiveData.length; i++) {
-                        if (globalLiveData[i].date && globalLiveData[i].date.startsWith(prefix)) idxs.push(i);
+                        const dStr = globalLiveData[i].date;
+                        if (!dStr) continue;
+                        // Handle both YYYY-MM-DD and DD-MM-YYYY cases logically
+                        const parts = dStr.split(/[-/]/);
+                        let y, m;
+                        if (parts[0].length === 4) { y = parseInt(parts[0]); m = parseInt(parts[1]); }
+                        else { y = parseInt(parts[2]); m = parseInt(parts[1]); }
+
+                        if (y === yr && m === parseInt(mo)) idxs.push(i);
                     }
                     if (idxs.length === 0) { months.push(null); continue; }
                     // Check regime at the Month-End (EOM) to match Asset Allocator decision logic

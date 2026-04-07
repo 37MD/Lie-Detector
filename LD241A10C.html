@@ -9799,14 +9799,14 @@ const bafFund = fundStats.find(f => f.name.toLowerCase().includes('balanced adva
                 f.convictionScore = Math.max(0, f.convictionScore);
             });
 
-            qualifiedFunds.sort((a, b) => b.convictionScore - a.convictionScore);
+            
+qualifiedFunds.sort((a, b) => b.convictionScore - a.convictionScore);
 
-            let top2 = [];
-            let logicText = '';
             let w1 = 50, w2 = 50;
             let allocReason = '';
 
             if (qualifiedFunds.length >= 2) {
+
                 top2 = qualifiedFunds.slice(0, 2);
                 logicText = `Alpha Hunters: Top 2 funds are in Regime A AND cleared the BAF Gate (> ${bafThreshold.toFixed(1)}%).\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
                 

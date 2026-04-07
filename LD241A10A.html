@@ -2239,19 +2239,21 @@
             <div class="c-input-box"
                 style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 2px;cursor:pointer; background:var(--gold-dim); border-color:var(--gold);"
                 onclick="openAssetAllocator()">
-                <span class="c-label" style="color:var(--gold); font-weight:400; margin-bottom:2px; letter-spacing:0.05em;">ANALYZE</span>
-                <span style="font-size:0.75rem; font-weight:700; color:var(--text); text-align:center; line-height:1.2; padding-bottom: 2px;">ASSET<br>ALLOCATOR</span>
+                <span class="c-label"
+                    style="color:var(--gold); font-weight:400; margin-bottom:2px; letter-spacing:0.05em;">ANALYZE</span>
+                <span
+                    style="font-size:0.75rem; font-weight:700; color:var(--text); text-align:center; line-height:1.2; padding-bottom: 2px;">ASSET<br>ALLOCATOR</span>
             </div>
         </div>
 
         <div style="display:flex; width:100%; max-width:350px; gap:8px;">
-            <button class="setup-btn setup-btn-sim"
-                style="flex:1; padding: 12px; font-size: 0.75rem; margin: 0;"
+            <button class="setup-btn setup-btn-sim" style="flex:1; padding: 12px; font-size: 0.75rem; margin: 0;"
                 onclick="initGame('random')">Random Simulation</button>
             <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 12px;cursor:pointer;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--surface2);"
                 onclick="toggleBlindMode()">
                 <span class="c-label" style="margin-bottom:2px;">Training</span>
-                <button id="blindToggle" style="pointer-events:none; font-family:var(--mono); font-size:0.6rem; background:transparent; border:none; color:var(--muted);">BLIND</button>
+                <button id="blindToggle"
+                    style="pointer-events:none; font-family:var(--mono); font-size:0.6rem; background:transparent; border:none; color:var(--muted);">BLIND</button>
             </div>
         </div>
 
@@ -2385,41 +2387,59 @@
         <div class="modal-close">
             <div style="display:flex;flex-direction:column;">
                 <span class="modal-title" style="color:var(--gold);">ASSET ALLOCATOR</span>
-                <span id="assetAllocSubtitle" style="font-size:0.55rem;color:var(--text);margin-top:2px;">HDFC AMC</span>
+                <span id="assetAllocSubtitle" style="font-size:0.55rem;color:var(--text);margin-top:2px;">HDFC
+                    AMC</span>
             </div>
             <div style="display:flex;gap:8px;">
-                <select id="assetAllocType" class="dropdown" style="margin:0; padding:4px 8px; font-size:0.6rem; width:auto; border-color:var(--border);" onchange="runAssetAllocator()">
+                <select id="assetAllocType" class="dropdown"
+                    style="margin:0; padding:4px 8px; font-size:0.6rem; width:auto; border-color:var(--border);"
+                    onchange="runAssetAllocator()">
                     <option value="MF">Mutual Funds</option>
                     <option value="NPS_T1">NPS Tier 1</option>
                     <option value="NPS_T2">NPS Tier 2</option>
                 </select>
-                <span class="modal-close-btn" onclick="document.getElementById('assetAllocatorModal').style.display='none'; document.getElementById('setupScreen').style.display='flex'">[ X ] CLOSE</span>
+                <span class="modal-close-btn"
+                    onclick="document.getElementById('assetAllocatorModal').style.display='none'; document.getElementById('setupScreen').style.display='flex'">[
+                    X ] CLOSE</span>
             </div>
         </div>
 
         <div style="flex-grow:1;display:flex;flex-direction:column;min-height:0;overflow-y:auto;padding:10px;">
-             <!-- Top Part: 24 Boxes Grid -->
-             <div id="assetAllocBoxes" style="display:grid;grid-template-columns:repeat(4, 1fr);gap:6px;margin-bottom:12px;"></div>
+            <!-- Top Part: 24 Boxes Grid -->
+            <div id="assetAllocBoxes"
+                style="display:grid;grid-template-columns:repeat(4, 1fr);gap:6px;margin-bottom:12px;"></div>
 
-             <!-- Performance Returns Table -->
-             <div id="assetAllocReturnsTable" style="display:none;margin-bottom:12px;"></div>
+            <!-- Performance Returns Table -->
+            <div id="assetAllocReturnsTable" style="display:none;margin-bottom:12px;"></div>
 
-             <!-- Trigger Monitor -->
-             <div id="triggerMonitor" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-bottom:12px;display:none;">
-                 <div style="font-size:0.65rem;font-weight:700;color:var(--gold);letter-spacing:0.08em;margin-bottom:8px;">⚡ TRIGGER MONITOR — LIVE DAILY CHECK</div>
-                 <div id="tmHolding" style="font-size:0.58rem;color:var(--muted);margin-bottom:8px;line-height:1.5;"></div>
-                 <div style="display:flex;flex-direction:column;gap:6px;">
-                     <div id="tmCond1" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);"></div>
-                     <div id="tmCond2" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);"></div>
-                     <div id="tmCond3" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);"></div>
-                 </div>
-             </div>
+            <!-- Trigger Monitor -->
+            <div id="triggerMonitor"
+                style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-bottom:12px;display:none;">
+                <div
+                    style="font-size:0.65rem;font-weight:700;color:var(--gold);letter-spacing:0.08em;margin-bottom:8px;">
+                    ⚡ TRIGGER MONITOR — LIVE DAILY CHECK</div>
+                <div id="tmHolding" style="font-size:0.58rem;color:var(--muted);margin-bottom:8px;line-height:1.5;">
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div id="tmCond1"
+                        style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+                    </div>
+                    <div id="tmCond2"
+                        style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+                    </div>
+                    <div id="tmCond3"
+                        style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+                    </div>
+                </div>
+            </div>
 
-             <!-- Bottom Part: Analytics / Logic box -->
-             <div id="assetAllocAnalytics" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;display:none;">
-                 <div id="allocLogicTitle" style="font-size:0.75rem;font-weight:700;margin-bottom:6px;color:var(--accent);"></div>
-                 <div id="allocLogicReason" style="font-size:0.65rem;color:var(--text);line-height:1.5;"></div>
-             </div>
+            <!-- Bottom Part: Analytics / Logic box -->
+            <div id="assetAllocAnalytics"
+                style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;display:none;">
+                <div id="allocLogicTitle"
+                    style="font-size:0.75rem;font-weight:700;margin-bottom:6px;color:var(--accent);"></div>
+                <div id="allocLogicReason" style="font-size:0.65rem;color:var(--text);line-height:1.5;"></div>
+            </div>
         </div>
     </div>
 
@@ -3332,8 +3352,9 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 { name: '[NPS] KOTAK Scheme E - Tier II', code: 'SM005004' },
                 { name: '[NPS] KOTAK Scheme C - Tier II', code: 'SM005005' },
             ],
+
             ABSL: [
-                { name: 'ABSL Flexi Cap - Growth', code: '120517' },
+                { name: 'ABSL Hybrid 95 - Growth', code: '120517' },
                 { name: 'ABSL Balanced Advantage - Growth', code: '131670' },
                 { name: 'ABSL Gold Fund - Growth', code: '120546' },
                 { name: 'ABSL Nifty Midcap 150 - Direct', code: '148807' },
@@ -9473,27 +9494,33 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
                         const res = await originalFetch(resource, config);
                         if (res.ok) {
-                            const networkData = await res.clone().json();
-                            if (cachedData && cachedData.data && networkData.data) {
-                                const existingDates = new Set(cachedData.data.map(d => d.date));
-                                const newEntries = networkData.data.filter(d => !existingDates.has(d.date));
-                                if (newEntries.length > 0) cachedData.data = [...newEntries, ...cachedData.data];
-                                cachedData.meta = networkData.meta || cachedData.meta;
-                            } else if (Array.isArray(networkData)) {
-                                // NPS raw-array response — normalise dates before caching
-                                cachedData = { data: networkData.map(d => ({
-                                    ...d,
-                                    date: (d.date || '').replace(/\//g, '-')
-                                })) };
-                            } else {
-                                cachedData = networkData;
+                            let networkData;
+                            try { networkData = await res.clone().json(); } catch (e) { networkData = null; }
+
+                            if (networkData) {
+                                if (cachedData && cachedData.data && networkData.data) {
+                                    const existingDates = new Set(cachedData.data.map(d => d.date));
+                                    const newEntries = networkData.data.filter(d => !existingDates.has(d.date));
+                                    if (newEntries.length > 0) cachedData.data = [...newEntries, ...cachedData.data];
+                                    cachedData.meta = networkData.meta || cachedData.meta;
+                                } else if (Array.isArray(networkData)) {
+                                    cachedData = { data: networkData.map(d => ({ ...d, date: (d.date || '').replace(/\//g, '-') })) };
+                                } else {
+                                    cachedData = networkData;
+                                }
+                                await setCache(db, STORE_DATA, url, cachedData);
+                                await setCache(db, STORE_META, url, { timestamp: Date.now() });
                             }
-                            await setCache(db, STORE_DATA, url, cachedData);
-                            await setCache(db, STORE_META, url, { timestamp: Date.now() });
-                            return new Response(JSON.stringify(cachedData), {
-                                status: 200, headers: { 'Content-Type': 'application/json' }
-                            });
-                        } else if (cachedData) {
+
+                            if (cachedData) {
+                                return new Response(JSON.stringify(cachedData), {
+                                    status: 200, headers: { 'Content-Type': 'application/json' }
+                                });
+                            }
+                        }
+                        if (cachedData) {
+
+
                             return new Response(JSON.stringify(cachedData), {
                                 status: 200, headers: { 'Content-Type': 'application/json' }
                             });
@@ -9585,27 +9612,33 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
             const fundsData = {};
             let completed = 0;
+
             for (let f of baseFunds) {
                 try {
+                    // Slight delay between requests to prevent API rate-limiting
+                    await new Promise(r => setTimeout(r, 50));
                     const url = f.code.startsWith('SM') ? `https://npsnav.in/api/historical/${f.code}` : `https://api.mfapi.in/mf/${f.code}`;
                     const res = await fetch(url);
+                    if (!res.ok && !res.status === 200) throw new Error('Network busy');
                     const data = await res.json();
                     if (data && data.data) {
+
+
                         const prices = data.data.map(d => parseFloat(d.nav)).filter(n => !isNaN(n)).reverse();
                         const dates = data.data.map(d => window.normalizeDate(d.date)).reverse();
                         const wRsiArr = window.buildWeeklyRsiFast(prices, window.userRsiLength || 4, dates);
                         fundsData[f.code] = { name: f.name, prices, dates, wRsiArr };
                     }
-                } catch(e) { console.error('Failed fetching', f.name); }
+                } catch (e) { console.error('Failed fetching', f.name); }
                 completed++;
-                ovTxt.textContent = `FETCHING DATA... ${Math.round((completed/baseFunds.length)*100)}%`;
+                ovTxt.textContent = `FETCHING DATA... ${Math.round((completed / baseFunds.length) * 100)}%`;
             }
 
             ovTxt.textContent = 'CALCULATING ALLOCATIONS...';
 
             let refDates = [];
-            for(const code in fundsData) {
-                if(fundsData[code].dates.length > refDates.length) refDates = fundsData[code].dates;
+            for (const code in fundsData) {
+                if (fundsData[code].dates.length > refDates.length) refDates = fundsData[code].dates;
             }
 
             const eomIndices = [];
@@ -9639,7 +9672,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
             for (let m = 6; m < 30; m++) {
                 const evalDateRaw = refDates[targetEOMs[m]];
-                const endDateRaw = refDates[targetEOMs[m+1]];
+                const endDateRaw = refDates[targetEOMs[m + 1]];
 
                 let fundStats = [];
                 for (const code in fundsData) {
@@ -9649,9 +9682,9 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
                     const pCurr = fd.prices[idx];
                     const p1m = fd.prices[Math.max(0, idx - 21)];
-                    const r1m = (pCurr - p1m)/p1m * 100;
+                    const r1m = (pCurr - p1m) / p1m * 100;
                     const p2m = fd.prices[Math.max(0, idx - 42)];
-                    const r2m = (pCurr - p2m)/p2m * 100;
+                    const r2m = (pCurr - p2m) / p2m * 100;
 
                     const wrsi = fd.wRsiArr[idx] || 50;
                     const regime = wrsi >= 50 ? 'A' : wrsi >= 40 ? 'B' : 'C';
@@ -9664,7 +9697,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
                 if (fundStats.length < 2) continue;
 
-                fundStats.sort((a,b) => b.r2m - a.r2m);
+                fundStats.sort((a, b) => b.r2m - a.r2m);
 
                 let top2 = [];
                 let logicText = '';
@@ -9672,16 +9705,16 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                     top2 = fundStats.slice(0, 2);
                     logicText = `Initial Allocation: Selected Top 2 funds based on highest 2-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r2m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r2m.toFixed(1)}%`;
                 } else {
-                    let regimeA = fundStats.filter(f => f.regime === 'A').sort((a,b) => b.r1m - a.r1m);
-                    if(regimeA.length >= 2) {
+                    let regimeA = fundStats.filter(f => f.regime === 'A').sort((a, b) => b.r1m - a.r1m);
+                    if (regimeA.length >= 2) {
                         top2 = regimeA.slice(0, 2);
                         logicText = `Regime Foundation: Selected Top 2 from Regime A based on 1-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
                     } else if (regimeA.length === 1) {
-                        let others = fundStats.filter(f => f.regime !== 'A').sort((a,b) => b.r1m - a.r1m);
+                        let others = fundStats.filter(f => f.regime !== 'A').sort((a, b) => b.r1m - a.r1m);
                         top2 = [regimeA[0], others[0]];
                         logicText = `Mixed Foundation: Only 1 fund in Regime A. Picked next best alternative by 1-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
                     } else {
-                        let others = fundStats.sort((a,b) => b.r1m - a.r1m);
+                        let others = fundStats.sort((a, b) => b.r1m - a.r1m);
                         top2 = others.slice(0, 2);
                         logicText = `Bearish Mode: No Regime A funds available. Selected Top 2 by highest 1-month momentum.\n👉 ${top2[0]?.name}: +${top2[0]?.r1m.toFixed(1)}%\n👉 ${top2[1]?.name}: +${top2[1]?.r1m.toFixed(1)}%`;
                     }
@@ -9690,7 +9723,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 let isSwitch = false;
                 if (prevTop2.length === 2 && top2.length === 2) {
                     const prevCodes = prevTop2.map(f => f.code).sort();
-                    const currCodes = top2.map(f=>f.code).sort();
+                    const currCodes = top2.map(f => f.code).sort();
                     if (prevCodes[0] !== currCodes[0] || prevCodes[1] !== currCodes[1]) {
                         isSwitch = true;
                         logicText += `\n\n⚡ TRIGGER: Fund switch initiated due to change in rankings. Underperforming components were swapped out.`;
@@ -9803,8 +9836,8 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
             // ── Helper: render one condition row ─────────────────────────────────
             const condHTML = (icon, label, detail, triggered, triggerLabel, safeLabel) => {
-                const bgCol  = triggered ? 'rgba(200,16,46,0.10)' : 'rgba(0,158,112,0.08)';
-                const bdCol  = triggered ? 'rgba(200,16,46,0.35)' : 'rgba(0,158,112,0.3)';
+                const bgCol = triggered ? 'rgba(200,16,46,0.10)' : 'rgba(0,158,112,0.08)';
+                const bdCol = triggered ? 'rgba(200,16,46,0.35)' : 'rgba(0,158,112,0.3)';
                 const badgeCol = triggered ? '#c8102e' : '#009e70';
                 const badgeTxt = triggered ? triggerLabel : safeLabel;
                 return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;
@@ -9831,8 +9864,8 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             // ── Condition 2: Momentum Swap ────────────────────────────────────────
             const c2detail = c2spread !== null
                 ? `Rank 3 unowned (${rank3Live.name}): 1M = ${rank3Live.r1m.toFixed(1)}%`
-                  + `<br>Rank 2 owned (${heldRank2Live?.name ?? '—'}): 1M = ${heldRank2Live?.r1m?.toFixed(1) ?? '--'}%`
-                  + `<br>Spread = <strong>${c2spread.toFixed(1)}%</strong> (threshold: &gt; 3%)`
+                + `<br>Rank 2 owned (${heldRank2Live?.name ?? '—'}): 1M = ${heldRank2Live?.r1m?.toFixed(1) ?? '--'}%`
+                + `<br>Spread = <strong>${c2spread.toFixed(1)}%</strong> (threshold: &gt; 3%)`
                 : 'Insufficient data for spread calculation.';
             document.getElementById('tmCond2').outerHTML =
                 `<div id="tmCond2">${condHTML('🔄', 'CONDITION 2 — MOMENTUM SWAP', c2detail, c2trigger, '⚠ TRIGGER SWAP', '✓ HOLD')}</div>`;
@@ -9840,9 +9873,9 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             // ── Condition 3: Breakaway Rebalance ─────────────────────────────────
             const c3detail = c3gap !== null
                 ? `Live Rank 1 (${rank1Live.name}): 1M = ${rank1Live.r1m.toFixed(1)}%`
-                  + `<br>Live Rank 2 (${rank2Live.name}): 1M = ${rank2Live.r1m.toFixed(1)}%`
-                  + `<br>Breakaway margin = <strong>${c3gap.toFixed(1)}%</strong> (threshold: &lt; 3% = narrowed)`
-                  + (!c3wasBreakaway ? '<br><em>Last allocation was not 70:30 — condition inactive</em>' : '')
+                + `<br>Live Rank 2 (${rank2Live.name}): 1M = ${rank2Live.r1m.toFixed(1)}%`
+                + `<br>Breakaway margin = <strong>${c3gap.toFixed(1)}%</strong> (threshold: &lt; 3% = narrowed)`
+                + (!c3wasBreakaway ? '<br><em>Last allocation was not 70:30 — condition inactive</em>' : '')
                 : 'Insufficient data.';
             document.getElementById('tmCond3').outerHTML =
                 `<div id="tmCond3">${condHTML('⚖️', 'CONDITION 3 — BREAKAWAY REBALANCE', c3detail, c3trigger, '⚠ TRIGGER REBALANCE', '✓ MAINTAIN 70:30')}</div>`;
@@ -9869,7 +9902,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             if (allocs.length > 0) {
                 rTable.style.display = 'block';
                 const makeMetric = (label, val) => {
-                    if(val === null) return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 2px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.6rem;color:var(--muted);font-weight:normal;">${label}</span><span style="font-size:0.75rem;color:var(--muted2);font-weight:normal;">-</span></div>`;
+                    if (val === null) return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 2px;background:var(--surface3);border-radius:var(--radius);"><span style="font-size:0.6rem;color:var(--muted);font-weight:normal;">${label}</span><span style="font-size:0.75rem;color:var(--muted2);font-weight:normal;">-</span></div>`;
                     let bg = 'var(--surface2)';
                     if (val <= -5) bg = 'rgba(200, 16, 46, 0.4)';
                     else if (val < -1) bg = 'rgba(200, 16, 46, 0.15)';
@@ -9892,7 +9925,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             }
 
             allocs.forEach(alloc => {
-                if(!alloc.top2 || alloc.top2.length < 2) return;
+                if (!alloc.top2 || alloc.top2.length < 2) return;
 
                 const div = document.createElement('div');
                 const r = alloc.monthReturn || 0;
@@ -9907,7 +9940,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 div.style.cssText = `background:${boxBg}; border:${borderStyle}; border-radius:var(--radius); padding:6px 2px; cursor:pointer; text-align:center; min-height: 52px; display:flex; flex-direction:column; justify-content:center; align-items:center; transition: all 0.15s;`;
 
                 const dtParts = window.formatHudDate(alloc.date).split('-');
-                const mth = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(dtParts[1])-1];
+                const mth = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][parseInt(dtParts[1]) - 1];
 
                 const mLabel = document.createElement('div');
                 mLabel.style.cssText = 'font-size:0.5rem; color:var(--muted); text-transform:uppercase; margin-bottom:3px; letter-spacing:0.05em; font-weight:700;';
@@ -9915,7 +9948,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
                 const fBox = document.createElement('div');
                 fBox.style.cssText = 'font-size:0.55rem; font-weight:700; color:var(--text); line-height:1.2; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';
-                fBox.innerHTML = `<span>${alloc.top2[0].name.substring(0,10)}</span><br><span>${alloc.top2[1].name.substring(0,10)}</span>`;
+                fBox.innerHTML = `<span>${alloc.top2[0].name.substring(0, 10)}</span><br><span>${alloc.top2[1].name.substring(0, 10)}</span>`;
 
                 const ratioLabel = document.createElement('div');
                 ratioLabel.style.cssText = 'font-size:0.75rem; margin-top:4px; font-weight:400; font-family:var(--mono); color:var(--text); line-height: 1;';
@@ -9926,7 +9959,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 div.appendChild(ratioLabel);
 
                 div.addEventListener('mouseenter', () => div.style.filter = 'brightness(0.95)');
-                div.addEventListener('mouseleave', () => { if(!div.classList.contains('active-alloc')) div.style.filter = 'none'; });
+                div.addEventListener('mouseleave', () => { if (!div.classList.contains('active-alloc')) div.style.filter = 'none'; });
 
                 div.onclick = () => {
                     Array.from(boxContainer.children).forEach(c => { c.classList.remove('active-alloc'); c.style.filter = 'none'; c.style.outline = 'none'; });
@@ -9938,7 +9971,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
                     let details = `<div style="margin-bottom:8px;"><strong>Selected Portfolio:</strong><br>🔹 <span style="color:var(--text);font-weight:700;">${alloc.top2[0].name}</span> — <strong style="color:var(--text);">${alloc.w1}%</strong> (W-RSI: ${Math.round(alloc.top2[0].wrsi)}, Regime: ${alloc.top2[0].regime})<br>🔹 <span style="color:var(--text);font-weight:700;">${alloc.top2[1].name}</span> — <strong style="color:var(--text);">${alloc.w2}%</strong> (W-RSI: ${Math.round(alloc.top2[1].wrsi)}, Regime: ${alloc.top2[1].regime})</div>`;
                     details += `<div><strong>Strategy & Catalyst:</strong><br>${alloc.logicText.replace(/\n/g, '<br>')}</div>`;
-                    details += `<div style="margin-top:8px;"><strong>Monthly Return Achieved:</strong><br><span style="font-size:0.8rem; font-weight:700; color:${r>=0?'#059669':'var(--red)'};">${r > 0 ? '+' : ''}${r.toFixed(2)}%</span></div>`;
+                    details += `<div style="margin-top:8px;"><strong>Monthly Return Achieved:</strong><br><span style="font-size:0.8rem; font-weight:700; color:${r >= 0 ? '#059669' : 'var(--red)'};">${r > 0 ? '+' : ''}${r.toFixed(2)}%</span></div>`;
 
                     document.getElementById('allocLogicReason').innerHTML = details;
                 };

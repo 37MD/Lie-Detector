@@ -10038,42 +10038,37 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             const allFunds = Object.values(window.amcFunds).flat();
             let total = 0;
             const badge = document.getElementById('alertSummaryBadge');
-            if (badge) badge.textContent = '(...)'; // Loading state
+            if (badge) badge.textContent = '(...)'; 
 
-            // Optimization: Process in larger batches for background task
-            const BATCH_SIZE = 12;
-
-            const countFundAlerts = async (fund) => {
+            // ONE BY ONE SCAN: Sequential processing is safest for the main thread
+            for (const fund of allFunds) {
                 try {
                     const url = fund.code.startsWith('SM') ? `https://npsnav.in/api/historical/${fund.code}` : `https://api.mfapi.in/mf/${fund.code}`;
                     const res = await fetch(url);
                     const data = await res.json();
                     const rawData = data.data || data;
-                    if (!Array.isArray(rawData)) return;
+                    if (!Array.isArray(rawData)) continue;
+
                     const prices = rawData.map(d => parseFloat(d.nav)).filter(n => !isNaN(n)).reverse();
                     const dates = rawData.map(d => window.normalizeDate(d.date)).reverse();
-                    if (prices.length < 80) return;
+                    if (prices.length < 80) continue;
 
+                    // Compute indicators
                     const wRsiArr = window.buildWeeklyRsiFast(prices, userRsiLength, dates);
                     const dRsiArr = window.buildDailyRsiFast(prices, userRsiLength);
                     const lowessArr = window.buildLowessGaussianFast(prices);
                     const snap = buildEngineSnapshot(prices.length - 1, prices, 0, dRsiArr, wRsiArr, lowessArr, 0, [], 0);
 
-                    // Standard Alert Logic
                     if (snap.tsl.tslHit || snap.regime === 'C' || snap.ncAlert || snap.pcAlert || snap.delta < buyDeltaLevel || snap.drsi < 40) {
                         total++;
+                        if (badge) badge.textContent = `(${total})`;
                     }
                 } catch (e) { }
-            };
 
-            for (let i = 0; i < allFunds.length; i += BATCH_SIZE) {
-                const batch = allFunds.slice(i, i + BATCH_SIZE);
-                await Promise.all(batch.map(countFundAlerts));
-                if (badge) badge.textContent = `(${total})`;
-
-                // CRITICAL: Yield to main thread every batch to keep UI responsive
-                await new Promise(r => setTimeout(r, 30));
+                // CRITICAL YIELD: Pause for 10ms after EVERY fund to keep UI fluid
+                await new Promise(r => setTimeout(r, 10));
             }
+            if (badge) badge.textContent = `(${total})`;
         }
         async function openAlertSummary() {
             const currentToken = ++_activeScannerToken;

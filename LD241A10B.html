@@ -10119,7 +10119,13 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                     const lowessArr = window.buildLowessGaussianFast(scanPrices);
                     const snap = buildEngineSnapshot(scanPrices.length - 1, scanPrices, 0, dRsiArr, wRsiArr, lowessArr, 0, [], 0);
 
-                    const item = { name: fund.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim(), code: fund.code, val: "" };
+                    const item = { 
+                        name: fund.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim(), 
+                        code: fund.code, 
+                        val: "",
+                        drsi: Math.round(snap.drsi),
+                        wrsi: Math.round(snap.wrsi)
+                    };
 
                     if (snap.tsl.tslHit) { item.val = "BREACH"; results.TSL.push(item); }
                     else if (snap.regime === 'C') { item.val = "BEAR"; results.REGIME_C.push(item); }
@@ -10176,7 +10182,13 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                     const row = document.createElement('div');
                     row.className = "alert-item-row";
                     row.onclick = () => launchLiveFromAlert(item.code);
-                    row.innerHTML = `<span class="alert-item-name">${item.name}</span><span class="alert-item-val">${item.val}</span>`;
+                    row.innerHTML = `<div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+                                        <span class="alert-item-name">${item.name}</span>
+                                        <span style="font-size:0.55rem; color:var(--muted2); font-family:var(--mono);">
+                                            D-RSI: ${item.drsi} | W-RSI: ${item.wrsi}
+                                        </span>
+                                     </div>
+                                     <span class="alert-item-val">${item.val}</span>`;
                     pane.appendChild(row);
                 });
 

@@ -2211,7 +2211,7 @@
         <div class="setup-logo">Sacred RSI Regime System</div>
         <div class="streak-badge" id="streakBadge"></div>
         <h1 class="setup-title">Lie Detector <span
-                style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A10A</span></h1>
+                style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A11</span></h1>
         <p class="setup-sub">Train your discipline before real money does.</p>
 
         <div class="fund-grid" id="fundGrid">
@@ -9598,8 +9598,9 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 } finally { if (ov) ov.style.display = 'none'; }
             }
 
-            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', syncAllData); }
-            else { syncAllData(); }
+            // DISABLE AUTO-SYNC AT BOOT: Let the staggered Alert Scanner handle it lazy-style
+            // if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', syncAllData); }
+            // else { syncAllData(); }
 
             window._idbOpenDB = openDB;
             window._idbSetCache = setCache;
@@ -10038,7 +10039,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             const allFunds = Object.values(window.amcFunds).flat();
             let total = 0;
             const badge = document.getElementById('alertSummaryBadge');
-            if (badge) badge.textContent = '(...)'; 
+            if (badge) badge.textContent = '(...)';
 
             // ONE BY ONE SCAN: Sequential processing is safest for the main thread
             for (const fund of allFunds) {

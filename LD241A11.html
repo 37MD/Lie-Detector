@@ -10070,6 +10070,9 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 const batch = allFunds.slice(i, i + BATCH_SIZE);
                 await Promise.all(batch.map(countFundAlerts));
                 if (badge) badge.textContent = `(${total})`;
+
+                // CRITICAL: Yield to main thread every batch to keep UI responsive
+                await new Promise(r => setTimeout(r, 10));
             }
         }
         async function openAlertSummary() {

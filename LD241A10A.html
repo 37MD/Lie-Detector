@@ -9654,9 +9654,9 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             }
             eomIndices.push(refDates.length - 1);
 
-            if (eomIndices.length < 31) {
+            if (eomIndices.length < 14) {
                 ovEl.style.display = 'none';
-                document.getElementById('assetAllocBoxes').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);">Not enough price history (Need 30+ months).</div>';
+                document.getElementById('assetAllocBoxes').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);">Not enough price history (Need 14+ months).</div>';
                 return;
             }
 
@@ -9673,7 +9673,8 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 return -1;
             };
 
-            for (let m = 6; m < 30; m++) {
+            const startM = Math.max(2, targetEOMs.length - 25);
+            for (let m = startM; m < targetEOMs.length - 1; m++) {
                 const evalDateRaw = refDates[targetEOMs[m]];
                 const endDateRaw = refDates[targetEOMs[m + 1]];
 
@@ -9778,7 +9779,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 }
                 const monthReturn = totalWeightProcessed > 0 ? (portfolioReturn / (totalWeightProcessed / 100)) : 0;
 
-                allocations.push({ month: m - 5, date: endDateRaw, top2, isSwitch, logicText, monthReturn, w1, w2 });
+                allocations.push({ month: allocations.length + 1, date: endDateRaw, top2, isSwitch, logicText, monthReturn, w1, w2 });
                 prevTop2 = top2;
             }
 

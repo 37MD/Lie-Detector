@@ -4882,14 +4882,17 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                         if (globalLiveData[i].date && globalLiveData[i].date.startsWith(prefix)) idxs.push(i);
                     }
                     if (idxs.length === 0) { months.push(null); continue; }
-                    let cA = 0, cB = 0, cC = 0;
-                    idxs.forEach(i => {
-                        const wr = globalWeeklyRsiCache[i] ?? 50;
-                        if (wr >= 50) cA++; else if (wr >= 40) cB++; else cC++;
-                    });
-                    const dom = cA >= cB && cA >= cC ? 'A' : cB >= cC ? 'B' : 'C';
-                    const pct = Math.max(cA, cB, cC) / idxs.length * 100;
-                    months.push({ label: `${yr.toString().slice(2)}${mo}`, dom, pct });
+                    // Check regime at the Month-End (EOM) to match Asset Allocator decision logic
+                    const lastIdx = idxs[idxs.length - 1];
+                    const wr = globalWeeklyRsiCache[lastIdx] ?? 50;
+                    const dom = wr >= 50 ? 'A' : (wr >= 40 ? 'B' : 'C');
+                    // % of days in the month spent in this specific regime
+                    const pct = (idxs.filter(i => {
+                        const w = globalWeeklyRsiCache[i] ?? 50;
+                        const r = w >= 50 ? 'A' : (w >= 40 ? 'B' : 'C');
+                        return r === dom;
+                    }).length / idxs.length) * 100;
+                    months.push({ label: `${yr.toString().slice(2)}${mo}`, dom, pct, wrsi: wr });
                 }
                 calContainer.innerHTML = months.map((m, idx) => {
                     if (!m) return `<div style="height:28px;"></div>`;
@@ -9687,11 +9690,11 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                     const r2m = (pCurr - p2m) / p2m * 100;
 
                     const wrsi = fd.wRsiArr[idx] || 50;
-                    const regime = wrsi >= 50 ? 'A' : wrsi >= 40 ? 'B' : 'C';
+                    const regime = wrsi >= 50 ? 'A' : (wrsi >= 40 ? 'B' : 'C');
 
                     fundStats.push({
                         code, name: fd.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim(),
-                        r1m, r2m, wrsi, regime, price: pCurr
+                        r1m, r2m, wrsi: parseFloat(wrsi.toFixed(2)), regime, price: pCurr
                     });
                 }
 
@@ -9951,7 +9954,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 fBox.innerHTML = `<span>${alloc.top2[0].name.substring(0, 10)}</span><br><span>${alloc.top2[1].name.substring(0, 10)}</span>`;
 
                 const ratioLabel = document.createElement('div');
-                ratioLabel.style.cssText = 'font-size:0.75rem; margin-top:4px; font-weight:400; font-family:var(--mono); color:var(--text); line-height: 1;';
+                ratioLabel.style.cssText = 'font-size:0.75rem; margin-top:4px; font-weight:400; font-family:var(--mono); color:black; line-height: 1;';
                 ratioLabel.innerHTML = `${r > 0 ? '+' : ''}${r.toFixed(1)}%`;
 
                 div.appendChild(mLabel);

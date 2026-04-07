@@ -2755,7 +2755,8 @@ border-radius:var(--radius);padding:6px 9px;">
         <div class="modal-close">
             <div style="display:flex;flex-direction:column;">
                 <span class="modal-title" style="color:var(--red);">ALERTS SUMMARY</span>
-                <span style="font-size:0.52rem;color:var(--muted);margin-top:2px;">Scanning AMC Universe...</span>
+                <span id="alertSummarySub" style="font-size:0.52rem;color:var(--muted);margin-top:2px;">Scanning AMC
+                    Universe...</span>
             </div>
             <span class="modal-close-btn"
                 onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex'">[
@@ -10080,7 +10081,9 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
             modal.style.display = 'flex';
             document.getElementById('setupScreen').style.display = 'none';
-            content.innerHTML = `<div style="text-align:center;padding:100px;color:var(--muted);"><div class="spin" style="margin:0 auto 20px;"></div>SCANNING ALL AMCs...<br><span id="alertProg" style="font-size:0.6rem;opacity:0.7;">0/52 funds processed</span></div>`;
+            const allFunds = Object.values(window.amcFunds).flat();
+            content.innerHTML = `<div style="text-align:center;padding:100px;color:var(--muted);"><div class="spin" style="margin:0 auto 20px;"></div>SCANNING ALL AMCs...<br><span id="alertProg" style="font-size:0.6rem;opacity:0.7;">0/${allFunds.length} funds processed</span></div>`;
+            if (document.getElementById('alertSummarySub')) document.getElementById('alertSummarySub').textContent = 'Scanning AMC Universe...';
 
             const allFunds = Object.values(window.amcFunds).flat();
             const results = {
@@ -10144,6 +10147,7 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             }
 
             if (currentToken !== _activeScannerToken) return;
+            if (document.getElementById('alertSummarySub')) document.getElementById('alertSummarySub').textContent = `Scan Complete: ${allFunds.length}/${allFunds.length} Funds`;
             renderAlertSummaryUI(results);
         }
 
@@ -10165,22 +10169,23 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 if (cat.data.length > 0) {
                     foundAny = true;
                     html += `
-                        <div style="margin-bottom:18px;">
-                            <div style="font-size:0.65rem;font-weight:700;color:${cat.col};padding:4px 8px;background:var(--surface3);border-radius:var(--radius-sm);margin-bottom:6px;letter-spacing:0.04em;">
-                                ${cat.label} (${cat.data.length})
-                            </div>
-                            <div style="display:flex;flex-direction:column;gap:4px;">
+                        <details open style="margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                            <summary style="font-size:0.65rem;font-weight:700;color:${cat.col};padding:6px 8px;background:var(--surface3);border-radius:var(--radius-sm);margin-bottom:6px;letter-spacing:0.04em;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+                                <span>${cat.label}</span>
+                                <span style="background:${cat.col};color:white;padding:1px 6px;border-radius:10px;font-size:0.55rem;">${cat.data.length}</span>
+                            </summary>
+                            <div style="display:flex;flex-direction:column;gap:5px;padding:4px 2px;">
                                 ${cat.data.map(f => `
                                     <div class="la-card2" style="cursor:pointer;padding:8px 12px;border:1px solid var(--border);border-left:3px solid ${cat.col};display:flex;justify-content:space-between;align-items:center;" onclick="launchLiveFromAlert('${f.code}')">
                                         <div style="flex:1;">
-                                            <div style="font-size:0.7rem;font-weight:700;color:var(--text);">${f.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim()}</div>
-                                            <div style="font-size:0.55rem;color:var(--muted);">${f.val}</div>
+                                            <div style="font-size:0.68rem;font-weight:700;color:var(--text);">${f.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim()}</div>
+                                            <div style="font-size:0.52rem;color:var(--muted);">${f.val}</div>
                                         </div>
-                                        <div style="color:var(--muted);font-size:0.8rem;">→</div>
+                                        <div style="color:var(--muted);font-size:0.8rem;padding-left:10px;">→</div>
                                     </div>
                                 `).join('')}
                             </div>
-                        </div>
+                        </details>
                     `;
                 }
             });
@@ -10193,10 +10198,30 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
         }
 
         function launchLiveFromAlert(code) {
-            document.getElementById('fundSelect').value = code;
-            saveFundSelection();
-            document.getElementById('alertSummaryModal').style.display = 'none';
-            initLiveAnalytics();
+            const modal = document.getElementById('alertSummaryModal');
+            modal.style.display = 'none';
+
+            // Find which AMC this fund belongs to
+            let targetAMC = 'HDFC';
+            for (const amc in window.amcFunds) {
+                if (window.amcFunds[amc].some(f => f.code === code)) {
+                    targetAMC = amc;
+                    break;
+                }
+            }
+
+            // Find the correct fund-box element for this AMC
+            const boxes = Array.from(document.querySelectorAll('#fundGrid .fund-box'));
+            const targetBox = boxes.find(b => b.textContent.trim() === targetAMC);
+
+            if (targetBox) {
+                selectAMC(targetAMC, targetBox, false);
+                const sel = document.getElementById('fundSelect');
+                sel.value = code;
+                saveFundSelection();
+                // Navigate to Live Cockpit (Chart)
+                initLiveChart();
+            }
         }
 
     </script>

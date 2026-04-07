@@ -3235,13 +3235,15 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     </div>
                 </div>
 
-                <table class="log-table" style="border:1px solid var(--border);font-size:0.55rem;">
+<table class="log-table" style="border:1px solid var(--border);font-size:0.55rem;">
                     <thead>
                         <tr style="background:var(--surface2);">
                             <th style="font-weight:400;padding:4px 3px;">Metric</th>
                             <th style="font-weight:400;padding:4px 3px;">Fund Mom</th>
                             <th style="font-weight:400;padding:4px 3px;">Idx Proxy</th>
-                            <th style="font-weight:400;padding:4px 3px;">Alpha</th>
+                            <th style="font-weight:400;padding:4px 3px;">Idx Alpha</th>
+                            <th style="font-weight:400;padding:4px 3px;">BAF Proxy</th>
+                            <th style="font-weight:400;padding:4px 3px;">BAF Alpha</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -3250,21 +3252,28 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             <td id="rrg1mF" style="padding:4px 3px;">--</td>
                             <td id="rrg1mI" style="padding:4px 3px;">--</td>
                             <td id="rrg1mA" style="padding:4px 3px;">--</td>
+                            <td id="rrg1mBafP" style="padding:4px 3px;">--</td>
+                            <td id="rrg1mBafA" style="padding:4px 3px;">--</td>
                         </tr>
                         <tr>
                             <td style="padding:4px 3px;">2 Month (42d)</td>
                             <td id="rrg2mF" style="padding:4px 3px;">--</td>
                             <td id="rrg2mI" style="padding:4px 3px;">--</td>
                             <td id="rrg2mA" style="padding:4px 3px;">--</td>
+                            <td id="rrg2mBafP" style="padding:4px 3px;">--</td>
+                            <td id="rrg2mBafA" style="padding:4px 3px;">--</td>
                         </tr>
                         <tr>
                             <td style="padding:4px 3px;">3 Month (63d)</td>
                             <td id="rrg3mF" style="padding:4px 3px;">--</td>
                             <td id="rrg3mI" style="padding:4px 3px;">--</td>
                             <td id="rrg3mA" style="padding:4px 3px;">--</td>
+                            <td id="rrg3mBafP" style="padding:4px 3px;">--</td>
+                            <td id="rrg3mBafA" style="padding:4px 3px;">--</td>
                         </tr>
                     </tbody>
                 </table>
+
 
             </div>
         </div>
@@ -8737,8 +8746,10 @@ ${res.name.replace(/\[NPS\] | - Growth| - Direct/gi, '')}
 font-weight:400;">
 α ${res.alpha1m > 0 ? '+' : ''}${res.alpha1m.toFixed(1)}%
 </div>`;
-                el.onclick = () => openRRGDetail(res, bench1m, bench2m, bench3m);
-                return el;
+
+el.onclick = () => openRRGDetail(res, bench1m, bench2m, bench3m, allFunds);
+            return el;
+
             };
 
             const makeHdr = (label, mt = '8px') => {
@@ -8971,11 +8982,33 @@ ${d.tsl > 0
         //   three HUD overlays: #rrgHudMain, #rrgHudMom, #rrgHudBot.
         //
 
-        async function openRRGDetail(fundData, b1, b2, b3) {
-            currentRRGSelectedFundCode = fundData.code;
+async function openRRGDetail(fundData, b1, b2, b3, allFunds) {
+        currentRRGSelectedFundCode = fundData.code;
 
-            document.getElementById('rrgScannerModal').style.display = 'none';
-            document.getElementById('rrgDetailFundName').textContent = fundData.name;
+        // --- NEW LOGIC: FIND MATCHING AMC AND BAF DATA ---
+        let bafCode = null;
+        for (const [amc, funds] of Object.entries(amcFunds)) {
+            if (funds.some(f => f.code === fundData.code)) {
+                const bafFund = funds.find(f => f.name.toLowerCase().includes('balanced advantage'));
+                if (bafFund) bafCode = bafFund.code;
+                break;
+            }
+        }
+    
+        let baf1m = null, baf2m = null, baf3m = null;
+        if (bafCode && allFunds) {
+            const bafData = allFunds.find(f => f.code === bafCode);
+            if (bafData) {
+                baf1m = bafData.mom1m;
+                baf2m = bafData.mom2m;
+                baf3m = bafData.mom3m;
+            }
+        }
+        // --- END NEW LOGIC ---
+
+        document.getElementById('rrgScannerModal').style.display = 'none';
+        document.getElementById('rrgDetailFundName').textContent = fundData.name;
+
 
             const ovEl = document.getElementById('ov');
             const ovTxt = document.getElementById('ovTxt');
@@ -9112,11 +9145,23 @@ ${d.tsl > 0
                 document.getElementById('rrg1mI').innerHTML = fmt(b1);
                 document.getElementById('rrg2mI').innerHTML = fmt(b2);
                 document.getElementById('rrg3mI').innerHTML = fmt(b3);
-                document.getElementById('rrg1mA').innerHTML = fmt(fundData.alpha1m);
-                document.getElementById('rrg2mA').innerHTML = fmt(fundData.alpha2m);
-                document.getElementById('rrg3mA').innerHTML = fmt(fundData.alpha3m);
 
-                const rsTrendEl = document.getElementById('rrgRSTrend');
+document.getElementById('rrg1mA').innerHTML = fmt(fundData.alpha1m);
+        document.getElementById('rrg2mA').innerHTML = fmt(fundData.alpha2m);
+        document.getElementById('rrg3mA').innerHTML = fmt(fundData.alpha3m);
+
+        // --- NEW LOGIC: POPULATE BAF CELLS ---
+        document.getElementById('rrg1mBafP').innerHTML = fmt(baf1m);
+        document.getElementById('rrg2mBafP').innerHTML = fmt(baf2m);
+        document.getElementById('rrg3mBafP').innerHTML = fmt(baf3m);
+
+        document.getElementById('rrg1mBafA').innerHTML = baf1m != null ? fmt(fundData.mom1m - baf1m) : '--';
+        document.getElementById('rrg2mBafA').innerHTML = baf2m != null ? fmt(fundData.mom2m - baf2m) : '--';
+        document.getElementById('rrg3mBafA').innerHTML = baf3m != null ? fmt(fundData.mom3m - baf3m) : '--';
+        // --- END NEW LOGIC ---
+
+        const rsTrendEl = document.getElementById('rrgRSTrend');
+
                 rsTrendEl.textContent = fundData.rsTrendUp ? 'UP ⤴' : 'DOWN ⤵';
                 rsTrendEl.style.color = fundData.rsTrendUp ? 'var(--accent)' : 'var(--red)';
                 document.getElementById('rrgADX').textContent =

@@ -94,7 +94,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lie Detector LD241A10</title>
+    <title>Lie Detector LD241A10A</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
         rel="stylesheet">
@@ -2211,7 +2211,7 @@
         <div class="setup-logo">Sacred RSI Regime System</div>
         <div class="streak-badge" id="streakBadge"></div>
         <h1 class="setup-title">Lie Detector <span
-                style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A10</span></h1>
+                style="color:var(--muted);font-size:0.45em;font-weight:400;">LD241A10A</span></h1>
         <p class="setup-sub">Train your discipline before real money does.</p>
 
         <div class="fund-grid" id="fundGrid">
@@ -4719,12 +4719,19 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
 
         async function initLiveAnalytics() {
             saveFundSelection();
-            document.getElementById('liveFundName').textContent = getBriefFundName();
             userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
-
+            document.getElementById('liveFundName').textContent = getBriefFundName();
 
             const hasData = await ensureLiveData();
             if (!hasData) return;
+
+            // CRITICAL: Pre-calculate full momentum history for 24-month grid
+            const allPrices = globalLiveData.map(d => d.nav);
+            const allDates = globalLiveData.map(d => window.normalizeDate(d.date));
+            globalWeeklyRsiCache = window.buildWeeklyRsiFast(allPrices, userRsiLength, allDates);
+            globalDailyRsiCache = window.buildDailyRsiFast(allPrices, userRsiLength);
+            globalLowessCache = window.buildLowessGaussianFast(allPrices);
+
             if (globalLiveData.length < 80) {
                 alert('INSUFFICIENT DATA');
                 document.getElementById('ov').style.display = 'none';
@@ -4887,11 +4894,13 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                     const wr = globalWeeklyRsiCache[lastIdx] ?? 50;
                     const dom = wr >= 50 ? 'A' : (wr >= 40 ? 'B' : 'C');
                     // % of days in the month spent in this specific regime
-                    const pct = (idxs.filter(i => {
-                        const w = globalWeeklyRsiCache[i] ?? 50;
-                        const r = w >= 50 ? 'A' : (w >= 40 ? 'B' : 'C');
-                        return r === dom;
-                    }).length / idxs.length) * 100;
+                    let hits = 0;
+                    idxs.forEach(i => {
+                        const curWr = globalWeeklyRsiCache[i] ?? 50;
+                        const curR = curWr >= 50 ? 'A' : (curWr >= 40 ? 'B' : 'C');
+                        if (curR === dom) hits++;
+                    });
+                    const pct = (hits / idxs.length) * 100;
                     months.push({ label: `${yr.toString().slice(2)}${mo}`, dom, pct, wrsi: wr });
                 }
                 calContainer.innerHTML = months.map((m, idx) => {

@@ -12385,6 +12385,16 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
             setTimeout(refreshAlertSummaryBadge, 8000);
         </script>
 
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('Lie Detector PWA: Service Worker Registered!', reg))
+        .catch(err => console.log('Lie Detector PWA: Registration Failed:', err));
+    });
+  }
+</script>
+
     </body>
 
 </html>

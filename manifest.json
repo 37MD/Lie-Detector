@@ -3,8 +3,10 @@
   "short_name": "Lie Detector",
   "description": "Sacred RSI Regime Simulator — A trade discipline trainer for Mutual Fund and NPS technical analysis.",
   "lang": "en-US",
-  "start_url": "https://37md.github.io/Lie-Detector/index.html",
-  "scope": "/Lie-Detector/",
+   "start_url": "./index.html",
+   "scope": "./",
+
+
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#07090f",

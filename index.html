@@ -3700,9 +3700,10 @@ letter-spacing:0.1em;border-bottom:1px solid var(--border);">
 _activeScannerToken++;
 document.getElementById('setupScreen').style.display='flex'">[ X ] CLOSE</span>
             </div>
-            <div style="padding:12px;font-size:0.65rem;color:var(--muted);text-transform:uppercase;
+
+<div style="padding:12px;font-size:0.65rem;color:var(--muted);text-transform:uppercase;
 letter-spacing:0.1em;border-bottom:1px solid var(--border);">
-                Regime Changes (Yesterday ➔ Today)
+                Regime Changes (Last 5 Trading Days)
                 <span id="regimeChangeCount" style="color:var(--text);font-weight:400;">(0)</span>
             </div>
             <div id="regimeChangeList" style="flex-grow:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;"></div>
@@ -9988,6 +9989,57 @@ This is exactly how the system is meant to be played.
                 modal.style.display = 'flex';
             }
 
+// CACHE: Prevents network freezing by only calling Yahoo once per benchmark index
+            const _yahooProxyCache = {};
+
+            async function fetchLiveProxyPercentCached(fundCode) {
+                try {
+                    const benchmarkName = NSE_BENCHMARK_MAP[fundCode] || 'NIFTY 50';
+                    const yahooTicker = YAHOO_TICKER_MAP[benchmarkName] || '^NSEI';
+
+                    // Serve instantly if we already fetched this index in the current session
+                    if (_yahooProxyCache[yahooTicker] !== undefined) {
+                        return _yahooProxyCache[yahooTicker];
+                    }
+
+                    const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooTicker)}?interval=15m&range=1d`;
+                    const encodedUrl = encodeURIComponent(targetUrl);
+                    
+                    const proxies = [
+                        `https://corsproxy.io/?${encodedUrl}`,
+                        `https://api.allorigins.win/raw?url=${encodedUrl}`,
+                        `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`
+                    ];
+
+                    const fetchProxy = async (proxyUrl) => {
+                        const controller = new AbortController();
+                        const timer = setTimeout(() => controller.abort(), 4000);
+                        const res = await fetch(proxyUrl, { cache: 'no-store', signal: controller.signal });
+                        clearTimeout(timer);
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const json = await res.json();
+                        if (json?.chart?.result) return json;
+                        throw new Error('Invalid payload');
+                    };
+
+                    const payload = await Promise.any(proxies.map(fetchProxy));
+                    const meta = payload.chart.result[0].meta;
+                    const currentPrice = meta.regularMarketPrice;
+                    const prevClose = meta.chartPreviousClose || meta.previousClose;
+                    
+                    if (!currentPrice || !prevClose) {
+                        _yahooProxyCache[yahooTicker] = null;
+                        return null;
+                    }
+
+                    const pct = ((currentPrice - prevClose) / prevClose) * 100;
+                    _yahooProxyCache[yahooTicker] = pct; // Cache it for the next fund
+                    return pct;
+                } catch (e) {
+                    return null;
+                }
+            }
+
             async function runRegimeChangeScanner() {
                 const currentToken = ++_activeScannerToken;
                 const ovEl = document.getElementById('ov');
@@ -10005,24 +10057,34 @@ This is exactly how the system is meant to be played.
                         const res = await fetch(url);
                         const data = await res.json();
                         if (!data?.data) return;
+
                         const prices = data.data.map(d => parseFloat(d.nav)).filter(n => !isNaN(n)).reverse();
                         const dates = data.data.map(d => window.normalizeDate(d.date)).reverse();
+
                         if (prices.length < 80) return;
+
                         const wRsiArr = window.buildWeeklyRsiFast(prices, userRsiLength, dates);
-                        const todayIdx = prices.length - 1;
-                        const yestIdx = prices.length - 2;
-                        const wrToday = wRsiArr[todayIdx];
-                        const wrYest = wRsiArr[yestIdx];
+                        const lastIdx = prices.length - 1;
                         const getRegime = (wr) => wr >= 50 ? 'A' : wr >= 40 ? 'B' : 'C';
-                        const regimeToday = getRegime(wrToday);
-                        const regimeYest = getRegime(wrYest);
-                        if (regimeToday !== regimeYest) {
-                            results.push({
-                                name: fund.name,
-                                code: fund.code,
-                                from: regimeYest,
-                                to: regimeToday
-                            });
+                        
+                        // Scan backwards for the last 5 trading days
+                        for (let i = lastIdx; i > lastIdx - 5 && i > 0; i--) {
+                            const wrToday = wRsiArr[i] ?? 50;
+                            const wrYest = wRsiArr[i - 1] ?? 50;
+
+                            const regimeToday = getRegime(wrToday);
+                            const regimeYest = getRegime(wrYest);
+
+                            if (regimeToday !== regimeYest) {
+                                results.push({
+                                    name: fund.name,
+                                    code: fund.code,
+                                    date: dates[i],
+                                    from: regimeYest,
+                                    to: regimeToday,
+                                    sortIndex: i
+                                });
+                            }
                         }
                     } catch (e) {
                         console.warn('Failed to fetch:', fund.name);
@@ -10047,6 +10109,7 @@ This is exactly how the system is meant to be played.
                     document.getElementById('setupScreen').style.display = 'flex';
                     return;
                 }
+
                 ovEl.style.display = 'none';
                 renderRegimeChangeScannerUI(results);
             }
@@ -10060,53 +10123,92 @@ This is exactly how the system is meant to be played.
                 list.innerHTML = '';
 
                 if (results.length === 0) {
-                    list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);">No regime shifts detected today.</div>`;
+                    list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);">No regime shifts in the last 5 days.</div>`;
                 } else {
-                    const mfResults = results.filter(f => !f.code.startsWith('SM'));
-                    const npsResults = results.filter(f => f.code.startsWith('SM'));
+                    const getRegimeColor = (r) => r === 'A' ? '#00e8a2' : r === 'B' ? '#f59e0b' : '#c8102e';
 
-                    const makeRow = (res) => {
-                        const getRegimeColor = (r) => r === 'A' ? '#00e8a2' : r === 'B' ? '#f59e0b' : '#c8102e';
+                    // Sort chronologically (Latest First)
+                    const sortedResults = results.sort((a, b) => b.sortIndex - a.sortIndex);
+
+                    sortedResults.forEach(res => {
                         const el = document.createElement('div');
                         el.style.cssText = `background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;`;
-                        el.innerHTML = `
-<div style="font-size:0.75rem;font-weight:400;color:var(--text);width:65%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-${res.name.replace(/\[NPS\] | - Growth| - Direct/gi, '')}
-</div>
-<div style="font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:6px;">
-<span style="color:${getRegimeColor(res.from)}">Regime ${res.from}</span>
-<span style="color:var(--muted2);font-size:0.6rem;">➔</span>
-<span style="color:${getRegimeColor(res.to)}">${res.to}</span>
-</div>
-`;
+
+                        // LEFT: Date & Fund Name
+                        const leftDiv = document.createElement('div');
+                        leftDiv.style.cssText = 'display:flex; flex-direction:column; gap:2px; width:45%;';
+                        
+                        const dateDiv = document.createElement('div');
+                        dateDiv.style.cssText = 'font-size:0.55rem; color:var(--muted); font-weight:700; letter-spacing: 0.05em;';
+                        dateDiv.textContent = window.formatHudDate ? window.formatHudDate(res.date) : res.date;
+
+                        const nameDiv = document.createElement('div');
+                        nameDiv.style.cssText = 'font-size:0.75rem;font-weight:400;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                        nameDiv.textContent = res.name.replace(/\[NPS\] | - Growth| - Direct/gi, '');
+
+                        leftDiv.appendChild(dateDiv);
+                        leftDiv.appendChild(nameDiv);
+
+                        // MIDDLE: Live Proxy Column
+                        const middleDiv = document.createElement('div');
+                        middleDiv.style.cssText = 'display:flex; flex-direction:column; align-items:center; justify-content:center; width:30%;';
+                        
+                        const proxyHeader = document.createElement('div');
+                        proxyHeader.style.cssText = 'font-size:0.5rem; color:var(--muted); text-transform:uppercase;';
+                        proxyHeader.textContent = 'Live Proxy';
+                        
+                        const proxyValue = document.createElement('div');
+                        proxyValue.style.cssText = 'font-size:0.65rem; font-weight:700;';
+                        proxyValue.textContent = '...';
+
+                        middleDiv.appendChild(proxyHeader);
+                        middleDiv.appendChild(proxyValue);
+
+                        // RIGHT: Transition Pill
+                        const rightDiv = document.createElement('div');
+                        rightDiv.style.cssText = 'width:25%; display:flex; justify-content:flex-end; align-items:center; gap:4px; font-size:0.75rem; font-weight:700;';
+                        
+                        rightDiv.innerHTML = `
+                            <span style="color:${getRegimeColor(res.from)};">Reg ${res.from}</span>
+                            <span style="color:var(--muted2);font-size:0.6rem;">➔</span>
+                            <span style="color:${getRegimeColor(res.to)};">${res.to}</span>
+                        `;
+
+                        el.appendChild(leftDiv);
+                        el.appendChild(middleDiv);
+                        el.appendChild(rightDiv);
+
+                        // Async Fetch Live Proxy % efficiently
+                        fetchLiveProxyPercentCached(res.code).then(percent => {
+                            if (percent !== null) {
+                                const isPositive = percent >= 0;
+                                proxyValue.textContent = `${isPositive ? '+' : ''}${percent.toFixed(2)}%`;
+                                
+                                // ALERT LOGIC: Close to 1% warning before cutoff
+                                if (Math.abs(percent) >= 0.8) {
+                                    proxyValue.style.color = isPositive ? 'var(--accent)' : 'var(--red)';
+                                    proxyValue.style.textShadow = `0 0 6px ${isPositive ? 'rgba(0,255,0,0.3)' : 'rgba(255,0,0,0.3)'}`;
+                                }
+                            } else {
+                                proxyValue.textContent = 'N/A';
+                                proxyValue.style.color = 'var(--muted)';
+                            }
+                        });
+
                         el.onclick = () => {
                             currentRRGSelectedFundCode = res.code;
                             document.getElementById('regimeChangeModal').style.display = 'none';
                             launchLiveFromRRG();
                         };
-                        return el;
-                    };
 
-                    const makeHdr = (label, mt = '8px') => {
-                        const h = document.createElement('div');
-                        h.style.cssText = `font-size:0.55rem;color:var(--muted);text-transform:uppercase;margin-top:${mt};margin-bottom:6px;border-bottom:1px solid var(--border);padding-bottom:2px;`;
-                        h.textContent = label;
-                        return h;
-                    };
-
-                    if (mfResults.length > 0) {
-                        list.appendChild(makeHdr('Mutual Funds'));
-                        mfResults.sort((a, b) => a.to.localeCompare(b.to)).forEach(res => list.appendChild(makeRow(res)));
-                    }
-
-                    if (npsResults.length > 0) {
-                        list.appendChild(makeHdr('NPS Tier I & II', '12px'));
-                        npsResults.sort((a, b) => a.to.localeCompare(b.to)).forEach(res => list.appendChild(makeRow(res)));
-                    }
+                        list.appendChild(el);
+                    });
                 }
 
                 modal.style.display = 'flex';
             }
+
+
 
             async function runRRGScanner(targetQuadrant, forceRefresh = false) {
 

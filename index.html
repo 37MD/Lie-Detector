@@ -3806,10 +3806,12 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             <div class="la-label" style="font-size:0.5rem;">RS Ratio Trend</div>
                             <div id="rrgRSTrend" class="la-val" style="font-size:0.7rem;font-weight:400;">--</div>
                         </div>
-                        <div class="la-card2" style="padding:4px 6px;">
-                            <div class="la-label" style="font-size:0.5rem;">Trend Intensity (ADX)</div>
+
+<div class="la-card2" style="padding:4px 6px;">
+                            <div class="la-label" style="font-size:0.5rem;">Trend Intensity (ADX>25)</div>
                             <div id="rrgADX" class="la-val" style="font-size:0.7rem;font-weight:400;">--</div>
                         </div>
+
                     </div>
 
                     <table class="log-table" style="border:1px solid var(--border);font-size:0.55rem;">
@@ -10919,12 +10921,18 @@ ${d.tsl > 0
                     document.getElementById('rrg3mBafA').innerHTML = baf3m != null ? fmt(fundData.mom3m - baf3m) : '--';
                     // --- END NEW LOGIC ---
 
-                    const rsTrendEl = document.getElementById('rrgRSTrend');
-
+		    const rsTrendEl = document.getElementById('rrgRSTrend');
                     rsTrendEl.textContent = fundData.rsTrendUp ? 'UP ⤴' : 'DOWN ⤵';
                     rsTrendEl.style.color = fundData.rsTrendUp ? 'var(--accent)' : 'var(--red)';
-                    document.getElementById('rrgADX').textContent =
-                        fundData.adxVal ? fundData.adxVal.toFixed(1) : '--';
+
+                    const adxEl = document.getElementById('rrgADX');
+                    if (fundData.adxVal) {
+                        adxEl.textContent = fundData.adxVal.toFixed(1);
+                        adxEl.style.color = fundData.adxVal > 25 ? 'var(--accent)' : 'var(--red)';
+                    } else {
+                        adxEl.textContent = '--';
+                        adxEl.style.color = 'var(--text)';
+                    }
 
                     document.getElementById('rrgDetailModal').style.display = 'flex';
 

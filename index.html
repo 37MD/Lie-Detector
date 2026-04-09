@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD243
+  LIE DETECTOR  LD244
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
 
@@ -99,13 +99,13 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector LD243</title>
+        <title>Lie Detector LD244</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
         <style>
             /*
  * ============================================================================
- * STYLESHEET  — LIE DETECTOR LD243
+ * STYLESHEET  — LIE DETECTOR LD242
  * Sections:  Design Tokens · Reset · Loading Overlay · Setup Screen
  *            App Chrome · Chart UI · Indicator Row · Psychology Box
  *            Action Bar · Modals · Analytics Cards · Review / Audit
@@ -609,6 +609,12 @@
 
             .alert-mega {
                 letter-spacing: 0.09em;
+            }
+
+            .alert-recovery {
+                background: linear-gradient(90deg, var(--accent), #00c896) !important;
+                color: #000 !important;
+                font-weight: 700 !important;
             }
 
             @keyframes pulseAlert {
@@ -1546,8 +1552,215 @@
                 }
             }
 
+
             /* ══════════════════════════════════════════════════════════════
-   LD243 FEATURE STYLES
+               SOP MODAL  — Full-screen overlay, z-index 800
+               Triggered by clicking the LD244 version badge on setup screen
+            ══════════════════════════════════════════════════════════════ */
+            #sopModal {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: var(--bg);
+                z-index: 800;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            /* ── SOP Header bar ─────────────────────────────────────── */
+            .sop-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 16px 10px 14px;
+                background: var(--surface);
+                border-bottom: 2px solid var(--accent);
+                flex-shrink: 0;
+            }
+            .sop-header-left { display: flex; flex-direction: column; gap: 1px; }
+            .sop-logo {
+                font-size: 0.58rem; color: var(--accent);
+                letter-spacing: 0.18em; text-transform: uppercase; font-weight: 400;
+            }
+            .sop-title {
+                font-size: 1.1rem; font-weight: 700;
+                color: var(--text); letter-spacing: 0.04em;
+            }
+            .sop-subtitle {
+                font-size: 0.55rem; color: var(--muted);
+                letter-spacing: 0.1em; text-transform: uppercase;
+            }
+            .sop-close-btn {
+                font-size: 0.65rem; color: var(--red);
+                cursor: pointer; letter-spacing: 0.08em;
+                border: 1px solid var(--red);
+                padding: 5px 12px; border-radius: var(--radius-sm);
+                font-family: var(--mono); background: var(--red-dim);
+                transition: all 0.15s; flex-shrink: 0;
+            }
+            .sop-close-btn:hover { background: rgba(200,16,46,0.15); }
+
+            /* ── SOP Scrollable body ────────────────────────────────── */
+            .sop-body {
+                flex-grow: 1; overflow-y: auto;
+                padding: 12px 16px 32px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* ── SOP Part headers ───────────────────────────────────── */
+            .sop-part {
+                font-size: 0.6rem; font-weight: 700;
+                letter-spacing: 0.12em; text-transform: uppercase;
+                color: var(--bg); padding: 5px 10px;
+                border-radius: var(--radius-sm); margin: 14px 0 8px;
+            }
+            .sop-part-green  { background: var(--accent); }
+            .sop-part-red    { background: var(--red); }
+            .sop-part-amber  { background: var(--accent2); }
+            .sop-part-gold   { background: var(--gold); }
+            .sop-part-muted  { background: var(--muted2); }
+
+            /* ── Regime table ───────────────────────────────────────── */
+            .sop-regime-table {
+                width: 100%; border-collapse: collapse;
+                font-size: 0.62rem; margin-bottom: 6px;
+            }
+            .sop-regime-table th {
+                background: var(--surface2); padding: 5px 8px;
+                border: 1px solid var(--border); color: var(--muted);
+                font-size: 0.55rem; letter-spacing: 0.09em; text-transform: uppercase;
+                text-align: left; font-weight: 700;
+            }
+            .sop-regime-table td {
+                padding: 6px 8px; border: 1px solid var(--border);
+                vertical-align: middle; line-height: 1.45;
+            }
+            .sop-regime-table tr.reg-row-a { background: rgba(0,158,112,0.07); }
+            .sop-regime-table tr.reg-row-b { background: rgba(201,122,0,0.07); }
+            .sop-regime-table tr.reg-row-c { background: rgba(200,16,46,0.07); }
+
+            /* ── Regime pill badges ─────────────────────────────────── */
+            .sop-pill {
+                display: inline-block; font-size: 0.55rem; font-weight: 700;
+                padding: 2px 8px; border-radius: 10px; letter-spacing: 0.06em;
+                white-space: nowrap;
+            }
+            .pill-a { background: var(--accent); color: #fff; }
+            .pill-b { background: var(--accent2); color: #fff; }
+            .pill-c { background: var(--red); color: #fff; }
+
+            /* ── Signal table ───────────────────────────────────────── */
+            .sop-signal-table {
+                width: 100%; border-collapse: collapse;
+                font-size: 0.62rem; margin-bottom: 6px;
+            }
+            .sop-signal-table th {
+                background: var(--surface2); padding: 5px 8px;
+                border: 1px solid var(--border); color: var(--muted);
+                font-size: 0.55rem; letter-spacing: 0.09em; text-transform: uppercase;
+                text-align: left; font-weight: 700;
+            }
+            .sop-signal-table td {
+                padding: 5px 8px; border: 1px solid var(--border);
+                line-height: 1.4; vertical-align: middle;
+            }
+            .sop-signal-table tr:nth-child(even) { background: var(--surface); }
+
+            /* ── Buy size badges ────────────────────────────────────── */
+            .size-badge {
+                display: inline-block; font-size: 0.55rem; font-weight: 700;
+                padding: 2px 7px; border-radius: 10px; white-space: nowrap;
+            }
+            .size-50  { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); }
+            .size-25  { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); }
+            .size-10  { background: var(--accent2-dim); color: var(--accent2); border: 1px solid var(--accent2); }
+
+            /* ── Checklist rows ─────────────────────────────────────── */
+            .sop-check {
+                display: flex; align-items: flex-start; gap: 8px;
+                padding: 3px 4px; font-size: 0.62rem; line-height: 1.45;
+                border-bottom: 1px solid rgba(0,0,0,0.04);
+            }
+            .sop-check-icon { flex-shrink: 0; width: 14px; text-align: center; font-size: 0.7rem; }
+            .sop-check-text { flex: 1; color: var(--text); }
+            .sop-check.danger .sop-check-text { color: var(--red); font-weight: 700; }
+            .sop-check.warning .sop-check-text { color: var(--accent2); font-weight: 700; }
+            .sop-check.never .sop-check-text { color: var(--red); }
+
+            /* ── Numbered steps ─────────────────────────────────────── */
+            .sop-step {
+                display: flex; gap: 10px; align-items: flex-start;
+                padding: 8px 10px; margin-bottom: 5px;
+                background: var(--surface); border: 1px solid var(--border);
+                border-radius: var(--radius);
+            }
+            .sop-step-num {
+                font-size: 1.4rem; font-weight: 700; line-height: 1;
+                flex-shrink: 0; width: 22px; text-align: center; padding-top: 2px;
+            }
+            .sop-step-body { flex: 1; }
+            .sop-step-title {
+                font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+                letter-spacing: 0.08em; margin-bottom: 2px;
+            }
+            .sop-step-timing {
+                font-size: 0.52rem; color: var(--muted); font-style: italic;
+                margin-bottom: 3px; letter-spacing: 0.04em;
+            }
+            .sop-step-desc { font-size: 0.62rem; color: var(--muted2); line-height: 1.5; }
+
+            /* ── Gap features table ─────────────────────────────────── */
+            .sop-gap-table {
+                width: 100%; border-collapse: collapse;
+                font-size: 0.62rem; margin-bottom: 6px;
+            }
+            .sop-gap-table th {
+                background: var(--surface2); padding: 5px 8px;
+                border: 1px solid var(--border); color: var(--muted);
+                font-size: 0.55rem; letter-spacing: 0.09em; text-transform: uppercase;
+                text-align: left; font-weight: 700;
+            }
+            .sop-gap-table td {
+                padding: 5px 8px; border: 1px solid var(--border);
+                line-height: 1.4; vertical-align: middle;
+            }
+            .sop-gap-table tr:nth-child(even) { background: var(--surface); }
+
+            /* ── One-liner box ──────────────────────────────────────── */
+            .sop-oneliner {
+                background: var(--surface2);
+                border: 2px solid var(--accent);
+                border-radius: var(--radius);
+                padding: 12px 14px; margin: 14px 0 4px;
+                font-size: 0.72rem; font-weight: 700; font-style: italic;
+                color: var(--muted2); line-height: 1.6; text-align: center;
+                letter-spacing: 0.02em;
+            }
+
+            /* ── Section sub-labels ─────────────────────────────────── */
+            .sop-sub {
+                font-size: 0.62rem; font-weight: 700; color: var(--muted2);
+                text-transform: uppercase; letter-spacing: 0.08em;
+                margin: 8px 0 4px; border-bottom: 1px solid var(--border);
+                padding-bottom: 3px;
+            }
+            .sop-note {
+                font-size: 0.58rem; color: var(--muted); font-style: italic;
+                line-height: 1.45; padding: 3px 6px; margin-top: 3px;
+            }
+
+            /* ── Clickable version badge on setup screen ────────────── */
+            .version-badge-link {
+                cursor: pointer; text-decoration: none;
+                border-bottom: 1px dashed var(--muted);
+                transition: border-color 0.15s, color 0.15s;
+            }
+            .version-badge-link:hover {
+                border-bottom-color: var(--accent);
+                color: var(--accent) !important;
+            }
+            /* ══════════════════════════════════════════════════════════════
+   LD244 FEATURE STYLES
    F1 Mistake Classifier · F2 Blind Mode · F3+F9 Pre-Trade Sheet
    F4 Rule-Violation Confirm · F5 Regime Drill · F6 What-If
    F7 Delta Heatmap · F8 Tranche Tracker · F11 Hold Distribution
@@ -1898,6 +2111,19 @@
                 white-space: nowrap;
             }
 
+            /* ── GAP3: Concentration Guard Badge ─────────────────── */
+            #concentrationBadge {
+                display: none;
+                font-size: 0.48rem;
+                color: var(--accent2);
+                background: var(--accent2-dim);
+                border: 1px solid var(--accent2);
+                padding: 2px 5px;
+                border-radius: 10px;
+                letter-spacing: 0.04em;
+                white-space: nowrap;
+            }
+
             /* ── F5: REGIME DRILL MODAL ────────────────────────────── */
             #regimeDrillModal {
                 z-index: 620;
@@ -2242,6 +2468,48 @@
                 flex-shrink: 0;
             }
 
+            /* ── STCG CLIFF EDGE BANNER ────────────────────────────────────── */
+            #stcgCliffBanner {
+                display: none;
+                position: fixed;
+                bottom: 88px;
+                left: 0;
+                width: 100%;
+                background: linear-gradient(90deg, rgba(176,122,0,0.18), rgba(176,122,0,0.08));
+                border-top: 2px solid var(--gold);
+                border-bottom: 1px solid rgba(176,122,0,0.3);
+                padding: 5px 10px;
+                z-index: 250;
+                font-size: 0.6rem;
+                color: var(--gold);
+                font-family: var(--mono);
+                letter-spacing: 0.06em;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+            }
+            #stcgCliffBanner .stcg-icon { font-size: 0.9rem; flex-shrink: 0; }
+            #stcgCliffBanner .stcg-msg  { flex: 1; line-height: 1.4; }
+            #stcgCliffBanner .stcg-dismiss {
+                font-size: 0.52rem; color: var(--muted);
+                border: 1px solid var(--border); border-radius: var(--radius-sm);
+                padding: 2px 6px; cursor: pointer; flex-shrink: 0;
+            }
+
+            /* ── DEPLOYMENT METER ───────────────────────────────────────────── */
+            #deploymentMeter {
+                display: flex; align-items: center; gap: 4px;
+                padding: 3px 10px;
+                background: var(--surface2);
+                border-bottom: 1px solid var(--border);
+                flex-shrink: 0;
+            }
+            .dep-label { font-size: 0.5rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0; }
+            .dep-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+            .dep-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s, background 0.4s; }
+            .dep-pct { font-size: 0.6rem; font-weight: 700; flex-shrink: 0; width: 36px; text-align: right; font-family: var(--mono); }
+            .dep-cash { font-size: 0.52rem; color: var(--muted2); flex-shrink: 0; }
+
             /* ── SECTION 34: ALERTS SUMMARY STYLES ────────────────────────── */
             .alert-badge {
                 font-size: 0.65rem;
@@ -2299,11 +2567,308 @@
                 color: var(--muted);
                 margin-left: 10px;
             }
+
+            /* ── GAP5: Alpha vs Benchmark strip ────────────────────── */
+            .alpha-strip {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 3px;
+                padding: 4px 7px;
+                background: var(--surface2);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+            }
+            .alpha-cell {
+                display: flex; flex-direction: column; align-items: center;
+                padding: 3px 2px;
+            }
+            .alpha-lbl { font-size: 0.45rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1px; }
+            .alpha-val { font-size: 0.72rem; font-weight: 700; }
+            .alpha-pos { color: var(--accent); }
+            .alpha-neg { color: var(--red); }
+            .alpha-neu { color: var(--muted2); }
+
+            /* ── GAP7: Paused SIP Deploy Button ───────────────────── */
+            #pausedSipAlert {
+                display: none;
+                background: var(--gold-dim);
+                border-top: 1px solid var(--gold);
+                padding: 5px 10px;
+                font-size: 0.58rem;
+                color: var(--gold);
+                align-items: center;
+                gap: 8px;
+                flex-shrink: 0;
+            }
+            #pausedSipAlert .psa-btn {
+                font-family: var(--mono); font-size: 0.55rem; font-weight: 700;
+                padding: 4px 10px; border-radius: var(--radius-sm);
+                border: 1.5px solid var(--gold); color: var(--gold);
+                background: transparent; cursor: pointer; white-space: nowrap;
+            }
+            #pausedSipAlert .psa-btn:hover { background: var(--gold-dim); }
         </style>
     </head>
 
     <body>
 
+
+
+        <!-- ══════════════════════════════════════════════════════════════════════ -->
+        <!-- SOP MODAL — Standard Operating Procedure                z-index: 800 -->
+        <!-- Triggered by clicking LD244 version badge on setup screen            -->
+        <!-- ══════════════════════════════════════════════════════════════════════ -->
+        <div id="sopModal">
+
+            <!-- ── Header ────────────────────────────────────────────────────── -->
+            <div class="sop-header">
+                <div class="sop-header-left">
+                    <span class="sop-logo">Sacred RSI Regime System · LD244</span>
+                    <span class="sop-title">Lie Detector SOP</span>
+                    <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
+                </div>
+                <span class="sop-close-btn" onclick="closeSOP()">[ X ] BACK</span>
+            </div>
+
+            <!-- ── Scrollable body ────────────────────────────────────────────── -->
+            <div class="sop-body">
+
+                <!-- ═══ PART 1 — THE THREE REGIMES ══════════════════════════════ -->
+                <div class="sop-part sop-part-muted">PART 1 — THE THREE REGIMES</div>
+
+                <table class="sop-regime-table">
+                    <thead>
+                        <tr>
+                            <th>REGIME</th><th>W-RSI</th><th>MARKET STATE</th><th>YOUR JOB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="reg-row-a">
+                            <td><span class="sop-pill pill-a">A &nbsp; BULL</span></td>
+                            <td style="font-weight:700;color:var(--accent);">≥ 50</td>
+                            <td>Institutional accumulation — bull trend intact</td>
+                            <td style="font-weight:700;">Deploy on dips. Hold. Do not sell without a trigger.</td>
+                        </tr>
+                        <tr class="reg-row-b">
+                            <td><span class="sop-pill pill-b">B &nbsp; TRANSITION</span></td>
+                            <td style="font-weight:700;color:var(--accent2);">40 – 49</td>
+                            <td>No-Man's Land — whipsaw risk high</td>
+                            <td>No new buys. Trim excess. Wait.</td>
+                        </tr>
+                        <tr class="reg-row-c">
+                            <td><span class="sop-pill pill-c">C &nbsp; BEAR</span></td>
+                            <td style="font-weight:700;color:var(--red);">< 40</td>
+                            <td>Institutional distribution — bear trend confirmed</td>
+                            <td style="font-weight:700;color:var(--red);">100% cash. No exceptions. No averaging down.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- ═══ PART 2 — BUY SOP ═══════════════════════════════════════ -->
+                <div class="sop-part sop-part-green">PART 2 — BUY SOP</div>
+
+                <div class="sop-sub">Step 1 — Gate Check &nbsp; (ALL must pass before any buy)</div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□</span><span class="sop-check-text">W-RSI ≥ 50  &nbsp;(Regime A confirmed)</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□</span><span class="sop-check-text">TSL floor intact — NAV is above the LOWESS adaptive floor</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□</span><span class="sop-check-text">No active NC (Negative Consolidation) breakdown signal</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□</span><span class="sop-check-text">Available cash > ₹500</span></div>
+                <div class="sop-check danger"><span class="sop-check-icon">✗</span><span class="sop-check-text">If ANY gate fails → DO NOT BUY. Hard stop.</span></div>
+
+                <div class="sop-sub" style="margin-top:10px;">Step 2 — Signal Confirmation &nbsp; (at least one required)</div>
+                <table class="sop-signal-table">
+                    <thead>
+                        <tr><th>SIGNAL</th><th>MEANING</th><th>SIZE</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">D-RSI &lt; 35</td>
+                            <td>Deep oversold in a bull trend — highest conviction entry</td>
+                            <td><span class="size-badge size-50">BUY 50%</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">D-RSI &lt; 40</td>
+                            <td>Standard oversold dip inside Regime A</td>
+                            <td><span class="size-badge size-25">BUY 25%</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">PC Breakout</td>
+                            <td>Price breaks out of tight consolidation box above WMA20</td>
+                            <td><span class="size-badge size-25">BUY 25%</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent2);">Slingshot &nbsp; Δ &lt; −15</td>
+                            <td>D-RSI lagging W-RSI — coiled spring, mean-reversion setup</td>
+                            <td><span class="size-badge size-10">BUY 10–25%</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Regime Breakout &nbsp; B→A / C→A</td>
+                            <td>Fresh regime upgrade — wait 1–2 days for confirmation</td>
+                            <td><span class="size-badge size-25">BUY 25%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="sop-sub" style="margin-top:10px;">Step 3 — Position Sizing Rules</div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">●</span><span class="sop-check-text">Never deploy more than 50% of total portfolio in one tranche.</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">●</span><span class="sop-check-text">Maximum 3 open tranches at any time.</span></div>
+                <div class="sop-check warning"><span class="sop-check-icon">⚠️</span><span class="sop-check-text">If portfolio > 80% concentrated → BUY 50% auto-disabled (Concentration Guard).</span></div>
+
+                <div class="sop-sub" style="margin-top:10px;">Step 4 — Log the Rationale &nbsp; (3 words before every trade)</div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--muted2);">✎</span><span class="sop-check-text" style="color:var(--muted2);font-style:italic;">"Regime A dip."  &nbsp;|&nbsp;  "PC breakout signal."  &nbsp;|&nbsp;  "Slingshot Δ confirmed."</span></div>
+
+                <!-- ═══ PART 3 — SELL SOP ════════════════════════════════════════ -->
+                <div class="sop-part sop-part-red">PART 3 — SELL SOP</div>
+
+                <div class="sop-sub">Mandatory Exits &nbsp; — Non-Negotiable, Same-Day Execution</div>
+                <div class="sop-check danger"><span class="sop-check-icon">🚨</span><span class="sop-check-text">TSL Breach → Sell ALL immediately. Do not wait for confirmation.</span></div>
+                <div class="sop-check danger"><span class="sop-check-icon">🚨</span><span class="sop-check-text">Regime C (W-RSI drops below 40) → Sell ALL. Move to 100% cash.</span></div>
+                <div class="sop-check warning"><span class="sop-check-icon">⚠️</span><span class="sop-check-text">WMA20 Breach in Regime A → Sell 20% as discipline warning. Not full exit unless regime breaks too.</span></div>
+
+                <div class="sop-sub" style="margin-top:10px;">Profit-Taking Triggers &nbsp; — Discretionary but Scored in Audit</div>
+                <table class="sop-signal-table">
+                    <thead>
+                        <tr><th>CONDITION</th><th>ACTION</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Delta &gt; +15 &nbsp;(Slingshot extended)</td><td>Sell 10–25% to lock partial profit</td></tr>
+                        <tr><td>D-RSI &gt; 70 &nbsp;(overbought daily)</td><td>Sell 10% — trim the winner</td></tr>
+                        <tr><td>Regime B (from A) + holding &gt; 6 months</td><td>Sell 25–50% — protect compounded gains</td></tr>
+                        <tr>
+                            <td style="color:var(--gold);font-weight:700;">Day 360–364 of holding &nbsp;(STCG Cliff Alert active)</td>
+                            <td style="font-weight:700;">Hold 2+ more days → cross LTCG threshold → save 20% tax on gains</td>
+                        </tr>
+                        <tr>
+                            <td style="color:var(--accent2);font-weight:700;">Newest tranche &lt; 21 days old &nbsp;(Holding Age Nudge)</td>
+                            <td>Pre-Trade Checklist flags low-quality exit risk — reconsider</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="sop-sub" style="margin-top:10px;">Never Sell Because:</div>
+                <div class="sop-check never"><span class="sop-check-icon">✗</span><span class="sop-check-text">Market "looks expensive" while W-RSI is still in Regime A.</span></div>
+                <div class="sop-check never"><span class="sop-check-icon">✗</span><span class="sop-check-text">News scared you &nbsp;(Regime A absorbs bad news into the uptrend).</span></div>
+                <div class="sop-check never"><span class="sop-check-icon">✗</span><span class="sop-check-text">You already made 15% &nbsp;(let winners run — the What-If panel shows the cost of early exits).</span></div>
+
+                <!-- ═══ PART 4 — DAILY MONITORING ════════════════════════════════ -->
+                <div class="sop-part sop-part-muted">PART 4 — DAILY MONITORING CHECKLIST &nbsp; (5 min · post 3:30 PM NAV)</div>
+
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 1.</span><span class="sop-check-text">Check Regime — is W-RSI still ≥ 50?</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 2.</span><span class="sop-check-text">Check TSL Floor — is NAV still above the LOWESS adaptive floor?</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 3.</span><span class="sop-check-text">Check WMA20 — is NAV still above the 20-week moving average?</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 4.</span><span class="sop-check-text">Regime Change Scanner alerts? &nbsp;(Run full universe scan on Sundays)</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 5.</span><span class="sop-check-text">Any TSL breach or NC breakdown alerts in current holdings?</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 6.</span><span class="sop-check-text">Check open tranche P&amp;L and STCG age flags &nbsp;(STCG Cliff Alert active?)</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 7.</span><span class="sop-check-text">Deployment Meter — are you under-deployed in Regime A? &nbsp;(Gap 6)</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 8.</span><span class="sop-check-text">SIP due today? &nbsp;(Weekly mode — confirm auto-invest ran)</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 9.</span><span class="sop-check-text">Paused SIP panel showing? — Regime A restored, deploy accumulated amount &nbsp;(Gap 7)</span></div>
+                <div class="sop-note">⚠ Missing 3 consecutive days is the single biggest cause of holding through Regime C unnoticed.</div>
+
+                <!-- ═══ PART 5 — MOST PROFITABLE PROCESS ══════════════════════════ -->
+                <div class="sop-part sop-part-gold">PART 5 — MOST PROFITABLE PROCESS: THE A-B-C ROTATION</div>
+
+                <div class="sop-step">
+                    <div class="sop-step-num" style="color:var(--accent);">1</div>
+                    <div class="sop-step-body">
+                        <div class="sop-step-title" style="color:var(--accent);">Universe Scan</div>
+                        <div class="sop-step-timing">Weekly — Sunday</div>
+                        <div class="sop-step-desc">Run <strong>RRG Leading + RRG Improving</strong> scanner. Identify top 3 funds with highest positive delta in Regime A across all 52 funds.</div>
+                    </div>
+                </div>
+                <div class="sop-step">
+                    <div class="sop-step-num" style="color:var(--gold);">2</div>
+                    <div class="sop-step-body">
+                        <div class="sop-step-title" style="color:var(--gold);">Asset Allocator</div>
+                        <div class="sop-step-timing">Weekly — Sunday</div>
+                        <div class="sop-step-desc">Run <strong>Asset Allocator</strong> for your AMC. It confirms the top 2 funds via the BAF gate + conviction scoring. Trust the weighted 60:40 or 50:50 output — do not override it.</div>
+                    </div>
+                </div>
+                <div class="sop-step">
+                    <div class="sop-step-num" style="color:var(--accent);">3</div>
+                    <div class="sop-step-body">
+                        <div class="sop-step-title" style="color:var(--accent);">Deploy on First Dip</div>
+                        <div class="sop-step-timing">As signalled</div>
+                        <div class="sop-step-desc">Wait for <strong>D-RSI &lt; 40</strong> in the top-ranked fund <em>after</em> confirming Regime A. That is your entry — not before the dip arrives.</div>
+                    </div>
+                </div>
+                <div class="sop-step">
+                    <div class="sop-step-num" style="color:var(--accent2);">4</div>
+                    <div class="sop-step-body">
+                        <div class="sop-step-title" style="color:var(--accent2);">Monitor the 3 Trigger Conditions</div>
+                        <div class="sop-step-timing">Daily — use Trigger Monitor in Asset Allocator</div>
+                        <div class="sop-step-desc"><strong>C1:</strong> Either holding drops to Regime C → Exit immediately.<br>
+                        <strong>C2:</strong> Holding falls below BAF + 2% momentum → Retreat 100% to BAF.<br>
+                        <strong>C3:</strong> Unowned fund outperforms your rank-2 holding by &gt;3% for 2+ weeks → Swap.</div>
+                    </div>
+                </div>
+                <div class="sop-step">
+                    <div class="sop-step-num" style="color:var(--muted2);">5</div>
+                    <div class="sop-step-body">
+                        <div class="sop-step-title" style="color:var(--muted2);">Rotate, Don't Panic-Exit</div>
+                        <div class="sop-step-timing">On trigger fire</div>
+                        <div class="sop-step-desc">When C1/C2/C3 fires you are <em>not leaving the market</em> — you are rotating to a stronger fund or to BAF as a defensive hold. Compounding stays alive throughout.</div>
+                    </div>
+                </div>
+
+                <!-- ═══ PART 6 — LD244 SMART ALERTS & GUARDS ══════════════════════ -->
+                <div class="sop-part sop-part-muted">PART 6 — LD244 SMART ALERTS &amp; GUARD FEATURES</div>
+
+                <table class="sop-gap-table">
+                    <thead>
+                        <tr><th>FEATURE</th><th>TRIGGER</th><th>ACTION</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:700;color:var(--gold);">STCG Cliff Alert &nbsp;(Gap 1)</td>
+                            <td>Tranche within 5 days of 365-day LTCG threshold</td>
+                            <td>Gold banner — days left + rupee tax saving</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Regime C→A Recovery &nbsp;(Gap 2)</td>
+                            <td>W-RSI crosses back above 50 from below 40</td>
+                            <td>Green pulse banner — re-entry window confirmed</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent2);">Concentration Guard &nbsp;(Gap 3)</td>
+                            <td>Invested > 80% of net worth</td>
+                            <td>Amber badge. BUY 50% auto-disabled.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent2);">Holding Age Nudge &nbsp;(Gap 4)</td>
+                            <td>SELL attempted on tranche held &lt; 21 days</td>
+                            <td>Pre-Trade Checklist adds fail-row warning</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Alpha vs Benchmark &nbsp;(Gap 5)</td>
+                            <td>Live Analytics open</td>
+                            <td>1M / 3M / 6M / 1Y alpha strip vs benchmark</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Deployment Meter &nbsp;(Gap 6)</td>
+                            <td>Always visible in simulator</td>
+                            <td>Green &lt;60% / Amber 60–80% / Red &gt;80%</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--gold);">Paused SIP Deploy &nbsp;(Gap 7)</td>
+                            <td>Regime A restores after Regime C SIP pause</td>
+                            <td>One-tap deploy of all accumulated missed SIPs</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- ═══ THE ONE-LINE TRUTH ══════════════════════════════════════════ -->
+                <div class="sop-oneliner">
+                    "Buy Regime A dips in the strongest fund.&nbsp; Hold until TSL or Regime C.&nbsp;
+                    Rotate via RRG.&nbsp; Never buy in B or C.&nbsp; Let the STCG clock run.&nbsp;
+                    Everything else is noise."
+                </div>
+
+                <div class="sop-note" style="text-align:center;margin-top:8px;">
+                    Sacred RSI Regime System · LD244 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
+                </div>
+
+            </div><!-- /sop-body -->
+        </div><!-- /sopModal -->
 
         <!-- ────────────────────────────────────────────────────────────────────────── -->
         <!-- LOADING / SYNC OVERLAY                                       z-index: 1000 -->
@@ -2320,7 +2885,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span style="color:var(--muted);font-size:0.45em;font-weight:400;">LD243</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
             <div class="fund-grid" id="fundGrid">
@@ -2712,6 +3277,15 @@ text-transform:uppercase;margin-bottom:4px;">Growth %</div>
                     <div id="laGrowthRow" style="display:grid;grid-template-columns:repeat(6,1fr);gap:3px;"></div>
                 </div>
 
+                <!-- GAP5: Alpha vs Benchmark strip -->
+                <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:6px 9px;">
+                    <div style="font-size:0.5rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:5px;display:flex;justify-content:space-between;">
+                        <span>Your Alpha vs Benchmark</span>
+                        <span style="color:var(--muted2);font-size:0.45rem;">(Fund Return − Benchmark Return)</span>
+                    </div>
+                    <div id="laAlphaStrip" class="alpha-strip"></div>
+                </div>
+
                 <div style="background:var(--surface2);border:1px solid var(--border);
 border-radius:var(--radius);padding:6px 9px;">
                     <div style="font-size:0.5rem;color:var(--muted);letter-spacing:0.1em;
@@ -2910,6 +3484,7 @@ border-radius:var(--radius);padding:6px 9px;">
                         <button id="blindToggleHdr" onclick="toggleBlindMode()" style="font-size:0.5rem;padding:3px 7px;border:1px solid var(--border2);border-radius:var(--radius-sm);cursor:pointer;background:transparent;font-family:var(--mono);color:var(--muted);letter-spacing:0.05em;">BLIND:
                             OFF</button>
                         <span id="infractionBadge">0 INFRACTIONS</span>
+                        <span id="concentrationBadge">HIGH CONCENTRATION</span>
                     </div>
                     <button class="btn-review" onclick="endAndReview()">END &amp;<br>REVIEW</button>
                 </div>
@@ -2934,6 +3509,28 @@ border-radius:var(--radius);padding:6px 9px;">
             </div>
 
             <div id="alertBanner">WAITING FOR ALERT SIGNS : HOLD...</div>
+
+            <!-- GAP6: Capital Deployment Meter -->
+            <div id="deploymentMeter">
+                <span class="dep-label">Deployed</span>
+                <div class="dep-bar-wrap"><div class="dep-bar-fill" id="depBarFill" style="width:0%;background:var(--accent);"></div></div>
+                <span class="dep-pct" id="depPct" style="color:var(--muted2);">0%</span>
+                <span class="dep-cash" id="depCash"></span>
+            </div>
+
+            <!-- GAP7: Paused SIP Deploy Panel -->
+            <div id="pausedSipAlert">
+                <span style="flex:1;">⚡ <strong id="pausedSipCount">0</strong> paused SIP instalment(s) — Regime A restored. Ready to deploy.</span>
+                <button class="psa-btn" onclick="_deployPausedSip()">DEPLOY ₹<span id="pausedSipTotal">0</span></button>
+                <span style="font-size:0.52rem;color:var(--muted);cursor:pointer;padding:4px;" onclick="document.getElementById('pausedSipAlert').style.display='none'">✕</span>
+            </div>
+
+            <!-- GAP1: STCG Cliff Edge Banner (fixed above action bar, shown only when relevant) -->
+            <div id="stcgCliffBanner">
+                <span class="stcg-icon">⏳</span>
+                <span class="stcg-msg" id="stcgCliffMsg">Tranche approaching LTCG threshold</span>
+                <span class="stcg-dismiss" onclick="document.getElementById('stcgCliffBanner').style.display='none'">DISMISS</span>
+            </div>
 
             <!-- F8: Tranche Tracker Panel -->
             <div id="tranchePanel">
@@ -3012,7 +3609,7 @@ border-radius:var(--radius);padding:6px 9px;">
                     <span class="rationale-chip" onclick="submitRationaleCode('TSL breach')">TSL</span>
                     <span class="rationale-chip" onclick="submitRationaleCode('Slingshot signal')">SLING</span>
                     <span class="rationale-chip" onclick="submitRationaleCode('Regime change')">REG↑</span>
-                    <span class="rationale-chip" onclick="submitRationaleCode('Oversold RSI<40')">RSI<40< /span>
+                    <span class="rationale-chip" onclick="submitRationaleCode('Oversold RSI < 40')">RSI &lt; 40</span>
                             <span class="rationale-chip" onclick="submitRationaleCode('PC Breakout')">PC BOX</span>
                             <span class="rationale-chip" onclick="submitRationaleCode('Regime C exit')">REG C</span>
                             <span class="rationale-chip" onclick="submitRationaleCode('Profit booking')">PROFIT</span>
@@ -5297,6 +5894,11 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                 }
 
                 // ── Alert banner ─────────────────────────────────────────────────────────
+                // ── GAP 5: Alpha vs Benchmark strip ──────────────────────────────────
+                const _benchValEl = document.getElementById('anBenchmarkVal');
+                const _benchPct1d = _benchValEl ? parseFloat(_benchValEl.textContent) || 0 : 0;
+                renderAlphaStrip(prices, _benchPct1d);
+
                 let alertText = '';
                 let alertClass = '';
 
@@ -5869,7 +6471,7 @@ ${c.text}</span>
                 ctx.fillRect(0, 0, W, 44);
                 ctx.fillStyle = '#009e70';
                 ctx.font = 'bold 10px monospace';
-                ctx.fillText('LIE DETECTOR LD243 · SIMULATION RESULT', 12, 16);
+                ctx.fillText('LIE DETECTOR LD242 · SIMULATION RESULT', 12, 16);
                 ctx.fillStyle = '#304058';
                 ctx.font = '8px monospace';
                 ctx.fillText(`${getBriefFundName() || 'Fund Simulator'}`, 12, 30);
@@ -5934,12 +6536,12 @@ ${c.text}</span>
                 ctx.fillRect(0, 186, W, 1);
                 ctx.fillStyle = '#b0bece';
                 ctx.font = '7px monospace';
-                ctx.fillText('Sacred RSI Regime System · LD243', 12, 200);
+                ctx.fillText('Sacred RSI Regime System · LD242', 12, 200);
                 const streak = _streak.count;
                 if (streak > 0) ctx.fillText(`🔥 ${streak}-session streak`, W - 110, 200);
 
                 const link = document.createElement('a');
-                link.download = `LD243-${getBriefFundName().replace(/\s+/g, '_') || 'result'}.png`;
+                link.download = `LD242-${getBriefFundName().replace(/\s+/g, '_') || 'result'}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             }
@@ -6140,8 +6742,14 @@ ${c.text}</span>
                 maxDrawdown = 0;
                 totalTaxPaid = 0;
                 window.currentSimLookback = 250;
-                _infractionCount = 0;
+                _infractionCount  = 0;
                 _sipFreezeUntilDay = -1;
+                // GAP 7: reset paused SIP state on new session
+                _pausedSipAmount = 0;
+                _pausedSipCount  = 0;
+                _wasInRegimeC    = false;
+                const pausedPanel = document.getElementById('pausedSipAlert');
+                if (pausedPanel) pausedPanel.style.display = 'none';
                 const badge = document.getElementById('infractionBadge');
                 if (badge) badge.style.display = 'none';
                 // Sync blind toggle header button to current state
@@ -6283,7 +6891,26 @@ ${c.text}</span>
 
                 document.getElementById('psyMsg').innerHTML = psyText;
 
+                // ── GAP 2: Regime C→A recovery detection ─────────────────────────────
+                if (snap.regime === 'C') _wasInRegimeC = true;
+                const recoveryAlert = checkRegimeRecoveryAlert(snap);
+                if (recoveryAlert && !alertText) {
+                    alertText  = recoveryAlert.text;
+                    alertClass = recoveryAlert.cls;
+                    banner.textContent = alertText;
+                    banner.className   = alertClass;
+                }
+
                 prevRegime = snap.regime;
+
+                // ── GAP 1: STCG Cliff Edge ────────────────────────────────────────────
+                renderStcgCliffAlert();
+
+                // ── GAP 3: Concentration Guard ────────────────────────────────────────
+                checkConcentrationGuard();
+
+                // ── GAP 6: Deployment Meter ───────────────────────────────────────────
+                renderDeploymentMeter();
 
                 // ── F2: Blind mode — suppress NAV text and price HUD ────────────────────
                 if (_blindModeOn) {
@@ -6846,7 +7473,7 @@ This is exactly how the system is meant to be played.
             }
 
             // =============================================================================
-            // LD243 · FEATURE IMPLEMENTATIONS  (Review Tab Switcher + Rationale Bar)
+            // LD242 · FEATURE IMPLEMENTATIONS  (Review Tab Switcher + Rationale Bar)
             // =============================================================================
 
             // ── F6: Review Tab Switcher ───────────────────────────────────────────────
@@ -7076,6 +7703,9 @@ This is exactly how the system is meant to be played.
                             pass: tranches.length > 0,
                             val: tranches.length > 0 ? `${tranches.length} tranche(s)` : 'NONE'
                         });
+                        // GAP 4: Holding age nudge — warn if selling within 21 days
+                        const ageCheck = _getHoldingAgeCheck();
+                        if (ageCheck) checks.push(ageCheck);
                     }
 
                     const passCount = checks.filter(c => c.pass).length;
@@ -7298,6 +7928,69 @@ This is exactly how the system is meant to be played.
                     }
                     ctx.fillRect(i * barW, 0, barW + 1, h);
                 }
+            }
+
+            // =============================================================================
+            // §G7 · DEPLOY PAUSED SIP  (Gap 7 — LD244)
+            // =============================================================================
+            // deployPausedSip()
+            //   Called when the user taps the "Deploy Paused SIP" button that appears
+            //   after a Regime C recovery.  Executes a lump-sum BUY using the accumulated
+            //   _sipPausedAmount (sum of all SIP installments skipped during the bear phase).
+            //
+            //   Guards:
+            //   • Regime must be A and TSL must not be breached.
+            //   • Insufficient cash guard (same as standard BUY).
+            //   • Resets _sipPausedAmount to 0 after deployment.
+            //   • Hides the button after execution.
+            // =============================================================================
+
+            function deployPausedSip() {
+                if (_sipPausedAmount <= 0) return;
+                const snap = buildEngineSnapshot(
+                    currentIdx, _cachedSimNavs,
+                    simStartIdx, simDailyRsiCache, simWeeklyRsiCache, simLowessCache,
+                    cash, tranches, peakNetWorth
+                );
+                // Final safety gate — only deploy in confirmed Regime A
+                if (snap.regime !== 'A' || snap.tsl.tslHit) {
+                    flashBanner('⚠️ CANNOT DEPLOY — Regime not A or TSL breached', 'alert-danger', 2000);
+                    return;
+                }
+                const amt = Math.min(_sipPausedAmount, cash);
+                if (amt <= 10 || snap.nav <= 0) {
+                    flashBanner('⚠️ INSUFFICIENT CASH', 'alert-danger', 2000);
+                    return;
+                }
+                const boughtUnits = amt / snap.nav;
+                tranches.push({
+                    day:    currentIdx - simStartIdx,
+                    idx:    currentIdx,
+                    units:  boughtUnits,
+                    price:  snap.nav,
+                    regime: snap.regime
+                });
+                cash -= amt;
+                tradeLog.push({
+                    day:    currentIdx - simStartIdx,
+                    action: 'SIP DEPLOY',
+                    nav:    snap.nav,
+                    units:  boughtUnits,
+                    tax:    0,
+                    regime: snap.regime,
+                    note:   `Paused SIP deployed (₹${Math.round(amt).toLocaleString('en-IN')})`,
+                    tag:    'CORRECT'
+                });
+                flashBanner(
+                    `🟢 PAUSED SIP DEPLOYED — ₹${Math.round(amt).toLocaleString('en-IN')} invested at Regime A`,
+                    'alert-buy', 3000
+                );
+                // Reset paused state
+                _sipPausedAmount = 0;
+                _sipWasInRegimeC = false;
+                const btn = document.getElementById('deployPausedSipBtn');
+                if (btn) btn.style.display = 'none';
+                updateDisplay();
             }
 
             // ── F5: Regime Transition Drill ───────────────────────────────────────────
@@ -7670,7 +8363,7 @@ This is exactly how the system is meant to be played.
             }
 
             // =============================================================================
-            // LD243 · NEW FEATURE JS
+            // LD244 · NEW FEATURE JS
             // =============================================================================
 
             // ── SIP vs Active Trading Comparison ─────────────────────────────────────
@@ -7982,7 +8675,7 @@ This is exactly how the system is meant to be played.
             function _handleSipAutoInvest(dayNum) {
                 const sipMode = document.getElementById('sipMode')?.value || 'weekly';
                 const sipAmt = parseInt(document.getElementById('sipAmount')?.value) || 10000;
-                const snap = buildEngineSnapshot(currentIdx, fullHistory.map(v => v.nav),
+                const snap = buildEngineSnapshot(currentIdx, _cachedSimNavs,
                     simStartIdx, simDailyRsiCache, simWeeklyRsiCache, simLowessCache, cash, tranches, peakNetWorth);
 
                 if (sipMode === 'autobuy') {
@@ -8019,6 +8712,8 @@ This is exactly how the system is meant to be played.
                     const targetDay = parseInt(document.getElementById('sipWeekDay')?.value) || 1; // 1-5
                     if (dayNum % 5 !== (targetDay - 1) % 5) return;
                     if (snap.regime === 'C' || snap.tsl.tslHit) {
+                        // GAP 7: track paused SIP amount for deferred deploy on recovery
+                        _trackPausedSip(sipAmt, snap.regime);
                         flashBanner(`⏸ WEEKLY SIP PAUSED — ${snap.tsl.tslHit ? 'TSL Breach' : 'Regime C'}`, 'alert-danger', 2500);
                         return;
                     }
@@ -10050,40 +10745,19 @@ ${d.tsl > 0
                         sLbl.parentNode.insertBefore(sSub, document.getElementById('rrgCrossDate'));
                     }
 
-			const isChoppy = fundData.adxVal && fundData.adxVal < 15;
-
-                    if (isChoppy) {
-                        sBox.style.borderColor = '#9ca3af'; 
-                        sBox.style.background = 'rgba(156,163,175,0.05)';
-                        sLbl.style.color = '#9ca3af';
-                        sLbl.textContent = 'CHOPPY';
-                        sSub.textContent = 'No Trade Zone (ADX < 15, Sideways)';
-                    } else if (fundData.quadrant === 'LEADING') {
+                    if (fundData.quadrant === 'LEADING') {
                         sBox.style.borderColor = '#00e8a2';
                         sBox.style.background = 'rgba(0,232,162,0.05)';
                         sLbl.style.color = '#00e8a2';
                         sLbl.textContent = 'LEADING';
-                        sSub.textContent = 'Strong Buy Zone (Outperforming + Strong Trend)';
-                    } else if (fundData.quadrant === 'WEAKENING') {
-                        sBox.style.borderColor = '#facc15'; 
-                        sBox.style.background = 'rgba(250,204,21,0.05)';
-                        sLbl.style.color = '#facc15';
-                        sLbl.textContent = 'WEAKENING';
-                        sSub.textContent = 'Caution / Profit Booking (Momentum slowing)';
+                        sSub.textContent = 'Outperforming + Strong Trend';
                     } else if (fundData.quadrant === 'IMPROVING') {
                         sBox.style.borderColor = '#3b82f6';
                         sBox.style.background = 'rgba(59,130,246,0.05)';
                         sLbl.style.color = '#3b82f6';
                         sLbl.textContent = 'IMPROVING';
-                        sSub.textContent = 'Watchlist / Reversal (Turning up, but early)';
-                    } else if (fundData.quadrant === 'LAGGING') {
-                        sBox.style.borderColor = '#ef4444'; 
-                        sBox.style.background = 'rgba(239,68,68,0.05)';
-                        sLbl.style.color = '#ef4444';
-                        sLbl.textContent = 'LAGGING';
-                        sSub.textContent = 'Avoid / Short (Underperforming + Downtrend)';
-                    }                    
-
+                        sSub.textContent = 'Turning Up (Watchlist)';
+                    }
 
                     const rBox = document.getElementById('rrgRegimeBox');
                     const rLbl = document.getElementById('rrgRegimeLabel');
@@ -11418,6 +12092,292 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                 saveFundSelection();
                 initLiveChart();
             }
+
+            // =============================================================================
+            // LD244 · GAP IMPLEMENTATIONS
+            // Gap 1 — STCG Cliff Edge Alert     (renderStcgCliffAlert)
+            // Gap 2 — Regime C→A Recovery Alert (checked inside updateDisplay)
+            // Gap 3 — Concentration Guard        (checkConcentrationGuard)
+            // Gap 4 — Holding Age Nudge          (injected into pre-trade checklist)
+            // Gap 5 — Alpha vs Benchmark strip   (renderAlphaStrip)
+            // Gap 6 — Capital Deployment Meter   (renderDeploymentMeter)
+            // Gap 7 — Paused SIP Deploy          (_pausedSipAmount, _deployPausedSip)
+            // =============================================================================
+
+            // ── State for Gap 7 ──────────────────────────────────────────────────────
+            let _pausedSipAmount  = 0;   // cumulative SIP amounts skipped during Regime C
+            let _pausedSipCount   = 0;   // number of skipped instalments
+            let _wasInRegimeC     = false; // tracks last regime for Gap 2 + 7 re-entry detection
+
+            // ── GAP 1 · STCG Cliff Edge Alert ───────────────────────────────────────
+            // Called from updateDisplay(). Inspects open tranches, shows banner if any
+            // tranche is within a 5-day window of crossing the 365-day LTCG threshold.
+            function renderStcgCliffAlert() {
+                const banner = document.getElementById('stcgCliffBanner');
+                const msg    = document.getElementById('stcgCliffMsg');
+                if (!banner || !tranches.length) {
+                    if (banner) banner.style.display = 'none';
+                    return;
+                }
+
+                // Build list of tranches approaching LTCG (355–364 calendar days held)
+                const cliffTranches = [];
+                tranches.forEach((t, idx) => {
+                    if (!fullHistory[t.idx] || !fullHistory[currentIdx]) return;
+                    const d1 = new Date(fullHistory[t.idx].date);
+                    const d2 = new Date(fullHistory[currentIdx].date);
+                    if (isNaN(d1) || isNaN(d2)) return;
+                    const daysHeld = Math.round((d2 - d1) / 86400000);
+                    if (daysHeld >= 355 && daysHeld < 365) {
+                        const daysLeft = 365 - daysHeld;
+                        const gain     = (fullHistory[currentIdx].nav - t.price) * t.units;
+                        const taxSaved = gain > 0 ? gain * STCG_TAX_RATE : 0;
+                        cliffTranches.push({ idx: idx + 1, daysLeft, taxSaved, daysHeld });
+                    }
+                });
+
+                if (cliffTranches.length === 0) {
+                    banner.style.display = 'none';
+                    return;
+                }
+
+                // Show the most urgent one
+                cliffTranches.sort((a, b) => a.daysLeft - b.daysLeft);
+                const top = cliffTranches[0];
+                const saved = top.taxSaved > 0
+                    ? ` — saves ₹${Math.round(top.taxSaved).toLocaleString('en-IN')} tax`
+                    : '';
+                msg.textContent =
+                    `⏳ TRANCHE #${top.idx} (${top.daysHeld}d held) crosses LTCG threshold in ` +
+                    `${top.daysLeft} day${top.daysLeft !== 1 ? 's' : ''}${saved}. Consider holding.`;
+                banner.style.display = 'flex';
+            }
+
+            // ── GAP 3 · Concentration Guard ──────────────────────────────────────────
+            // Shows a badge and disables BUY-50% if invested > 80% of net worth.
+            function checkConcentrationGuard() {
+                const badge = document.getElementById('concentrationBadge');
+                const totalUnits = tranches.reduce((s, t) => s + t.units, 0);
+                const nav        = fullHistory[currentIdx]?.nav || 0;
+                const invested   = totalUnits * nav;
+                const nw         = cash + invested;
+                const pct        = nw > 0 ? (invested / nw) * 100 : 0;
+
+                if (!badge) return;
+
+                if (pct >= 80) {
+                    badge.textContent = `${Math.round(pct)}% CONCENTRATED`;
+                    badge.style.display = 'inline-block';
+                    // Disable the BUY 50% button
+                    const buy50Btn = document.querySelector('.btn-buy[onclick*="50"]');
+                    if (buy50Btn) {
+                        buy50Btn.disabled = true;
+                        buy50Btn.title    = 'Disabled: portfolio > 80% concentrated';
+                    }
+                } else {
+                    badge.style.display = 'none';
+                    const buy50Btn = document.querySelector('.btn-buy[onclick*="50"]');
+                    if (buy50Btn && pct < 75) {
+                        buy50Btn.disabled = false;
+                        buy50Btn.title    = '';
+                    }
+                }
+            }
+
+            // ── GAP 6 · Capital Deployment Meter ─────────────────────────────────────
+            // Renders the thin progress bar below the net-worth strip.
+            function renderDeploymentMeter() {
+                const fillEl = document.getElementById('depBarFill');
+                const pctEl  = document.getElementById('depPct');
+                const cashEl = document.getElementById('depCash');
+                if (!fillEl) return;
+
+                const totalUnits = tranches.reduce((s, t) => s + t.units, 0);
+                const nav        = fullHistory[currentIdx]?.nav || 0;
+                const invested   = totalUnits * nav;
+                const nw         = cash + invested;
+                const pct        = nw > 0 ? Math.round((invested / nw) * 100) : 0;
+
+                fillEl.style.width = `${pct}%`;
+
+                // Colour: green < 60%, amber 60–80%, red > 80%
+                const col = pct >= 80 ? 'var(--red)' : pct >= 60 ? 'var(--accent2)' : 'var(--accent)';
+                fillEl.style.background = col;
+                pctEl.textContent  = `${pct}%`;
+                pctEl.style.color  = col;
+                cashEl.textContent = `₹${Math.round(cash).toLocaleString('en-IN')} free`;
+            }
+
+            // ── GAP 2 · Regime C→A Recovery Alert ────────────────────────────────────
+            // Injected into the updateDisplay() alert logic. Detects the moment W-RSI
+            // crosses from below 40 (Regime C) back to ≥ 50 (Regime A) and fires a
+            // prominent banner and notifies the user to consider re-entry.
+            function checkRegimeRecoveryAlert(snap) {
+                if (!_wasInRegimeC) return null;
+                if (snap.regime === 'A') {
+                    _wasInRegimeC = false; // clear the flag — recovery confirmed
+                    return {
+                        text: '🟢 REGIME C→A RECOVERY — RE-ENTRY WINDOW OPEN',
+                        cls:  'alert-recovery alert-mega banner-on'
+                    };
+                }
+                return null;
+            }
+
+            // ── GAP 7 · Paused SIP Deploy ────────────────────────────────────────────
+            // Tracks SIP amounts skipped during Regime C and offers a one-time deploy
+            // button when Regime A is restored.
+            function _trackPausedSip(sipAmt, regime) {
+                if (regime === 'C' || regime === 'B') {
+                    _pausedSipAmount += sipAmt;
+                    _pausedSipCount++;
+                    _wasInRegimeC = true;
+                }
+                // Show/hide the paused SIP panel
+                const panel = document.getElementById('pausedSipAlert');
+                if (!panel) return;
+                if (_pausedSipAmount > 0 && regime === 'A') {
+                    document.getElementById('pausedSipCount').textContent = _pausedSipCount;
+                    document.getElementById('pausedSipTotal').textContent =
+                        Math.round(_pausedSipAmount).toLocaleString('en-IN');
+                    panel.style.display = 'flex';
+                } else {
+                    panel.style.display = 'none';
+                }
+            }
+
+            function _deployPausedSip() {
+                if (_pausedSipAmount <= 0 || !fullHistory[currentIdx]) return;
+                const nav     = fullHistory[currentIdx].nav;
+                const dayNum  = currentIdx - simStartIdx;
+                const amt     = Math.min(_pausedSipAmount, cash);
+                if (amt < 10) {
+                    flashBanner('⚠️ INSUFFICIENT CASH FOR PAUSED SIP', 'alert-danger');
+                    return;
+                }
+                const units = amt / nav;
+                tranches.push({
+                    day:    dayNum,
+                    idx:    currentIdx,
+                    units:  units,
+                    price:  nav,
+                    regime: currentRegimeLog
+                });
+                cash -= amt;
+                tradeLog.push({
+                    day:    dayNum,
+                    action: `SIP DEPLOY (${_pausedSipCount}×)`,
+                    nav:    nav,
+                    units:  units,
+                    tax:    0,
+                    regime: currentRegimeLog,
+                    note:   `Deployed ${_pausedSipCount} paused SIP instalment(s)`
+                });
+                _pausedSipAmount = 0;
+                _pausedSipCount  = 0;
+                document.getElementById('pausedSipAlert').style.display = 'none';
+                flashBanner(`✅ PAUSED SIP DEPLOYED — ₹${Math.round(amt).toLocaleString('en-IN')}`, 'alert-buy', 2500);
+                updateDisplay();
+            }
+
+            // ── GAP 5 · Alpha vs Benchmark Strip (Live Analytics) ────────────────────
+            // Renders a 4-cell grid: 1M / 3M / 6M / 1Y alpha (fund return − bench return).
+            // Called from updateLiveChart() when Live Analytics is open.
+            function renderAlphaStrip(fundNavs, benchmarkPct1d) {
+                const el = document.getElementById('laAlphaStrip');
+                if (!el || fundNavs.length < 21) return;
+
+                const last  = fundNavs.length - 1;
+                const tfs   = [
+                    { label: '1M',  d: 21  },
+                    { label: '3M',  d: 63  },
+                    { label: '6M',  d: 125 },
+                    { label: '1Y',  d: 250 },
+                ];
+
+                // Estimate annualised benchmark return from the 1-day live pct
+                // This is a rough proxy — real multi-period bench data isn't available via the CORS proxy
+                const benchProxyMap = { '1M': benchmarkPct1d * 21, '3M': benchmarkPct1d * 63,
+                                        '6M': benchmarkPct1d * 125, '1Y': benchmarkPct1d * 250 };
+
+                el.innerHTML = tfs.map(tf => {
+                    if (last < tf.d) {
+                        return `<div class="alpha-cell"><div class="alpha-lbl">${tf.label}</div><div class="alpha-val alpha-neu">—</div></div>`;
+                    }
+                    const fundRet  = (fundNavs[last] - fundNavs[last - tf.d]) / fundNavs[last - tf.d] * 100;
+                    const benchRet = benchProxyMap[tf.label] || 0;
+                    const alpha    = fundRet - benchRet;
+                    const cls      = alpha > 0.5 ? 'alpha-pos' : alpha < -0.5 ? 'alpha-neg' : 'alpha-neu';
+                    const sign     = alpha >= 0 ? '+' : '';
+                    return `<div class="alpha-cell">
+                        <div class="alpha-lbl">${tf.label} α</div>
+                        <div class="alpha-val ${cls}">${sign}${alpha.toFixed(1)}%</div>
+                    </div>`;
+                }).join('');
+            }
+
+            // ── GAP 4 · Holding Age Nudge (injected into pre-trade SELL checklist) ───
+            // Adds a holding-age row to the existing checks[] array when a SELL action
+            // is initiated on a tranche held < 21 days. Accessed via _getHoldingAgeCheck.
+            function _getHoldingAgeCheck() {
+                if (!tranches.length) return null;
+                const newestTranche = tranches.reduce((a, b) => (a.idx > b.idx ? a : b));
+                const daysHeld      = currentIdx - newestTranche.idx;
+                if (daysHeld < 21) {
+                    return {
+                        label: `Holding age ≥ 21 days (currently ${daysHeld}d — low-quality exit risk)`,
+                        pass:  false,
+                        val:   `${daysHeld}d ⚠️`
+                    };
+                }
+                return null;
+            }
+
+            // =============================================================================
+            // SOP MODAL — openSOP() / closeSOP()
+            // =============================================================================
+            // openSOP()  — hides setup screen, shows #sopModal fullscreen
+            // closeSOP() — hides #sopModal, restores setup screen
+            // Also accessible from inside the simulator via the version badge.
+            // =============================================================================
+
+            function openSOP() {
+                // Hide whichever screen is currently visible
+                document.getElementById('setupScreen').style.display   = 'none';
+                const gameUI = document.getElementById('gameUI');
+                if (gameUI && gameUI.style.display !== 'none') {
+                    gameUI.setAttribute('data-sop-caller', 'game');
+                    gameUI.style.display = 'none';
+                } else {
+                    gameUI && gameUI.removeAttribute('data-sop-caller');
+                }
+                // Show SOP
+                const sop = document.getElementById('sopModal');
+                sop.style.display = 'flex';
+                sop.scrollTop = 0;
+                const body = sop.querySelector('.sop-body');
+                if (body) body.scrollTop = 0;
+            }
+
+            function closeSOP() {
+                document.getElementById('sopModal').style.display = 'none';
+                // Return to the correct caller
+                const gameUI = document.getElementById('gameUI');
+                if (gameUI && gameUI.getAttribute('data-sop-caller') === 'game') {
+                    gameUI.style.display = 'flex';
+                    gameUI.removeAttribute('data-sop-caller');
+                } else {
+                    document.getElementById('setupScreen').style.display = 'flex';
+                }
+            }
+
+            // Allow Escape key to close SOP
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const sop = document.getElementById('sopModal');
+                    if (sop && sop.style.display === 'flex') closeSOP();
+                }
+            });
 
             // Auto-boot scanner — delayed to 8 s to avoid racing the initial fund fetch
             setTimeout(refreshAlertSummaryBadge, 8000);

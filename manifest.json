@@ -14,13 +14,13 @@
   "categories": ["finance", "education"],
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2521/2521118.png",
+      "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2521/2521118.png",
+      "src": "./icon-512-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

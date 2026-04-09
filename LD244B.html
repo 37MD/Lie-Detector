@@ -3693,15 +3693,15 @@ letter-spacing:0.1em;border-bottom:1px solid var(--border);">
         <!-- ────────────────────────────────────────────────────────────────────────── -->
         <!-- MODAL  —  REGIME SHIFT SCANNER                                z-index:  600 -->
         <!-- ────────────────────────────────────────────────────────────────────────── -->
-
-<div id="regimeChangeModal" class="modal-overlay">
+        <div id="regimeChangeModal" class="modal-overlay">
             <div class="modal-close">
                 <span class="modal-title" style="color:var(--accent);">REGIME SHIFT SCANNER</span>
                 <span class="modal-close-btn" onclick="document.getElementById('regimeChangeModal').style.display='none';
 _activeScannerToken++;
 document.getElementById('setupScreen').style.display='flex'">[ X ] CLOSE</span>
             </div>
-            <div style="padding:12px;font-size:0.65rem;color:var(--muted);text-transform:uppercase;
+
+<div style="padding:12px;font-size:0.65rem;color:var(--muted);text-transform:uppercase;
 letter-spacing:0.1em;border-bottom:1px solid var(--border);">
                 Regime Changes (Last 5 Trading Days)
                 <span id="regimeChangeCount" style="color:var(--text);font-weight:400;">(0)</span>
@@ -9989,17 +9989,19 @@ This is exactly how the system is meant to be played.
                 modal.style.display = 'flex';
             }
 
-            async function runRegimeChangeScanner() {
+// CACHE: Prevents network freezing by only calling Yahoo once per benchmark index
+            const _yahooProxyCache = {};
 
-// HELPER: Standalone Live Proxy fetcher (Safeguarded against crashes)
-            async function fetchLiveProxyPercent(fundCode) {
+            async function fetchLiveProxyPercentCached(fundCode) {
                 try {
-                    // SAFEGUARD: Check if your mapping variables exist to prevent ReferenceErrors
-                    const bMap = typeof NSE_BENCHMARK_MAP !== 'undefined' ? NSE_BENCHMARK_MAP : {};
-                    const tMap = typeof YAHOO_TICKER_MAP !== 'undefined' ? YAHOO_TICKER_MAP : {};
-                    
-                    const benchmarkName = bMap[fundCode] || 'NIFTY 50';
-                    const yahooTicker = tMap[benchmarkName] || '^NSEI';
+                    const benchmarkName = NSE_BENCHMARK_MAP[fundCode] || 'NIFTY 50';
+                    const yahooTicker = YAHOO_TICKER_MAP[benchmarkName] || '^NSEI';
+
+                    // Serve instantly if we already fetched this index in the current session
+                    if (_yahooProxyCache[yahooTicker] !== undefined) {
+                        return _yahooProxyCache[yahooTicker];
+                    }
+
                     const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooTicker)}?interval=15m&range=1d`;
                     const encodedUrl = encodeURIComponent(targetUrl);
                     
@@ -10011,7 +10013,7 @@ This is exactly how the system is meant to be played.
 
                     const fetchProxy = async (proxyUrl) => {
                         const controller = new AbortController();
-                        const timer = setTimeout(() => controller.abort(), 5000); // 5 sec max timeout
+                        const timer = setTimeout(() => controller.abort(), 4000);
                         const res = await fetch(proxyUrl, { cache: 'no-store', signal: controller.signal });
                         clearTimeout(timer);
                         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -10024,11 +10026,17 @@ This is exactly how the system is meant to be played.
                     const meta = payload.chart.result[0].meta;
                     const currentPrice = meta.regularMarketPrice;
                     const prevClose = meta.chartPreviousClose || meta.previousClose;
-                    if (!currentPrice || !prevClose) return null;
+                    
+                    if (!currentPrice || !prevClose) {
+                        _yahooProxyCache[yahooTicker] = null;
+                        return null;
+                    }
 
-                    return ((currentPrice - prevClose) / prevClose) * 100;
+                    const pct = ((currentPrice - prevClose) / prevClose) * 100;
+                    _yahooProxyCache[yahooTicker] = pct; // Cache it for the next fund
+                    return pct;
                 } catch (e) {
-                    return null; // Fail silently without breaking the app
+                    return null;
                 }
             }
 
@@ -10057,15 +10065,13 @@ This is exactly how the system is meant to be played.
 
                         const wRsiArr = window.buildWeeklyRsiFast(prices, userRsiLength, dates);
                         const lastIdx = prices.length - 1;
-                        const lookbackDays = 5; 
-
                         const getRegime = (wr) => wr >= 50 ? 'A' : wr >= 40 ? 'B' : 'C';
-
-                        // Scan backwards for the last 5 trading days safely
-                        for (let i = lastIdx; i > lastIdx - lookbackDays && i > 0; i--) {
+                        
+                        // Scan backwards for the last 5 trading days
+                        for (let i = lastIdx; i > lastIdx - 5 && i > 0; i--) {
                             const wrToday = wRsiArr[i] ?? 50;
                             const wrYest = wRsiArr[i - 1] ?? 50;
-                            
+
                             const regimeToday = getRegime(wrToday);
                             const regimeYest = getRegime(wrYest);
 
@@ -10117,18 +10123,18 @@ This is exactly how the system is meant to be played.
                 list.innerHTML = '';
 
                 if (results.length === 0) {
-                    list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);">No regime shifts in the last 5 trading days.</div>`;
+                    list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);">No regime shifts in the last 5 days.</div>`;
                 } else {
                     const getRegimeColor = (r) => r === 'A' ? '#00e8a2' : r === 'B' ? '#f59e0b' : '#c8102e';
+
+                    // Sort chronologically (Latest First)
                     const sortedResults = results.sort((a, b) => b.sortIndex - a.sortIndex);
-                    
-                    // Array to hold references to the proxy DOM elements for sequential loading
-                    const proxyElementsToLoad = [];
 
                     sortedResults.forEach(res => {
                         const el = document.createElement('div');
                         el.style.cssText = `background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;`;
 
+                        // LEFT: Date & Fund Name
                         const leftDiv = document.createElement('div');
                         leftDiv.style.cssText = 'display:flex; flex-direction:column; gap:2px; width:45%;';
                         
@@ -10143,6 +10149,7 @@ This is exactly how the system is meant to be played.
                         leftDiv.appendChild(dateDiv);
                         leftDiv.appendChild(nameDiv);
 
+                        // MIDDLE: Live Proxy Column
                         const middleDiv = document.createElement('div');
                         middleDiv.style.cssText = 'display:flex; flex-direction:column; align-items:center; justify-content:center; width:30%;';
                         
@@ -10157,9 +10164,7 @@ This is exactly how the system is meant to be played.
                         middleDiv.appendChild(proxyHeader);
                         middleDiv.appendChild(proxyValue);
 
-                        // Push to our queue instead of fetching instantly
-                        proxyElementsToLoad.push({ code: res.code, el: proxyValue });
-
+                        // RIGHT: Transition Pill
                         const rightDiv = document.createElement('div');
                         rightDiv.style.cssText = 'width:25%; display:flex; justify-content:flex-end; align-items:center; gap:4px; font-size:0.75rem; font-weight:700;';
                         
@@ -10173,55 +10178,36 @@ This is exactly how the system is meant to be played.
                         el.appendChild(middleDiv);
                         el.appendChild(rightDiv);
 
-                        el.onclick = () => {
-                            let targetAmc = '';
-                            if (typeof amcFunds !== 'undefined') {
-                                for (const [amc, funds] of Object.entries(amcFunds)) {
-                                    if (funds.find(f => f.code === res.code)) { targetAmc = amc; break; }
+                        // Async Fetch Live Proxy % efficiently
+                        fetchLiveProxyPercentCached(res.code).then(percent => {
+                            if (percent !== null) {
+                                const isPositive = percent >= 0;
+                                proxyValue.textContent = `${isPositive ? '+' : ''}${percent.toFixed(2)}%`;
+                                
+                                // ALERT LOGIC: Close to 1% warning before cutoff
+                                if (Math.abs(percent) >= 0.8) {
+                                    proxyValue.style.color = isPositive ? 'var(--accent)' : 'var(--red)';
+                                    proxyValue.style.textShadow = `0 0 6px ${isPositive ? 'rgba(0,255,0,0.3)' : 'rgba(255,0,0,0.3)'}`;
                                 }
+                            } else {
+                                proxyValue.textContent = 'N/A';
+                                proxyValue.style.color = 'var(--muted)';
                             }
-                            if(targetAmc) {
-                                document.querySelectorAll('#fundGrid .fund-box').forEach(b => {
-                                    if (b.textContent.trim() === targetAmc && typeof selectAMC === 'function') selectAMC(targetAmc, b);
-                                });
-                            }
-                            
-                            const sel = document.getElementById('fundSelect');
-                            if (sel) sel.value = res.code;
+                        });
 
+                        el.onclick = () => {
+                            currentRRGSelectedFundCode = res.code;
                             document.getElementById('regimeChangeModal').style.display = 'none';
-                            if (typeof initLiveChart === 'function') initLiveChart(); 
+                            launchLiveFromRRG();
                         };
 
                         list.appendChild(el);
                     });
-
-                    // SEQUENTIAL LOADER: Prevents network freezing
-                    const loadProxies = async () => {
-                        for (const item of proxyElementsToLoad) {
-                            const percent = await fetchLiveProxyPercent(item.code);
-                            if (percent !== null) {
-                                const isPositive = percent >= 0;
-                                item.el.textContent = `${isPositive ? '+' : ''}${percent.toFixed(2)}%`;
-                                if (Math.abs(percent) >= 0.8) {
-                                    item.el.style.color = isPositive ? 'var(--accent)' : 'var(--red)';
-                                    item.el.style.textShadow = `0 0 6px ${isPositive ? 'rgba(0,255,0,0.3)' : 'rgba(255,0,0,0.3)'}`;
-                                }
-                            } else {
-                                item.el.textContent = 'N/A';
-                                item.el.style.color = 'var(--muted)';
-                            }
-                            // Brief 150ms pause between fetches to let the browser breathe
-                            await new Promise(r => setTimeout(r, 150)); 
-                        }
-                    };
-                    
-                    // Start loading proxies in the background
-                    loadProxies();
                 }
 
                 modal.style.display = 'flex';
             }
+
 
 
             async function runRRGScanner(targetQuadrant, forceRefresh = false) {

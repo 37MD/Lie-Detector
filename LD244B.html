@@ -9991,24 +9991,27 @@ This is exactly how the system is meant to be played.
 
             async function runRegimeChangeScanner() {
 
-// HELPER: Standalone Live Proxy fetcher for the scanner rows
+// HELPER: Standalone Live Proxy fetcher (Safeguarded against crashes)
             async function fetchLiveProxyPercent(fundCode) {
-                const benchmarkName = NSE_BENCHMARK_MAP[fundCode] || 'NIFTY 50';
-                const yahooTicker = YAHOO_TICKER_MAP[benchmarkName] || '^NSEI';
-                const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooTicker)}?interval=15m&range=1d`;
-                const encodedUrl = encodeURIComponent(targetUrl);
-                
-                const proxies = [
-                    `https://corsproxy.io/?${encodedUrl}`,
-                    `https://api.allorigins.win/raw?url=${encodedUrl}`,
-                    `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`,
-                    `https://thingproxy.freeboard.io/fetch/${targetUrl}`,
-                ];
-
                 try {
+                    // SAFEGUARD: Check if your mapping variables exist to prevent ReferenceErrors
+                    const bMap = typeof NSE_BENCHMARK_MAP !== 'undefined' ? NSE_BENCHMARK_MAP : {};
+                    const tMap = typeof YAHOO_TICKER_MAP !== 'undefined' ? YAHOO_TICKER_MAP : {};
+                    
+                    const benchmarkName = bMap[fundCode] || 'NIFTY 50';
+                    const yahooTicker = tMap[benchmarkName] || '^NSEI';
+                    const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooTicker)}?interval=15m&range=1d`;
+                    const encodedUrl = encodeURIComponent(targetUrl);
+                    
+                    const proxies = [
+                        `https://corsproxy.io/?${encodedUrl}`,
+                        `https://api.allorigins.win/raw?url=${encodedUrl}`,
+                        `https://api.codetabs.com/v1/proxy?quest=${encodedUrl}`
+                    ];
+
                     const fetchProxy = async (proxyUrl) => {
                         const controller = new AbortController();
-                        const timer = setTimeout(() => controller.abort(), 8000);
+                        const timer = setTimeout(() => controller.abort(), 5000); // 5 sec max timeout
                         const res = await fetch(proxyUrl, { cache: 'no-store', signal: controller.signal });
                         clearTimeout(timer);
                         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -10025,7 +10028,7 @@ This is exactly how the system is meant to be played.
 
                     return ((currentPrice - prevClose) / prevClose) * 100;
                 } catch (e) {
-                    return null;
+                    return null; // Fail silently without breaking the app
                 }
             }
 
@@ -10058,7 +10061,7 @@ This is exactly how the system is meant to be played.
 
                         const getRegime = (wr) => wr >= 50 ? 'A' : wr >= 40 ? 'B' : 'C';
 
-                        // Scan backwards for the last 5 trading days
+                        // Scan backwards for the last 5 trading days safely
                         for (let i = lastIdx; i > lastIdx - lookbackDays && i > 0; i--) {
                             const wrToday = wRsiArr[i] ?? 50;
                             const wrYest = wRsiArr[i - 1] ?? 50;
@@ -10073,7 +10076,7 @@ This is exactly how the system is meant to be played.
                                     date: dates[i],
                                     from: regimeYest,
                                     to: regimeToday,
-                                    sortIndex: i // Absolute index for chronological sorting
+                                    sortIndex: i
                                 });
                             }
                         }
@@ -10117,15 +10120,15 @@ This is exactly how the system is meant to be played.
                     list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);">No regime shifts in the last 5 trading days.</div>`;
                 } else {
                     const getRegimeColor = (r) => r === 'A' ? '#00e8a2' : r === 'B' ? '#f59e0b' : '#c8102e';
-
-                    // Sort chronologically (Latest First)
                     const sortedResults = results.sort((a, b) => b.sortIndex - a.sortIndex);
+                    
+                    // Array to hold references to the proxy DOM elements for sequential loading
+                    const proxyElementsToLoad = [];
 
                     sortedResults.forEach(res => {
                         const el = document.createElement('div');
                         el.style.cssText = `background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;`;
 
-                        // LEFT: Date & Fund Name
                         const leftDiv = document.createElement('div');
                         leftDiv.style.cssText = 'display:flex; flex-direction:column; gap:2px; width:45%;';
                         
@@ -10140,7 +10143,6 @@ This is exactly how the system is meant to be played.
                         leftDiv.appendChild(dateDiv);
                         leftDiv.appendChild(nameDiv);
 
-                        // MIDDLE: Live Proxy Column
                         const middleDiv = document.createElement('div');
                         middleDiv.style.cssText = 'display:flex; flex-direction:column; align-items:center; justify-content:center; width:30%;';
                         
@@ -10155,24 +10157,9 @@ This is exactly how the system is meant to be played.
                         middleDiv.appendChild(proxyHeader);
                         middleDiv.appendChild(proxyValue);
 
-                        // Async Fetch Live Proxy %
-                        fetchLiveProxyPercent(res.code).then(percent => {
-                            if (percent !== null) {
-                                const isPositive = percent >= 0;
-                                proxyValue.textContent = `${isPositive ? '+' : ''}${percent.toFixed(2)}%`;
-                                
-                                // ALERT LOGIC: Close to 1% warning before cutoff
-                                if (Math.abs(percent) >= 0.8) {
-                                    proxyValue.style.color = isPositive ? 'var(--accent)' : 'var(--red)';
-                                    proxyValue.style.textShadow = `0 0 6px ${isPositive ? 'rgba(0,255,0,0.3)' : 'rgba(255,0,0,0.3)'}`;
-                                }
-                            } else {
-                                proxyValue.textContent = 'N/A';
-                                proxyValue.style.color = 'var(--muted)';
-                            }
-                        });
+                        // Push to our queue instead of fetching instantly
+                        proxyElementsToLoad.push({ code: res.code, el: proxyValue });
 
-                        // RIGHT: Transition Pill
                         const rightDiv = document.createElement('div');
                         rightDiv.style.cssText = 'width:25%; display:flex; justify-content:flex-end; align-items:center; gap:4px; font-size:0.75rem; font-weight:700;';
                         
@@ -10187,14 +10174,15 @@ This is exactly how the system is meant to be played.
                         el.appendChild(rightDiv);
 
                         el.onclick = () => {
-                            // Find which AMC and set it up seamlessly for Live Cockpit
                             let targetAmc = '';
-                            for (const [amc, funds] of Object.entries(amcFunds)) {
-                                if (funds.find(f => f.code === res.code)) { targetAmc = amc; break; }
+                            if (typeof amcFunds !== 'undefined') {
+                                for (const [amc, funds] of Object.entries(amcFunds)) {
+                                    if (funds.find(f => f.code === res.code)) { targetAmc = amc; break; }
+                                }
                             }
                             if(targetAmc) {
                                 document.querySelectorAll('#fundGrid .fund-box').forEach(b => {
-                                    if (b.textContent.trim() === targetAmc) selectAMC(targetAmc, b);
+                                    if (b.textContent.trim() === targetAmc && typeof selectAMC === 'function') selectAMC(targetAmc, b);
                                 });
                             }
                             
@@ -10202,16 +10190,38 @@ This is exactly how the system is meant to be played.
                             if (sel) sel.value = res.code;
 
                             document.getElementById('regimeChangeModal').style.display = 'none';
-                            initLiveChart(); 
+                            if (typeof initLiveChart === 'function') initLiveChart(); 
                         };
 
                         list.appendChild(el);
                     });
+
+                    // SEQUENTIAL LOADER: Prevents network freezing
+                    const loadProxies = async () => {
+                        for (const item of proxyElementsToLoad) {
+                            const percent = await fetchLiveProxyPercent(item.code);
+                            if (percent !== null) {
+                                const isPositive = percent >= 0;
+                                item.el.textContent = `${isPositive ? '+' : ''}${percent.toFixed(2)}%`;
+                                if (Math.abs(percent) >= 0.8) {
+                                    item.el.style.color = isPositive ? 'var(--accent)' : 'var(--red)';
+                                    item.el.style.textShadow = `0 0 6px ${isPositive ? 'rgba(0,255,0,0.3)' : 'rgba(255,0,0,0.3)'}`;
+                                }
+                            } else {
+                                item.el.textContent = 'N/A';
+                                item.el.style.color = 'var(--muted)';
+                            }
+                            // Brief 150ms pause between fetches to let the browser breathe
+                            await new Promise(r => setTimeout(r, 150)); 
+                        }
+                    };
+                    
+                    // Start loading proxies in the background
+                    loadProxies();
                 }
 
                 modal.style.display = 'flex';
             }
-
 
 
             async function runRRGScanner(targetQuadrant, forceRefresh = false) {

@@ -5061,7 +5061,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     const preBox = prices.slice(-56, -6);
                     const preMax = Math.max(...preBox);
                     const preMin = Math.min(...preBox);
-                    const boxWma = calculateWMA(prices.slice(0, -1), 20);
+                    const boxWma = calculateWMA(prices.slice(-21, -1), 20);
 
                     const isTight = (boxMax - boxMin) / boxMin <= 0.02;
                     const nearWma = boxWma ? Math.abs(boxMin - boxWma) / boxWma <= 0.04 : false;
@@ -5223,8 +5223,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 return {
                     dayNum: dayIndex - simStartIdx,
                     nav: currentNav,
-                    wma20: calculateWMA(slice, 20),
-                    sma50: calculateSMA(slice, 50),
+                    wma20: calculateWMA(slice.slice(-20), 20),
+                    sma50: calculateSMA(slice.slice(-50), 50),
                     drsi: currentDrsi,
                     wrsi: currentWrsi,
                     delta: currentDrsi - currentWrsi,
@@ -5233,7 +5233,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     pcAlert: consolidationData.pcAlert,
 
                     ncAlert: consolidationData.ncAlert,
-                    choch: calculateChoCh(slice).status,
+                    choch: calculateChoCh(slice.slice(-100)).status,
 
                     momentum: momState,
                     portfolio: {
@@ -6706,6 +6706,8 @@ ${c.text}</span>
                     navs.map((_, i) => calculateRSI(navs.slice(0, i + 1), userRsiLength));
 
                 simLowessCache = window.buildLowessGaussianFast(navs, 8, 10);
+                window._simDrsiWmaCache  = typeof calcWMASeries === 'function' ? calcWMASeries(simDailyRsiCache, 20) : [];
+                window._simNavWma20Cache = typeof calcWMASeries === 'function' ? calcWMASeries(navs, 20) : [];
 
                 if (fullHistory.length < MIN_DATA_BARS) {
                     alert('INSUFFICIENT DATA');
@@ -10579,9 +10581,13 @@ border-bottom:1px solid var(--border);padding-bottom:2px;`;
                 const crosshairData = [];
 
                 // Unified Period Engine
-                const drsiWmaAll = typeof calcWMASeries === 'function' ? calcWMASeries(drsiArr, 20) : [];
+                const drsiWmaAll  = (mode === 'sim' && window._simDrsiWmaCache)
+                    ? window._simDrsiWmaCache
+                    : (typeof calcWMASeries === 'function' ? calcWMASeries(drsiArr, 20) : []);
                 const allNavs = allData.map(d => d.nav);
-                const navWma20All = typeof calcWMASeries === 'function' ? calcWMASeries(allNavs, 20) : [];
+                const navWma20All = (mode === 'sim' && window._simNavWma20Cache)
+                    ? window._simNavWma20Cache
+                    : (typeof calcWMASeries === 'function' ? calcWMASeries(allNavs, 20) : []);
 
                 for (let i = startIdx; i <= currIdx; i++) {
                     const tslFloor = (lowessArr[i] != null && i >= 18) ? lowessArr[i] : 0;

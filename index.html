@@ -2906,11 +2906,11 @@
                 </div>
                 <div class="c-input-box" style="cursor:pointer; display:flex; flex-direction:column; justify-content:center; align-items:center; border-color:var(--accent); background:var(--accent-dim);" onclick="runRegimeChangeScanner()">
                     <span class="c-label" style="color:var(--accent); font-weight:400; margin-bottom:2px; letter-spacing:0.05em;">SCAN</span>
-                    <span style="font-size:0.75rem; font-weight:400; color:var(--text);">REGIME FEARHANGE</span>
+                    <span style="font-size:0.75rem; font-weight:400; color:var(--text);">REGIME CHANGE</span>
                 </div>
                 <div class="c-input-box" style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 2px;cursor:pointer; background:var(--gold-dim); border-color:var(--gold);" onclick="openAssetAllocator()">
                     <span class="c-label" style="color:var(--gold); font-weight:400; margin-bottom:2px; letter-spacing:0.05em;">ANALYZE</span>
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--text); text-align:center; line-height:1.2; padding-bottom: 2px;">ASSET<br>ALLOCATOR</span>
+                    <span style="font-size:0.75rem; font-weight:400; color:var(--text); text-align:center; line-height:1.2; padding-bottom: 2px;">ASSET<br>ALLOCATOR</span>
                 </div>
             </div>
 
@@ -9832,7 +9832,7 @@ This is exactly how the system is meant to be played.
             }
 
             // =============================================================================
-            // SECTION 27 · REGIME HOPE SCANNER & REGIME FEARHANGE SCANNER
+            // SECTION 27 · REGIME HOPE SCANNER & REGIME CHANGE SCANNER
             // =============================================================================
             //
             // =============================================================================
@@ -11960,7 +11960,8 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                         document.getElementById('assetAllocAnalytics').style.display = 'block';
                         document.getElementById('allocLogicTitle').textContent = `Month ${alloc.month} (${mth} 20${dtParts[2].slice(-2)}) — Allocation Logic`;
 
-                        let details = `<div style="margin-bottom:8px;"><strong>Selected Portfolio:</strong><br>🔹 <span style="color:var(--text);font-weight:700;">${alloc.top2[0].name}</span> — <strong style="color:var(--text);">${alloc.w1}%</strong> (W-RSI: ${Math.round(alloc.top2[0].wrsi)}, Regime: ${alloc.top2[0].regime})<br>🔹 <span style="color:var(--text);font-weight:700;">${alloc.top2[1].name}</span> — <strong style="color:var(--text);">${alloc.w2}%</strong> (W-RSI: ${Math.round(alloc.top2[1].wrsi)}, Regime: ${alloc.top2[1].regime})</div>`;
+                        const rn = r => r === 'A' ? 'Hope' : r === 'B' ? 'Watch' : 'Fear';
+                        let details = `<div style="margin-bottom:8px;"><strong>Selected Portfolio:</strong><br>🔹 <span style="color:var(--text);font-weight:700;">${alloc.top2[0].name}</span> — <strong style="color:var(--text);">${alloc.w1}%</strong> (W-RSI: ${Math.round(alloc.top2[0].wrsi)}, Regime: ${rn(alloc.top2[0].regime)})<br>🔹 <span style="color:var(--text);font-weight:700;">${alloc.top2[1].name}</span> — <strong style="color:var(--text);">${alloc.w2}%</strong> (W-RSI: ${Math.round(alloc.top2[1].wrsi)}, Regime: ${rn(alloc.top2[1].regime)})</div>`;
                         details += `<div><strong>Strategy & Catalyst:</strong><br>${alloc.logicText.replace(/\n/g, '<br>')}</div>`;
                         details += `<div style="margin-top:8px;"><strong>Monthly Return Achieved:</strong><br><span style="font-size:0.8rem; font-weight:700; color:${r >= 0 ? '#059669' : 'var(--red)'};">${r > 0 ? '+' : ''}${r.toFixed(2)}%</span></div>`;
 

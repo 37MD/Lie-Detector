@@ -12033,11 +12033,11 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                         const rawData = data.data || data;
                         if (!Array.isArray(rawData)) throw "Err";
 
-			const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
-			if (validData.length < 80) throw "Short";
+const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
+                        if (validData.length < 80) throw "Short";
 
-			const scanPrices = validData.map(d => parseFloat(d.nav));
-			const scanDates = validData.map(d => window.normalizeDate(d.date));
+                        const scanPrices = validData.map(d => parseFloat(d.nav));
+                        const scanDates = validData.map(d => window.normalizeDate(d.date));
 
                         const wRsiArr   = window.buildWeeklyRsiFast(scanPrices, userRsiLength, scanDates);
                         const dRsiArr   = window.buildDailyRsiFast(scanPrices, userRsiLength);
@@ -12120,13 +12120,15 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                     { id: 'hold',     label: '⏸ WAITING FOR SIGNS : HOLD',    list: res.HOLD,            color: 'var(--muted)'   }
                 ];
 
-                categories.forEach(cat => {
-                    if (!cat.list || cat.list.length === 0) return;
+
+
+categories.forEach(cat => {
+                    const listLength = cat.list ? cat.list.length : 0;
 
                     const btn = document.createElement('button');
                     btn.className = 'alert-cat-btn';
                     btn.style.color = cat.color;
-                    btn.innerHTML = `<span>${cat.label}</span><span>${cat.list.length} \u25b8</span>`;
+                    btn.innerHTML = `<span>${cat.label}</span><span>${listLength} ▸</span>`;
 
                     const pane = document.createElement('div');
                     pane.style.display = 'none';
@@ -12134,28 +12136,38 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                     pane.style.marginBottom = '8px';
                     pane.style.borderRadius = 'var(--radius-sm)';
 
-                    cat.list.forEach(item => {
-                        const regimeColor = item.regime === 'A' ? 'var(--accent)' : item.regime === 'B' ? 'var(--gold)' : 'var(--red)';
-                        const regimeLabel = item.regime === 'A' ? 'Hope' : item.regime === 'B' ? 'Watch' : 'Fear';
+                    if (listLength > 0) {
+                        cat.list.forEach(item => {
+                            const regimeColor = item.regime === 'A' ? 'var(--accent)' : item.regime === 'B' ? 'var(--gold)' : 'var(--red)';
+                            const regimeLabel = item.regime === 'A' ? 'Hope' : item.regime === 'B' ? 'Watch' : 'Fear';
+                            
+                            const row = document.createElement('div');
+                            row.className = 'alert-item-row';
+                            row.onclick = () => launchLiveFromAlert(item.code);
 
-const row = document.createElement('div');
-                row.className = 'alert-item-row';
-                row.onclick = () => launchLiveFromAlert(item.code);
-
-                        row.innerHTML = `<div style="flex:1;display:flex;flex-direction:column;min-width:0;">
-                            <span class="alert-item-name">${item.name}</span>
-                            <span style="font-size:0.55rem;color:var(--muted2);font-family:var(--mono);">
-                                D-RSI: ${item.drsi} | W-RSI: ${item.wrsi} | \u0394: ${item.delta} | Regime: <strong style="color:${regimeColor};">${regimeLabel}</strong>
-                            </span>
-                        </div>
-                        <span class="alert-item-val" style="color:${cat.color};">${item.val}</span>`;
-                        pane.appendChild(row);
-                    });
+                            row.innerHTML = `
+                                <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+                                    <span class="alert-item-name">${item.name}</span>
+                                    <span style="font-size:0.55rem;color:var(--muted2);font-family:var(--mono);">
+                                        D-RSI: ${item.drsi} | W-RSI: ${item.wrsi} | Δ: ${item.delta} | Regime: <strong style="color:${regimeColor};">${regimeLabel}</strong>
+                                    </span>
+                                </div>
+                                <span class="alert-item-val" style="color:${cat.color};">${item.val}</span>`;
+                            pane.appendChild(row);
+                        });
+                    } else {
+                        const emptyRow = document.createElement('div');
+                        emptyRow.className = 'alert-item-row';
+                        emptyRow.style.justifyContent = 'center';
+                        emptyRow.style.cursor = 'default';
+                        emptyRow.innerHTML = `<span style="font-size:0.6rem;color:var(--muted);">No funds in this category</span>`;
+                        pane.appendChild(emptyRow);
+                    }
 
                     btn.onclick = () => {
                         const isOpen = pane.style.display === 'block';
                         pane.style.display = isOpen ? 'none' : 'block';
-                        btn.querySelector('span:last-child').textContent = cat.list.length + (isOpen ? ' \u25b8' : ' \u25be');
+                        btn.querySelector('span:last-child').textContent = listLength + (isOpen ? ' ▸' : ' ▾');
                     };
 
                     content.appendChild(btn);
@@ -12163,9 +12175,15 @@ const row = document.createElement('div');
                 });
 
                 if (totalAlerts === 0 && holdCount === 0) {
-                    content.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--accent);font-size:0.7rem;">\u2713 UNIVERSE IS CLEAN<br>No critical alerts detected.</div>`;
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.style.cssText = 'text-align:center;padding:60px 20px;color:var(--accent);font-size:0.7rem;';
+                    emptyMsg.innerHTML = '✓ UNIVERSE IS CLEAN<br>No critical alerts detected.';
+                    content.appendChild(emptyMsg);
                 }
             }
+
+
+
 
             async function refreshAlertSummaryBadge() {
                 const badge = document.getElementById('alertSummaryBadge');
@@ -12182,11 +12200,11 @@ const row = document.createElement('div');
                         const rawData = data.data || data;
                         if (!Array.isArray(rawData)) continue;
 
-			const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
-			if (validData.length < 80) continue;
+const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
+                        if (validData.length < 80) continue;
 
-			const scanPrices = validData.map(d => parseFloat(d.nav));
-			const scanDates = validData.map(d => window.normalizeDate(d.date));
+                        const scanPrices = validData.map(d => parseFloat(d.nav));
+                        const scanDates = validData.map(d => window.normalizeDate(d.date));
 
                         const wRsiArr   = window.buildWeeklyRsiFast(scanPrices, userRsiLength, scanDates);
                         const dRsiArr   = window.buildDailyRsiFast(scanPrices, userRsiLength);

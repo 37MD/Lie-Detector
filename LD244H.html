@@ -5507,15 +5507,16 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 const prevWr = globalWeeklyRsiCache[globalLiveData.length - 2] ?? 50;
                 const livePrevRegime = prevWr >= 50 ? 'A' : (prevWr >= 40 ? 'B' : 'C'); // local only — does not affect global prevRegime
 
-                if (snap.tsl.tslHit) {
+if (snap.tsl.tslHit) {
                     alertText = '🚨 TSL BREACHED';
                     alertClass = 'alert-danger alert-mega';
-                } else if (prevRegime !== 'C' && snap.regime === 'C') {
+                } else if (livePrevRegime !== 'C' && snap.regime === 'C') {
                     alertText = `🚨 REGIME CRASH ➔ SELL ALL`;
                     alertClass = 'alert-danger';
-                } else if (prevRegime !== 'A' && snap.regime === 'A') {
+                } else if (livePrevRegime !== 'A' && snap.regime === 'A') {
                     alertText = `🟢 REGIME WATCH BREAKOUT ➔ BUY ZONE`;
                     alertClass = 'alert-buy';
+
                 } else if (snap.regime === 'C') {
                     alertText = '🚨 REGIME FEAR';
                     alertClass = 'alert-danger';
@@ -5587,11 +5588,13 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                         psyText = `<div class='psy-line'>🚨 PROTOCOL: EMERGENCY EXIT</div>` +
                             `<div class='psy-line'>1. SELL ALL active tranches immediately.</div>` +
                             `<div class='psy-line'>2. Stay 100% in CASH until Regime Hope returns.</div>`;
-                    } else if (prevRegime !== 'C' && prevRegime === 'B' && snap.regime === 'A') {
-                        psyText = `<div class='psy-line'>🟢 PROTOCOL: REGIME WATCH BREAKOUT</div>` +
-                            `<div class='psy-line'>1. W-RSI crossed above 50 — Structural Bull begins.</div>` +
-                            `<div class='psy-line'>2. Start deploying capital in tranches on dips.</div>`;
-                    } else if (prevRegime === 'C' && snap.regime === 'B') {
+
+} else if (livePrevRegime !== 'C' && livePrevRegime === 'B' && snap.regime === 'A') {
+                    psyText = `<div class='psy-line'>🟢 PROTOCOL: REGIME WATCH BREAKOUT</div>` +
+                        `<div class='psy-line'>1. W-RSI crossed above 50 — Structural Bull begins.</div>` +
+                        `<div class='psy-line'>2. Start deploying capital in tranches on dips.</div>`;
+                } else if (livePrevRegime === 'C' && snap.regime === 'B') {
+
                         psyText = `<div class='psy-line'>🟡 PROTOCOL: RECOVERY WATCH</div>` +
                             `<div class='psy-line'>1. DO NOT BUY. Structural floor is still weak.</div>` +
                             `<div class='psy-line'>2. Stay in CASH. Wait for W-RSI > 50 (Regime Hope).</div>`;
@@ -12134,9 +12137,11 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
                     cat.list.forEach(item => {
                         const regimeColor = item.regime === 'A' ? 'var(--accent)' : item.regime === 'B' ? 'var(--gold)' : 'var(--red)';
                         const regimeLabel = item.regime === 'A' ? 'Hope' : item.regime === 'B' ? 'Watch' : 'Fear';
-                        const row = document.createElement('div');
-                        row.className = 'alert-item-row';
-                        if (cat.id !== 'hold') row.onclick = () => launchLiveFromAlert(item.code);
+
+const row = document.createElement('div');
+                row.className = 'alert-item-row';
+                row.onclick = () => launchLiveFromAlert(item.code);
+
                         row.innerHTML = `<div style="flex:1;display:flex;flex-direction:column;min-width:0;">
                             <span class="alert-item-name">${item.name}</span>
                             <span style="font-size:0.55rem;color:var(--muted2);font-family:var(--mono);">

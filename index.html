@@ -8853,7 +8853,7 @@ This is exactly how the system is meant to be played.
                         const rsiEl = document.getElementById(`wlrsi-${i}`);
                         const alEl = document.getElementById(`wlalert-${i}`);
                         if (regEl) {
-                            regEl.textContent = `Reg ${regime}`;
+                            regEl.textContent = regime === 'A' ? 'Hope' : regime === 'B' ? 'Watch' : 'Fear';
                             regEl.style.background = regime === 'A' ? 'var(--accent-dim)' : regime === 'B' ? 'var(--accent2-dim)' : 'var(--red-dim)';
                             regEl.style.color = regime === 'A' ? 'var(--accent)' : regime === 'B' ? 'var(--accent2)' : 'var(--red)';
                         }
@@ -10172,10 +10172,11 @@ This is exactly how the system is meant to be played.
                         const rightDiv = document.createElement('div');
                         rightDiv.style.cssText = 'width:25%; display:flex; justify-content:flex-end; align-items:center; gap:4px; font-size:0.75rem; font-weight:700;';
                         
+                        const regimeName = r => r === 'A' ? 'Hope' : r === 'B' ? 'Watch' : 'Fear';
                         rightDiv.innerHTML = `
-                            <span style="color:${getRegimeColor(res.from)};">Reg ${res.from}</span>
+                            <span style="color:${getRegimeColor(res.from)};">${regimeName(res.from)}</span>
                             <span style="color:var(--muted2);font-size:0.6rem;">➔</span>
-                            <span style="color:${getRegimeColor(res.to)};">${res.to}</span>
+                            <span style="color:${getRegimeColor(res.to)};">${regimeName(res.to)}</span>
                         `;
 
                         el.appendChild(leftDiv);
@@ -12130,13 +12131,14 @@ HMA: ${d.hma ? d.hma.toFixed(4) : '--'}
 
                     cat.list.forEach(item => {
                         const regimeColor = item.regime === 'A' ? 'var(--accent)' : item.regime === 'B' ? 'var(--gold)' : 'var(--red)';
+                        const regimeLabel = item.regime === 'A' ? 'Hope' : item.regime === 'B' ? 'Watch' : 'Fear';
                         const row = document.createElement('div');
                         row.className = 'alert-item-row';
                         if (cat.id !== 'hold') row.onclick = () => launchLiveFromAlert(item.code);
                         row.innerHTML = `<div style="flex:1;display:flex;flex-direction:column;min-width:0;">
                             <span class="alert-item-name">${item.name}</span>
                             <span style="font-size:0.55rem;color:var(--muted2);font-family:var(--mono);">
-                                D-RSI: ${item.drsi} | W-RSI: ${item.wrsi} | \u0394: ${item.delta} | Regime: <strong style="color:${regimeColor};">${item.regime}</strong>
+                                D-RSI: ${item.drsi} | W-RSI: ${item.wrsi} | \u0394: ${item.delta} | Regime: <strong style="color:${regimeColor};">${regimeLabel}</strong>
                             </span>
                         </div>
                         <span class="alert-item-val" style="color:${cat.color};">${item.val}</span>`;

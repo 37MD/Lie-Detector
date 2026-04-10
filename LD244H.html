@@ -8991,91 +8991,101 @@ This is exactly how the system is meant to be played.
                  * Samples every 5th price as a "week" and Wilder-smooths across weeks,
                  * then back-fills daily indices from the weekly values.
                  */
-                function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
-                    const cache = new Array(allPrices.length).fill(50);
-                    if (allPrices.length < 2) return cache;
 
-                    const weeklyPrices = [];
-                    const weekEndIdx = [];
+function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
+                const cache = new Array(allPrices.length).fill(50);
+                if (allPrices.length < 2) return cache;
 
-                    if (allDates && allDates.length === allPrices.length) {
-                        // ── Real calendar weeks (Monday-anchored) ─────────────────────────
-                        const getWeekKey = str => {
-                            const ts = Date.parse(str);
-                            if (isNaN(ts)) return str;
-                            const d = new Date(ts);
-                            d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-                            return d.getTime();
-                        };
-
-                        let curKey = null;
-                        for (let i = 0; i < allDates.length; i++) {
-                            const k = getWeekKey(allDates[i]);
-                            if (k !== curKey) {
-                                if (curKey !== null) {
-                                    // close previous week at bar i-1
-                                    weeklyPrices.push(allPrices[i - 1]);
-                                    weekEndIdx.push(i - 1);
-                                }
-                                curKey = k;
-                            }
-                        }
-                        // close final week
-                        weeklyPrices.push(allPrices[allPrices.length - 1]);
-                        weekEndIdx.push(allPrices.length - 1);
-
-                    } else {
-                        // ── Fallback: every 5th bar (scanners without dates) ─────────────
-                        for (let i = 0; i < allPrices.length; i++) {
-                            if (i % 5 === 0) {
-                                weeklyPrices.push(allPrices[i]);
-                                weekEndIdx.push(i);
-                            }
-                        }
-                        const last = allPrices.length - 1;
-                        if (weekEndIdx[weekEndIdx.length - 1] !== last) {
-                            weeklyPrices.push(allPrices[last]);
-                            weekEndIdx.push(last);
-                        }
-                    }
-
-                    // ── Wilder RSI on weekly closes ───────────────────────────────────────
-                    const wRSI = new Array(weeklyPrices.length).fill(50);
-                    let ag = 0,
-                        al = 0,
-                        primed = false;
-
-                    for (let i = 1; i < weeklyPrices.length; i++) {
-                        const d = (weeklyPrices[i] || 0) - (weeklyPrices[i - 1] || 0);
-                        if (!primed) {
-                            ag += d > 0 ? d : 0;
-                            al += d < 0 ? -d : 0;
-                            if (i === period) {
-                                ag /= period;
-                                al /= period;
-                                primed = true;
-                            }
-                            wRSI[i] = 50;
+                const weekIds = new Array(allPrices.length);
+                if (allDates && allDates.length === allPrices.length) {
+                    for (let i = 0; i < allDates.length; i++) {
+                        const d = new Date(allDates[i]);
+                        if (isNaN(d)) {
+                            weekIds[i] = i > 0 ? weekIds[i - 1] : 0;
                             continue;
                         }
-                        ag = (ag * (period - 1) + (d > 0 ? d : 0)) / period;
-                        al = (al * (period - 1) + (d < 0 ? -d : 0)) / period;
-                        if (ag === 0 && al === 0) {
-                            wRSI[i] = 50;
-                            continue;
-                        }
-                        wRSI[i] = al === 0 ? 100 : 100 - (100 / (1 + ag / al));
+                        // Shift day so Monday=0, Sunday=6
+                        const day = (d.getDay() + 6) % 7;
+                        const refMonday = new Date(d);
+                        refMonday.setDate(d.getDate() - day);
+                        weekIds[i] = refMonday.getTime();
                     }
-
-                    // ── Back-fill weekly RSI to every daily bar in that week ─────────────
-                    let wi = 0;
+                } else {
                     for (let i = 0; i < allPrices.length; i++) {
-                        while (wi < weekEndIdx.length - 1 && i > weekEndIdx[wi]) wi++;
-                        cache[i] = wRSI[wi];
+                        weekIds[i] = Math.floor(i / 5);
+                    }
+                }
+
+                let prevWeekAg = 0;
+                let prevWeekAl = 0;
+                let prevWeekClose = null;
+                let prevDiffCount = 0;
+                let isPrimed = false;
+
+                let currentWeekId = weekIds[0];
+
+                for (let i = 0; i < allPrices.length; i++) {
+                    const wid = weekIds[i];
+
+                    // Week transition: commit the previous week's final state
+                    if (wid !== currentWeekId) {
+                        const finalPriceLastWeek = allPrices[i - 1];
+                        if (prevWeekClose !== null) {
+                            const diff = finalPriceLastWeek - prevWeekClose;
+                            if (!isPrimed) {
+                                prevWeekAg += diff > 0 ? diff : 0;
+                                prevWeekAl += diff < 0 ? -diff : 0;
+                                prevDiffCount++;
+                                if (prevDiffCount === period) {
+                                    prevWeekAg /= period;
+                                    prevWeekAl /= period;
+                                    isPrimed = true;
+                                }
+                            } else {
+                                prevWeekAg = (prevWeekAg * (period - 1) + (diff > 0 ? diff : 0)) / period;
+                                prevWeekAl = (prevWeekAl * (period - 1) + (diff < 0 ? -diff : 0)) / period;
+                            }
+                        }
+                        prevWeekClose = finalPriceLastWeek;
+                        currentWeekId = wid;
                     }
 
-                    return cache;
+                    // Intra-week calculation for the current day
+                    if (prevWeekClose === null) {
+                        cache[i] = 50;
+                        continue;
+                    }
+
+                    const diff = allPrices[i] - prevWeekClose;
+                    let tempAg = prevWeekAg;
+                    let tempAl = prevWeekAl;
+
+                    if (!isPrimed) {
+                        let curDiffCount = prevDiffCount + 1;
+                        if (curDiffCount === period) {
+                            let sumG = prevWeekAg + (diff > 0 ? diff : 0);
+                            let sumL = prevWeekAl + (diff < 0 ? -diff : 0);
+                            tempAg = sumG / period;
+                            tempAl = sumL / period;
+                        } else {
+                            cache[i] = 50;
+                            continue;
+                        }
+                    } else {
+                        tempAg = (prevWeekAg * (period - 1) + (diff > 0 ? diff : 0)) / period;
+                        tempAl = (prevWeekAl * (period - 1) + (diff < 0 ? -diff : 0)) / period;
+                    }
+
+                    if (tempAg === 0 && tempAl === 0) {
+                        cache[i] = 50;
+                    } else {
+                        cache[i] = tempAl === 0 ? 100 : 100 - (100 / (1 + tempAg / tempAl));
+                    }
                 }
+
+                return cache;
+            }
+
 
                 window.buildDailyRsiFast = buildDailyRsiFast;
                 window.buildWeeklyRsiFast = buildWeeklyRsiFast;

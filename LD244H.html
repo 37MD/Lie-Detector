@@ -10148,9 +10148,20 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
 // Sort chronologically by actual date across all funds (Latest First)
             const sortedResults = results.sort((a, b) => new Date(b.date) - new Date(a.date));
 
+            let lastRenderedDate = null;
+
             sortedResults.forEach(res => {
+                // Insert a visual divider whenever the date changes
+                if (lastRenderedDate !== null && lastRenderedDate !== res.date) {
+                    const divider = document.createElement('div');
+                    divider.style.cssText = 'border-top:1px dashed var(--border); margin:12px 10px 16px 10px; opacity:0.5;';
+                    list.appendChild(divider);
+                }
+                lastRenderedDate = res.date;
+
                 const el = document.createElement('div');
                 el.style.cssText = `background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;`;
+
 
                 // LEFT: Date & Fund Name
                 const leftDiv = document.createElement('div');

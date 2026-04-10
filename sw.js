@@ -21,6 +21,7 @@ self.addEventListener('install', event => {
 
 // Clean up old caches
 self.addEventListener('activate', event => {
+  self.clients.claim();
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -36,15 +37,25 @@ self.addEventListener('activate', event => {
 });
 
 // Serve from Cache
+
 self.addEventListener('fetch', event => {
+  // Only cache-first for same-origin shell files; always network-first for API calls
+  const url = new URL(event.request.url);
+  const isApiCall = url.hostname.includes('mfapi.in') ||
+                    url.hostname.includes('npsnav.in') ||
+                    url.hostname.includes('finance.yahoo.com') ||
+                    url.hostname.includes('googleapis.com') ||
+                    url.hostname.includes('flaticon.com');
+
+  if (isApiCall) {
+    // Network only for live data — never serve stale NAV from cache
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response; // Return cached version
-        }
-        return fetch(event.request); // Otherwise fetch from network
-      })
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
   );
 });
 

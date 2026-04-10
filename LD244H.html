@@ -10144,20 +10144,22 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
                 } else {
                     const getRegimeColor = (r) => r === 'A' ? '#00e8a2' : r === 'B' ? '#f59e0b' : '#c8102e';
 
-                    // Sort chronologically (Latest First)
-                    const sortedResults = results.sort((a, b) => b.sortIndex - a.sortIndex);
 
-                    sortedResults.forEach(res => {
-                        const el = document.createElement('div');
-                        el.style.cssText = `background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;`;
+// Sort chronologically by actual date across all funds (Latest First)
+            const sortedResults = results.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                        // LEFT: Date & Fund Name
-                        const leftDiv = document.createElement('div');
-                        leftDiv.style.cssText = 'display:flex; flex-direction:column; gap:2px; width:45%;';
-                        
-                        const dateDiv = document.createElement('div');
-                        dateDiv.style.cssText = 'font-size:0.55rem; color:var(--muted); font-weight:700; letter-spacing: 0.05em;';
-                        dateDiv.textContent = window.formatHudDate ? window.formatHudDate(res.date) : res.date;
+            sortedResults.forEach(res => {
+                const el = document.createElement('div');
+                el.style.cssText = `background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;`;
+
+                // LEFT: Date & Fund Name
+                const leftDiv = document.createElement('div');
+                leftDiv.style.cssText = 'display:flex; flex-direction:column; gap:2px; width:45%;';
+
+                const dateDiv = document.createElement('div');
+                dateDiv.style.cssText = 'font-size:0.65rem; color:var(--muted); font-weight:400; letter-spacing: 0.05em;';
+                dateDiv.textContent = window.formatHudDate ? window.formatHudDate(res.date) : res.date;
+
 
                         const nameDiv = document.createElement('div');
                         nameDiv.style.cssText = 'font-size:0.75rem;font-weight:400;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';

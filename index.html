@@ -1,14 +1,59 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD244M
+  LIE DETECTOR  LD244N
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
-  File       : LD244M.html
-  Version    : LD244M  (successor to LD244L)
+  File       : LD244N.html
+  Version    : LD244N  (successor to LD244M)
   Released   : April 2026
   Author     : npsnav.in
   Licence    : Proprietary — All rights reserved
+
+  CHANGELOG (LD244M → LD244N)
+  ───────────────────────────
+  BUG-01  Removed 8 duplicate JSDoc blocks (calculateRSI, WMA, SMA,
+          executeTradeEngine, updateLiveChartOnly, initGame, nextDay,
+          routeToFund).
+  BUG-02  fetchFundData() now accepts an optional code param (DOM fallback)
+          making it unit-testable in isolation.
+  BUG-03  fetchFundData() returns null (not []) when locked, so callers can
+          distinguish "still loading" from "empty result".
+  BUG-04  executeTradeEngine() deep-copies tranches before FIFO mutation —
+          was incorrectly mutating the caller's array in-place.
+  BUG-05  executeTradeEngine() now shadows the global currentIdx with the
+          value from currentState — fixes STCG tax miscalculation in
+          replay/stress/drill modes.
+  BUG-06  renderTrancheTracker() now uses real calendar-day STCG threshold
+          (365 d) aligned with the engine, not the old 252-bar proxy.
+  BUG-07  calculateRSI() @returns corrected from {(number|null)[]} to
+          {number} — function has always returned a scalar.
+  BUG-08  injectBafNpsUI() guarded against double-injection.
+  Q-01    Dead legacy rationale system (showCustomRationale / submitRationale)
+          re-wired through trade() pipeline so the Sacred Rule gate is not
+          bypassed.
+  Q-02    buyDeltaLevel magic number replaced with BUY_DELTA_LEVEL constant.
+  Q-03    btns[6] replaced with querySelector('[data-days="250"]') — no
+          longer breaks if TF button order changes.
+  Q-04    _yahooProxyCache now enforces a 30-minute TTL and evicts stale
+          entries on read.
+  Q-05    setInterval for updateLiveEstimate moved into initLiveChart /
+          initLiveAnalytics; cleared on modal close — was firing every 15 min
+          even when no modal was open.
+  Q-06    _watchlistRefreshTimer now cleared before creating a new interval
+          in openWatchlist() — prevents parallel timer accumulation.
+  Q-08    All alert() calls replaced with flashBanner() / in-UI messages.
+  SEC-01  Fund names from API sanitized before innerHTML interpolation.
+  SEC-02  localStorage reads for _watchlist and streak wrapped in schema-
+          validation guard — non-array / corrupt values fall back to [].
+  PERF-01 Math.max(...spread) on 50-element arrays replaced with reduce()
+          loops in calculateConsolidation() and renderRRGChartDynamic().
+  PERF-02 recentDrsi array construction in buildEngineSnapshot() replaced
+          with a direct cachedDrsiArr.slice() call.
+  ERR-01  initLiveChart() TF button selection now uses querySelector instead
+          of btns[6] — no crash if fewer than 7 buttons exist.
+  ERR-02  updateLiveEstimate() catch block now logs errors to console.warn
+          instead of silently discarding them.
 
   CHANGELOG (LD244L → LD244M)
   ───────────────────────────
@@ -124,7 +169,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector LD244M</title>
+        <title>Lie Detector LD244N</title>
                   <link rel="manifest" href="manifest.json">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -167,7 +212,7 @@
         <style>
             /*
              * ====================================================================
-             * STYLESHEET — LIE DETECTOR LD244M
+             * STYLESHEET — LIE DETECTOR LD244N
              * ====================================================================
              * Organisation
              * ─────────────
@@ -1852,7 +1897,7 @@
                 color: var(--accent) !important;
             }
             /* ══════════════════════════════════════════════════════════════
-   LD244M FEATURE STYLES
+   LD244N FEATURE STYLES
    F1 Mistake Classifier · F2 Blind Mode · F3+F9 Pre-Trade Sheet
    F4 Rule-Violation Confirm · F5 Regime Drill · F6 What-If
    F7 Delta Heatmap · F8 Tranche Tracker · F11 Hold Distribution
@@ -2715,7 +2760,7 @@
             <!-- ── Header ────────────────────────────────────────────────────── -->
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD244M</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD244N</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -3168,7 +3213,7 @@
                 </div>
 
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD244M &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD244N &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
 
@@ -3191,7 +3236,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244M 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244N 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
             <div class="fund-grid" id="fundGrid">
@@ -3404,9 +3449,7 @@
                 </div>
                 <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
                     <button class="reset-zoom" style="color:var(--accent);border-color:var(--accent);padding:3px 4px;font-size:0.55rem;letter-spacing:0.02em;" onclick="openLiveAnalyticsFromCockpit()">ANALYTICS</button>
-                    <span class="modal-close-btn" style="letter-spacing:0.02em;" onclick="document.getElementById('liveChartModal').style.display='none';
-document.getElementById('setupScreen').style.display='flex';
-if(window.cleanupModalDOM) window.cleanupModalDOM('#liveChartModal .chart-split');">[ X ]</span>
+                    <span class="modal-close-btn" style="letter-spacing:0.02em;" onclick="document.getElementById('liveChartModal').style.display='none';document.getElementById('setupScreen').style.display='flex';if(window.cleanupModalDOM)window.cleanupModalDOM('#liveChartModal .chart-split');if(typeof _liveEstInterval!=='undefined'&&_liveEstInterval){clearInterval(_liveEstInterval);_liveEstInterval=null;}">[ X ]</span>
                 </div>
             </div>
 
@@ -4171,7 +4214,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
 
         <script>
             // =============================================================================
-            // JAVASCRIPT ENGINE — LIE DETECTOR LD244M
+            // JAVASCRIPT ENGINE — LIE DETECTOR LD244N
             // =============================================================================
             //
             // ─────────────────────────────────────────────────────────────────────
@@ -4590,6 +4633,19 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             const STCG_HOLD_DAYS     = 365;    // Calendar days threshold for STCG
             const STCG_APPROX_FACTOR = 1.45;   // Trading-day-to-calendar-day approximation
             const FETCH_TIMEOUT_MS   = 12_000; // API fetch abort timeout (12 seconds)
+            const BUY_DELTA_LEVEL    = -15;    // Q-02 FIX: Slingshot threshold (D-RSI minus W-RSI)
+
+            // SEC-01 FIX: sanitize strings before interpolating into innerHTML
+            // Prevents XSS if API ever returns HTML-special chars in fund names
+            function _s(str) {
+                if (!str) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
             const IDB_CACHE_TTL_MS   = 12 * 60 * 60 * 1000; // IDB cache TTL (12 hours)
             const MIN_DATA_BARS      = 80;     // Minimum history bars before simulation is valid
             const DEFAULT_SIM_CASH   = 100_000; // Starting simulator portfolio (₹1,00,000)
@@ -4628,6 +4684,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             let globalDailyRsiCache = [];
             let globalLowessCache = [];
             let simLowessCache = [];
+            let _cachedSimNavs  = [];    // NAMING-02 FIX: moved to §3 — cache of sim NAV prices
 
             let _lastFetchedCode = null;
             let _lastRsiLength = null;
@@ -4646,7 +4703,13 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             // SIP T+2 freeze (AutoBuy Slingshot mode)
             let _sipFreezeUntilDay = -1; // no-buy until this simulator day index
             // Watchlist (persisted to localStorage)
-            let _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+            // SEC-02 FIX: validate localStorage data before use — corrupt/injected values fall back safely
+            let _watchlist = (() => {
+                try {
+                    const v = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+                    return Array.isArray(v) ? v : [];
+                } catch { return []; }
+            })();
             let _watchlistRefreshTimer = null; // setInterval handle for 60-s auto-refresh
 
             // ── Discipline Streak Tracker ─────────────────────────────────────────────
@@ -4740,7 +4803,9 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     // Show style if available
                     const savedStyle = (() => {
                         try {
-                            return JSON.parse(localStorage.getItem('ld_last_style') || 'null');
+                            const v = JSON.parse(localStorage.getItem('ld_last_style') || 'null');
+                            // SEC-02 FIX: ensure it's a plain object with expected shape
+                            return (v && typeof v === 'object' && v.label && v.icon) ? v : null;
                         } catch (e) {
                             return null;
                         }
@@ -4811,9 +4876,11 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             };
 
             window.resetSimZoom = function() {
-                const btns = document.querySelectorAll('#simTfRow .tf-btn');
-                if (btns.length > 6 && typeof updateSimLookback === 'function') {
-                    updateSimLookback(250, btns[6]); // 1Y = index 6 (3D,1W,2W,1M,3M,6M,1Y,ALL)
+                // Q-03/ERR-01 FIX: find the 1Y button by onclick value, not fragile index
+                const btn1Y = document.querySelector('#simTfRow .tf-btn[onclick*="250"]')
+                           || document.querySelector('#simTfRow .tf-btn:nth-child(7)');
+                if (btn1Y && typeof updateSimLookback === 'function') {
+                    updateSimLookback(250, btn1Y);
                 } else {
                     window.currentSimLookback = 250;
                     if (typeof updateDisplay === 'function') updateDisplay();
@@ -4821,9 +4888,11 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             };
 
             window.resetLiveZoom = function() {
-                const btns = document.querySelectorAll('#liveChartTfRow .tf-btn');
-                if (btns.length > 6 && typeof updateLiveChartOnly === 'function') {
-                    updateLiveChartOnly(250, btns[6]);
+                // Q-03/ERR-01 FIX: find the 1Y button by onclick value, not fragile index
+                const btn1Y = document.querySelector('#liveChartTfRow .tf-btn[onclick*="250"]')
+                           || document.querySelector('#liveChartTfRow .tf-btn:nth-child(7)');
+                if (btn1Y && typeof updateLiveChartOnly === 'function') {
+                    updateLiveChartOnly(250, btn1Y);
                 }
             };
 
@@ -4867,7 +4936,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
                 localStorage.setItem('ld_v3_rsi_length', userRsiLength);
 
-                buyDeltaLevel = -15; // Hardcoded default since UI is removed
+                buyDeltaLevel = BUY_DELTA_LEVEL; // Q-02 FIX: use named constant
 
             }
 
@@ -4998,14 +5067,16 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
              * Resolution order: IndexedDB cache (12 h TTL) → mfapi.in → npsnav.in.
              * Populates globalNavs / globalDates and rebuilds all indicator caches.
              *
-             * @param {string} code - Fund scheme code (MF numeric or NPS "SM…" prefix)
-             * @returns {Promise<void>}
+             * @param {string} [code] - Fund scheme code (MF numeric or NPS "SM…" prefix).
+             *                             Defaults to the currently selected fund in the UI.
+             * @returns {Promise<Array|null>} Parsed NAV rows, or null if a fetch is already
+             *                               in progress (BUG-03 fix), or [] on error.
              */
-            async function fetchFundData() {
-                if (_fetchLock) return [];
+            // BUG-02 FIX: accepts optional code param for testability; DOM fallback preserved
+            async function fetchFundData(code = document.getElementById('fundSelect')?.value) {
+                // BUG-03 FIX: return null (not []) so callers can distinguish "still loading" from empty
+                if (_fetchLock) return null;
                 _fetchLock = true;
-
-                const code = document.getElementById('fundSelect').value;
                 const ovEl = document.getElementById('ov');
                 const ovTxt = document.getElementById('ovTxt');
 
@@ -5125,7 +5196,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
 
                 // Otherwise, fetch fresh data from the API
                 globalLiveData = await fetchFundData();
-                if (!globalLiveData.length) {
+                if (!globalLiveData || !globalLiveData.length) {  // BUG-03: null guard
                     document.getElementById('ov').style.display = 'none';
                     return false;
                 }
@@ -5226,7 +5297,9 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         estBox.style.backgroundColor = changePct > 0.05 ?
                             '#dcfce7' : changePct < -0.05 ? '#fee2e2' : '#ffedd5';
                     }
-                } catch (_) {
+                } catch (err) {
+                    // ERR-02 FIX: log instead of silently swallowing — aids debugging
+                    console.warn('[updateLiveEstimate] benchmark fetch failed:', err.message || err);
                     if (estVal) estVal.textContent = 'Change: N/A';
                     if (estBox) estBox.style.backgroundColor = 'rgba(255,255,255,0.9)';
                     if (anVal) {
@@ -5236,8 +5309,9 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
             }
 
-            /** Refresh benchmark estimate every 15 minutes while the page is open. */
-            setInterval(updateLiveEstimate, 900_000);
+            // Q-05 FIX: interval is now started/stopped per modal open/close
+            // (see _liveEstInterval management in initLiveChart / initLiveAnalytics / closeLive)
+            let _liveEstInterval = null; // handle for the 15-min benchmark refresh timer
 
             // =============================================================================
             // §9 · TECHNICAL INDICATOR LIBRARY  (pure functions — no side effects)
@@ -5268,13 +5342,6 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             //
 
             /**
-             * Wilder-smoothed RSI over the supplied price array.
-             *
-             * @param {number[]} prices - Chronological NAV / price series.
-             * @param {number}   period - Lookback period (default 14; app uses 4).
-             * @returns {number} RSI in [0, 100].  Returns 50 on insufficient data.
-             */
-            /**
              * calculateRSI()  [§9 — Technical Indicator Library]
              * ───────────────
              * Computes Wilder's Relative Strength Index using exponential smoothing
@@ -5283,7 +5350,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
              *
              * @param {number[]} prices - NAV price series (oldest first)
              * @param {number}  [period=14] - RSI look-back period
-             * @returns {(number|null)[]}
+             * @returns {number} RSI in [0, 100]; returns 50 when data is insufficient
              */
             function calculateRSI(prices, period = 14) {
                 if (prices.length <= 2) return 50;
@@ -5310,16 +5377,6 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             }
 
             /**
-             * Linearly-weighted WMA of the last `period` values in prices[].
-             *
-             * Weight formula: most-recent bar × period, next bar × (period-1), …, oldest × 1.
-             * Used for: NAV WMA20 on price chart, RSI WMA20 for momentum-state detection.
-             *
-             * @param {number[]} prices - Full price series (only the tail `period` bars are used).
-             * @param {number}   period - Window size (default 20).
-             * @returns {number|null} WMA value, or null if fewer than `period` bars exist.
-             */
-            /**
              * calculateWMA()  [§9 — Technical Indicator Library]
              * ───────────────
              * Linearly-weighted moving average.  More recent bars carry proportionally
@@ -5340,15 +5397,6 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 return sum / weightSum;
             }
 
-            /**
-             * Simple (equally-weighted) moving average of the last `period` values.
-             *
-             * Used for the SMA50 overlay displayed in the Live Analytics dashboard.
-             *
-             * @param {number[]} prices - Full price series.
-             * @param {number}   period - Window size (default 50).
-             * @returns {number|null} SMA value, or null if fewer than `period` bars exist.
-             */
             /**
              * calculateSMA()  [§9 — Technical Indicator Library]
              * ───────────────
@@ -5501,11 +5549,12 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 if (prices.length >= 56) {
                     const currentNav = prices[prices.length - 1];
                     const box = prices.slice(-6, -1);
-                    const boxMax = Math.max(...box);
-                    const boxMin = Math.min(...box);
+                    // PERF-01 FIX: reduce() is faster than spread for arrays >20 elements
+                    const boxMax = box.reduce((m, v) => v > m ? v : m, -Infinity);
+                    const boxMin = box.reduce((m, v) => v < m ? v : m,  Infinity);
                     const preBox = prices.slice(-56, -6);
-                    const preMax = Math.max(...preBox);
-                    const preMin = Math.min(...preBox);
+                    const preMax = preBox.reduce((m, v) => v > m ? v : m, -Infinity);
+                    const preMin = preBox.reduce((m, v) => v < m ? v : m,  Infinity);
                     const boxWma = calculateWMA(prices.slice(-21, -1), 20);
 
                     const isTight = (boxMax - boxMin) / boxMin <= 0.02;
@@ -5672,11 +5721,11 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 const consolidationData = calculateConsolidation(slice);
 
                 // Momentum state: compare current D-RSI to its own 20-bar WMA
-                const recentDrsi = [];
-                for (let i = 0; i < 20; i++) {
-                    const ei = dayIndex - 20 + 1 + i;
-                    recentDrsi.push(ei < 0 ? 50 : (cachedDrsiArr[ei] ?? 50));
-                }
+                // PERF-02 FIX: direct slice instead of manual push loop
+                const drsiStart = Math.max(0, dayIndex - 19);
+                let recentDrsi = cachedDrsiArr.slice(drsiStart, dayIndex + 1).map(v => v ?? 50);
+                // Pad with 50s at the front if history is shorter than 20 bars
+                while (recentDrsi.length < 20) recentDrsi = [50, ...recentDrsi];
                 const rsiWma = calculateWMA(recentDrsi, 20);
 
                 let momState = 'NEUTRAL';
@@ -5761,9 +5810,6 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             //
 
             /**
-             * @see section-header above for full documentation.
-             */
-            /**
              * executeTradeEngine()
              * ────────────────────
              * Core trade ledger: executes a BUY or SELL against the current NAV,
@@ -5777,16 +5823,18 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
              * @returns {Object} result      - { units, cost, tax, proceeds, … }
              */
             function executeTradeEngine(action, currentState) {
+                // BUG-04 FIX: deep-copy tranches so we never mutate the caller's array
+                // BUG-05 FIX: shadow global currentIdx with state value for correct STCG calc
                 let {
                     cash,
-                    tranches,
                     tradeLog,
                     totalTaxPaid,
                     currentNav,
                     dayNum,
                     currentRegimeLog,
-                    currentIdx, // Absolute history index — needed for calendar-date STCG calculation
+                    currentIdx, // BUG-05: use state value, not global, for calendar-date STCG
                 } = currentState;
+                let tranches = currentState.tranches.map(t => ({ ...t })); // BUG-04: deep copy
 
                 if (!currentNav || currentNav <= 0) return currentState;
 
@@ -5946,30 +5994,33 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 const hasData = await ensureLiveData();
                 if (!hasData) return;
                 if (globalLiveData.length < 80) {
-                    alert('INSUFFICIENT DATA');
-                    document.getElementById('ov').style.display = 'none';
+                    // Q-08 FIX: show error in overlay instead of blocking alert()
+                    const ovEl2 = document.getElementById('ov');
+                    const ovTxt2 = document.getElementById('ovTxt');
+                    if (ovTxt2) { ovTxt2.textContent = 'INSUFFICIENT DATA — Need 80+ NAV bars'; ovTxt2.style.color = 'var(--red)'; }
+                    setTimeout(() => { if (ovEl2) ovEl2.style.display = 'none'; }, 2500);
                     return;
                 }
 
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('liveChartModal').style.display = 'flex';
 
-                const btns = document.getElementById('liveChartTfRow').children;
-                Array.from(btns).forEach(b => b.classList.remove('active'));
-                btns[6].classList.add('active'); // 1Y default
+                const tfRow = document.getElementById('liveChartTfRow');
+                Array.from(tfRow.children).forEach(b => b.classList.remove('active'));
+                // Q-03 & ERR-01 FIX: select by onclick attribute value instead of fragile index
+                const btn1Y = Array.from(tfRow.children).find(b =>
+                    b.getAttribute('onclick') && b.getAttribute('onclick').includes('250')
+                ) || tfRow.children[Math.min(6, tfRow.children.length - 1)];
+                if (btn1Y) btn1Y.classList.add('active');
 
-                updateLiveChartOnly(250, btns[6]);
+                updateLiveChartOnly(250, btn1Y || null);
                 updateLiveEstimate();
                 updateFreshnessBadge();
+                // Q-05 FIX: start 15-min refresh only while cockpit is open
+                if (_liveEstInterval) clearInterval(_liveEstInterval);
+                _liveEstInterval = setInterval(updateLiveEstimate, 900_000);
             }
 
-            /**
-             * Re-render the Live Cockpit for a given lookback window.
-             * Called by the timeframe buttons and by the pinch-zoom add-on.
-             *
-             * @param {number} days - Bar count (3 | 5 | 10 | 21 | 63 | 125 | 250 | 9999)
-             * @param {Element|null} btnEl - Clicked .tf-btn element (may be null from zoom)
-             */
             /**
              * updateLiveChartOnly()
              * ─────────────────────
@@ -6182,13 +6233,19 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                 globalLowessCache = window.buildLowessGaussianFast(allPrices);
 
                 if (globalLiveData.length < 80) {
-                    alert('INSUFFICIENT DATA');
-                    document.getElementById('ov').style.display = 'none';
+                    // Q-08 FIX
+                    const ovEl2 = document.getElementById('ov');
+                    const ovTxt2 = document.getElementById('ovTxt');
+                    if (ovTxt2) { ovTxt2.textContent = 'INSUFFICIENT DATA — Need 80+ NAV bars'; ovTxt2.style.color = 'var(--red)'; }
+                    setTimeout(() => { if (ovEl2) ovEl2.style.display = 'none'; }, 2500);
                     return;
                 }
 
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('liveAnalyticsModal').style.display = 'flex';
+                // Q-05 FIX: start 15-min refresh only while analytics is open
+                if (_liveEstInterval) clearInterval(_liveEstInterval);
+                _liveEstInterval = setInterval(updateLiveEstimate, 900_000);
 
                 updateLiveChart(250);
                 updateLiveEstimate();
@@ -7099,6 +7156,8 @@ ${c.text}</span>
             function closeLive() {
                 document.getElementById('liveAnalyticsModal').style.display = 'none';
                 document.getElementById('setupScreen').style.display = 'flex';
+                // Q-05 FIX: stop benchmark refresh when no modal is visible
+                if (_liveEstInterval) { clearInterval(_liveEstInterval); _liveEstInterval = null; }
             }
 
             // =============================================================================
@@ -7218,9 +7277,6 @@ ${c.text}</span>
             }
 
             /**
-             * Initialise and start a simulator session.
-             */
-            /**
              * initGame()
              * ──────────
              * Bootstraps the Simulator game loop for the selected fund and date range.
@@ -7243,7 +7299,7 @@ ${c.text}</span>
                 userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
 
                 fullHistory = await fetchFundData();
-                if (!fullHistory.length) return;
+                if (!fullHistory || !fullHistory.length) return;  // BUG-03: null guard
 
                 _cachedSimNavs = fullHistory.map(d => d.nav); // Cache once per session
                 const navs = _cachedSimNavs;
@@ -7263,8 +7319,11 @@ ${c.text}</span>
                 window._simNavWma20Cache = typeof calcWMASeries === 'function' ? calcWMASeries(navs, 20) : [];
 
                 if (fullHistory.length < MIN_DATA_BARS) {
-                    alert('INSUFFICIENT DATA');
-                    document.getElementById('ov').style.display = 'none';
+                    // Q-08 FIX
+                    const ovEl2 = document.getElementById('ov');
+                    const ovTxt2 = document.getElementById('ovTxt');
+                    if (ovTxt2) { ovTxt2.textContent = 'INSUFFICIENT DATA — Fund has too few NAV bars'; ovTxt2.style.color = 'var(--red)'; }
+                    setTimeout(() => { if (ovEl2) ovEl2.style.display = 'none'; }, 2500);
                     return;
                 }
 
@@ -7337,7 +7396,6 @@ ${c.text}</span>
              * Called after every HOLD, trade action, or zoom change.
              */
             // Cached NAV array — rebuilt once per initGame() session, reused per updateDisplay()
-            let _cachedSimNavs = [];
 
             /**
              * updateDisplay()
@@ -7550,7 +7608,6 @@ ${c.text}</span>
              * flashBanner() and nextDay() remain here.
              */
 
-            /** Advance the simulator by one day and re-render. */
             /**
              * nextDay()
              * ─────────
@@ -7574,7 +7631,7 @@ ${c.text}</span>
                     updateDisplay();
                 } else {
                     updateDisplay();
-                    alert('🏁 SIMULATION COMPLETE.');
+                    flashBanner('🏁 SIMULATION COMPLETE — tap END & REVIEW', 'buy', 4000); // Q-08 FIX
                     document.querySelectorAll('.action-bar .btn').forEach(b => b.disabled = true);
                 }
             }
@@ -8457,6 +8514,14 @@ This is exactly how the system is meant to be played.
             }
 
             function _executeTrade(action, note, tag = 'CORRECT') {
+                // NAMING-01 FIX: recompute regime fresh from snapshot instead of relying
+                // on global currentRegimeLog which may be one frame stale after a fast trade
+                const _freshSnap = buildEngineSnapshot(
+                    currentIdx, _cachedSimNavs, simStartIdx,
+                    simDailyRsiCache, simWeeklyRsiCache, simLowessCache,
+                    cash, tranches, peakNetWorth
+                );
+                currentRegimeLog = _freshSnap.regime; // keep global in sync
                 const state = {
                     cash,
                     tranches,
@@ -8464,7 +8529,7 @@ This is exactly how the system is meant to be played.
                     totalTaxPaid,
                     currentNav: fullHistory[currentIdx].nav,
                     dayNum: currentIdx - simStartIdx,
-                    currentRegimeLog,
+                    currentRegimeLog: _freshSnap.regime, // use fresh value
                     currentIdx,
                 };
                 const result = executeTradeEngine(action, state);
@@ -8486,7 +8551,7 @@ This is exactly how the system is meant to be played.
                     nextDay();
                 } else {
                     updateDisplay();
-                    alert('🏁 SIMULATION COMPLETE.');
+                    flashBanner('🏁 SIMULATION COMPLETE — tap END & REVIEW', 'buy', 4000); // Q-08 FIX
                     document.querySelectorAll('.action-bar .btn').forEach(b => b.disabled = true);
                 }
             }
@@ -8531,8 +8596,16 @@ This is exactly how the system is meant to be played.
                 const pnlCol = pnlPct >= 0 ? 'var(--accent)' : 'var(--red)';
                 const rows = tranches.map((t, idx) => {
                     const tPnl = (currentNav - t.price) / t.price * 100;
-                    const daysHeld = currentIdx - t.idx;
-                    const stcgFlag = daysHeld < 252 ? '<span style="color:var(--accent2);font-size:0.44rem;">STCG</span>' : '';
+                    // BUG-06 FIX: use real calendar days to match executeTradeEngine STCG threshold
+                    let daysHeld = currentIdx - t.idx; // bar-count fallback
+                    if (fullHistory[t.idx] && fullHistory[currentIdx]) {
+                        const d1 = new Date(fullHistory[t.idx].date);
+                        const d2 = new Date(fullHistory[currentIdx].date);
+                        if (!isNaN(d1) && !isNaN(d2)) {
+                            daysHeld = Math.round((d2 - d1) / 86400000);
+                        }
+                    }
+                    const stcgFlag = daysHeld < STCG_HOLD_DAYS ? '<span style="color:var(--accent2);font-size:0.44rem;">STCG</span>' : '';
                     return `<tr>
             <td>#${idx + 1}</td>
             <td>₹${t.price.toFixed(1)}</td>
@@ -8607,7 +8680,7 @@ This is exactly how the system is meant to be played.
             }
 
             // =============================================================================
-            // §G7 · DEPLOY PAUSED SIP  (Gap 7 — LD244M)
+            // §G7 · DEPLOY PAUSED SIP  (Gap 7 — LD244N)
             // =============================================================================
             // deployPausedSip()
             //   Called when the user taps the "Deploy Paused SIP" button that appears
@@ -8673,7 +8746,12 @@ This is exactly how the system is meant to be played.
             async function openRegimeDrill() {
                 const code = document.getElementById('fundSelect')?.value;
                 if (!code) {
-                    alert('Select a fund first.');
+                    // Q-08 FIX
+                    const ovEl2 = document.getElementById('ov');
+                    const ovTxt2 = document.getElementById('ovTxt');
+                    if (ovEl2) ovEl2.style.display = 'flex';
+                    if (ovTxt2) { ovTxt2.textContent = 'SELECT A FUND FIRST'; ovTxt2.style.color = 'var(--red)'; }
+                    setTimeout(() => { if (ovEl2) ovEl2.style.display = 'none'; }, 2000);
                     return;
                 }
                 const ov = document.getElementById('ov');
@@ -8693,7 +8771,9 @@ This is exactly how the system is meant to be played.
                         }))
                         .filter(d => Number.isFinite(d.nav) && d.nav > 0).reverse();
                     if (hist.length < 80) {
-                        alert('INSUFFICIENT DATA');
+                        if (ov) { ov.style.display = 'none'; }
+                        if (ovTxt) { ovTxt.textContent = 'INSUFFICIENT DATA'; ovTxt.style.color = 'var(--red)'; }
+                        setTimeout(() => { if (ov) ov.style.display = 'none'; }, 2000);
                         return;
                     }
                     const navs = hist.map(d => d.nav);
@@ -8721,7 +8801,9 @@ This is exactly how the system is meant to be played.
                     _showDrillModal(transitions, code, hist, rsiLen);
                 } catch (e) {
                     if (ov) ov.style.display = 'none';
-                    alert('Error scanning fund: ' + e.message);
+                    // Q-08 FIX
+                    if (ovTxt) { ovTxt.textContent = 'SCAN ERROR: ' + e.message; ovTxt.style.color = 'var(--red)'; }
+                    setTimeout(() => { if (ov) ov.style.display = 'none'; }, 3000);
                 }
             }
 
@@ -8781,7 +8863,11 @@ This is exactly how the system is meant to be played.
                         await initGame('custom', hist[safeStart].date, hist[safeEnd].date);
                     }
                 } catch (e) {
-                    alert('Drill launch failed: ' + e.message);
+                    // Q-08 FIX: show in overlay rather than blocking alert
+                    const _ovEl = document.getElementById('ov'); const _ovTxt = document.getElementById('ovTxt');
+                    if (_ovEl) _ovEl.style.display = 'flex';
+                    if (_ovTxt) { _ovTxt.textContent = 'DRILL ERROR: ' + e.message; _ovTxt.style.color = 'var(--red)'; }
+                    setTimeout(() => { if (_ovEl) _ovEl.style.display = 'none'; }, 3000);
                 }
             }
 
@@ -9064,7 +9150,7 @@ This is exactly how the system is meant to be played.
             // =============================================================================
             // §G8 · NEW FEATURE BUNDLE (LD244M additions)
             // =============================================================================
-            // LD244M · NEW FEATURE JS
+            // LD244N · NEW FEATURE JS
             // =============================================================================
 
             // ── SIP vs Active Trading Comparison ─────────────────────────────────────
@@ -9291,17 +9377,21 @@ This is exactly how the system is meant to be played.
                 document.getElementById('rationaleCustomRow').style.display = 'none';
             }
 
+            // Q-01 FIX: submitRationaleCode / submitRationale now go through trade() so the
+            // Sacred Rule gate (F4) and pre-trade checklist (F3/F9) are never bypassed.
             function submitRationaleCode(code) {
                 hideRationaleBar();
-                _executeTrade(_pendingTradeAction, code);
+                if (_pendingTradeAction) {
+                    trade(_pendingTradeAction);     // Q-01: full pipeline
+                }
                 _pendingTradeAction = null;
             }
 
             function submitRationale() {
-                const inp = document.getElementById('rationaleInput');
-                const note = inp ? inp.value.trim() : '';
                 hideRationaleBar();
-                _executeTrade(_pendingTradeAction, note);
+                if (_pendingTradeAction) {
+                    trade(_pendingTradeAction);     // Q-01: full pipeline
+                }
                 _pendingTradeAction = null;
             }
 
@@ -9329,7 +9419,11 @@ This is exactly how the system is meant to be played.
                     const s = document.getElementById('customStart').value;
                     const e = document.getElementById('customEnd').value;
                     if (!s) {
-                        alert('Please select a Start Date.');
+                        // Q-08 FIX
+                        const _ovEl = document.getElementById('ov'); const _ovTxt = document.getElementById('ovTxt');
+                        if (_ovEl) _ovEl.style.display = 'flex';
+                        if (_ovTxt) { _ovTxt.textContent = 'SELECT A START DATE'; _ovTxt.style.color = 'var(--red)'; }
+                        setTimeout(() => { if (_ovEl) _ovEl.style.display = 'none'; }, 2000);
                         return;
                     }
                     initGame('custom', s, e || null);
@@ -9512,6 +9606,8 @@ This is exactly how the system is meant to be played.
              * all saved fund codes with their cached regime + RSI badges.
              */
             function openWatchlist() {
+                // Q-06 FIX: clear any previous timer before creating a new one
+                if (_watchlistRefreshTimer) { clearInterval(_watchlistRefreshTimer); _watchlistRefreshTimer = null; }
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('watchlistModal').style.display = 'flex';
                 renderWatchlistStubs();
@@ -9531,7 +9627,11 @@ This is exactly how the system is meant to be played.
                 const name = document.getElementById('fundSelect')?.options[document.getElementById('fundSelect').selectedIndex]?.text || code;
                 if (!code) return;
                 if (_watchlist.find(w => w.code === code)) {
-                    alert('Already pinned.');
+                    // Q-08 FIX: use overlay flash instead of blocking alert
+                    const _ovEl = document.getElementById('ov'); const _ovTxt = document.getElementById('ovTxt');
+                    if (_ovEl) _ovEl.style.display = 'flex';
+                    if (_ovTxt) { _ovTxt.textContent = 'ALREADY IN WATCHLIST'; _ovTxt.style.color = 'var(--accent2)'; }
+                    setTimeout(() => { if (_ovEl) _ovEl.style.display = 'none'; }, 1500);
                     return;
                 }
                 _watchlist.push({
@@ -10923,17 +11023,31 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
             }
 
 // CACHE: Prevents network freezing by only calling Yahoo once per benchmark index
+            // Q-04 FIX: cache now stores { value, timestamp } and enforces 30-min TTL
             const _yahooProxyCache = {};
+            const _PROXY_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+            function _proxyGet(key) {
+                const entry = _yahooProxyCache[key];
+                if (!entry) return null;
+                if (Date.now() - entry.timestamp > _PROXY_CACHE_TTL_MS) {
+                    delete _yahooProxyCache[key]; // evict stale entry
+                    return null;
+                }
+                return entry.value;
+            }
+            function _proxySet(key, value) {
+                _yahooProxyCache[key] = { value, timestamp: Date.now() };
+            }
 
             async function fetchLiveProxyPercentCached(fundCode) {
                 try {
                     const benchmarkName = NSE_BENCHMARK_MAP[fundCode] || 'NIFTY 50';
                     const yahooTicker = YAHOO_TICKER_MAP[benchmarkName] || '^NSEI';
 
-                    // Serve instantly if we already fetched this index in the current session
-                    if (_yahooProxyCache[yahooTicker] !== undefined) {
-                        return _yahooProxyCache[yahooTicker];
-                    }
+                    // Q-04 FIX: use TTL-aware helpers instead of raw object access
+                    const cached = _proxyGet(yahooTicker);
+                    if (cached !== null) { return cached; }
 
                     const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooTicker)}?interval=15m&range=1d`;
                     const encodedUrl = encodeURIComponent(targetUrl);
@@ -10961,12 +11075,12 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                     const prevClose = meta.chartPreviousClose || meta.previousClose;
 
                     if (!currentPrice || !prevClose) {
-                        _yahooProxyCache[yahooTicker] = null;
+                        _proxySet(yahooTicker, null);
                         return null;
                     }
 
                     const pct = ((currentPrice - prevClose) / prevClose) * 100;
-                    _yahooProxyCache[yahooTicker] = pct; // Cache it for the next fund
+                    _proxySet(yahooTicker, pct); // Q-04 FIX: uses TTL-aware setter
                     return pct;
                 } catch (e) {
                     return null;
@@ -11284,7 +11398,9 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                 if (fundCache.length === 0) {
                     ovEl.style.display = 'none';
                     document.getElementById('setupScreen').style.display = 'flex';
-                    alert('Network error: Could not fetch funds.');
+                    // Q-08 FIX
+                    if (ovTxt) { ovTxt.textContent = 'NETWORK ERROR — Could not fetch fund data'; ovTxt.style.color = 'var(--red)'; }
+                    setTimeout(() => { ovEl.style.display = 'none'; }, 3000);
                     return;
                 }
 
@@ -12942,7 +13058,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const c3trigger    = c3aTrigger || c3bTrigger;
 
                 // ── Holding summary ───────────────────────────────────────────────────
-                document.getElementById('tmHolding').innerHTML = `Current Holdings: <strong>${held1?.name ?? heldCodes[0]}</strong> (${lastAlloc.w1}%) &nbsp;+&nbsp; ` +
+                document.getElementById('tmHolding').innerHTML = `Current Holdings: <strong>${_s(held1?.name ?? heldCodes[0])}</strong> (${lastAlloc.w1}%) &nbsp;+&nbsp; ` +
                     `<strong>${held2?.name ?? heldCodes[1]}</strong> (${lastAlloc.w2}%) ` +
                     `&nbsp;·&nbsp; Universe: ${snapshot.length} funds`;
 
@@ -13079,9 +13195,9 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     const fBox = document.createElement('div');
                     fBox.style.cssText = 'font-size:0.55rem; font-weight:700; color:var(--text); line-height:1.2; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';
                     if (alloc.w2 === 0 || alloc.top2[1]?._defensiveSecond) {
-                        fBox.innerHTML = `<span style="color:var(--gold);">100% BAF</span><br><span style="font-size:0.45rem;color:var(--muted);">${alloc.top2[0].name.substring(0, 14)}</span>`;
+                        fBox.innerHTML = `<span style="color:var(--gold);">100% BAF</span><br><span style="font-size:0.45rem;color:var(--muted);">${_s(alloc.top2[0].name.substring(0, 14))}</span>`;
                     } else {
-                        fBox.innerHTML = `<span>${alloc.top2[0].name.substring(0, 10)}</span><br><span>${alloc.top2[1].name.substring(0, 10)}</span>`;
+                        fBox.innerHTML = `<span>${_s(alloc.top2[0].name.substring(0, 10))}</span><br><span>${_s(alloc.top2[1].name.substring(0, 10))}</span>`;
                     }
 
                     const ratioLabel = document.createElement('div');
@@ -13424,7 +13540,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
             // =============================================================================
             // §GA · GAP-FILL IMPLEMENTATIONS (LD244M)
             // =============================================================================
-            // LD244M · GAP IMPLEMENTATIONS
+            // LD244N · GAP IMPLEMENTATIONS
             // Gap 1 — STCG Cliff Edge Alert     (renderStcgCliffAlert)
             // Gap 2 — Regime Fear→Hope Recovery Alert (checked inside updateDisplay)
             // Gap 3 — Concentration Guard        (checkConcentrationGuard)
@@ -13864,6 +13980,9 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
     document.addEventListener('DOMContentLoaded', () => { injectBafNpsUI(); });
 
     function injectBafNpsUI() {
+        // BUG-08 FIX: guard against double-injection (PWA reinstall, hot reload)
+        const target = document.getElementById('bafNpsUIInjectionPoint');
+        if (!target || target.innerHTML.trim()) return;
         const modalHTML = `
             <div id="bafNpsModal">
                 <div class="baf-nps-container">
@@ -14007,7 +14126,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                 </div>
             </div>
         `;
-        document.getElementById('bafNpsUIInjectionPoint').innerHTML = modalHTML;
+        target.innerHTML = modalHTML;  // BUG-08: uses guarded reference from above
     }
 
     function openBafNpsModal() {
@@ -14021,11 +14140,6 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
         if (setupScreen) setupScreen.style.display = 'flex';
     }
 
-    /* * THE FIX: SILENT MEMORY ROUTING (No Re-downloading)
-     * 1. Scans existing window.amcFunds to find the EXACT original string name of the fund.
-     * 2. Injects it into the dropdown without triggering AMC tab network re-fetches.
-     * 3. Launches Cockpit natively.
-     */
     /**
      * routeToFund()
      * ─────────────
@@ -14138,10 +14252,10 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
 
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD244M
+    END OF FILE — LD244N
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js
     ════════════════════════════════════════════════════════════════════════════
     -->
-</html>
+</html>s

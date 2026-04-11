@@ -13225,6 +13225,313 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
 
 </script>
 
+<style>
+    /* STRICT GLOBAL RESET FOR THIS MODAL */
+    #bafNpsModal, #bafNpsModal * {
+        font-weight: normal !important;
+        font-family: monospace;
+    }
+
+    #bafNpsModal {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); z-index: 2500;
+        justify-content: center; align-items: center; backdrop-filter: blur(4px);
+    }
+    
+    .baf-nps-container {
+        position: relative; background: #121212; color: #aaaaaa;
+        width: 95%; max-width: 700px; max-height: 95vh; overflow-y: auto;
+        border: 1px solid #333333; border-radius: 8px;
+        padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .close-btn-top {
+        position: absolute; top: 12px; right: 15px;
+        background: transparent; border: none; color: #888888;
+        font-size: 26px; cursor: pointer;
+    }
+
+    .baf-nps-header {
+        text-align: center; border-bottom: 1px dashed #333333;
+        padding-bottom: 12px; margin-bottom: 15px;
+    }
+    
+    /* Replaced h2 with standard div to prevent default bolding */
+    .header-title-text {
+        font-size: 16px; color: #aaaaaa; letter-spacing: 2px; padding: 0 30px;
+    }
+
+    .sandbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+    .sandbox-card { background: rgba(150,150,150,0.05); border: 1px solid #444444; border-radius: 6px; padding: 15px; text-align: center; }
+    
+    /* Replaced h3 with standard div */
+    .sandbox-card-title { font-size: 14px; color: #d4af37; letter-spacing: 1px; margin-bottom: 10px; }
+
+    .nps-counter-box {
+        background: rgba(255, 0, 0, 0.1); border: 1px solid #ff4444;
+        padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 15px;
+    }
+    .nps-dots { display: flex; justify-content: center; gap: 8px; margin-top: 8px; }
+    .nps-dot { width: 12px; height: 12px; border-radius: 50%; background: #333333; border: 1px solid #666666; }
+    .nps-dot.used { background: #ff4444; border-color: #ff4444; }
+
+    .action-row { display: flex; flex-direction: column; gap: 10px; }
+    .action-btn { background: transparent; border: 1px solid #333333; color: #aaaaaa; padding: 10px; border-radius: 4px; cursor: pointer; }
+    .action-btn.crash { border-color: #00C853; color: #00C853; }
+    .action-btn.overbought { border-color: #ff4444; color: #ff4444; }
+
+    .divider-hr { border: 0; border-top: 1px dashed #444444; margin: 20px 0; }
+    .section-title { font-size: 12px; color: #888888; text-transform: uppercase; margin-bottom: 10px; }
+
+    /* AMC Status Table - Pure Black Text, Light Grey BG */
+    .amc-status-grid {
+        display: grid; grid-template-columns: 1.5fr 2fr 2fr; gap: 8px;
+        font-size: 11px;
+    }
+    .amc-row { display: contents; }
+    .amc-cell { 
+        background: #e0e0e0; border: 1px solid #999999; padding: 8px; border-radius: 3px; 
+        color: #000000; display: flex; flex-direction: column; justify-content: center;
+    }
+    .amc-header .amc-cell { background: #c0c0c0; color: #000000; }
+    
+    .status-baf { color: darkgreen; margin-bottom: 4px; }
+    .status-nps { background: transparent; color: #000000; border: none; margin-bottom: 4px; }
+
+    /* Explicit Fund Link Styling */
+    .cockpit-nav-link {
+        color: #d4af37; text-decoration: underline; cursor: pointer;
+        padding: 2px 0; margin-top: 4px; display: inline-block;
+    }
+
+    /* History Panel */
+    .history-panel { background: rgba(0,0,0,0.4); border: 1px solid #444444; border-radius: 6px; padding: 12px; max-height: 300px; overflow-y: auto; }
+    .log-entry { font-size: 11px; padding: 10px 0; border-bottom: 1px dotted #444444; color: #aaaaaa; }
+    .log-entry:last-child { border-bottom: none; }
+    .log-date { color: #d4af37; display: inline-block; width: 85px; }
+    .log-action { color: #00C853; }
+    .log-action.sell { color: #ff4444; }
+    .log-action.watch { color: #FFA000; }
+    
+    .log-metrics { background: rgba(150,150,150,0.05); border: 1px solid #333333; padding: 5px 8px; margin: 6px 0 6px 90px; border-radius: 4px; color:#888888; font-size:10px; display:inline-block; }
+    .log-metrics span { color: #aaaaaa; margin-right:8px; }
+    .log-detail { margin-left: 90px; color: #888888; line-height: 1.6; }
+</style>
+
+<div id="bafNpsUIInjectionPoint"></div>
+
+<script>
+    const BafNpsState = { npsSwitchesUsed: 0, maxSwitches: 4 };
+
+    document.addEventListener('DOMContentLoaded', () => { injectBafNpsUI(); });
+
+    function injectBafNpsUI() {
+        const modalHTML = `
+            <div id="bafNpsModal">
+                <div class="baf-nps-container">
+                    <button class="close-btn-top" onclick="closeBafNpsModal()">×</button>
+                    
+                    <div class="baf-nps-header">
+                        <div class="header-title-text">BAF ↔ NPS ROTATION</div>
+                        <div style="font-size:11px; color:#888888; margin-top:4px;">REGIME-DRIVEN SANDBOX SHIFTING</div>
+                    </div>
+
+                    <div class="sandbox-grid">
+                        <div class="sandbox-card">
+                            <div class="sandbox-card-title">SANDBOX 1 : M.F. BAF</div>
+                            <div style="font-size:12px; color:#888888;">Dynamically Managed Safe Harbor.<br>Use to park liquid cash during overbought/choppy regimes.</div>
+                        </div>
+                        <div class="sandbox-card">
+                            <div class="sandbox-card-title">SANDBOX 2 : NPS</div>
+                            <div style="font-size:12px; color:#888888;">Tier 1: Locked Equity (One-Way)<br>Tier 2: Liquid Equity<br>Only 4 Internal Switches/FY.</div>
+                        </div>
+                    </div>
+
+                    <div class="nps-counter-box">
+                        <div style="font-size:12px; color:#ff4444;">NPS TIER 1 SWITCH LIMIT TRACKER (FY)</div>
+                        <div class="nps-dots" id="npsSwitchDots">
+                            <div class="nps-dot"></div><div class="nps-dot"></div><div class="nps-dot"></div><div class="nps-dot"></div>
+                        </div>
+                        <div style="margin-top:10px;">
+                            <button class="action-btn" style="padding:4px 8px; font-size:10px;" onclick="consumeNpsSwitch()">CONSUME 1 SWITCH</button>
+                            <button class="action-btn" style="padding:4px 8px; font-size:10px;" onclick="resetNpsSwitches()">RESET FY</button>
+                        </div>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="action-btn crash" onclick="alert('Action Logged: BAF Redeemed. Funds routed to NPS Tier 1 Equity.')">
+                            [ SCENARIO A ] CRASH DEPLOYMENT<br>
+                            <span style="font-size:10px; color:#888888;">Regime Fear | W-RSI < 40 : Shift BAF → NPS Tier 1 Equity</span>
+                        </button>
+
+                        <button class="action-btn overbought" onclick="alert('Action Logged: NPS Tier 2 Redeemed. Funds parked in BAF.')">
+                            [ SCENARIO B ] OVERBOUGHT PROTECTION<br>
+                            <span style="font-size:10px; color:#888888;">Regime Watch/Overbought | W-RSI > 50 : Shift NPS Tier 2 → BAF</span>
+                        </button>
+                    </div>
+
+                    <hr class="divider-hr">
+
+                    <div class="section-title">Current Sandbox Status (Live Snapshot)</div>
+                    <div class="amc-status-grid">
+                        <div class="amc-row amc-header">
+                            <div class="amc-cell">AMC HOUSE</div>
+                            <div class="amc-cell">SANDBOX 1 (BAF)</div>
+                            <div class="amc-cell">SANDBOX 2 (NPS)</div>
+                        </div>
+                        
+                        <div class="amc-row">
+                            <div class="amc-cell">ICICI Prudential</div>
+                            <div class="amc-cell">
+                                <span class="status-baf">HOLDING (Parked)</span>
+                                <span class="cockpit-nav-link" onclick="openCockpitVerification()">ICICI Balanced Adv Fund</span>
+                            </div>
+                            <div class="amc-cell">
+                                <span class="status-nps">AWAITING T1</span>
+                                <span class="cockpit-nav-link" onclick="openCockpitVerification()">ICICI NPS Tier 1 Eq</span>
+                            </div>
+                        </div>
+                        <div class="amc-row">
+                            <div class="amc-cell">HDFC</div>
+                            <div class="amc-cell">
+                                <span class="status-baf">HOLDING (Parked)</span>
+                                <span class="cockpit-nav-link" onclick="openCockpitVerification()">HDFC Balanced Adv Fund</span>
+                            </div>
+                            <div class="amc-cell">
+                                <span class="status-nps">AWAITING T1</span>
+                                <span class="cockpit-nav-link" onclick="openCockpitVerification()">HDFC NPS Tier 1 Eq</span>
+                            </div>
+                        </div>
+                        <div class="amc-row">
+                            <div class="amc-cell">Aditya Birla</div>
+                            <div class="amc-cell">
+                                <span class="status-baf">HOLDING (Parked)</span>
+                                <span class="cockpit-nav-link" onclick="openCockpitVerification()">ABSL Balanced Adv Fund</span>
+                            </div>
+                            <div class="amc-cell">
+                                <span class="status-nps">AWAITING T1</span>
+                                <span class="cockpit-nav-link" onclick="openCockpitVerification()">ABSL NPS Tier 1 Eq</span>
+                            </div>
+                        </div>
+                        <div class="amc-row">
+                            <div class="amc-cell">Kotak</div>
+                            <div class="amc-cell">
+                                <span class="status-baf">HOLDING (Parked)</span>
+                                <span class="cockpit-nav-link" onclick="openCockpitVerification()">Kotak Balanced Adv Fund</span>
+                            </div>
+                            <div class="amc-cell">
+                                <span class="status-nps">AWAITING T1</span>
+                                <span class="cockpit-nav-link" onclick="openCockpitVerification()">Kotak NPS Tier 1 Eq</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="divider-hr">
+
+                    <div class="section-title">Historical Switch Log (FY 25-26 Backtest)</div>
+                    <div class="history-panel">
+                        
+                        <div class="log-entry">
+                            <span class="log-date">01-APR-25</span> | <span style="color:#888888;">FY START</span>
+                            <div class="log-metrics">
+                                REGIME: <span style="color:#aaaaaa;">HOPE</span> D-RSI: <span style="color:#aaaaaa;">60</span> W-RSI: <span style="color:#aaaaaa;">55</span> WMA20: <span style="color:#aaaaaa;">23,500</span> TSL: <span style="color:#aaaaaa;">23,200</span>
+                            </div>
+                            <div class="log-detail">Initial State: Surplus liquidity safely parked in Sandbox 1.</div>
+                        </div>
+
+                        <div class="log-entry">
+                            <span class="log-date">25-NOV-25</span> | <span class="log-action sell">OVERBOUGHT ALERT</span>
+                            <div class="log-metrics">
+                                REGIME: <span style="color:#aaaaaa;">EUPHORIA</span> D-RSI: <span style="color:#aaaaaa;">81</span> W-RSI: <span style="color:#aaaaaa;">72</span> WMA20: <span style="color:#aaaaaa;">25,000</span> TSL: <span style="color:#aaaaaa;">25,500</span>
+                            </div>
+                            <div class="log-detail">
+                                > FROM: <span class="cockpit-nav-link" onclick="openCockpitVerification()">HDFC NPS Tier 2</span><br>
+                                > TO: <span class="cockpit-nav-link" onclick="openCockpitVerification()">HDFC Balanced Adv Fund</span>
+                            </div>
+                        </div>
+
+                        <div class="log-entry">
+                            <span class="log-date">05-JAN-26</span> | <span class="log-action watch">REGIME WATCH</span>
+                            <div class="log-metrics">
+                                REGIME: <span style="color:#aaaaaa;">WATCH</span> D-RSI: <span style="color:#aaaaaa;">52</span> W-RSI: <span style="color:#aaaaaa;">48</span> WMA20: <span style="color:#aaaaaa;">26,000</span> TSL: <span style="color:#aaaaaa;">25,800</span>
+                            </div>
+                            <div class="log-detail">Nifty hits ATH (26,373). Holding BAF cash. Awaiting correction.</div>
+                        </div>
+
+                        <div class="log-entry">
+                            <span class="log-date">19-MAR-26</span> | <span class="log-action">CRASH DEPLOYMENT</span>
+                            <div class="log-metrics">
+                                REGIME: <span style="color:#ff4444;">FEAR</span> D-RSI: <span style="color:#aaaaaa;">25</span> W-RSI: <span style="color:#aaaaaa;">35</span> WMA20: <span style="color:#aaaaaa;">24,000</span> TSL: <span style="color:#aaaaaa;">23,500</span>
+                            </div>
+                            <div class="log-detail">
+                                > FROM: <span class="cockpit-nav-link" onclick="openCockpitVerification()">ICICI Balanced Adv Fund</span><br>
+                                > TO: <span class="cockpit-nav-link" onclick="openCockpitVerification()">ICICI NPS Tier 1 Eq</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        `;
+        document.getElementById('bafNpsUIInjectionPoint').innerHTML = modalHTML;
+    }
+
+    function openBafNpsModal() {
+        document.getElementById('bafNpsModal').style.display = 'flex';
+        renderNpsDots();
+    }
+
+    function closeBafNpsModal() {
+        document.getElementById('bafNpsModal').style.display = 'none';
+        const setupScreen = document.getElementById('setupScreen');
+        if (setupScreen) setupScreen.style.display = 'flex';
+    }
+
+    function openCockpitVerification() {
+        closeBafNpsModal();
+        if (typeof initLiveChart === 'function') {
+            initLiveChart();
+        } else {
+            alert("Routing to Live Cockpit. (Ensure 'initLiveChart()' is available).");
+        }
+    }
+
+    function consumeNpsSwitch() {
+        if (BafNpsState.npsSwitchesUsed < BafNpsState.maxSwitches) {
+            BafNpsState.npsSwitchesUsed++;
+            renderNpsDots();
+        } else {
+            alert("WARNING: All 4 NPS Scheme Switches have been exhausted for this Financial Year.");
+        }
+    }
+
+    function resetNpsSwitches() {
+        BafNpsState.npsSwitchesUsed = 0;
+        renderNpsDots();
+    }
+
+    function renderNpsDots() {
+        const dots = document.querySelectorAll('#npsSwitchDots .nps-dot');
+        dots.forEach((dot, index) => {
+            if (index < BafNpsState.npsSwitchesUsed) {
+                dot.classList.add('used');
+            } else {
+                dot.classList.remove('used');
+            }
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('bafNpsModal');
+            if (modal && modal.style.display === 'flex') closeBafNpsModal();
+        }
+    });
+
+</script>
+
+
+
 
     </body>
 

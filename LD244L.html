@@ -12943,6 +12943,11 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
 </script>
 
 <style>
+    /* GLOBAL OVERRIDE FOR THIS MODULE: STRICTLY NO BOLD */
+    #bafNpsModal * {
+        font-weight: normal !important;
+    }
+
     #bafNpsModal {
         display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0,0,0,0.85); z-index: 2500;
@@ -12954,26 +12959,25 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
         width: 95%; max-width: 700px; max-height: 95vh; overflow-y: auto;
         border: 1px solid var(--border, #333); border-radius: 8px;
         padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        font-weight: normal;
     }
 
     .close-btn-top {
-        position: absolute; top: 15px; right: 20px;
+        position: absolute; top: 12px; right: 15px;
         background: transparent; border: none; color: #888;
-        font-size: 24px; cursor: pointer; transition: color 0.2s;
-        font-weight: normal;
+        font-size: 26px; cursor: pointer; transition: color 0.2s;
     }
     .close-btn-top:hover { color: var(--red, #ff4444); }
 
     .baf-nps-header {
         text-align: center; border-bottom: 1px dashed var(--border, #333);
-        padding-bottom: 15px; margin-bottom: 15px;
+        padding-bottom: 12px; margin-bottom: 15px;
     }
-    .baf-nps-header h2 { font-weight: normal; margin:0; color:#aaa; letter-spacing: 2px; }
+    /* Reduced title size to fit close button */
+    .baf-nps-header h2 { font-size: 16px; margin: 0; color: #aaa; letter-spacing: 2px; padding: 0 30px; }
 
     .sandbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
     .sandbox-card { background: rgba(255,255,255,0.03); border: 1px solid #444; border-radius: 6px; padding: 15px; text-align: center; }
-    .sandbox-card h3 { margin: 0 0 10px 0; font-size: 14px; color: var(--gold, #d4af37); letter-spacing: 1px; font-weight: normal; }
+    .sandbox-card h3 { margin: 0 0 10px 0; font-size: 14px; color: var(--gold, #d4af37); letter-spacing: 1px; }
 
     .nps-counter-box {
         background: rgba(255, 68, 68, 0.1); border: 1px solid var(--red, #ff4444);
@@ -12984,52 +12988,54 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
     .nps-dot.used { background: var(--red, #ff4444); border-color: var(--red, #ff4444); box-shadow: 0 0 5px var(--red, #ff4444); }
 
     .action-row { display: flex; flex-direction: column; gap: 10px; }
-    .action-btn { background: transparent; border: 1px solid var(--border, #333); color: #aaa; padding: 10px; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: normal; transition: all 0.2s; }
+    .action-btn { background: transparent; border: 1px solid var(--border, #333); color: #aaa; padding: 10px; border-radius: 4px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
     .action-btn.crash { border-color: var(--green, #00C853); color: var(--green, #00C853); }
     .action-btn.crash:hover { background: rgba(0, 200, 83, 0.1); }
     .action-btn.overbought { border-color: var(--red, #ff4444); color: var(--red, #ff4444); }
     .action-btn.overbought:hover { background: rgba(255, 68, 68, 0.1); }
 
     .divider-hr { border: 0; border-top: 1px dashed #444; margin: 20px 0; }
-    .section-title { font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 10px; font-weight: normal; }
+    .section-title { font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 10px; }
 
     /* AMC Status Table - Forced Black Text with Light Backgrounds */
     .amc-status-grid {
         display: grid; grid-template-columns: 2fr 1.5fr 1.5fr; gap: 8px;
-        font-size: 11px; font-family: monospace; font-weight: normal;
+        font-size: 11px; font-family: monospace;
     }
     .amc-row { display: contents; }
     .amc-cell { 
         background: #e0e0e0; border: 1px solid #999; padding: 8px; border-radius: 3px; 
         display:flex; align-items:center; 
-        color: #000; font-weight: normal; 
+        color: #000; 
     }
     .amc-header .amc-cell { background: #c0c0c0; }
     
-    .status-baf { color: darkgreen; margin-right: 5px; font-weight: normal; }
-    .status-nps { background: transparent; color: #000; border: none; font-weight: normal; }
+    .status-baf { color: darkgreen; margin-right: 5px; }
+    .status-nps { background: transparent; color: #000; border: none; }
+
+    /* Cockpit Link Styling (Used in both Status Board and History) */
+    .cockpit-nav-link {
+        color: var(--gold, #d4af37);
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 2px 4px;
+        transition: color 0.2s;
+    }
+    .cockpit-nav-link:hover { color: var(--green, #00C853); }
 
     /* History Panel */
     .history-panel { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 6px; padding: 12px; max-height: 300px; overflow-y: auto; }
-    .log-entry { font-family: monospace; font-size: 11px; padding: 10px 0; border-bottom: 1px dotted #444; color: #aaa; position: relative; font-weight: normal; }
+    .log-entry { font-family: monospace; font-size: 11px; padding: 10px 0; border-bottom: 1px dotted #444; color: #aaa; position: relative; }
     .log-entry:last-child { border-bottom: none; }
-    .log-date { color: var(--gold, #d4af37); display: inline-block; width: 85px; font-weight: normal; }
-    .log-action { color: var(--green, #00C853); font-weight: normal; }
+    .log-date { color: var(--gold, #d4af37); display: inline-block; width: 85px; }
+    .log-action { color: var(--green, #00C853); }
     .log-action.sell { color: var(--red, #ff4444); }
     .log-action.watch { color: #FFA000; }
     
-    .log-metrics { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 5px 8px; margin: 6px 0 6px 90px; border-radius: 4px; color:#888; font-size:10px; display:inline-block; font-weight: normal; }
-    .log-metrics span { color: #aaa; margin-right:8px; font-weight: normal; }
-    .log-detail { margin-left: 90px; color: #888; font-weight: normal; line-height: 1.6; }
+    .log-metrics { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 5px 8px; margin: 6px 0 6px 90px; border-radius: 4px; color:#888; font-size:10px; display:inline-block; }
+    .log-metrics span { color: #aaa; margin-right:8px; }
+    .log-detail { margin-left: 90px; color: #888; line-height: 1.6; }
     
-    /* Clickable Fund Names for Cockpit Routing */
-    .fund-link { 
-        color: var(--gold, #d4af37); text-decoration: underline; 
-        cursor: pointer; font-weight: normal; padding: 0 4px;
-        transition: color 0.2s;
-    }
-    .fund-link:hover { color: var(--green, #00C853); }
-
 </style>
 <div id="bafNpsUIInjectionPoint"></div>
 <script>
@@ -13093,22 +13099,22 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                         </div>
                         
                         <div class="amc-row">
-                            <div class="amc-cell">ICICI Prudential</div>
+                            <div class="amc-cell"><span class="cockpit-nav-link" onclick="openCockpitVerification()">ICICI Prudential</span></div>
                             <div class="amc-cell"><span class="status-baf">HOLDING</span> (Cash Parked)</div>
                             <div class="amc-cell"><span class="status-nps">AWAITING T1</span></div>
                         </div>
                         <div class="amc-row">
-                            <div class="amc-cell">HDFC</div>
+                            <div class="amc-cell"><span class="cockpit-nav-link" onclick="openCockpitVerification()">HDFC</span></div>
                             <div class="amc-cell"><span class="status-baf">HOLDING</span> (Cash Parked)</div>
                             <div class="amc-cell"><span class="status-nps">AWAITING T1</span></div>
                         </div>
                         <div class="amc-row">
-                            <div class="amc-cell">Aditya Birla (ABSL)</div>
+                            <div class="amc-cell"><span class="cockpit-nav-link" onclick="openCockpitVerification()">Aditya Birla (ABSL)</span></div>
                             <div class="amc-cell"><span class="status-baf">HOLDING</span> (Cash Parked)</div>
                             <div class="amc-cell"><span class="status-nps">AWAITING T1</span></div>
                         </div>
                         <div class="amc-row">
-                            <div class="amc-cell">Kotak</div>
+                            <div class="amc-cell"><span class="cockpit-nav-link" onclick="openCockpitVerification()">Kotak</span></div>
                             <div class="amc-cell"><span class="status-baf">HOLDING</span> (Cash Parked)</div>
                             <div class="amc-cell"><span class="status-nps">AWAITING T1</span></div>
                         </div>
@@ -13133,8 +13139,8 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                                 REGIME: <span style="color:#aaa;">EUPHORIA</span> D-RSI: <span style="color:#aaa;">81</span> W-RSI: <span style="color:#aaa;">72</span> WMA20: <span style="color:#aaa;">25,000</span> TSL: <span style="color:#aaa;">25,500</span>
                             </div>
                             <div class="log-detail">
-                                > FROM: <span class="fund-link" onclick="openCockpitVerification()">HDFC NPS Tier 2</span><br>
-                                > TO: <span class="fund-link" onclick="openCockpitVerification()">HDFC Balanced Advantage Fund</span>
+                                > FROM: <span class="cockpit-nav-link" onclick="openCockpitVerification()">HDFC NPS Tier 2</span><br>
+                                > TO: <span class="cockpit-nav-link" onclick="openCockpitVerification()">HDFC Balanced Advantage Fund</span>
                             </div>
                         </div>
 
@@ -13152,8 +13158,8 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                                 REGIME: <span style="color:var(--red);">FEAR</span> D-RSI: <span style="color:#aaa;">25</span> W-RSI: <span style="color:#aaa;">35</span> WMA20: <span style="color:#aaa;">24,000</span> TSL: <span style="color:#aaa;">23,500</span>
                             </div>
                             <div class="log-detail">
-                                > FROM: <span class="fund-link" onclick="openCockpitVerification()">ICICI Balanced Advantage Fund</span><br>
-                                > TO: <span class="fund-link" onclick="openCockpitVerification()">ICICI NPS Tier 1 Equity</span>
+                                > FROM: <span class="cockpit-nav-link" onclick="openCockpitVerification()">ICICI Balanced Advantage Fund</span><br>
+                                > TO: <span class="cockpit-nav-link" onclick="openCockpitVerification()">ICICI NPS Tier 1 Equity</span>
                             </div>
                         </div>
                     </div>
@@ -13176,11 +13182,12 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
     }
 
     function openCockpitVerification() {
+        // Hides this modal and triggers the main Live Chart function from LD244
         closeBafNpsModal();
         if (typeof initLiveChart === 'function') {
             initLiveChart();
         } else {
-            alert("Live Cockpit Triggered. (Main function 'initLiveChart()' not found in scope).");
+            alert("Routing to Live Cockpit. (Ensure 'initLiveChart()' is available).");
         }
     }
 
@@ -13217,6 +13224,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
     });
 
 </script>
+
 
     </body>
 

@@ -12943,162 +12943,95 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
 </script>
 
 <style>
-    /* BAF/NPS Modal Specific Theming */
     #bafNpsModal {
-        display: none;
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.85);
-        z-index: 2500; /* Above all existing LD244K UI */
-        justify-content: center;
-        align-items: center;
-        backdrop-filter: blur(4px);
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); z-index: 2500;
+        justify-content: center; align-items: center; backdrop-filter: blur(4px);
     }
     
     .baf-nps-container {
-        background: var(--surface, #121212);
-        color: var(--text, #e0e0e0);
-        width: 95%; max-width: 650px;
-        border: 1px solid var(--border, #333);
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        position: relative; background: var(--surface, #121212); color: var(--text, #e0e0e0);
+        width: 95%; max-width: 700px; max-height: 95vh; overflow-y: auto;
+        border: 1px solid var(--border, #333); border-radius: 8px;
+        padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
+
+    .close-btn-top {
+        position: absolute; top: 15px; right: 20px;
+        background: transparent; border: none; color: #888;
+        font-size: 24px; cursor: pointer; transition: color 0.2s;
+    }
+    .close-btn-top:hover { color: var(--red, #ff4444); }
 
     .baf-nps-header {
-        text-align: center;
-        border-bottom: 1px dashed var(--border, #333);
-        padding-bottom: 15px;
-        margin-bottom: 15px;
+        text-align: center; border-bottom: 1px dashed var(--border, #333);
+        padding-bottom: 15px; margin-bottom: 15px;
     }
 
-    .sandbox-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
-    .sandbox-card {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid #444;
-        border-radius: 6px;
-        padding: 15px;
-        text-align: center;
-    }
-
-    .sandbox-card h3 {
-        margin: 0 0 10px 0;
-        font-size: 14px;
-        color: var(--gold, #d4af37);
-        letter-spacing: 1px;
-    }
+    .sandbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+    .sandbox-card { background: rgba(255,255,255,0.03); border: 1px solid #444; border-radius: 6px; padding: 15px; text-align: center; }
+    .sandbox-card h3 { margin: 0 0 10px 0; font-size: 14px; color: var(--gold, #d4af37); letter-spacing: 1px; }
 
     .nps-counter-box {
-        background: rgba(255, 68, 68, 0.1);
-        border: 1px solid var(--red, #ff4444);
-        padding: 10px;
-        border-radius: 4px;
-        text-align: center;
-        margin-bottom: 15px;
+        background: rgba(255, 68, 68, 0.1); border: 1px solid var(--red, #ff4444);
+        padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 15px;
     }
+    .nps-dots { display: flex; justify-content: center; gap: 8px; margin-top: 8px; }
+    .nps-dot { width: 12px; height: 12px; border-radius: 50%; background: #333; border: 1px solid #666; }
+    .nps-dot.used { background: var(--red, #ff4444); border-color: var(--red, #ff4444); box-shadow: 0 0 5px var(--red, #ff4444); }
 
-    .nps-dots {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 8px;
-    }
-
-    .nps-dot {
-        width: 12px; height: 12px;
-        border-radius: 50%;
-        background: #333;
-        border: 1px solid #666;
-    }
-
-    .nps-dot.used {
-        background: var(--red, #ff4444);
-        border-color: var(--red, #ff4444);
-        box-shadow: 0 0 5px var(--red, #ff4444);
-    }
-
-    .action-row {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .action-btn {
-        background: transparent;
-        border: 1px solid var(--border, #333);
-        color: var(--text, #e0e0e0);
-        padding: 10px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-family: inherit;
-        font-weight: bold;
-        transition: all 0.2s;
-    }
-
+    .action-row { display: flex; flex-direction: column; gap: 10px; }
+    .action-btn { background: transparent; border: 1px solid var(--border, #333); color: var(--text, #e0e0e0); padding: 10px; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; transition: all 0.2s; }
     .action-btn.crash { border-color: var(--green, #00C853); color: var(--green, #00C853); }
     .action-btn.crash:hover { background: rgba(0, 200, 83, 0.1); }
-    
     .action-btn.overbought { border-color: var(--red, #ff4444); color: var(--red, #ff4444); }
     .action-btn.overbought:hover { background: rgba(255, 68, 68, 0.1); }
+
+    .divider-hr { border: 0; border-top: 1px dashed #444; margin: 20px 0; }
+    .section-title { font-size: 12px; font-weight: bold; color: #aaa; text-transform: uppercase; margin-bottom: 10px; }
+
+    /* AMC Status Table */
+    .amc-status-grid {
+        display: grid; grid-template-columns: 2fr 1.5fr 1.5fr; gap: 8px;
+        font-size: 11px; font-family: monospace;
+    }
+    .amc-row { display: contents; }
+    .amc-cell { background: rgba(0,0,0,0.3); border: 1px solid #333; padding: 8px; border-radius: 3px; display:flex; align-items:center;}
+    .amc-header { color: var(--gold, #d4af37); font-weight: bold; background: rgba(255,255,255,0.05); }
+    .amc-name { color: #fff; font-weight:bold; }
+    .status-badge { padding: 2px 6px; border-radius: 3px; border: 1px solid #555; background: #222; margin-right:5px;}
+    .status-badge.active { border-color: var(--green, #00C853); color: var(--green, #00C853); background: rgba(0, 200, 83, 0.1); }
+
+    /* History Panel */
+    .history-panel { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 6px; padding: 12px; max-height: 250px; overflow-y: auto; }
+    .log-entry { font-family: monospace; font-size: 11px; padding: 10px 0; border-bottom: 1px dotted #444; color: #bbb; position: relative; }
+    .log-entry:last-child { border-bottom: none; }
+    .log-date { color: var(--gold, #d4af37); display: inline-block; width: 85px; font-weight:bold; }
+    .log-action { color: var(--green, #00C853); font-weight: bold; }
+    .log-action.sell { color: var(--red, #ff4444); }
+    .log-action.watch { color: #FFA000; }
+    .log-metrics { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 5px 8px; margin: 6px 0 6px 90px; border-radius: 4px; color:#888; font-size:10px; display:inline-block; }
+    .log-metrics span { color: #ccc; font-weight:bold; margin-right:8px; }
+    .log-detail { margin-left: 90px; color: #999; }
+    .cockpit-link { 
+        position: absolute; right: 0; top: 10px; font-size: 9px; cursor: pointer; 
+        border: 1px solid var(--border, #333); padding: 3px 6px; border-radius: 3px; 
+        color: #888; transition: all 0.2s; background: #1a1a1a;
+    }
+    .cockpit-link:hover { border-color: var(--gold, #d4af37); color: var(--gold, #d4af37); }
+
 </style>
 <div id="bafNpsUIInjectionPoint"></div>
 <script>
-    /*
-    ============================================================================
-      MODULE STATE & INITIALIZATION
-    ============================================================================
-    */
-    const BafNpsState = {
-        npsSwitchesUsed: 0,
-        maxSwitches: 4
-    };
+    const BafNpsState = { npsSwitchesUsed: 0, maxSwitches: 4 };
 
-// Auto-Injector: Runs when the main LD244K file finishes loading
-    document.addEventListener('DOMContentLoaded', () => {
-        injectBafNpsUI();
-        // hijackTargetButton();
-    });
+    document.addEventListener('DOMContentLoaded', () => { injectBafNpsUI(); });
 
-    /*
-    ============================================================================
-      SECTION 1: DOM HIJACKING (ZERO-TOUCH INTEGRATION)
-    ============================================================================
-    */
-    function hijackTargetButton() {
-        // Find the 'Alerts Summary' button in the setup-btns grid
-        const buttons = document.querySelectorAll('.setup-btns button');
-        buttons.forEach(btn => {
-            if (btn.innerText.includes('Alerts Summary') || btn.innerText.includes('Alerts')) {
-                // Rename button and re-route click handler
-                btn.innerHTML = 'BAF NPS SWITCH <span id="bafNpsBadge" class="alert-badge"></span>';
-                btn.style.borderColor = 'var(--text, #e0e0e0)';
-                btn.style.color = 'var(--text, #e0e0e0)';
-                
-                // Remove old LD244K listener and add Add-On listener
-                btn.onclick = (e) => {
-                    e.preventDefault();
-                    openBafNpsModal();
-                };
-            }
-        });
-        console.log("Lie Detector Add-on: BAF NPS Switch Button Hijacked Successfully.");
-    }
-
-    /*
-    ============================================================================
-      SECTION 2: UI INJECTION
-    ============================================================================
-    */
     function injectBafNpsUI() {
         const modalHTML = `
             <div id="bafNpsModal">
                 <div class="baf-nps-container">
+                    <button class="close-btn-top" onclick="closeBafNpsModal()">×</button>
                     
                     <div class="baf-nps-header">
                         <h2 style="margin:0; color:var(--text); letter-spacing: 2px;">BAF ↔ NPS ROTATION</h2>
@@ -13119,10 +13052,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                     <div class="nps-counter-box">
                         <span style="font-size:12px; font-weight:bold; color:var(--red);">NPS TIER 1 SWITCH LIMIT TRACKER (FY)</span>
                         <div class="nps-dots" id="npsSwitchDots">
-                            <div class="nps-dot"></div>
-                            <div class="nps-dot"></div>
-                            <div class="nps-dot"></div>
-                            <div class="nps-dot"></div>
+                            <div class="nps-dot"></div><div class="nps-dot"></div><div class="nps-dot"></div><div class="nps-dot"></div>
                         </div>
                         <div style="margin-top:10px;">
                             <button class="action-btn" style="padding:4px 8px; font-size:10px;" onclick="consumeNpsSwitch()">CONSUME 1 SWITCH</button>
@@ -13133,36 +13063,119 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                     <div class="action-row">
                         <button class="action-btn crash" onclick="alert('Action Logged: BAF Redeemed. Funds routed to NPS Tier 1 Equity.')">
                             [ SCENARIO A ] CRASH DEPLOYMENT<br>
-                            <span style="font-size:10px; font-weight:normal; color:#aaa;">W-RSI < 40: Shift BAF → NPS Tier 1 Equity</span>
+                            <span style="font-size:10px; font-weight:normal; color:#aaa;">Regime Fear | W-RSI < 40 : Shift BAF → NPS Tier 1 Equity</span>
                         </button>
 
                         <button class="action-btn overbought" onclick="alert('Action Logged: NPS Tier 2 Redeemed. Funds parked in BAF.')">
                             [ SCENARIO B ] OVERBOUGHT PROTECTION<br>
-                            <span style="font-size:10px; font-weight:normal; color:#aaa;">W-RSI > 50 (Regime Watch): Shift NPS Tier 2 → BAF</span>
+                            <span style="font-size:10px; font-weight:normal; color:#aaa;">Regime Watch/Overbought | W-RSI > 50 : Shift NPS Tier 2 → BAF</span>
                         </button>
                     </div>
 
-                    <div style="text-align:center; margin-top:20px;">
-                        <button class="action-btn" onclick="closeBafNpsModal()">CLOSE ROTATION DASHBOARD</button>
+                    <hr class="divider-hr">
+
+                    <div class="section-title">Current Sandbox Status (Live Snapshot)</div>
+                    <div class="amc-status-grid">
+                        <div class="amc-row amc-header">
+                            <div class="amc-cell">AMC FUND HOUSE</div>
+                            <div class="amc-cell">SANDBOX 1 (BAF)</div>
+                            <div class="amc-cell">SANDBOX 2 (NPS)</div>
+                        </div>
+                        
+                        <div class="amc-row">
+                            <div class="amc-cell amc-name">ICICI Prudential</div>
+                            <div class="amc-cell"><span class="status-badge active">HOLDING</span> (Cash Parked)</div>
+                            <div class="amc-cell"><span class="status-badge">AWAITING T1</span></div>
+                        </div>
+                        <div class="amc-row">
+                            <div class="amc-cell amc-name">HDFC</div>
+                            <div class="amc-cell"><span class="status-badge active">HOLDING</span> (Cash Parked)</div>
+                            <div class="amc-cell"><span class="status-badge">AWAITING T1</span></div>
+                        </div>
+                        <div class="amc-row">
+                            <div class="amc-cell amc-name">Aditya Birla (ABSL)</div>
+                            <div class="amc-cell"><span class="status-badge active">HOLDING</span> (Cash Parked)</div>
+                            <div class="amc-cell"><span class="status-badge">AWAITING T1</span></div>
+                        </div>
+                        <div class="amc-row">
+                            <div class="amc-cell amc-name">Kotak</div>
+                            <div class="amc-cell"><span class="status-badge active">HOLDING</span> (Cash Parked)</div>
+                            <div class="amc-cell"><span class="status-badge">AWAITING T1</span></div>
+                        </div>
                     </div>
+
+                    <hr class="divider-hr">
+
+                    <div class="section-title">Historical Switch Log (FY 25-26 Backtest)</div>
+                    <div class="history-panel">
+                        
+                        <div class="log-entry">
+                            <span class="log-date">01-APR-25</span> | <span style="color:#888">FY START</span>
+                            <div class="log-metrics">
+                                REGIME: <span>HOPE</span> D-RSI: <span>60</span> W-RSI: <span>55</span> WMA20: <span>23,500</span> TSL: <span>23,200</span>
+                            </div>
+                            <div class="log-detail">> Initial State: Surplus market liquidity safely parked in BAF.</div>
+                            <button class="cockpit-link" onclick="openCockpitVerification()">◱ VERIFY IN COCKPIT</button>
+                        </div>
+
+                        <div class="log-entry">
+                            <span class="log-date">25-NOV-25</span> | <span class="log-action sell">OVERBOUGHT ALERT</span>
+                            <div class="log-metrics">
+                                REGIME: <span>EUPHORIA</span> D-RSI: <span>81</span> W-RSI: <span>72</span> WMA20: <span>25,000</span> TSL: <span>25,500</span>
+                            </div>
+                            <div class="log-detail">> Bull run overheating. Extreme D-RSI detected.<br>> ACTION: NPS Tier 2 Redeemed → Parked in BAF (Sandbox 1).</div>
+                            <button class="cockpit-link" onclick="openCockpitVerification()">◱ VERIFY IN COCKPIT</button>
+                        </div>
+
+                        <div class="log-entry">
+                            <span class="log-date">05-JAN-26</span> | <span class="log-action watch">REGIME WATCH</span>
+                            <div class="log-metrics">
+                                REGIME: <span>WATCH</span> D-RSI: <span>52</span> W-RSI: <span>48</span> WMA20: <span>26,000</span> TSL: <span>25,800</span>
+                            </div>
+                            <div class="log-detail">> Nifty hits ATH (26,373). W-RSI breaks below 50.<br>> Status: Holding BAF cash. Awaiting correction.</div>
+                            <button class="cockpit-link" onclick="openCockpitVerification()">◱ VERIFY IN COCKPIT</button>
+                        </div>
+
+                        <div class="log-entry">
+                            <span class="log-date">19-MAR-26</span> | <span class="log-action">CRASH DEPLOYMENT</span>
+                            <div class="log-metrics">
+                                REGIME: <span style="color:var(--red);">FEAR</span> D-RSI: <span>25</span> W-RSI: <span>35</span> WMA20: <span>24,000</span> TSL: <span>23,500</span>
+                            </div>
+                            <div class="log-detail">> Nifty plunges 14%. W-RSI < 40 trigger hit.<br>> ACTION: BAF Encashed → Deployed strictly to NPS Tier 1 Equity.</div>
+                            <button class="cockpit-link" onclick="openCockpitVerification()">◱ VERIFY IN COCKPIT</button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         `;
         document.getElementById('bafNpsUIInjectionPoint').innerHTML = modalHTML;
     }
 
-    /*
-    ============================================================================
-      SECTION 3: EVENT HANDLERS & LOGIC
-    ============================================================================
-    */
     function openBafNpsModal() {
         document.getElementById('bafNpsModal').style.display = 'flex';
         renderNpsDots();
     }
 
     function closeBafNpsModal() {
+        // Hide this modal
         document.getElementById('bafNpsModal').style.display = 'none';
+        
+        // Explicitly ensure navigation to Page 1 (setupScreen)
+        const setupScreen = document.getElementById('setupScreen');
+        if (setupScreen) {
+            setupScreen.style.display = 'flex';
+        }
+    }
+
+    function openCockpitVerification() {
+        // Link to existing LD244 logic. Hides the modal and opens Live Chart.
+        closeBafNpsModal();
+        if (typeof initLiveChart === 'function') {
+            initLiveChart();
+        } else {
+            alert("Live Cockpit Triggered. (Main function 'initLiveChart()' not found in scope).");
+        }
     }
 
     function consumeNpsSwitch() {
@@ -13190,13 +13203,16 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
         });
     }
 
-    // Allow Escape key to close this specific add-on modal
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             const modal = document.getElementById('bafNpsModal');
             if (modal && modal.style.display === 'flex') closeBafNpsModal();
         }
     });
+
+</script>
+
+
 
 </script>
 

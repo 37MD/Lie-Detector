@@ -3033,7 +3033,8 @@
 <div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:2px;border-top:1px dashed var(--border);padding-top:10px;width:100%;max-width:350px;">
     <button class="setup-btn setup-btn-live" onclick="initLiveChart()">Live Market</button>
     <button class="setup-btn" style="border-color:var(--gold);color:var(--gold);" onclick="initLiveAnalytics()">Live Analytics</button>
-    <button class="setup-btn" style="border-color:var(--red);color:var(--red);" onclick="openBafNpsSwitch()">BAF NPS SWITCH</button>
+<button class="setup-btn" style="border-color:var(--red);color:var(--red);" onclick="openBafNpsModal()">BAF NPS SWITCH</button>
+
 </div>
 
             <div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;width:100%;max-width:350px;">
@@ -13058,10 +13059,10 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
         maxSwitches: 4
     };
 
-    // Auto-Injector: Runs when the main LD244K file finishes loading
+// Auto-Injector: Runs when the main LD244K file finishes loading
     document.addEventListener('DOMContentLoaded', () => {
         injectBafNpsUI();
-        hijackTargetButton();
+        // hijackTargetButton();
     });
 
     /*

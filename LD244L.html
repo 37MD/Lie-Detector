@@ -12942,34 +12942,34 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
   }
 </script>
 
-//------------------------------------------------------
+//------------------------------------------------------------------------------------
 
 <style>
-    /* STRICT LIGHT THEME OVERRIDE */
+    /* STRICT LIGHT THEME OVERRIDE & NO BOLD */
     #bafNpsModal, #bafNpsModal * { font-weight: normal !important; font-family: Arial, sans-serif; color: #111111; }
     #bafNpsModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
-    .baf-nps-container { background: #ffffff; width: 95%; max-width: 750px; max-height: 95vh; overflow-y: auto; border: 1px solid #cccccc; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .baf-nps-container { background: #fdfdfd; width: 95%; max-width: 750px; max-height: 95vh; overflow-y: auto; border: 1px solid #cccccc; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
     /* SYNCHRONIZED APP HEADER & CLOSE BUTTON */
-    .baf-nps-app-header { display: flex; justify-content: space-between; align-items: center; background: #f0f0f0; border-bottom: 1px solid #cccccc; padding: 12px 20px; border-radius: 6px 6px 0 0; }
+    .baf-nps-app-header { display: flex; justify-content: space-between; align-items: center; background: #eeeeee; border-bottom: 1px solid #cccccc; padding: 12px 20px; border-radius: 6px 6px 0 0; }
     .header-title-text { font-size: 16px; letter-spacing: 1px; color: #000000; }
-    .baf-close-btn { background: #ffffff; border: 1px solid #999999; color: #333333; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-    .baf-close-btn:hover { background: #e0e0e0; }
+    .baf-close-btn { background: #fdfdfd; border: 1px solid #999999; color: #333333; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: background 0.2s; }
+    .baf-close-btn:hover { background: #dddddd; }
 
     /* CONTENT PADDING */
     .baf-nps-content { padding: 20px; }
 
     .sandbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-    .sandbox-card { background: #f8f9fa; border: 1px solid #dddddd; border-radius: 6px; padding: 15px; text-align: center; }
+    .sandbox-card { background: #f9f9f9; border: 1px solid #dddddd; border-radius: 6px; padding: 15px; text-align: center; }
     .sandbox-card-title { font-size: 14px; color: #0056b3; letter-spacing: 1px; margin-bottom: 10px; }
 
-    .nps-counter-box { background: #fff0f0; border: 1px solid #ff9999; padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 15px; }
+    .nps-counter-box { background: #fff5f5; border: 1px solid #ff9999; padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 15px; }
     .nps-dots { display: flex; justify-content: center; gap: 8px; margin-top: 8px; }
-    .nps-dot { width: 12px; height: 12px; border-radius: 50%; background: #ffffff; border: 1px solid #aaaaaa; }
+    .nps-dot { width: 12px; height: 12px; border-radius: 50%; background: #eeeeee; border: 1px solid #aaaaaa; }
     .nps-dot.used { background: #d9534f; border-color: #d9534f; }
 
     .action-row { display: flex; flex-direction: column; gap: 10px; }
-    .action-btn { background: #ffffff; border: 1px solid #cccccc; color: #333333; padding: 10px; border-radius: 4px; cursor: pointer; }
+    .action-btn { background: #fdfdfd; border: 1px solid #cccccc; color: #333333; padding: 10px; border-radius: 4px; cursor: pointer; }
     
     .divider-hr { border: 0; border-top: 1px solid #dddddd; margin: 20px 0; }
     .section-title { font-size: 12px; color: #555555; text-transform: uppercase; margin-bottom: 10px; }
@@ -12977,7 +12977,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
     /* AMC Status Table - Light Theme */
     .amc-status-grid { display: grid; grid-template-columns: 1.2fr 2fr 2fr; gap: 4px; font-size: 12px; }
     .amc-row { display: contents; }
-    .amc-cell { background: #fdfdfd; border: 1px solid #cccccc; padding: 10px; border-radius: 3px; color: #000000; display: flex; flex-direction: column; justify-content: center; }
+    .amc-cell { background: #fafafa; border: 1px solid #cccccc; padding: 10px; border-radius: 3px; color: #000000; display: flex; flex-direction: column; justify-content: center; }
     .amc-header .amc-cell { background: #e9ecef; color: #333333; text-transform: uppercase; }
     
     .status-baf { color: #28a745; margin-bottom: 4px; }
@@ -12988,7 +12988,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
     .cockpit-nav-link:hover { color: #003d82; }
 
     /* History Panel - Light Theme */
-    .history-panel { background: #fdfdfd; border: 1px solid #cccccc; border-radius: 6px; padding: 12px; max-height: 300px; overflow-y: auto; }
+    .history-panel { background: #fafafa; border: 1px solid #cccccc; border-radius: 6px; padding: 12px; max-height: 300px; overflow-y: auto; }
     .log-entry { font-size: 12px; padding: 12px 0; border-bottom: 1px solid #eeeeee; color: #333333; }
     .log-entry:last-child { border-bottom: none; }
     .log-date { color: #0056b3; display: inline-block; width: 85px; }
@@ -12996,7 +12996,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
     .log-action.sell { color: #d9534f; }
     .log-action.watch { color: #f0ad4e; }
     
-    .log-metrics { background: #f8f9fa; border: 1px solid #dddddd; padding: 6px 10px; margin: 6px 0 6px 90px; border-radius: 4px; color:#555555; font-size:11px; display:inline-block; }
+    .log-metrics { background: #f0f0f0; border: 1px solid #dddddd; padding: 6px 10px; margin: 6px 0 6px 90px; border-radius: 4px; color:#555555; font-size:11px; display:inline-block; }
     .log-metrics span { color: #111111; margin-right:8px; }
     .log-detail { margin-left: 90px; color: #444444; line-height: 1.6; }
 </style>
@@ -13070,44 +13070,44 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                                 <div class="amc-cell">ICICI Prudential</div>
                                 <div class="amc-cell">
                                     <span class="status-baf">HOLDING (Parked)</span>
-                                    <span class="cockpit-nav-link" onclick="routeToFund('120377', 'ICICI')">ICICI Balanced Adv Fund</span>
+                                    <span class="cockpit-nav-link" onclick="routeToFund('120377')">ICICI BAF</span>
                                 </div>
                                 <div class="amc-cell">
                                     <span class="status-nps">AWAITING T1</span>
-                                    <span class="cockpit-nav-link" onclick="routeToFund('SM007001', 'ICICI')">ICICI NPS Tier 1 Eq</span>
+                                    <span class="cockpit-nav-link" onclick="routeToFund('SM007001')">ICICI NPS Tier 1</span>
                                 </div>
                             </div>
                             <div class="amc-row">
                                 <div class="amc-cell">HDFC</div>
                                 <div class="amc-cell">
                                     <span class="status-baf">HOLDING (Parked)</span>
-                                    <span class="cockpit-nav-link" onclick="routeToFund('118968', 'HDFC')">HDFC Balanced Adv Fund</span>
+                                    <span class="cockpit-nav-link" onclick="routeToFund('118968')">HDFC BAF</span>
                                 </div>
                                 <div class="amc-cell">
                                     <span class="status-nps">AWAITING T1</span>
-                                    <span class="cockpit-nav-link" onclick="routeToFund('SM008001', 'HDFC')">HDFC NPS Tier 1 Eq</span>
+                                    <span class="cockpit-nav-link" onclick="routeToFund('SM008001')">HDFC NPS Tier 1</span>
                                 </div>
                             </div>
                             <div class="amc-row">
                                 <div class="amc-cell">Aditya Birla</div>
                                 <div class="amc-cell">
                                     <span class="status-baf">HOLDING (Parked)</span>
-                                    <span class="cockpit-nav-link" onclick="routeToFund('131670', 'Birla')">ABSL Balanced Adv Fund</span>
+                                    <span class="cockpit-nav-link" onclick="routeToFund('131670')">Aditya Birla Sun Life BAF</span>
                                 </div>
                                 <div class="amc-cell">
                                     <span class="status-nps">AWAITING T1</span>
-                                    <span class="cockpit-nav-link" onclick="routeToFund('SM010001', 'Birla')">ABSL NPS Tier 1 Eq</span>
+                                    <span class="cockpit-nav-link" onclick="routeToFund('SM010001')">Aditya Birla Sun Life NPS</span>
                                 </div>
                             </div>
                             <div class="amc-row">
                                 <div class="amc-cell">Kotak</div>
                                 <div class="amc-cell">
                                     <span class="status-baf">HOLDING (Parked)</span>
-                                    <span class="cockpit-nav-link" onclick="routeToFund('144335', 'Kotak')">Kotak Balanced Adv Fund</span>
+                                    <span class="cockpit-nav-link" onclick="routeToFund('144335')">Kotak BAF</span>
                                 </div>
                                 <div class="amc-cell">
                                     <span class="status-nps">AWAITING T1</span>
-                                    <span class="cockpit-nav-link" onclick="routeToFund('SM005001', 'Kotak')">Kotak NPS Tier 1 Eq</span>
+                                    <span class="cockpit-nav-link" onclick="routeToFund('SM005001')">Kotak NPS Tier 1</span>
                                 </div>
                             </div>
                         </div>
@@ -13116,14 +13116,6 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
 
                         <div class="section-title">Historical Switch Log (FY 25-26 Backtest)</div>
                         <div class="history-panel">
-                            
-                            <div class="log-entry">
-                                <span class="log-date">01-APR-25</span> | <span style="color:#777777;">FY START</span>
-                                <div class="log-metrics">
-                                    REGIME: <span>HOPE</span> D-RSI: <span>60</span> W-RSI: <span>55</span> WMA20: <span>23,500</span> TSL: <span>23,200</span>
-                                </div>
-                                <div class="log-detail">Initial State: Surplus liquidity safely parked in Sandbox 1.</div>
-                            </div>
 
                             <div class="log-entry">
                                 <span class="log-date">25-NOV-25</span> | <span class="log-action sell">OVERBOUGHT ALERT</span>
@@ -13131,8 +13123,8 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                                     REGIME: <span>EUPHORIA</span> D-RSI: <span>81</span> W-RSI: <span>72</span> WMA20: <span>25,000</span> TSL: <span>25,500</span>
                                 </div>
                                 <div class="log-detail">
-                                    > FROM: <span class="cockpit-nav-link" onclick="routeToFund('SM008004', 'HDFC')">HDFC NPS Tier 2</span><br>
-                                    > TO: <span class="cockpit-nav-link" onclick="routeToFund('118968', 'HDFC')">HDFC Balanced Adv Fund</span>
+                                    > FROM: <span class="cockpit-nav-link" onclick="routeToFund('SM008004')">HDFC NPS Tier 2</span><br>
+                                    > TO: <span class="cockpit-nav-link" onclick="routeToFund('118968')">HDFC BAF</span>
                                 </div>
                             </div>
 
@@ -13150,8 +13142,8 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                                     REGIME: <span style="color:#d9534f;">FEAR</span> D-RSI: <span>25</span> W-RSI: <span>35</span> WMA20: <span>24,000</span> TSL: <span>23,500</span>
                                 </div>
                                 <div class="log-detail">
-                                    > FROM: <span class="cockpit-nav-link" onclick="routeToFund('120377', 'ICICI')">ICICI Balanced Adv Fund</span><br>
-                                    > TO: <span class="cockpit-nav-link" onclick="routeToFund('SM007001', 'ICICI')">ICICI NPS Tier 1 Eq</span>
+                                    > FROM: <span class="cockpit-nav-link" onclick="routeToFund('120377')">ICICI BAF</span><br>
+                                    > TO: <span class="cockpit-nav-link" onclick="routeToFund('SM007001')">ICICI NPS Tier 1</span>
                                 </div>
                             </div>
                         </div>
@@ -13174,50 +13166,47 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
         if (setupScreen) setupScreen.style.display = 'flex';
     }
 
-    /* * THE FIX: ASYNCHRONOUS TAB & DROPDOWN ROUTING 
-     * 1. Click the correct AMC Tab first so the app loads the correct fund list.
-     * 2. Wait 100ms for the app to finish updating the dropdown DOM.
-     * 3. Set the exact scheme code value and launch Cockpit.
+    /* * THE FIX: SILENT MEMORY ROUTING (No Re-downloading)
+     * 1. Scans existing window.amcFunds to find the EXACT original string name of the fund.
+     * 2. Injects it into the dropdown without triggering AMC tab network re-fetches.
+     * 3. Launches Cockpit natively.
      */
-    function routeToFund(schemeCode, amcSearchText) {
+    function routeToFund(schemeCode) {
         closeBafNpsModal();
         
-        // Step 1: Hunt for the AMC Tab and click it to dynamically populate the dropdown
-        const allButtons = document.querySelectorAll('.setup-btn, button, .fund-box');
-        allButtons.forEach(btn => {
-            if (btn.innerText && btn.innerText.toUpperCase().includes(amcSearchText.toUpperCase())) {
-                btn.click();
-            }
-        });
+        const fundSelectDropdown = document.getElementById('fundSelect');
+        if (!fundSelectDropdown) return;
 
-        // Step 2: Allow 100ms for your app to render the new dropdown list
-        setTimeout(() => {
-            const fundSelectDropdown = document.getElementById('fundSelect');
-            
-            if (fundSelectDropdown) {
-                // Ensure the value exists. If the app failed to load it, inject a temporary option so it doesn't crash
-                let optionExists = Array.from(fundSelectDropdown.options).some(opt => opt.value === schemeCode);
-                if (!optionExists) {
-                    const tempOpt = document.createElement('option');
-                    tempOpt.value = schemeCode;
-                    tempOpt.text = schemeCode;
-                    fundSelectDropdown.appendChild(tempOpt);
+        // Step 1: Silently extract exact original name from your app's existing memory
+        let exactOriginalName = schemeCode; 
+        if (typeof window.amcFunds !== 'undefined') {
+            for (const amcKey in window.amcFunds) {
+                const foundFund = window.amcFunds[amcKey].find(f => String(f.code) === String(schemeCode) || String(f.schemeCode) === String(schemeCode));
+                if (foundFund) {
+                    exactOriginalName = foundFund.name || foundFund.schemeName || exactOriginalName;
+                    break;
                 }
-
-                // Force selection
-                fundSelectDropdown.value = schemeCode;
-                
-                // Dispatch event so your app's global state variables recognize the change
-                fundSelectDropdown.dispatchEvent(new Event('change', { bubbles: true }));
             }
+        }
 
-            // Step 3: Launch Cockpit
-            if (typeof initLiveChart === 'function') {
-                initLiveChart();
-            } else {
-                console.error("Live Chart boot failed: initLiveChart() not found.");
-            }
-        }, 100); 
+        // Step 2: Ensure option exists in dropdown before charting
+        let optionExists = Array.from(fundSelectDropdown.options).some(opt => String(opt.value) === String(schemeCode));
+        if (!optionExists) {
+            const tempOpt = document.createElement('option');
+            tempOpt.value = schemeCode;
+            tempOpt.text = exactOriginalName;
+            fundSelectDropdown.appendChild(tempOpt);
+        }
+
+        // Step 3: Set value
+        fundSelectDropdown.value = schemeCode;
+
+        // Step 4: Boot Live Chart (Relies entirely on cached NAV data)
+        if (typeof initLiveChart === 'function') {
+            initLiveChart();
+        } else {
+            console.warn("Live Chart boot failed: initLiveChart() not found in global scope.");
+        }
     }
 
     function consumeNpsSwitch() {
@@ -13254,7 +13243,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
 
 </script>
 
-
+//-------------------------------------------------------------------------------------
     </body>
 
 

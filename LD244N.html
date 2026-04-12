@@ -1658,6 +1658,45 @@
             /* Reduces font sizes in HUD, indicator values, and psychology  */
             /* text.  Also shrinks chart height from 52 vh → 44 vh to       */
             /* preserve space for the action bar on short screens.          */
+
+            /* ══════════════════════════════════════════════════════════════
+               §CSS-04B  SETUP SCREEN GROUP BOXES
+               Two labelled containers that visually cluster related controls
+               without changing the column width or scroll behaviour.
+            ══════════════════════════════════════════════════════════════ */
+            .setup-group {
+                width: 100%;
+                max-width: 350px;
+                border-radius: var(--radius);
+                border: 1.5px solid var(--border);
+                padding: 8px 8px 4px;
+                margin-bottom: 6px;
+                flex-shrink: 0;
+                background: var(--surface);
+            }
+            .setup-group-label {
+                font-size: 0.52rem;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: var(--muted);
+                margin-bottom: 6px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                padding: 0 2px;
+            }
+            .setup-group-label::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--border);
+            }
+            .setup-group.sg-fund  { border-color: var(--accent); }
+            .setup-group.sg-fund  .setup-group-label { color: var(--accent); }
+            .setup-group.sg-sim   { border-color: var(--border2); }
+            .setup-group.sg-sim   .setup-group-label { color: var(--muted2); }
+            /* inner rows inside a group need no bottom margin on last child */
+            .setup-group > *:last-child { margin-bottom: 0; }
             @media (max-width: 600px) {
                 .chart-hud {
                     font-size: 0.50rem;
@@ -1818,7 +1857,7 @@
                 padding: 3px 4px; font-size: 0.62rem; line-height: 1.45;
                 border-bottom: 1px solid rgba(0,0,0,0.04);
             }
-            .sop-check-icon { flex-shrink: 0; width: 14px; text-align: center; font-size: 0.7rem; }
+            .sop-check-icon { flex-shrink: 0; width: 22px; text-align: center; font-size: 0.7rem; }
             .sop-check-text { flex: 1; color: var(--text); }
             .sop-check.danger .sop-check-text { color: var(--red); font-weight: 700; }
             .sop-check.warning .sop-check-text { color: var(--accent2); font-weight: 700; }
@@ -2919,7 +2958,7 @@
                 <div class="sop-check never"><span class="sop-check-icon">✗</span><span class="sop-check-text">You already made 15% &nbsp;(let winners run — the What-If panel F6 shows the cost of early exits).</span></div>
 
                 <!-- ═══ PART 4 — DAILY MONITORING ════════════════════════════════ -->
-                <div class="sop-part sop-part-muted">PART 4 — DAILY MONITORING CHECKLIST &nbsp; (5 min · post 3:30 PM NAV)</div>
+                <div class="sop-part sop-part-muted">PART 4 — DAILY MONITORING &nbsp; (5 min · next morning — NAV updates overnight)</div>
 
                 <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 1.</span><span class="sop-check-text">Open <strong>Alert Summary</strong> (red badge on home) — any actionable alerts for watchlisted funds?</span></div>
                 <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 2.</span><span class="sop-check-text">Check <strong>Regime</strong> — is W-RSI still ≥ 50 for each holding? Live Cockpit shows the badge.</span></div>
@@ -3234,123 +3273,136 @@
         <!-- SETUP SCREEN  —  HOME / FUND PICKER                          z-index:  500 -->
         <!-- ────────────────────────────────────────────────────────────────────────── -->
         <div id="setupScreen">
+            <!-- ── Logo / title strip (unchanged) ── -->
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
             <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244N 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
-            <div class="fund-grid" id="fundGrid">
-                <div class="fund-box" onclick="selectAMC('HDFC', this)">HDFC</div>
-                <div class="fund-box active" onclick="selectAMC('ICICI', this)">ICICI</div>
-                <div class="fund-box" onclick="selectAMC('KOTAK', this)">KOTAK</div>
-                <div class="fund-box" onclick="selectAMC('ABSL', this)">ABSL</div>
-            </div>
-
-            <div style="display:flex; width:100%; max-width:350px; gap:8px; margin-bottom:0.4rem; flex-shrink:0;">
-                <button class="setup-btn" style="flex:1;border-color:var(--red);color:var(--red);font-size:0.68rem;padding:10px 4px;" onclick="openAlertSummary()">
+            <!-- ── ROW 1 · Alert Summary + Regime Change Scanner ── -->
+            <div class="custom-inputs">
+                <button class="setup-btn" style="flex:1;border-color:var(--red);color:var(--red);font-size:0.65rem;padding:10px 4px;" onclick="openAlertSummary()">
                     🚨 Alert Summary <span id="alertSummaryBadgeTop" class="alert-badge"></span>
                 </button>
-                <button class="setup-btn" style="flex:1;border-color:var(--gold);color:var(--gold);font-size:0.68rem;padding:10px 4px;" onclick="openAssetAllocator()">
-                    📊 Asset Allocator
-                </button>
+                <div class="c-input-box" style="cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;border-color:var(--accent);background:var(--accent-dim);flex:1;" onclick="runRegimeChangeScanner()">
+                    <span class="c-label" style="color:var(--accent);margin-bottom:2px;">SCAN</span>
+                    <span style="font-size:0.72rem;color:var(--text);">REGIME CHANGE</span>
+                </div>
             </div>
 
-            <select id="fundSelect" class="dropdown" onchange="saveFundSelection()"></select>
-
+            <!-- ── ROW 2 · RRG Scanners ── -->
             <div class="custom-inputs">
-                <div class="c-input-box">
-                    <span class="c-label">RSI Length</span>
-                    <input type="number" id="rsiLengthIn" class="c-num" style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelection()">
-                </div>
-                <div class="c-input-box" style="cursor:pointer; display:flex; flex-direction:column; justify-content:center; align-items:center; border-color:var(--accent); background:var(--accent-dim);" onclick="runRegimeChangeScanner()">
-                    <span class="c-label" style="color:var(--accent); font-weight:400; margin-bottom:2px; letter-spacing:0.05em;">SCAN</span>
-                    <span style="font-size:0.75rem; font-weight:400; color:var(--text);">REGIME CHANGE</span>
-                </div>
+                <button class="setup-btn" style="flex:1;border-color:#00e8a2;color:#00796b;font-size:0.63rem;" onclick="runRRGScanner('LEADING')">SCAN — RRG LEADING</button>
+                <button class="setup-btn" style="flex:1;border-color:#3b82f6;color:#1d4ed8;font-size:0.63rem;" onclick="runRRGScanner('IMPROVING')">SCAN — RRG IMPROVING</button>
             </div>
 
-            <div style="display:flex; width:100%; max-width:350px; gap:8px;">
-                <button class="setup-btn setup-btn-sim" style="flex:1; padding: 12px; font-size: 0.75rem; margin: 0;" onclick="initGame('random')">Random Simulation</button>
-                <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 12px;cursor:pointer;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--surface2);" onclick="toggleBlindMode()">
-                    <span class="c-label" style="margin-bottom:2px;">Training</span>
-                    <button id="blindToggle" style="pointer-events:none; font-family:var(--mono); font-size:0.6rem; background:transparent; border:none; color:var(--muted);">BLIND</button>
-                </div>
+            <!-- ── ROW 3 · Regime Hope sub-zones ── -->
+            <div class="custom-inputs">
+                <button class="setup-btn" style="flex:1;border-color:#00e8a2;color:#00796b;font-size:0.58rem;padding:8px 2px;" onclick="runRegimeAScanner('INVEST')">Regime Hope<br>INVEST</button>
+                <button class="setup-btn" style="flex:1;border-color:#f59e0b;color:#b45309;font-size:0.58rem;padding:8px 2px;" onclick="runRegimeAScanner('HOLD')">Regime Hope<br>HOLD</button>
+                <button class="setup-btn" style="flex:1;border-color:#c8102e;color:#c8102e;font-size:0.58rem;padding:8px 2px;" onclick="runRegimeAScanner('PROFIT')">Regime Hope<br>PROFIT</button>
             </div>
 
-            <!-- SIP embedded in simulator row -->
-            <div class="custom-inputs" style="margin-top:4px;">
-                <div class="c-input-box" style="padding:4px 6px;">
-                    <span class="c-label">SIP Amount (₹)</span>
-                    <input type="number" id="sipAmount" class="c-num" style="color:var(--accent);font-size:0.85rem;" value="10000" min="1000" step="1000">
+            <!-- ════ GROUP BOX 1 · FUND SELECTION ════ -->
+            <div class="setup-group sg-fund">
+                <div class="setup-group-label">Fund Selection &amp; Analysis</div>
+
+                <!-- ROW 4 · AMC buttons -->
+                <div class="fund-grid" id="fundGrid" style="max-width:100%;margin-bottom:6px;">
+                    <div class="fund-box" onclick="selectAMC('HDFC', this)">HDFC</div>
+                    <div class="fund-box active" onclick="selectAMC('ICICI', this)">ICICI</div>
+                    <div class="fund-box" onclick="selectAMC('KOTAK', this)">KOTAK</div>
+                    <div class="fund-box" onclick="selectAMC('ABSL', this)">ABSL</div>
                 </div>
-                <div class="c-input-box" style="padding:4px 6px;flex:0.9;">
-                    <span class="c-label">SIP Mode</span>
-                    <select id="sipMode" class="c-num" style="font-size:0.6rem;background:transparent;border:none;outline:none;font-family:var(--mono);width:100%;color:var(--text);">
-                        <option value="weekly">Weekly (day)</option>
-                        <option value="autobuy">AutoBuy Slingshot</option>
+
+                <!-- ROW 5 · Fund dropdown -->
+                <select id="fundSelect" class="dropdown" style="max-width:100%;margin-bottom:6px;" onchange="saveFundSelection()"></select>
+
+                <!-- ROW 6 · RSI Length + Live Market + Live Analytics -->
+                <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
+                    <div class="c-input-box" style="flex:0.8;">
+                        <span class="c-label">RSI Length</span>
+                        <input type="number" id="rsiLengthIn" class="c-num" style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelection()">
+                    </div>
+                    <button class="setup-btn setup-btn-live" style="flex:1;font-size:0.63rem;padding:8px 4px;" onclick="initLiveChart()">Live Market</button>
+                    <button class="setup-btn" style="flex:1;border-color:var(--gold);color:var(--gold);font-size:0.63rem;padding:8px 4px;" onclick="initLiveAnalytics()">Live Analytics</button>
+                </div>
+
+                <!-- ROW 7 · Watchlist + Asset Allocator -->
+                <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
+                    <button class="setup-btn" style="flex:1;border-color:#a855f7;color:#7c3aed;font-size:0.63rem;" onclick="openWatchlist()">📌 Watchlist</button>
+                    <button class="setup-btn" style="flex:1;border-color:var(--gold);color:var(--gold);font-size:0.63rem;" onclick="openAssetAllocator()">📊 Asset Allocator</button>
+                </div>
+
+                <!-- ROW 8 · Compare 2 Funds + BAF NPS Switch -->
+                <div class="custom-inputs" style="max-width:100%;margin-bottom:4px;">
+                    <button class="setup-btn" style="flex:1;border-color:var(--border2);color:var(--muted2);font-size:0.63rem;" onclick="openCompareModal()">⇄ Compare 2 Funds</button>
+                    <button class="setup-btn" style="flex:1;border-color:var(--red);color:var(--red);font-size:0.63rem;" onclick="openBafNpsModal()">BAF NPS Switch</button>
+                </div>
+            </div><!-- /sg-fund -->
+
+            <!-- ════ GROUP BOX 2 · SIMULATION & TRAINING ════ -->
+            <div class="setup-group sg-sim">
+                <div class="setup-group-label">Simulation &amp; Training</div>
+
+                <!-- ROW 9 · Random Simulation + Blind Training -->
+                <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
+                    <button class="setup-btn setup-btn-sim" style="flex:2;font-size:0.68rem;padding:11px 4px;" onclick="initGame('random')">Random Simulation</button>
+                    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 8px;cursor:pointer;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--surface2);" onclick="toggleBlindMode()">
+                        <span class="c-label" style="margin-bottom:2px;">Training</span>
+                        <button id="blindToggle" style="pointer-events:none;font-family:var(--mono);font-size:0.6rem;background:transparent;border:none;color:var(--muted);">BLIND</button>
+                    </div>
+                </div>
+
+                <!-- ROW 10 · Stress Test dropdown + Stress Run + Regime Drill -->
+                <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
+                    <select id="stressSelect" class="dropdown" style="margin-bottom:0;flex:2;padding:8px 8px;font-size:0.62rem;">
+                        <option value="covid">Stress: COVID Crash ('20)</option>
+                        <option value="ukraine">Stress: Global Slump ('22)</option>
+                        <option value="demo">Stress: Demonetization ('16)</option>
+                        <option value="_sep" disabled>── Auto-Detect ──</option>
+                        <option value="auto1" id="autoStress1" disabled>Load fund first…</option>
+                        <option value="auto2" id="autoStress2" disabled></option>
+                        <option value="auto3" id="autoStress3" disabled></option>
+                        <option value="_sep2" disabled>── Custom Range ──</option>
+                        <option value="custom_dates">Custom Dates ▼</option>
                     </select>
+                    <button class="setup-btn" style="flex:1;border-color:var(--red);color:var(--red);font-size:0.6rem;padding:8px 2px;" onclick="runStressOrCustom()">STRESS<br>RUN</button>
+                    <button class="setup-btn" style="flex:1;border-color:#f59e0b;color:#b45309;font-size:0.58rem;padding:8px 2px;" onclick="openRegimeDrill()">REGIME<br>DRILL</button>
                 </div>
-                <div class="c-input-box" style="padding:4px 6px;flex:0.6;" id="sipDayBox">
-                    <span class="c-label">Day (1=Mon)</span>
-                    <input type="number" id="sipWeekDay" class="c-num" style="font-size:0.85rem;" value="1" min="1" max="5">
+
+                <!-- Custom date row (hidden by default) -->
+                <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;display:none;" id="customDateRow">
+                    <div class="c-input-box" style="padding:4px 6px;">
+                        <span class="c-label">Start Date</span>
+                        <input type="date" id="customStart" class="c-num" style="font-size:0.65rem;">
+                    </div>
+                    <div class="c-input-box" style="padding:4px 6px;">
+                        <span class="c-label">End Date</span>
+                        <input type="date" id="customEnd" class="c-num" style="font-size:0.65rem;">
+                    </div>
                 </div>
-                <button class="setup-btn" style="border-color:var(--accent);color:var(--accent);flex:1;" onclick="initGame('sip')">▶ SIP</button>
-            </div>
 
-            <!-- Stress + Dates merged -->
-            <div class="custom-inputs" style="margin-top:4px;">
-                <select id="stressSelect" class="dropdown" style="margin-bottom:0;flex:2.2;">
-                    <option value="covid">Stress: COVID Crash ('20)</option>
-                    <option value="ukraine">Stress: Global Slump ('22)</option>
-                    <option value="demo">Stress: Demonetization ('16)</option>
-                    <option value="_sep" disabled>── Auto-Detect ──</option>
-                    <option value="auto1" id="autoStress1" disabled>Load fund first…</option>
-                    <option value="auto2" id="autoStress2" disabled></option>
-                    <option value="auto3" id="autoStress3" disabled></option>
-                    <option value="_sep2" disabled>── Custom Range ──</option>
-                    <option value="custom_dates">Custom Dates ▼</option>
-                </select>
-                <button class="setup-btn" style="border-color:var(--red);color:var(--red);flex:0.9;" onclick="runStressOrCustom()">RUN</button>
-                <button class="setup-btn" style="border-color:#f59e0b;color:#f59e0b;flex:1;font-size:0.58rem;" onclick="openRegimeDrill()">REGIME DRILL</button>
-            </div>
-
-            <!-- Custom date row — shown only when custom_dates selected -->
-            <div class="custom-inputs" style="margin-top:2px;" id="customDateRow">
-                <div class="c-input-box" style="padding:4px 6px;">
-                    <span class="c-label">Start Date</span>
-                    <input type="date" id="customStart" class="c-num" style="font-size:0.65rem;">
+                <!-- ROW 11 · SIP Amount + SIP Mode + Day + ▶ SIP -->
+                <div class="custom-inputs" style="max-width:100%;margin-bottom:4px;">
+                    <div class="c-input-box" style="padding:4px 6px;flex:1.5;">
+                        <span class="c-label">SIP Amount (₹)</span>
+                        <input type="number" id="sipAmount" class="c-num" style="color:var(--accent);font-size:0.85rem;" value="10000" min="1000" step="1000">
+                    </div>
+                    <div class="c-input-box" style="padding:4px 6px;flex:1.3;">
+                        <span class="c-label">SIP Mode</span>
+                        <select id="sipMode" class="c-num" style="font-size:0.58rem;background:transparent;border:none;outline:none;font-family:var(--mono);width:100%;color:var(--text);">
+                            <option value="weekly">Weekly (day)</option>
+                            <option value="autobuy">AutoBuy Slingshot</option>
+                        </select>
+                    </div>
+                    <div class="c-input-box" style="padding:4px 6px;flex:0.7;" id="sipDayBox">
+                        <span class="c-label">Day</span>
+                        <input type="number" id="sipWeekDay" class="c-num" style="font-size:0.85rem;" value="1" min="1" max="5">
+                    </div>
+                    <button class="setup-btn" style="flex:0.8;border-color:var(--accent);color:var(--accent);padding:8px 2px;" onclick="initGame('sip')">▶ SIP</button>
                 </div>
-                <div class="c-input-box" style="padding:4px 6px;">
-                    <span class="c-label">End Date</span>
-                    <input type="date" id="customEnd" class="c-num" style="font-size:0.65rem;">
-                </div>
-            </div>
-
-<div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:2px;border-top:1px dashed var(--border);padding-top:10px;width:100%;max-width:350px;">
-    <button class="setup-btn setup-btn-live" onclick="initLiveChart()">Live Market</button>
-    <button class="setup-btn" style="border-color:var(--gold);color:var(--gold);" onclick="initLiveAnalytics()">Live Analytics</button>
-<button class="setup-btn" style="border-color:var(--red);color:var(--red);" onclick="openBafNpsModal()">BAF NPS SWITCH</button>
-
-</div>
-
-            <div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;width:100%;max-width:350px;">
-                <button class="setup-btn" style="border-color:var(--border2);color:var(--muted2);" onclick="openCompareModal()">⇄ Compare 2 Funds</button>
-                <button class="setup-btn" style="border-color:#a855f7;color:#a855f7;" onclick="openWatchlist()">📌
-                    Watchlist</button>
-            </div>
-
-            <div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
-                <button class="setup-btn" style="border-color:#00e8a2;color:#00e8a2;" onclick="runRRGScanner('LEADING')">SCAN - RRG LEADING</button>
-                <button class="setup-btn" style="border-color:#3b82f6;color:#3b82f6;" onclick="runRRGScanner('IMPROVING')">SCAN - RRG IMPROVING</button>
-            </div>
-
-            <div class="setup-btns" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px;">
-
-                <button class="setup-btn" style="border-color:#00e8a2;color:#00e8a2;font-size:0.55rem;" onclick="runRegimeAScanner('INVEST')">Regime Hope<br>Invest</button>
-                <button class="setup-btn" style="border-color:#f59e0b;color:#f59e0b;font-size:0.55rem;" onclick="runRegimeAScanner('HOLD')">Regime Hope<br>Hold</button>
-
-                <button class="setup-btn" style="border-color:#c8102e;color:#c8102e;font-size:0.55rem;" onclick="runRegimeAScanner('PROFIT')">Regime Hope<br>Profit</button>
-            </div>
-
+            </div><!-- /sg-sim -->
 
         </div>
 

@@ -386,7 +386,7 @@
                 letter-spacing: 0.1em;
                 margin-bottom: 0.1rem;
                 font-weight: 400;
-                min-height: 1em;
+                min-height: 0;          /* FIX-1: no reserved blank line when badge is empty */
             }
 
             .setup-title {
@@ -398,9 +398,10 @@
 
             .setup-sub {
                 color: var(--muted);
-                font-size: 0.75rem;
+                font-size: 0.72rem;       /* FIX-5: slightly tighter to fit on one line */
                 margin-bottom: 0.8rem;
-                letter-spacing: 0.04em;
+                letter-spacing: 0.02em;   /* FIX-5: reduce tracking so all words fit */
+                white-space: nowrap;       /* FIX-5: prevent line break before "does." */
             }
 
             .fund-grid {
@@ -3387,18 +3388,18 @@
                 <div class="custom-inputs" style="max-width:100%;margin-bottom:4px;">
                     <div class="c-input-box" style="padding:4px 6px;flex:1.5;">
                         <span class="c-label">SIP Amount (₹)</span>
-                        <input type="number" id="sipAmount" class="c-num" style="color:var(--accent);font-size:0.85rem;" value="10000" min="1000" step="1000">
+                        <input type="number" id="sipAmount" class="c-num" style="color:#000000;font-size:0.85rem;font-weight:400;" value="10000" min="1000" step="1000">
                     </div>
                     <div class="c-input-box" style="padding:4px 6px;flex:1.3;">
                         <span class="c-label">SIP Mode</span>
-                        <select id="sipMode" class="c-num" style="font-size:0.58rem;background:transparent;border:none;outline:none;font-family:var(--mono);width:100%;color:var(--text);">
+                        <select id="sipMode" class="c-num" style="font-size:0.58rem;background:transparent;border:none;outline:none;font-family:var(--mono);width:100%;color:var(--text);font-weight:400;">
                             <option value="weekly">Weekly (day)</option>
                             <option value="autobuy">AutoBuy Slingshot</option>
                         </select>
                     </div>
                     <div class="c-input-box" style="padding:4px 6px;flex:0.7;" id="sipDayBox">
                         <span class="c-label">Day</span>
-                        <input type="number" id="sipWeekDay" class="c-num" style="font-size:0.85rem;" value="1" min="1" max="5">
+                        <input type="number" id="sipWeekDay" class="c-num" style="font-size:0.85rem;font-weight:400;" value="1" min="1" max="5">
                     </div>
                     <button class="setup-btn" style="flex:0.8;border-color:var(--accent);color:var(--accent);padding:8px 2px;" onclick="initGame('sip')">▶ SIP</button>
                 </div>
@@ -4779,11 +4780,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 // Derive trading style from session stats
                 getStyle(stats) {
                     // stats: { goodBuys, badBuys, prematureBuys, panicSells, missedBuyEvents, profitTrades, exitTrades, totalTrades }
-                    if (!stats || stats.totalTrades === 0) return {
-                        label: 'Ghost Player',
-                        icon: '👻',
-                        color: 'var(--muted)'
-                    };
+                    // FIX-1: return null when no trades so streak badge stays empty (no Ghost Player line)
+                    if (!stats || stats.totalTrades === 0) return null;
                     const {
                         goodBuys = 0, badBuys = 0, prematureBuys = 0, panicSells = 0, missedBuyEvents = 0, profitTrades = 0
                     } = stats;
@@ -8867,7 +8865,7 @@ This is exactly how the system is meant to be played.
                     m.className = 'modal-overlay';
                     m.innerHTML = `<div class="modal-close">
             <span class="modal-title" style="color:#f59e0b;">REGIME TRANSITION DRILL</span>
-            <span class="modal-close-btn" onclick="document.getElementById('regimeDrillModal').style.display='none';document.getElementById('setupScreen').style.display='flex';">[ X ]</span>
+            <span class="modal-close-btn" onclick="document.getElementById('regimeDrillModal').style.display='none';document.getElementById('setupScreen').style.display='flex';">[ X ] CLOSE</span>
         </div>
         <div style="padding:8px 10px;font-size:0.58rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
             ${transitions.length} transition points found — practice the hardest moments
@@ -13975,8 +13973,9 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
     /* SYNCHRONIZED APP HEADER & CLOSE BUTTON */
     .baf-nps-app-header { display: flex; justify-content: space-between; align-items: center; background: #eeeeee; border-bottom: 1px solid #cccccc; padding: 12px 20px; border-radius: 6px 6px 0 0; }
     .header-title-text { font-size: 16px; letter-spacing: 1px; color: #000000; }
-    .baf-close-btn { background: #fdfdfd; border: 1px solid #999999; color: #333333; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: background 0.2s; }
-    .baf-close-btn:hover { background: #dddddd; }
+    /* FIX-2: match modal-close-btn style from main app */
+    .baf-close-btn { background: transparent; border: none; color: var(--red, #c8102e); padding: 0; cursor: pointer; font-size: 0.65rem; font-family: var(--mono, monospace); letter-spacing: 0.08em; font-weight: 400; transition: opacity 0.15s; }
+    .baf-close-btn:hover { opacity: 0.7; background: transparent; }
 
     /* CONTENT PADDING */
     .baf-nps-content { padding: 20px; }

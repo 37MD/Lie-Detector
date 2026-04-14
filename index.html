@@ -5,7 +5,7 @@
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
   File       : LD244U.html
-  Version    : LD244U  (successor to LD244T)
+  Version    : LD244U  (successor to LD244U)
   Released   : April 2026
   Author     : npsnav.in
   Licence    : Proprietary — All rights reserved
@@ -70,7 +70,7 @@
             was creating a sparse-array slot.  No behavioural change but
             strict-mode would throw on this in some engines.
 
-  CHANGELOG (LD244N → LD244T)
+  CHANGELOG (LD244N → LD244U)
   ───────────────────────────
   BUG-09    runRRGScanner() processFund(): rawRows now filtered for NaN
             *before* splitting into prices[] / dates[], keeping both arrays
@@ -2038,7 +2038,7 @@
                 color: var(--accent) !important;
             }
             /* ══════════════════════════════════════════════════════════════
-   LD244T FEATURE STYLES
+   LD244U FEATURE STYLES
    F1 Mistake Classifier · F2 Blind Mode · F3+F9 Pre-Trade Sheet
    F4 Rule-Violation Confirm · F5 Regime Drill · F6 What-If
    F7 Delta Heatmap · F8 Tranche Tracker · F11 Hold Distribution
@@ -9153,7 +9153,7 @@ This is exactly how the system is meant to be played.
             }
 
             // =============================================================================
-            // §G7 · DEPLOY PAUSED SIP  (Gap 7 — LD244T)
+            // §G7 · DEPLOY PAUSED SIP  (Gap 7 — LD244U)
             // =============================================================================
             // deployPausedSip()
             //   Called when the user taps the "Deploy Paused SIP" button that appears
@@ -9623,7 +9623,7 @@ This is exactly how the system is meant to be played.
             // =============================================================================
             // §G8 · NEW FEATURE BUNDLE (LD244M additions)
             // =============================================================================
-            // LD244T · NEW FEATURE JS
+            // LD244U · NEW FEATURE JS
             // =============================================================================
 
             // ── SIP vs Active Trading Comparison ─────────────────────────────────────
@@ -14161,7 +14161,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
             // =============================================================================
             // §GA · GAP-FILL IMPLEMENTATIONS (LD244M)
             // =============================================================================
-            // LD244T · GAP IMPLEMENTATIONS
+            // LD244U · GAP IMPLEMENTATIONS
             // Gap 1 — STCG Cliff Edge Alert     (renderStcgCliffAlert)
             // Gap 2 — Regime Fear→Hope Recovery Alert (checked inside updateDisplay)
             // Gap 3 — Concentration Guard        (checkConcentrationGuard)

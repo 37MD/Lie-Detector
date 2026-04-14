@@ -1,14 +1,74 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD244T
+  LIE DETECTOR  LD244U
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
-  File       : LD244T.html
-  Version    : LD244T  (successor to LD244N)
+  File       : LD244U.html
+  Version    : LD244U  (successor to LD244T)
   Released   : April 2026
   Author     : npsnav.in
   Licence    : Proprietary — All rights reserved
+
+  CHANGELOG (LD244T → LD244U)
+  ───────────────────────────
+  CODE-01   Added 'use strict'; at the top of the <script> block — catches
+            accidental globals and silent assignment errors at runtime.
+
+  CODE-02   Removed duplicate CSS block comments in §CSS-03 and §CSS-04 that
+            were copy-pasted artefacts from the LD244M documentation rewrite.
+
+  CODE-03   Added full JSDoc blocks (@param / @returns) to calcStdev() and
+            calcMFATR() in §9 — both helpers were undocumented while all
+            neighbouring §9 functions had JSDoc.
+
+  CODE-04   Extracted remaining magic numbers into named constants in §3:
+              PC_BOX_TIGHT_PCT / PC_WMA_PROXIMITY_PCT / PC_BREAKOUT_BUFFER /
+              PC_BREAKDOWN_BUFFER  (used in calculateConsolidation §10)
+              MIN_SIGMA_FLOOR       (used in buildLowessGaussianFast §9)
+              MS_PER_HOUR / MS_PER_MIN / STALE_CACHE_HRS (updateFreshnessBadge §8)
+            All call-sites updated to reference these constants.
+
+  CODE-05   consumeNpsSwitch() — replaced the surviving alert() call with
+            flashBanner("...", "danger") — completing the Q-08 fix from LD244N
+            that had missed this one instance.
+
+  CODE-07   openRRGDetail() catch block — replaced alert(`Calculation failed:
+            ${err.message}`) with flashBanner() — second Q-08 survivor fixed.
+
+  CODE-08   BAF ↔ NPS Modal Scenario A / B buttons — replaced two inline
+            onclick alert() placeholder calls with flashBanner() + consumeNpsSwitch()
+            so each scenario tap now also increments the switch counter.
+            Third and fourth Q-08 survivors fixed; all alert() calls now gone.
+
+  CODE-09   UI version badges updated from LD244T → LD244U across all three
+            visible surfaces: SOP modal header, SOP footer note, and the
+            clickable version badge on the Setup Screen.
+
+  SOP-01    Live Cockpit SOP entry rewritten to document all rendered features:
+            2-pane canvas (Price + RSI), WMA20, LOWESS TSL floor, ChoCh swing
+            markers, PC/NC pattern overlays, anchor-EMA, Delta Heatmap (F7),
+            Live Benchmark Estimate, alpha strip, pinch-zoom, HUD crosshair,
+            Data Freshness Badge (● LIVE / CACHED), IDB offline-first (12 h TTL).
+
+  SOP-02    RRG Alpha Dashboard SOP entry rewritten to document: 3-pane chart
+            (Price + RSI + RS vs HMA30), Current Quadrant classifier (Leading /
+            Improving / Weakening / Lagging), ADX Trend Intensity, RS Cross Date,
+            BAF Alpha comparison table, IDB-cached Nifty 50 benchmark cascade
+            (UTI 120716 → HDFC 119063 → Kotak 148978 → ABSL 119648 — zero
+            extra network call), Launch to Live Cockpit button.
+
+  SOP-03    BAF ↔ NPS Switch Planner SOP entry updated: Scenario A / B buttons
+            now documented as firing in-app banner + consuming one switch dot
+            automatically (aligned with CODE-08 fix).
+
+  SOP-04    Fund count corrected from 55 → 58 in all four SOP locations:
+            Regime Change Scanner row, Asset Allocator row, Part 5 Step 1
+            (Universe Scan), and Part 6 scanner section.
+
+  CODE-06   Fixed stray double-comma (`, ,`) in the ABSL fund array tail that
+            was creating a sparse-array slot.  No behavioural change but
+            strict-mode would throw on this in some engines.
 
   CHANGELOG (LD244N → LD244T)
   ───────────────────────────
@@ -130,7 +190,7 @@
   ┌─ JAVASCRIPT SECTIONS ──────────────────────────────────────────────────────┐
   │   §0   App Initialisation              (single DOMContentLoaded handler)   │
   │   §1   Benchmark & Ticker Maps         (NSE index ↔ Yahoo Finance ticker)  │
-  │   §2   Fund Catalogue                  (55 MF + NPS codes, 4 AMCs)        │
+  │   §2   Fund Catalogue                  (58 MF + NPS codes, 4 AMCs)        │
   │   §3   Runtime State                   (global mutable state variables)    │
   │   §4   Utility Helpers                 (window.normalizeDate, zoom reset)  │
   │   §5   Fund Selection UI               (AMC picker, localStorage persist)  │
@@ -200,7 +260,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector LD244T</title>
+        <title>Lie Detector LD244U</title>
                   <link rel="manifest" href="manifest.json">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -243,7 +303,7 @@
         <style>
             /*
              * ====================================================================
-             * STYLESHEET — LIE DETECTOR LD244T
+             * STYLESHEET — LIE DETECTOR LD244U
              * ====================================================================
              * Organisation
              * ─────────────
@@ -342,8 +402,6 @@
             /* ─────────────────────────────────────────────────────────────────────────── */
             /* #ov: fullscreen semi-transparent overlay shown during API fetch and IDB   */
             /* background sync.  z-index 1000 — sits above all modals (max z 700).      */
-            /* Fullscreen semi-transparent overlay shown during API fetch   */
-            /* and background sync.  z-index 1000 sits above all modals.   */
             #ov {
                 display: none;
                 position: fixed;
@@ -385,8 +443,6 @@
             /* ─────────────────────────────────────────────────────────────────────────── */
             /* Fixed fullscreen entry point (z 500).  Scrollable on small phones so      */
             /* the notification settings panel is always reachable below the fold.       */
-            /* Fixed fullscreen entry point (z 500).  Scrollable on small   */
-            /* phones so the notification settings panel is always reachable.*/
             #setupScreen {
                 position: fixed;
                 inset: 0;
@@ -2845,7 +2901,7 @@
             <!-- ── Header ────────────────────────────────────────────────────── -->
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD244T</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD244U</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -3040,7 +3096,7 @@
                     <div class="sop-step-body">
                         <div class="sop-step-title" style="color:var(--accent);">Universe Scan — Sunday</div>
                         <div class="sop-step-timing">Weekly · takes 60 seconds</div>
-                        <div class="sop-step-desc">Run <strong>RRG Leading</strong> + <strong>RRG Improving</strong> scanner (home screen, green/blue buttons). Identify the top 3 funds with highest RS vs Nifty 50 (RS = fund NAV ÷ Nifty 50 NAV) and positive RS-Momentum (RS above HMA(30)) across all 55 instruments. Then run <strong>Regime Hope → Invest</strong> scanner to cross-check which of those 3 have an active D-RSI or Slingshot entry signal today.</div>
+                        <div class="sop-step-desc">Run <strong>RRG Leading</strong> + <strong>RRG Improving</strong> scanner (home screen, green/blue buttons). Identify the top 3 funds with highest RS vs Nifty 50 (RS = fund NAV ÷ Nifty 50 NAV) and positive RS-Momentum (RS above HMA(30)) across all 58 instruments. Then run <strong>Regime Hope → Invest</strong> scanner to cross-check which of those 3 have an active D-RSI or Slingshot entry signal today.</div>
                     </div>
                 </div>
                 <div class="sop-step">
@@ -3089,7 +3145,7 @@
                     <tbody>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">Regime Change Scanner</td>
-                            <td>All 55 funds that crossed a regime boundary (Hope↔Watch or Watch↔Fear) in the last 5 days — W-RSI crossing 50 or 40</td>
+                            <td>All 58 funds that crossed a regime boundary (Hope↔Watch or Watch↔Fear) in the last 5 days — W-RSI crossing 50 or 40</td>
                             <td>Daily + Sunday deep scan</td>
                         </tr>
                         <tr>
@@ -3133,7 +3189,7 @@
                     <tbody>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">Live Cockpit</td>
-                            <td>Real-time price + RSI chart for any fund. Shows regime badge, WMA20, TSL, alpha strip vs benchmark, and timeframe buttons. Entry point for daily checks.</td>
+                            <td>Real-time 2-pane canvas chart for any fund — Price pane (WMA20, LOWESS TSL floor, ChoCh swing markers, PC/NC pattern overlays, anchor-EMA) + Sacred Momentum RSI pane below. Shows regime badge (A/B/C), Delta Heatmap strip (F7), Live Benchmark Estimate (intraday Yahoo Finance proxy — shows today's estimated NAV change), alpha strip vs Nifty 50, timeframe buttons (3D → ALL), pinch-zoom, and HUD crosshair tooltip. Data Freshness Badge shows ● LIVE (fresh fetch) or CACHED · Xm ago (IDB hit). Works offline via IndexedDB cache (12 h TTL). Entry point for all daily checks.</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--gold);">Live Analytics</td>
@@ -3141,11 +3197,11 @@
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--gold);">📊 Asset Allocator</td>
-                            <td>Scores all funds in your AMC (up to 17 per AMC, 55 total). Outputs weighted allocation recommendation + activates the Trigger Monitor (C1/C2/C3). Supports MF, NPS Tier 1, and NPS Tier 2.</td>
+                            <td>Scores all funds in your AMC (up to 17 per AMC, 58 total). Outputs weighted allocation recommendation + activates the Trigger Monitor (C1/C2/C3). Supports MF, NPS Tier 1, and NPS Tier 2.</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">RRG Alpha Dashboard</td>
-                            <td>3-pane deep-dive: Price chart + RSI pane + RS vs HMA(30) chart. RS = fund NAV ÷ Nifty 50 NAV — true relative strength vs the index. HMA(30) smooths the RS trend. Green = outperforming Nifty 50 and trend rising; Red = underperforming. Alpha = fund return − Nifty 50 return. Launch to Live Cockpit from any result.</td>
+                            <td>3-pane deep-dive chart: Price pane (anchor-EMA, ChoCh, PC/NC overlays) + Sacred Momentum RSI pane + RS vs HMA(30) pane. RS = fund NAV ÷ Nifty 50 NAV — true relative strength vs the index (IDB-cached Nifty 50 proxy, no extra network call; fallback cascade: UTI 120716 → HDFC 119063 → Kotak 148978 → ABSL 119648). HMA(30) smooths the RS trend — green = outperforming and rising, red = underperforming. Current Quadrant badge classifies the fund as: LEADING (RS above HMA, momentum rising), IMPROVING (RS below HMA, momentum rising), WEAKENING (RS above HMA, momentum falling), or LAGGING (RS below HMA, falling). ADX Trend Intensity (ADX &gt; 25 = confirmed trend, &lt; 25 = ranging). RS Cross Date shows when RS last crossed HMA — recency matters. BAF Alpha comparison table: 1M and 3M alpha of the fund vs your BAF benchmark. Alpha = fund return − Nifty 50 return. Launch to Live Cockpit directly from the dashboard header.</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--border2);">⇄ Compare 2 Funds</td>
@@ -3157,7 +3213,7 @@
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--red);">BAF ↔ NPS Switch Planner</td>
-                            <td>Tracks your 4 free NPS scheme switches per financial year (SEBI limit). Shows current holdings with status, historical switch log, and dot tracker. Route to Live Cockpit directly from any fund row.</td>
+                            <td>Tracks your 4 free NPS scheme switches per financial year (SEBI limit). Shows current holdings with status, historical switch log, and 4-dot switch tracker. Two scenario action buttons: <strong>Scenario A — Crash Deployment</strong> (Regime Fear · W-RSI &lt; 40 → shift BAF to NPS Tier 1 Equity) and <strong>Scenario B — Overbought Protection</strong> (W-RSI &gt; 50 overbought → shift NPS Tier 2 to BAF). Tapping either button logs the action via in-app banner and automatically consumes one switch dot from the tracker. Route to Live Cockpit directly from any fund row in the switch log.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -3312,7 +3368,7 @@
                 </div>
 
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD244T &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD244U &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
 
@@ -3336,7 +3392,7 @@
             <!-- ── Logo / title strip (unchanged) ── -->
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244T 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244U 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
             <!-- ── ROW 1 · Alert Summary + Regime Change Scanner ── -->
@@ -4403,8 +4459,9 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
         </div>
 
         <script>
+            'use strict';
             // =============================================================================
-            // JAVASCRIPT ENGINE — LIE DETECTOR LD244T
+            // JAVASCRIPT ENGINE — LIE DETECTOR LD244U
             // =============================================================================
             //
             // ─────────────────────────────────────────────────────────────────────
@@ -4413,7 +4470,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             //
             //  §0   App Initialisation            DOMContentLoaded — wires all listeners
             //  §1   Benchmark & Ticker Maps        NSE index ↔ Yahoo Finance ticker
-            //  §2   Fund Catalogue                 55 MF + NPS codes across 4 AMCs
+            //  §2   Fund Catalogue                 58 MF + NPS codes across 4 AMCs
             //  §3   Runtime State                  Global mutable variables (game state)
             //  §4   Utility Helpers                window.normalizeDate, zoom reset
             //  §5   Fund Selection UI              AMC picker, localStorage persist
@@ -4563,7 +4620,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             };
 
             // =============================================================================
-            // §2 · FUND CATALOGUE  (55 instruments: MF + NPS Tier I/II)
+            // §2 · FUND CATALOGUE  (58 instruments: MF + NPS Tier I/II)
             // =============================================================================
             // Codes prefixed "SM" → npsnav.in API.  All others → api.mfapi.in.
             // Exposed as window.amcFunds so the IDB sync engine can iterate all funds.
@@ -4803,7 +4860,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     {
                         name: '[NPS] ABSL Scheme C - Tier II',
                         code: 'SM010005'
-                    }, ,
+                    },
                 ],
             };
 
@@ -4836,7 +4893,6 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             const STCG_APPROX_FACTOR = 1.45;   // Trading-day-to-calendar-day approximation
             const FETCH_TIMEOUT_MS   = 12_000; // API fetch abort timeout (12 seconds)
             const BUY_DELTA_LEVEL    = -15;    // Q-02 FIX: Slingshot threshold (D-RSI minus W-RSI)
-
             // RRG BENCHMARK — Nifty 50 proxy via mfapi.in (AMFI NAV data)
             // Primary : UTI  Nifty 50 Index Fund — Direct Growth (120716, INF789F01XA0)
             // Fallback: HDFC Nifty 50 Index Fund — Direct Plan   (119063, INF179K01WM1)
@@ -4863,6 +4919,17 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             const MIN_DATA_BARS      = 80;     // Minimum history bars before simulation is valid
             const DEFAULT_SIM_CASH   = 100_000; // Starting simulator portfolio (₹1,00,000)
             const SCANNER_BATCH_SIZE = 6;      // Concurrent API fetch batch size for scanners
+            // ── §10 Consolidation pattern thresholds ────────────────────────────────────
+            const PC_BOX_TIGHT_PCT      = 0.02; // Max bar-range / boxMin for a "tight" consolidation box (2%)
+            const PC_WMA_PROXIMITY_PCT  = 0.04; // Max boxMin deviation from WMA20 to qualify (4%)
+            const PC_BREAKOUT_BUFFER    = 1.02; // preMax must be > boxMax × this to confirm prior range (2%)
+            const PC_BREAKDOWN_BUFFER   = 0.98; // preMin must be < boxMin × this to confirm prior range (2%)
+            // ── §9 Gaussian floor ────────────────────────────────────────────────────────
+            const MIN_SIGMA_FLOOR       = 0.0001; // Prevents division-by-zero when σ collapses to 0
+            // ── §8 Freshness badge ───────────────────────────────────────────────────────
+            const MS_PER_HOUR           = 3_600_000; // Milliseconds in one hour
+            const MS_PER_MIN            = 60_000;    // Milliseconds in one minute
+            const STALE_CACHE_HRS       = 8;         // Hours after which cached data is flagged stale
             // ─────────────────────────────────────────────────────────────────────────
 
             let fullHistory = [];
@@ -5044,13 +5111,13 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 const el = document.getElementById('dataFreshnessBadge');
                 if (!el || !_lastFetchTimestamp) return;
                 const ageMs = Date.now() - _lastFetchTimestamp;
-                const ageH = ageMs / 3600000;
+                const ageH = ageMs / MS_PER_HOUR;
                 el.style.display = 'inline-block';
                 if (_lastFetchWasCached) {
-                    const label = ageH < 1 ? `CACHED · ${Math.round(ageMs / 60000)}m ago` :
+                    const label = ageH < 1 ? `CACHED · ${Math.round(ageMs / MS_PER_MIN)}m ago` :
                         `CACHED · ${ageH.toFixed(1)}h ago`;
-                    el.textContent = ageH > 8 ? `⚠ ${label}` : label;
-                    el.className = `data-freshness-badge ${ageH > 8 ? 'badge-stale' : 'badge-cached'}`;
+                    el.textContent = ageH > STALE_CACHE_HRS ? `⚠ ${label}` : label;
+                    el.className = `data-freshness-badge ${ageH > STALE_CACHE_HRS ? 'badge-stale' : 'badge-cached'}`;
                 } else {
                     el.textContent = '● LIVE';
                     el.className = 'data-freshness-badge badge-live';
@@ -5640,6 +5707,17 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             // The result is a price-adaptive, non-lagging support line that forms the
             // basis of the TSL breach signal.
             //
+            /**
+             * calcStdev()  [§9 — Technical Indicator Library]
+             * ────────────
+             * Computes the population standard deviation of the last `period` values
+             * in `arr`.  Used as part of the adaptive sigma calculation in
+             * buildLowessGaussianFast().
+             *
+             * @param {number[]} arr    - Input price/value series (oldest first)
+             * @param {number}   period - Rolling window size
+             * @returns {number} Standard deviation; 0 when fewer than `period` values exist
+             */
             function calcStdev(arr, period) {
                 if (arr.length < period) return 0;
                 const slice = arr.slice(-period);
@@ -5648,6 +5726,18 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 return Math.sqrt(variance);
             }
 
+            /**
+             * calcMFATR()  [§9 — Technical Indicator Library]
+             * ────────────
+             * Computes a simplified Average True Range (ATR) for a mutual-fund NAV
+             * series (no high/low bars — uses absolute bar-to-bar change as a proxy
+             * for true range).  Used alongside calcStdev() to set the Gaussian
+             * bandwidth σ in buildLowessGaussianFast().
+             *
+             * @param {number[]} arr    - Input price/value series (oldest first)
+             * @param {number}   period - Rolling window size
+             * @returns {number} Mean absolute bar-to-bar change; 0 when data is insufficient
+             */
             function calcMFATR(arr, period) {
                 if (arr.length <= period) return 0;
                 let trSum = 0;
@@ -5688,7 +5778,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     const stdev = calcStdev(slice, gLen);
 
                     let sigma = (atr + stdev) / 2.0;
-                    if (sigma === 0) sigma = 0.0001;
+                    if (sigma === 0) sigma = MIN_SIGMA_FLOOR;
 
                     let gma = 0.0;
                     let sumOfWeights = 0.0;
@@ -5767,12 +5857,12 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     const preMin = preBox.reduce((m, v) => v < m ? v : m,  Infinity);
                     const boxWma = calculateWMA(prices.slice(-21, -1), 20);
 
-                    const isTight = (boxMax - boxMin) / boxMin <= 0.02;
-                    const nearWma = boxWma ? Math.abs(boxMin - boxWma) / boxWma <= 0.04 : false;
+                    const isTight = (boxMax - boxMin) / boxMin <= PC_BOX_TIGHT_PCT;
+                    const nearWma = boxWma ? Math.abs(boxMin - boxWma) / boxWma <= PC_WMA_PROXIMITY_PCT : false;
 
                     if (isTight && nearWma) {
-                        if (preMax > boxMax * 1.02 && currentNav > boxMax) pcAlert = true;
-                        if (preMin < boxMin * 0.98 && currentNav < boxMin) ncAlert = true;
+                        if (preMax > boxMax * PC_BREAKOUT_BUFFER && currentNav > boxMax) pcAlert = true;
+                        if (preMin < boxMin * PC_BREAKDOWN_BUFFER && currentNav < boxMin) ncAlert = true;
                     }
                 }
 
@@ -12609,7 +12699,8 @@ ${d.tsl > 0
                 } catch (err) {
                     console.error('Fatal Error in openRRGDetail:', err);
                     ovEl.style.display = 'none';
-                    alert(`Calculation failed: ${err.message}`);
+                    // Q-08 FIX: replaced alert() with in-UI flashBanner
+                    flashBanner(`RRG calculation failed: ${err.message}`, 'danger');
                     document.getElementById('rrgScannerModal').style.display = 'flex';
                 }
             }
@@ -14550,12 +14641,12 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                         </div>
 
                         <div class="action-row">
-                            <button class="action-btn" onclick="alert('Action Logged: BAF Redeemed. Funds routed to NPS Tier 1 Equity.')" style="border-color:#28a745; color:#28a745;">
+                            <button class="action-btn" onclick="flashBanner('Action Logged: BAF Redeemed. Funds routed to NPS Tier 1 Equity.', 'buy'); consumeNpsSwitch();" style="border-color:#28a745; color:#28a745;">
                                 [ SCENARIO A ] CRASH DEPLOYMENT<br>
                                 <span style="font-size:10px; color:#555555;">Regime Fear | W-RSI < 40 : Shift BAF → NPS Tier 1 Equity</span>
                             </button>
 
-                            <button class="action-btn" onclick="alert('Action Logged: NPS Tier 2 Redeemed. Funds parked in BAF.')" style="border-color:#d9534f; color:#d9534f;">
+                            <button class="action-btn" onclick="flashBanner('Action Logged: NPS Tier 2 Redeemed. Funds parked in BAF.', 'sell'); consumeNpsSwitch();" style="border-color:#d9534f; color:#d9534f;">
                                 [ SCENARIO B ] OVERBOUGHT PROTECTION<br>
                                 <span style="font-size:10px; color:#555555;">Regime Watch/Overbought | W-RSI > 50 : Shift NPS Tier 2 → BAF</span>
                             </button>
@@ -14742,14 +14833,15 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
      * ──────────────────
      * Increments the NPS scheme-switch counter by 1.  SEBI permits a maximum of
      * 4 free scheme switches per financial year per NPS subscriber.
-     * Warns the user via alert() if all 4 switches have been consumed.
+     * Warns the user via flashBanner() if all 4 switches have been consumed.
      */
     function consumeNpsSwitch() {
         if (BafNpsState.npsSwitchesUsed < BafNpsState.maxSwitches) {
             BafNpsState.npsSwitchesUsed++;
             renderNpsDots();
         } else {
-            alert("WARNING: All 4 NPS Scheme Switches have been exhausted for this Financial Year.");
+            // Q-08 FIX: replaced alert() with in-UI flashBanner — consistent with rest of app
+            flashBanner("⚠ All 4 NPS Scheme Switches exhausted for this Financial Year.", "danger");
         }
     }
 
@@ -14784,7 +14876,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
 
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD244T
+    END OF FILE — LD244U
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js

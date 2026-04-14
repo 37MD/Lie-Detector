@@ -3641,25 +3641,28 @@ border-bottom:1px solid var(--border);"></div>
                     <div style="font-size:0.42rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;padding:2px 0;">Relative Strength vs Nifty 50</div>
 
                     <!-- Row 1: Quadrant + RS Trend + ADX -->
-                    <div style="display:flex;gap:3px;">
-                        <div id="lcRrgStatusBox" style="flex:1.6;padding:3px 5px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);text-align:center;display:flex;flex-direction:column;justify-content:center;gap:1px;">
-                            <div style="font-size:0.4rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Current Quadrant</div>
-                            <div id="lcRrgStatusLabel" style="font-size:0.62rem;font-weight:700;color:var(--muted);">--</div>
-                            <div id="lcRrgStatusSub" style="font-size:0.4rem;color:var(--muted);">--</div>
-                            <div id="lcRrgCrossDate" style="font-size:0.38rem;color:var(--muted2);">Last RS &lt; HMA: --</div>
+                    
+<div style="display:flex;flex-direction:column;gap:3px;">
+                        <div id="lcRrgStatusBox" style="padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;gap:2px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <div style="font-size:0.45rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Current Quadrant</div>
+                                <div id="lcRrgStatusLabel" style="font-size:0.62rem;font-weight:700;color:var(--muted);">--</div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <div id="lcRrgStatusSub" style="font-size:0.4rem;color:var(--muted);">--</div>
+                                <div id="lcRrgCrossDate" style="font-size:0.38rem;color:var(--muted2);">Last RS &lt; HMA: --</div>
+                            </div>
                         </div>
-                        <!-- RS Trend + ADX stacked -->
-                        <div style="flex:1;display:flex;flex-direction:column;gap:3px;">
-                            <div class="la-card2" style="padding:3px 5px;flex:1;">
-                                <div class="la-label" style="font-size:0.4rem;">RS Ratio Trend</div>
-                                <div id="lcRrgRSTrend" class="la-val" style="font-size:0.58rem;font-weight:600;">--</div>
-                            </div>
-                            <div class="la-card2" style="padding:3px 5px;flex:1;">
-                                <div class="la-label" style="font-size:0.4rem;">Trend Intensity (ADX)</div>
-                                <div id="lcRrgADX" class="la-val" style="font-size:0.58rem;font-weight:600;">--</div>
-                            </div>
+                        <div class="la-card2" style="padding:4px 6px;display:flex;justify-content:space-between;align-items:center;">
+                            <div class="la-label" style="font-size:0.45rem;margin-bottom:0;">RS Ratio Trend</div>
+                            <div id="lcRrgRSTrend" class="la-val" style="font-size:0.58rem;font-weight:600;">--</div>
+                        </div>
+                        <div class="la-card2" style="padding:4px 6px;display:flex;justify-content:space-between;align-items:center;">
+                            <div class="la-label" style="font-size:0.45rem;margin-bottom:0;">Trend Intensity (ADX)</div>
+                            <div id="lcRrgADX" class="la-val" style="font-size:0.58rem;font-weight:600;">--</div>
                         </div>
                     </div>
+
 
                     <!-- Row 2: Full 6-column momentum table (matches RRG Alpha Dashboard) -->
                     <table class="log-table" style="border:1px solid var(--border);font-size:0.4rem;width:100%;">

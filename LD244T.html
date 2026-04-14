@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD244R
+  LIE DETECTOR  LD244T
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
-  File       : LD244R.html
-  Version    : LD244R  (successor to LD244N)
+  File       : LD244T.html
+  Version    : LD244T  (successor to LD244N)
   Released   : April 2026
   Author     : npsnav.in
   Licence    : Proprietary — All rights reserved
 
-  CHANGELOG (LD244N → LD244R)
+  CHANGELOG (LD244N → LD244T)
   ───────────────────────────
   BUG-09    runRRGScanner() processFund(): rawRows now filtered for NaN
             *before* splitting into prices[] / dates[], keeping both arrays
@@ -200,7 +200,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector LD244R</title>
+        <title>Lie Detector LD244T</title>
                   <link rel="manifest" href="manifest.json">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -243,7 +243,7 @@
         <style>
             /*
              * ====================================================================
-             * STYLESHEET — LIE DETECTOR LD244R
+             * STYLESHEET — LIE DETECTOR LD244T
              * ====================================================================
              * Organisation
              * ─────────────
@@ -556,7 +556,7 @@
                 background: transparent;
             }
 
-.setup-btn-sim {
+            .setup-btn-sim {
                 border-color: var(--accent);
                 border-width: 2px;
                 color: var(--accent);
@@ -565,19 +565,11 @@
                 outline: 1px solid rgba(0, 158, 112, 0.35);
                 outline-offset: 3px;
                 letter-spacing: 0.02em;
-                box-shadow: 0 0 10px rgba(0, 158, 112, 0.1);
-                animation: btnPulseSim 3s infinite;
             }
 
             .setup-btn-sim:hover {
                 background: var(--accent-dim);
                 outline-color: var(--accent);
-                box-shadow: 0 0 15px rgba(0, 158, 112, 0.2);
-            }
-
-            @keyframes btnPulseSim {
-                0%, 100% { box-shadow: 0 0 8px rgba(0, 158, 112, 0.1); }
-                50% { box-shadow: 0 0 16px rgba(0, 158, 112, 0.25); }
             }
 
             .setup-btn-custom {
@@ -598,28 +590,13 @@
                 outline: 1px solid rgba(112, 144, 176, 0.35);
                 outline-offset: 3px;
                 letter-spacing: 0.02em;
-                box-shadow: 0 0 10px rgba(112, 144, 176, 0.1);
-                animation: btnPulseLive 3s infinite;
             }
 
             .setup-btn-live:hover {
                 border-color: var(--muted2);
                 outline-color: var(--border2);
                 color: var(--text);
-                box-shadow: 0 0 15px rgba(112, 144, 176, 0.2);
             }
-
-            @keyframes btnPulseLive {
-                0%, 100% { box-shadow: 0 0 8px rgba(112, 144, 176, 0.1); }
-                50% { box-shadow: 0 0 16px rgba(112, 144, 176, 0.25); }
-            }
-
-            @keyframes headerLivePulse {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.4; }
-            }
-
-
 
             /* ────────────────────────────────────────────────────────────────────────── */
             /* APP HEADER                                                               */
@@ -2005,7 +1982,7 @@
                 color: var(--accent) !important;
             }
             /* ══════════════════════════════════════════════════════════════
-   LD244R FEATURE STYLES
+   LD244T FEATURE STYLES
    F1 Mistake Classifier · F2 Blind Mode · F3+F9 Pre-Trade Sheet
    F4 Rule-Violation Confirm · F5 Regime Drill · F6 What-If
    F7 Delta Heatmap · F8 Tranche Tracker · F11 Hold Distribution
@@ -2868,7 +2845,7 @@
             <!-- ── Header ────────────────────────────────────────────────────── -->
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD244R</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD244T</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -3335,7 +3312,7 @@
                 </div>
 
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD244R &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD244T &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
 
@@ -3359,7 +3336,7 @@
             <!-- ── Logo / title strip (unchanged) ── -->
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244R 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244T 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
             <!-- ── ROW 1 · Alert Summary + Regime Change Scanner ── -->
@@ -3576,14 +3553,9 @@
 
             <!-- ── Header bar ─────────────────────────────────────────────── -->
             <div class="modal-close" style="padding-left: 4px; padding-right: 4px;">
-
-<div style="display:flex;gap:4px;align-items:center;flex:1;min-width:0;">
-                    <span class="modal-title" style="color:var(--accent2);flex-shrink:0;letter-spacing:0.02em;">LIVE COCKPIT</span>
-                    <span style="background:rgba(255,50,50,0.08); color:#d9534f; font-size:0.52rem; padding:2px 6px; border-radius:10px; border:1px solid rgba(217,83,79,0.3); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:4px; font-weight:700; margin-left:6px;">
-                        <span style="width:5px; height:5px; background:#d9534f; border-radius:50%; display:inline-block; animation: headerLivePulse 1.5s infinite;"></span>
-                        Live
-                    </span>
-
+                <div style="display:flex;gap:4px;align-items:center;flex:1;min-width:0;">
+                    <span class="modal-title" style="color:var(--accent2);flex-shrink:0;letter-spacing:0.02em;">LIVE
+                        COCKPIT</span>
                     <span id="liveChartFundName" class="fund-name-tag" style="margin-left:2px;padding-left:4px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
                     <span id="dataFreshnessBadge" class="data-freshness-badge" style="margin-right:2px;"></span>
                 </div>
@@ -4432,7 +4404,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
 
         <script>
             // =============================================================================
-            // JAVASCRIPT ENGINE — LIE DETECTOR LD244R
+            // JAVASCRIPT ENGINE — LIE DETECTOR LD244T
             // =============================================================================
             //
             // ─────────────────────────────────────────────────────────────────────
@@ -9091,7 +9063,7 @@ This is exactly how the system is meant to be played.
             }
 
             // =============================================================================
-            // §G7 · DEPLOY PAUSED SIP  (Gap 7 — LD244R)
+            // §G7 · DEPLOY PAUSED SIP  (Gap 7 — LD244T)
             // =============================================================================
             // deployPausedSip()
             //   Called when the user taps the "Deploy Paused SIP" button that appears
@@ -9561,7 +9533,7 @@ This is exactly how the system is meant to be played.
             // =============================================================================
             // §G8 · NEW FEATURE BUNDLE (LD244M additions)
             // =============================================================================
-            // LD244R · NEW FEATURE JS
+            // LD244T · NEW FEATURE JS
             // =============================================================================
 
             // ── SIP vs Active Trading Comparison ─────────────────────────────────────
@@ -14098,7 +14070,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
             // =============================================================================
             // §GA · GAP-FILL IMPLEMENTATIONS (LD244M)
             // =============================================================================
-            // LD244R · GAP IMPLEMENTATIONS
+            // LD244T · GAP IMPLEMENTATIONS
             // Gap 1 — STCG Cliff Edge Alert     (renderStcgCliffAlert)
             // Gap 2 — Regime Fear→Hope Recovery Alert (checked inside updateDisplay)
             // Gap 3 — Concentration Guard        (checkConcentrationGuard)
@@ -14809,9 +14781,10 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
     </body>
 
 
+
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD244R
+    END OF FILE — LD244T
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js

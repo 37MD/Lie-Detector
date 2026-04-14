@@ -1,14 +1,45 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD244N
+  LIE DETECTOR  LD244T
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
-  File       : LD244N.html
-  Version    : LD244N  (successor to LD244M)
+  File       : LD244T.html
+  Version    : LD244T  (successor to LD244N)
   Released   : April 2026
   Author     : npsnav.in
   Licence    : Proprietary — All rights reserved
+
+  CHANGELOG (LD244N → LD244T)
+  ───────────────────────────
+  BUG-09    runRRGScanner() processFund(): rawRows now filtered for NaN
+            *before* splitting into prices[] / dates[], keeping both arrays
+            index-aligned and fixing miscalculated RS-Ratio quadrants.
+
+  BUG-10    RRG benchmark fetch was making a standalone network call that
+            would fail whenever mfapi.in was temporarily unreachable.
+            Fix: fetchNifty50Nav() now uses the same IDB-cached fund data
+            that the app downloads on open (§37 monkey-patched window.fetch).
+            Candidate waterfall: UTI 120716 → HDFC 119063 → Kotak 148978 →
+            ABSL 119648.  No extra network call is made if IDB is warm.
+            NIFTY50_CACHE_KEY bumped to _v3 to flush stale _v1/_v2 data.
+
+  PERF-01B  renderRRGChartDynamic(): Math.max/min spread operators replaced
+            with concat + reduce — prevents stack overflow on large lookback
+            windows (fix was documented in LD244N but never applied).
+
+  PERF-02B  runRRGScanner(): calcHMA and calcCloseOnlyADX now receive
+            prices.slice(-100) / rsArray.slice(-100) — both indicators only
+            need ~100 bars of warmup; iterating 5000+ bars × 58 funds on
+            the main thread was pure waste.
+
+  DATA-01   Three Nifty 50 Index Direct Growth funds added to amcFunds so
+            they are pre-fetched and IDB-cached on every app open, making
+            them available instantly as RRG benchmark fallbacks:
+              HDFC  Nifty 50 Index — Direct Plan  code 119063 (INF179K01WM1)
+              Kotak Nifty 50 Index — Direct Growth code 148978 (INF174KA1HA7)
+              ABSL  Nifty 50 Index — Direct Growth code 119648 (INF209K01VY3)
+            Total fund catalog: 55 → 58 funds.
 
   CHANGELOG (LD244M → LD244N)
   ───────────────────────────
@@ -99,7 +130,7 @@
   ┌─ JAVASCRIPT SECTIONS ──────────────────────────────────────────────────────┐
   │   §0   App Initialisation              (single DOMContentLoaded handler)   │
   │   §1   Benchmark & Ticker Maps         (NSE index ↔ Yahoo Finance ticker)  │
-  │   §2   Fund Catalogue                  (52 MF + NPS codes, 4 AMCs)        │
+  │   §2   Fund Catalogue                  (55 MF + NPS codes, 4 AMCs)        │
   │   §3   Runtime State                   (global mutable state variables)    │
   │   §4   Utility Helpers                 (window.normalizeDate, zoom reset)  │
   │   §5   Fund Selection UI               (AMC picker, localStorage persist)  │
@@ -169,7 +200,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector LD244N</title>
+        <title>Lie Detector LD244T</title>
                   <link rel="manifest" href="manifest.json">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -212,7 +243,7 @@
         <style>
             /*
              * ====================================================================
-             * STYLESHEET — LIE DETECTOR LD244N
+             * STYLESHEET — LIE DETECTOR LD244T
              * ====================================================================
              * Organisation
              * ─────────────
@@ -527,11 +558,18 @@
 
             .setup-btn-sim {
                 border-color: var(--accent);
+                border-width: 2px;
                 color: var(--accent);
+                font-weight: 700;
+                font-size: 0.78rem !important;
+                outline: 1px solid rgba(0, 158, 112, 0.35);
+                outline-offset: 3px;
+                letter-spacing: 0.02em;
             }
 
             .setup-btn-sim:hover {
                 background: var(--accent-dim);
+                outline-color: var(--accent);
             }
 
             .setup-btn-custom {
@@ -545,11 +583,18 @@
 
             .setup-btn-live {
                 border-color: var(--border2);
-                color: var(--muted2);
+                border-width: 2px;
+                color: var(--border2);
+                font-weight: 700;
+                font-size: 0.78rem !important;
+                outline: 1px solid rgba(112, 144, 176, 0.35);
+                outline-offset: 3px;
+                letter-spacing: 0.02em;
             }
 
             .setup-btn-live:hover {
                 border-color: var(--muted2);
+                outline-color: var(--border2);
                 color: var(--text);
             }
 
@@ -1858,7 +1903,7 @@
                 padding: 3px 4px; font-size: 0.62rem; line-height: 1.45;
                 border-bottom: 1px solid rgba(0,0,0,0.04);
             }
-            .sop-check-icon { flex-shrink: 0; width: 22px; text-align: center; font-size: 0.7rem; }
+            .sop-check-icon { flex-shrink: 0; width: 36px; text-align: left; font-size: 0.65rem; letter-spacing: 0; }
             .sop-check-text { flex: 1; color: var(--text); }
             .sop-check.danger .sop-check-text { color: var(--red); font-weight: 700; }
             .sop-check.warning .sop-check-text { color: var(--accent2); font-weight: 700; }
@@ -1937,7 +1982,7 @@
                 color: var(--accent) !important;
             }
             /* ══════════════════════════════════════════════════════════════
-   LD244N FEATURE STYLES
+   LD244T FEATURE STYLES
    F1 Mistake Classifier · F2 Blind Mode · F3+F9 Pre-Trade Sheet
    F4 Rule-Violation Confirm · F5 Regime Drill · F6 What-If
    F7 Delta Heatmap · F8 Tranche Tracker · F11 Hold Distribution
@@ -2800,7 +2845,7 @@
             <!-- ── Header ────────────────────────────────────────────────────── -->
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD244N</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD244T</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2840,8 +2885,13 @@
                         </tr>
                     </tbody>
                 </table>
+                <div class="sop-note" style="margin-top:4px;">
+                    <strong>W-RSI</strong> = Weekly RSI (Relative Strength Index sampled on weekly closes) &nbsp;·&nbsp;
+                    <strong>WMA20</strong> = 20-period Weighted Moving Average of NAV (linearly weighted, not weekly) &nbsp;·&nbsp;
+                    Regime Watch threshold: Weekly RSI 40–49 means <em>below</em> 50 (Hope) and <em>at or above</em> 40 — the exact code boundary is <code>wrsi &lt; 50 &amp;&amp; wrsi &gt;= 40</code>
+                </div>
 
-                <div class="sop-sub" style="margin-top:10px;">Regime A Sub-Zones &nbsp; (shown by the Regime Hope scanners)</div>
+                <div class="sop-sub" style="margin-top:10px;">Regime Hope Sub-Zones &nbsp; (shown by the Regime Hope scanners)</div>
                 <table class="sop-signal-table">
                     <thead>
                         <tr><th>SUB-ZONE</th><th>CONDITION</th><th>MEANING</th></tr>
@@ -2854,7 +2904,7 @@
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent2);">HOLD</td>
-                            <td>Regime A — no entry or exit signal active</td>
+                            <td>Regime Hope (W-RSI ≥ 50) — no entry or exit signal active</td>
                             <td>D-RSI 40–50, no PC, Delta −15 to +15. Stay invested.</td>
                         </tr>
                         <tr>
@@ -2879,37 +2929,37 @@
                 <div class="sop-sub" style="margin-top:10px;">Step 2 — Signal Confirmation &nbsp; (at least one required)</div>
                 <table class="sop-signal-table">
                     <thead>
-                        <tr><th>SIGNAL</th><th>MEANING</th><th>SIZE</th></tr>
+                        <tr><th>SIGNAL</th><th>MEANING &amp; REGIME STATE</th><th>SIZE</th></tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">D-RSI &lt; 35</td>
-                            <td>Deep oversold in a bull trend — highest conviction entry</td>
+                            <td><strong style="color:var(--accent);">Regime Hope (W-RSI ≥ 50)</strong> · Daily RSI deeply oversold below 35 — extreme dip inside a structural bull. Highest conviction entry. App alert: 🟢 OVERSOLD RSI&lt;40 ➔ BUY TRANCHE</td>
                             <td><span class="size-badge size-50">BUY 50%</span></td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">D-RSI &lt; 40</td>
-                            <td>Standard oversold dip inside Regime Hope</td>
+                            <td><strong style="color:var(--accent);">Regime Hope (W-RSI ≥ 50)</strong> · Daily RSI oversold below 40 — standard pullback inside the bull trend. App alert: 🟢 OVERSOLD RSI&lt;40 ➔ BUY TRANCHE</td>
                             <td><span class="size-badge size-25">BUY 25%</span></td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">PC Breakout</td>
-                            <td>Price breaks out of tight consolidation box above WMA20</td>
+                            <td><strong style="color:var(--accent);">Regime Hope (W-RSI ≥ 50)</strong> · Price breaks above a tight 5-bar consolidation box (≤2% range) sitting near WMA20 (within 4%). Compressed energy release upward. App alert: 🟢 PC BREAKOUT ➔ BUY TRANCHE</td>
                             <td><span class="size-badge size-25">BUY 25%</span></td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent2);">Slingshot &nbsp; Δ &lt; −15</td>
-                            <td>D-RSI lagging W-RSI — coiled spring, mean-reversion setup</td>
+                            <td><strong style="color:var(--accent);">Regime Hope (W-RSI ≥ 50)</strong> · Daily RSI is lagging Weekly RSI by more than 15 points (Delta = D-RSI − W-RSI &lt; −15) — coiled spring, mean-reversion setup. App alert: 🟢 SLINGSHOT Δ&lt;−15 ➔ BUY TRANCHE</td>
                             <td><span class="size-badge size-10">BUY 10–25%</span></td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">Regime Watch→Hope Breakout</td>
-                            <td>Fresh regime upgrade — W-RSI crossed above 50. Wait 1–2 days for confirmation.</td>
+                            <td><strong style="color:var(--accent);">Regime Watch→Hope (W-RSI crosses above 50)</strong> · Weekly RSI was 40–49 (Watch) and has just moved to ≥ 50 (Hope). Fresh structural upgrade — wait 1–2 days for confirmation before buying. App alert: 🟢 REGIME WATCH BREAKOUT ➔ BUY ZONE</td>
                             <td><span class="size-badge size-25">BUY 25%</span></td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">ChoCh Breakout</td>
-                            <td>Change-of-Character: price breaks above recent confirmed swing high</td>
+                            <td><strong style="color:var(--accent);">Regime Hope (W-RSI ≥ 50)</strong> · Price breaks above the most recent confirmed swing high — Change-of-Character signal confirming structural bullish intent.</td>
                             <td><span class="size-badge size-10">BUY 10%</span></td>
                         </tr>
                     </tbody>
@@ -2928,27 +2978,36 @@
                 <div class="sop-part sop-part-red">PART 3 — SELL SOP</div>
 
                 <div class="sop-sub">Mandatory Exits &nbsp; — Non-Negotiable, Same-Day Execution</div>
-                <div class="sop-check danger"><span class="sop-check-icon">🚨</span><span class="sop-check-text">TSL Breach → Sell ALL immediately. Do not wait for confirmation. LOWESS floor is broken.</span></div>
-                <div class="sop-check danger"><span class="sop-check-icon">🚨</span><span class="sop-check-text">Regime Fear — W-RSI drops below 40 → Sell ALL. Move to 100% cash. No exceptions.</span></div>
-                <div class="sop-check warning"><span class="sop-check-icon">⚠️</span><span class="sop-check-text">WMA20 Breach in Regime Hope → Sell 20% as discipline trim. Not a full exit unless regime breaks.</span></div>
-                <div class="sop-check warning"><span class="sop-check-icon">⚠️</span><span class="sop-check-text">NC (Negative Consolidation) Breakdown → Tighten TSL to box low. Cancel any pending buy orders.</span></div>
+                <div class="sop-check danger"><span class="sop-check-icon">🚨</span><span class="sop-check-text"><strong>TSL Breach — Any Regime:</strong> NAV drops below LOWESS adaptive floor → Sell ALL tranches immediately. Regime and RSI level are irrelevant — the structural floor is broken. App alert: 🚨 TSL BREACHED ➔ EXECUTE TSL SELL</span></div>
+                <div class="sop-check danger"><span class="sop-check-icon">🚨</span><span class="sop-check-text"><strong>Regime Fear — Weekly RSI drops below 40:</strong> Institutional distribution confirmed → Sell ALL. Move to 100% cash. No exceptions, no averaging down. App alert: 🚨 REGIME CRASH ➔ SELL ALL</span></div>
+                <div class="sop-check warning"><span class="sop-check-icon">⚠️</span><span class="sop-check-text"><strong>WMA20 Breach — Regime Hope (Weekly RSI ≥ 50):</strong> NAV drops below 20-period Weighted Moving Average while Regime is still Hope → Sell 20% as discipline trim. Not a full exit unless regime also breaks below 50. App alert: ⚠️ WMA BREACHED ➔ REMIND SELL 20%</span></div>
+                <div class="sop-check warning"><span class="sop-check-icon">⚠️</span><span class="sop-check-text"><strong>NC (Negative Consolidation) Breakdown — Any Regime:</strong> Price breaks below tight consolidation box low → Tighten TSL to box low. Cancel any pending buy orders. App alert: 🚨 NC BREAKDOWN ➔ DO NOT BUY</span></div>
 
                 <div class="sop-sub" style="margin-top:10px;">Profit-Taking Triggers &nbsp; — Discretionary but Scored in Session Audit</div>
                 <table class="sop-signal-table">
                     <thead>
-                        <tr><th>CONDITION</th><th>ACTION</th></tr>
+                        <tr><th>CONDITION &amp; REGIME STATE</th><th>ACTION</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td>Delta &gt; +15 &nbsp;(Slingshot extended / PROFIT sub-zone)</td><td>Sell 10–25% to lock partial profit</td></tr>
-                        <tr><td>D-RSI &gt; 70 &nbsp;(overbought daily)</td><td>Sell 10% — trim the winner, not full exit</td></tr>
-                        <tr><td>Regime Watch (from Hope) + holding &gt; 6 months</td><td>Sell 25–50% — protect compounded gains</td></tr>
                         <tr>
-                            <td style="color:var(--gold);font-weight:700;">Day 360–364 of holding &nbsp;(STCG Cliff Alert active)</td>
-                            <td style="font-weight:700;">Hold 2+ more days → cross LTCG threshold → save 20% tax on gains</td>
+                            <td><strong style="color:var(--accent);">Regime Hope (W-RSI ≥ 50)</strong> · Delta &gt; +15 — Daily RSI stretched more than 15 points above Weekly RSI. Slingshot extended, mean-reversion risk. Scanner shows: Regime Hope PROFIT sub-zone.</td>
+                            <td>Sell 10–25% to lock partial profit</td>
                         </tr>
                         <tr>
-                            <td style="color:var(--accent2);font-weight:700;">Newest tranche &lt; 21 days old &nbsp;(Holding Age Nudge, Gap 4)</td>
-                            <td>Pre-Trade Checklist flags low-quality exit risk — reconsider, or proceed with noted rationale</td>
+                            <td><strong style="color:var(--accent);">Regime Hope (W-RSI ≥ 50)</strong> · D-RSI &gt; 70 — Daily RSI overbought while regime intact. Trim, do not fully exit.</td>
+                            <td>Sell 10% — trim the winner, not full exit</td>
+                        </tr>
+                        <tr>
+                            <td><strong style="color:var(--accent2);">Regime Watch (W-RSI 40–49)</strong> · Weekly RSI slipped from Hope to Watch AND position held &gt; 6 months. Protect compounded gains before potential further deterioration.</td>
+                            <td>Sell 25–50% — protect compounded gains</td>
+                        </tr>
+                        <tr>
+                            <td style="color:var(--gold);font-weight:700;"><strong>Any Regime</strong> · Day 360–364 of holding (STCG Cliff Alert active) — tranche approaching 365-day LTCG threshold.</td>
+                            <td style="font-weight:700;">Hold 2+ more days → cross LTCG → save 20% tax on gains</td>
+                        </tr>
+                        <tr>
+                            <td style="color:var(--accent2);font-weight:700;"><strong>Any Regime</strong> · Newest tranche &lt; 21 days old (Holding Age Nudge, Gap 4) — very short holding, low-quality exit.</td>
+                            <td>F3 Checklist flags the risk — reconsider, or proceed with a noted rationale</td>
                         </tr>
                     </tbody>
                 </table>
@@ -2961,17 +3020,17 @@
                 <!-- ═══ PART 4 — DAILY MONITORING ════════════════════════════════ -->
                 <div class="sop-part sop-part-muted">PART 4 — DAILY MONITORING &nbsp; (5 min · next morning — NAV updates overnight)</div>
 
-                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 1.</span><span class="sop-check-text">Open <strong>Alert Summary</strong> (red badge on home) — any actionable alerts for watchlisted funds?</span></div>
-                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 2.</span><span class="sop-check-text">Check <strong>Regime</strong> — is W-RSI still ≥ 50 for each holding? Live Cockpit shows the badge.</span></div>
-                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 3.</span><span class="sop-check-text">Check <strong>TSL Floor</strong> — is NAV still above the LOWESS adaptive floor? No red TSL badge?</span></div>
-                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 4.</span><span class="sop-check-text">Check <strong>WMA20</strong> — is NAV still above the 20-week moving average?</span></div>
-                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 5.</span><span class="sop-check-text">Any <strong>NC Breakdown</strong> detected in current holdings? If yes — tighten TSL, cancel pending buys.</span></div>
-                <div class="sop-check"><span class="sop-check-icon" style="color:var(--gold);">□ 6.</span><span class="sop-check-text"><strong>STCG Cliff Alert</strong> (Gap 1) — any tranche approaching day 360? Gold banner → hold 2+ more days.</span></div>
-                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 7.</span><span class="sop-check-text"><strong>Deployment Meter</strong> (Gap 6) — under-deployed in Regime Hope? Green = more room to invest.</span></div>
-                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ 8.</span><span class="sop-check-text">SIP due today? Auto-invest ran? Check paused SIP panel (Gap 7) — Regime Hope restored?</span></div>
-                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent2);">□ 9.</span><span class="sop-check-text"><strong>Weekly (Sunday):</strong> Run RRG Leading + Improving scan. Re-run Asset Allocator. Check sub-zone.</span></div>
-                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent2);">□ 10.</span><span class="sop-check-text"><strong>Weekly (Sunday):</strong> Run Regime Change Scanner — any fund crossing a regime boundary this week?</span></div>
-                <div class="sop-note">⚠ Missing 3 consecutive days is the single biggest cause of holding through Regime Fear unnoticed. Set a daily reminder for 4 PM.</div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ &nbsp;1.</span><span class="sop-check-text">Open <strong>Alert Summary</strong> (red badge on home) — any actionable alerts for watchlisted funds?</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ &nbsp;2.</span><span class="sop-check-text">Check <strong>Regime (W-RSI)</strong> — is Weekly RSI still ≥ 50 for each holding? Live Cockpit shows the badge.</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ &nbsp;3.</span><span class="sop-check-text">Check <strong>TSL Floor</strong> — is NAV still above the LOWESS adaptive floor? No red TSL badge?</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ &nbsp;4.</span><span class="sop-check-text">Check <strong>WMA20</strong> — is NAV above the 20-period Weighted Moving Average (WMA20)?</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ &nbsp;5.</span><span class="sop-check-text">Any <strong>NC Breakdown</strong> in current holdings? If yes — tighten TSL to box low, cancel pending buys.</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--gold);">□ &nbsp;6.</span><span class="sop-check-text"><strong>STCG Cliff Alert</strong> (Gap 1) — any tranche approaching day 360? Gold banner → hold 2+ more days.</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ &nbsp;7.</span><span class="sop-check-text"><strong>Deployment Meter</strong> (Gap 6) — under-deployed in Regime Hope? Green = more room to invest.</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent);">□ &nbsp;8.</span><span class="sop-check-text">SIP due today? Auto-invest ran? Paused SIP panel showing (Gap 7)? Regime Hope restored?</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent2);">□ &nbsp;9.</span><span class="sop-check-text"><strong>Weekly (Sunday):</strong> Run RRG Leading + Improving. Re-run Asset Allocator. Check sub-zone.</span></div>
+                <div class="sop-check"><span class="sop-check-icon" style="color:var(--accent2);">□ 10.</span><span class="sop-check-text"><strong>Weekly (Sunday):</strong> Run Regime Change Scanner — any fund crossing a regime boundary?</span></div>
+                <div class="sop-note">⚠ Missing 3 consecutive days is the biggest cause of holding through Regime Fear unnoticed. Set a 9 AM daily reminder — NAV updates overnight.</div>
 
                 <!-- ═══ PART 5 — MOST PROFITABLE PROCESS ══════════════════════════ -->
                 <div class="sop-part sop-part-gold">PART 5 — MOST PROFITABLE PROCESS: THE A-B-C ROTATION</div>
@@ -2981,7 +3040,7 @@
                     <div class="sop-step-body">
                         <div class="sop-step-title" style="color:var(--accent);">Universe Scan — Sunday</div>
                         <div class="sop-step-timing">Weekly · takes 60 seconds</div>
-                        <div class="sop-step-desc">Run <strong>RRG Leading</strong> + <strong>RRG Improving</strong> scanner (home screen, green/blue buttons). Identify the top 3 funds with highest RS-Ratio and positive RS-Momentum across all 52 instruments. Then run <strong>Regime Hope → Invest</strong> scanner to cross-check which of those 3 have an active D-RSI or Slingshot entry signal today.</div>
+                        <div class="sop-step-desc">Run <strong>RRG Leading</strong> + <strong>RRG Improving</strong> scanner (home screen, green/blue buttons). Identify the top 3 funds with highest RS vs Nifty 50 (RS = fund NAV ÷ Nifty 50 NAV) and positive RS-Momentum (RS above HMA(30)) across all 55 instruments. Then run <strong>Regime Hope → Invest</strong> scanner to cross-check which of those 3 have an active D-RSI or Slingshot entry signal today.</div>
                     </div>
                 </div>
                 <div class="sop-step">
@@ -2997,7 +3056,7 @@
                     <div class="sop-step-body">
                         <div class="sop-step-title" style="color:var(--accent);">Deploy on First Dip</div>
                         <div class="sop-step-timing">As signalled — use Live Cockpit to confirm</div>
-                        <div class="sop-step-desc">Wait for <strong>D-RSI &lt; 40</strong> in the top-ranked fund <em>after</em> confirming Regime Hope. That is your entry — not before the dip arrives. Open <strong>Live Cockpit</strong> to see the current RSI, WMA20, and TSL in real time. Enter the rationale in the F3 Pre-Trade Checklist before executing.</div>
+                        <div class="sop-step-desc">Wait for <strong>D-RSI &lt; 40</strong> in the top-ranked fund <em>after</em> confirming <strong>Regime Hope (Weekly RSI ≥ 50)</strong>. That is your entry — not before the dip arrives. Open <strong>Live Cockpit</strong> to see the current RSI, WMA20, and TSL in real time. Enter the rationale in the F3 Pre-Trade Checklist before executing.</div>
                     </div>
                 </div>
                 <div class="sop-step">
@@ -3030,37 +3089,37 @@
                     <tbody>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">Regime Change Scanner</td>
-                            <td>All 52 funds that crossed a regime boundary (A↔B or B↔C) in the last 5 days</td>
+                            <td>All 55 funds that crossed a regime boundary (Hope↔Watch or Watch↔Fear) in the last 5 days — W-RSI crossing 50 or 40</td>
                             <td>Daily + Sunday deep scan</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:#00e8a2;">RRG Leading</td>
-                            <td>Funds in the top-right RRG quadrant — highest RS-Ratio + positive RS-Momentum vs Nifty 500</td>
+                            <td>Funds in the top-right RRG quadrant — RS (fund NAV ÷ Nifty 50 NAV) is above HMA(30) and trending up, AND 1-month return beats Nifty 50 (positive alpha). Typically in Regime Hope (W-RSI ≥ 50).</td>
                             <td>Sunday universe scan</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:#3b82f6;">RRG Improving</td>
-                            <td>Funds building momentum — moving toward the Leading quadrant</td>
+                            <td>Funds where RS (fund NAV ÷ Nifty 50 NAV) is below HMA(30) but 1-month return beats Nifty 50 (positive alpha) — momentum building, moving toward Leading. May be in Regime Hope (W-RSI ≥ 50) or recovering from Watch (W-RSI 40–49).</td>
                             <td>Sunday — catching early movers</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">Regime Hope: Invest</td>
-                            <td>Regime A funds with active D-RSI &lt; 40, Slingshot, or PC Breakout entry signal</td>
+                            <td><strong style="color:var(--accent);">Regime Hope (W-RSI ≥ 50)</strong> funds with active entry signal — D-RSI &lt; 40, Slingshot (Δ &lt; −15), or PC Breakout</td>
                             <td>Before any BUY decision</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent2);">Regime Hope: Hold</td>
-                            <td>Regime A funds with no active signal — just riding the trend</td>
+                            <td><strong style="color:var(--accent);">Regime Hope (W-RSI ≥ 50)</strong> funds with no active entry or exit signal — D-RSI 40–50, Delta −15 to +15. Stay invested, no new tranche needed.</td>
                             <td>Portfolio review</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--red);">Regime Hope: Profit</td>
-                            <td>Regime A funds with Delta &gt; +15 — slingshot stretched, consider trimming</td>
+                            <td><strong style="color:var(--accent);">Regime Hope (W-RSI ≥ 50)</strong> funds with Delta &gt; +15 — slingshot stretched beyond +15 points, mean-reversion risk rising. Consider partial trim.</td>
                             <td>After strong rallies</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--red);">🚨 Alert Summary</td>
-                            <td>Actionable alerts across all watchlisted funds — TSL breaches, regime changes, overbought</td>
+                            <td>Actionable alerts across all watchlisted funds — TSL breaches, Regime Fear entries (W-RSI below 40), Hope recoveries (W-RSI back above 50), overbought signals</td>
                             <td>Every day first thing</td>
                         </tr>
                     </tbody>
@@ -3082,11 +3141,11 @@
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--gold);">📊 Asset Allocator</td>
-                            <td>Scores all 52 funds in your AMC. Outputs weighted allocation recommendation + activates the Trigger Monitor (C1/C2/C3). Supports MF, NPS Tier 1, and NPS Tier 2.</td>
+                            <td>Scores all funds in your AMC (up to 17 per AMC, 55 total). Outputs weighted allocation recommendation + activates the Trigger Monitor (C1/C2/C3). Supports MF, NPS Tier 1, and NPS Tier 2.</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">RRG Alpha Dashboard</td>
-                            <td>3-pane deep-dive: Price chart + RSI pane + RRG tail chart. Shows RS-Ratio vs RS-Momentum relative to Nifty 500. Launch directly to Live Cockpit from any RRG result.</td>
+                            <td>3-pane deep-dive: Price chart + RSI pane + RS vs HMA(30) chart. RS = fund NAV ÷ Nifty 50 NAV — true relative strength vs the index. HMA(30) smooths the RS trend. Green = outperforming Nifty 50 and trend rising; Red = underperforming. Alpha = fund return − Nifty 50 return. Launch to Live Cockpit from any result.</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--border2);">⇄ Compare 2 Funds</td>
@@ -3240,7 +3299,7 @@
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">F13 — Regime Donut</td>
-                            <td>In the review modal — doughnut chart of total bars spent in Regime A / B / C during the session. High C% with holdings = discipline failure.</td>
+                            <td>In the review modal — doughnut chart of total bars spent in Regime Hope / Watch / Fear during the session. High Fear% with holdings = discipline failure.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -3253,7 +3312,7 @@
                 </div>
 
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD244N &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD244T &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
 
@@ -3277,7 +3336,7 @@
             <!-- ── Logo / title strip (unchanged) ── -->
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244N 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244T 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
             <!-- ── ROW 1 · Alert Summary + Regime Change Scanner ── -->
@@ -3325,7 +3384,7 @@
                         <span class="c-label">RSI Length</span>
                         <input type="number" id="rsiLengthIn" class="c-num" style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelection()">
                     </div>
-                    <button class="setup-btn setup-btn-live" style="flex:1;font-size:0.63rem;padding:8px 4px;" onclick="initLiveChart()">Live Market</button>
+                    <button class="setup-btn setup-btn-live" style="flex:1;padding:8px 4px;" onclick="initLiveChart()">Live Market</button>
                     <button class="setup-btn" style="flex:1;border-color:var(--gold);color:var(--gold);font-size:0.63rem;padding:8px 4px;" onclick="initLiveAnalytics()">Live Analytics</button>
                 </div>
 
@@ -3348,7 +3407,7 @@
 
                 <!-- ROW 9 · Random Simulation + Blind Training -->
                 <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
-                    <button class="setup-btn setup-btn-sim" style="flex:2;font-size:0.68rem;padding:11px 4px;" onclick="initGame('random')">Random Simulation</button>
+                    <button class="setup-btn setup-btn-sim" style="flex:2;padding:11px 4px;" onclick="initGame('random')">Random Simulation</button>
                     <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 8px;cursor:pointer;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--surface2);" onclick="toggleBlindMode()">
                         <span class="c-label" style="margin-bottom:2px;">Training</span>
                         <button id="blindToggle" style="pointer-events:none;font-family:var(--mono);font-size:0.6rem;background:transparent;border:none;color:var(--muted);">BLIND</button>
@@ -3535,7 +3594,8 @@
                     </div>
                 </div>
                 <!-- TF row inside chart-container — same position as Simulator -->
-                <div class="tf-row" id="liveChartTfRow" style="border-top:1px solid var(--border);padding:4px 0 2px;margin-top:2px;">
+
+<div class="tf-row" id="liveChartTfRow" style="display:none;">
                     <button class="tf-btn" onclick="updateLiveChartOnly(3, this)">3D</button>
                     <button class="tf-btn" onclick="updateLiveChartOnly(5, this)">1W</button>
                     <button class="tf-btn" onclick="updateLiveChartOnly(10, this)">2W</button>
@@ -3545,6 +3605,7 @@
                     <button class="tf-btn active" onclick="updateLiveChartOnly(250, this)">1Y</button>
                     <button class="tf-btn" onclick="updateLiveChartOnly(9999,this)">ALL</button>
                 </div>
+
             </div>
 
             <!-- ── Scrollable section below chart (mirrors .main-sim-scroll) ─ -->
@@ -3576,6 +3637,80 @@ border-bottom:1px solid var(--border);"></div>
                     <span class="label-sm">Psychology Logic</span>
                     <div id="livePsyMsg" class="psy-logic">Analyzing institutional flow…</div>
                 </div>
+
+                <!-- ── RRG Panel (mirrors RRG Alpha Dashboard bottom section) ─────── -->
+                <div id="liveRrgPanel" style="padding:4px 8px 8px;display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--border);margin-top:2px;">
+                    <div style="font-size:0.42rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;padding:2px 0;">Relative Strength vs Nifty 50</div>
+
+                    <!-- Row 1: Quadrant + RS Trend + ADX -->
+                    
+<div style="display:flex;gap:3px;align-items:stretch;">
+                        <div id="lcRrgStatusBox" style="flex:1.4;padding:3px 5px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;justify-content:space-around;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <div style="font-size:0.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.02em;">Quadrant</div>
+                                <div id="lcRrgStatusLabel" style="font-size:0.70rem;font-weight:700;color:var(--muted);">--</div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:2px;">
+                                <div id="lcRrgStatusSub" style="font-size:0.45rem;color:var(--muted);">--</div>
+                                <div id="lcRrgCrossDate" style="font-size:0.45rem;color:var(--muted2);text-align:right;line-height:1.2;">--</div>
+                            </div>
+                        </div>
+                        <div class="la-card2" style="flex:1;padding:3px 5px;display:flex;flex-direction:column;justify-content:center;">
+                            <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;gap:2px;">
+                                <div class="la-label" style="font-size:0.55rem;margin-bottom:0;text-transform:none;">RS Trend</div>
+                                <div id="lcRrgRSTrend" class="la-val" style="font-size:0.70rem;font-weight:600;">--</div>
+                            </div>
+                        </div>
+                        <div class="la-card2" style="flex:1;padding:3px 5px;display:flex;flex-direction:column;justify-content:center;">
+                            <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;gap:2px;">
+                                <div class="la-label" style="font-size:0.55rem;margin-bottom:0;text-transform:none;">Intensity</div>
+                                <div id="lcRrgADX" class="la-val" style="font-size:0.70rem;font-weight:600;">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Row 2: Full 6-column momentum table (matches RRG Alpha Dashboard) -->
+<table class="log-table" style="border:1px solid var(--border);font-size:0.55rem;width:100%;white-space:nowrap;letter-spacing:-0.02em;">
+                        <thead>
+                            <tr style="background:var(--surface2);">
+                                <th style="font-weight:500;padding:2px 1px;text-align:center;font-size:0.45rem !important;">Period</th>
+                                <th style="font-weight:500;padding:2px 1px;text-align:center;font-size:0.45rem !important;">Fund Mom</th>
+                                <th style="font-weight:500;padding:2px 1px;text-align:center;font-size:0.45rem !important;">Idx Proxy</th>
+                                <th style="font-weight:500;padding:2px 1px;text-align:center;font-size:0.45rem !important;">Idx Alpha</th>
+                                <th style="font-weight:500;padding:2px 1px;text-align:center;font-size:0.45rem !important;">BAF Proxy</th>
+                                <th style="font-weight:500;padding:2px 1px;text-align:center;font-size:0.45rem !important;">BAF Alpha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding:2px 2px;color:var(--muted);">1M (21d)</td>
+                                <td id="lcRrg1mF"    style="padding:2px 2px;">--</td>
+                                <td id="lcRrg1mI"    style="padding:2px 2px;">--</td>
+                                <td id="lcRrg1mA"    style="padding:2px 2px;">--</td>
+                                <td id="lcRrg1mBafP" style="padding:2px 2px;">--</td>
+                                <td id="lcRrg1mBafA" style="padding:2px 2px;">--</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:2px 2px;color:var(--muted);">2M (42d)</td>
+                                <td id="lcRrg2mF"    style="padding:2px 2px;">--</td>
+                                <td id="lcRrg2mI"    style="padding:2px 2px;">--</td>
+                                <td id="lcRrg2mA"    style="padding:2px 2px;">--</td>
+                                <td id="lcRrg2mBafP" style="padding:2px 2px;">--</td>
+                                <td id="lcRrg2mBafA" style="padding:2px 2px;">--</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:2px 2px;color:var(--muted);">3M (63d)</td>
+                                <td id="lcRrg3mF"    style="padding:2px 2px;">--</td>
+                                <td id="lcRrg3mI"    style="padding:2px 2px;">--</td>
+                                <td id="lcRrg3mA"    style="padding:2px 2px;">--</td>
+                                <td id="lcRrg3mBafP" style="padding:2px 2px;">--</td>
+                                <td id="lcRrg3mBafA" style="padding:2px 2px;">--</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- ── /RRG Panel ─────────────────────────────────────────────────── -->
 
             </div>
         </div>
@@ -4222,16 +4357,18 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     </div>
 
                     <table class="log-table" style="border:1px solid var(--border);font-size:0.55rem;">
-                        <thead>
+
+	<thead>
                             <tr style="background:var(--surface2);">
-                                <th style="font-weight:400;padding:4px 3px;">Metric</th>
-                                <th style="font-weight:400;padding:4px 3px;">Fund Mom</th>
-                                <th style="font-weight:400;padding:4px 3px;">Idx Proxy</th>
-                                <th style="font-weight:400;padding:4px 3px;">Idx Alpha</th>
-                                <th style="font-weight:400;padding:4px 3px;">BAF Proxy</th>
-                                <th style="font-weight:400;padding:4px 3px;">BAF Alpha</th>
+                                <th style="font-weight:500;padding:2px 1px;text-align:center;font-size:0.45rem;">Period</th>
+                                <th style="font-weight:500;padding:2px 1px;text-align:center;font-size:0.45rem;">Fund Mom</th>
+                                <th style="font-weight:500;padding:2px 1px;text-align:center;font-size:0.45rem;">Idx Proxy</th>
+                                <th style="font-weight:500;padding:2px 1px;text-align:center;font-size:0.45rem;">Idx Alpha</th>
+                                <th style="font-weight:500;padding:2px 1px;text-align:center;font-size:0.45rem;">BAF Proxy</th>
+                                <th style="font-weight:500;padding:2px 1px;text-align:center;font-size:0.45rem;">BAF Alpha</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             <tr>
                                 <td style="padding:4px 3px;">1 Month (21d)</td>
@@ -4267,7 +4404,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
 
         <script>
             // =============================================================================
-            // JAVASCRIPT ENGINE — LIE DETECTOR LD244N
+            // JAVASCRIPT ENGINE — LIE DETECTOR LD244T
             // =============================================================================
             //
             // ─────────────────────────────────────────────────────────────────────
@@ -4276,7 +4413,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             //
             //  §0   App Initialisation            DOMContentLoaded — wires all listeners
             //  §1   Benchmark & Ticker Maps        NSE index ↔ Yahoo Finance ticker
-            //  §2   Fund Catalogue                 52 MF + NPS codes across 4 AMCs
+            //  §2   Fund Catalogue                 55 MF + NPS codes across 4 AMCs
             //  §3   Runtime State                  Global mutable variables (game state)
             //  §4   Utility Helpers                window.normalizeDate, zoom reset
             //  §5   Fund Selection UI              AMC picker, localStorage persist
@@ -4426,7 +4563,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             };
 
             // =============================================================================
-            // §2 · FUND CATALOGUE  (52 instruments: MF + NPS Tier I/II)
+            // §2 · FUND CATALOGUE  (55 instruments: MF + NPS Tier I/II)
             // =============================================================================
             // Codes prefixed "SM" → npsnav.in API.  All others → api.mfapi.in.
             // Exposed as window.amcFunds so the IDB sync engine can iterate all funds.
@@ -4466,6 +4603,10 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     {
                         name: 'HDFC NIFTY500 Multicap - Direct',
                         code: '152778'
+                    },
+                    {
+                        name: 'HDFC Nifty 50 Index - Direct',
+                        code: '119063'   // AMFI: INF179K01WM1 — also RRG benchmark fallback
                     },
                     {
                         name: '[NPS] HDFC Scheme E - Tier I',
@@ -4590,6 +4731,10 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         code: '152916'
                     },
                     {
+                        name: 'Kotak Nifty 50 Index - Direct',
+                        code: '148978'   // AMFI: INF174KA1HA7 — also RRG benchmark fallback
+                    },
+                    {
                         name: '[NPS] KOTAK Scheme E - Tier I',
                         code: 'SM005001'
                     },
@@ -4640,6 +4785,10 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         code: '149780'
                     },
                     {
+                        name: 'ABSL Nifty 50 Index - Direct',
+                        code: '119648'   // AMFI: INF209K01VY3 — also RRG benchmark fallback
+                    },
+                    {
                         name: '[NPS] ABSL Scheme E - Tier I',
                         code: 'SM010001'
                     },
@@ -4687,6 +4836,17 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             const STCG_APPROX_FACTOR = 1.45;   // Trading-day-to-calendar-day approximation
             const FETCH_TIMEOUT_MS   = 12_000; // API fetch abort timeout (12 seconds)
             const BUY_DELTA_LEVEL    = -15;    // Q-02 FIX: Slingshot threshold (D-RSI minus W-RSI)
+
+            // RRG BENCHMARK — Nifty 50 proxy via mfapi.in (AMFI NAV data)
+            // Primary : UTI  Nifty 50 Index Fund — Direct Growth (120716, INF789F01XA0)
+            // Fallback: HDFC Nifty 50 Index Fund — Direct Plan   (119063, INF179K01WM1)
+            //           Kotak Nifty 50 Index Fund — Direct Growth (148978, INF174KA1HA7)
+            //           ABSL  Nifty 50 Index Fund — Direct Growth (119648, INF209K01VY3)
+            // All four are in amcFunds → pre-fetched and IDB-cached on app open.
+            // fetchNifty50Nav() reads from that IDB cache; no extra network call needed.
+            // Cache key _v3 flushes any stale _v1 / _v2 data from previous releases.
+            const NIFTY50_PROXY_CODE  = '120716'; // UTI Nifty 50 Index Fund - Direct Growth
+            const NIFTY50_CACHE_KEY   = 'ld_nifty50_proxy_nav_v3';
 
             // SEC-01 FIX: sanitize strings before interpolating into innerHTML
             // Prevents XSS if API ever returns HTML-special chars in fund names
@@ -6069,6 +6229,10 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 // Q-05 FIX: start 15-min refresh only while cockpit is open
                 if (_liveEstInterval) clearInterval(_liveEstInterval);
                 _liveEstInterval = setInterval(updateLiveEstimate, 900_000);
+
+                // ── RRG Panel: compute and populate async (non-blocking) ─────────────
+                _populateLiveCockpitRrgPanel().catch(e =>
+                    console.warn('[LiveCockpit RRG]', e.message));
             }
 
             /**
@@ -6163,44 +6327,37 @@ if (snap.tsl.tslHit) {
                 banner.style.color = alertText ? '#000000' : 'var(--muted2)';
                 banner.className = alertText ? `${alertClass} banner-on` : '';
 
-                // ── Returns strip ────────────────────────────────────────────────────────
-                const tfRets = [{
-                        l: '3D',
-                        d: 3
-                    }, {
-                        l: '1W',
-                        d: 5
-                    }, {
-                        l: '2W',
-                        d: 10
-                    },
-                    {
-                        l: '1M',
-                        d: 21
-                    }, {
-                        l: '3M',
-                        d: 63
-                    }, {
-                        l: '6M',
-                        d: 125
-                    },
-                    {
-                        l: '1Y',
-                        d: 250
-                    },
+// ── Returns strip (Merged UI) ───────────────────────────────────────────
+                const tfRets = [
+                    { l: '3D', d: 3 }, { l: '1W', d: 5 }, { l: '2W', d: 10 }, { l: '1M', d: 21 },
+                    { l: '3M', d: 63 }, { l: '6M', d: 125 }, { l: '1Y', d: 250 }, { l: 'ALL', d: 9999 }
                 ];
-                document.getElementById('cockpitReturns').innerHTML = tfRets.map(tf => {
-                    const ri = globalLiveData.length - 1 - tf.d;
-                    if (ri < 0) return `<div style="text-align:center;">
-<div style="font-size:0.48rem;color:var(--muted);">${tf.l}</div>
-<div style="font-size:0.65rem;color:var(--muted);">--</div></div>`;
-                    const pct = (snap.nav - globalLiveData[ri].nav) / globalLiveData[ri].nav * 100;
-                    const col = pct >= 0 ? 'var(--accent)' : 'var(--red)';
-                    return `<div style="text-align:center;">
-<div style="font-size:0.48rem;color:var(--muted);text-transform:uppercase;">${tf.l}</div>
-<div style="font-size:0.65rem;font-weight:400;color:${col};">
-${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
+                const cRet = document.getElementById('cockpitReturns');
+                cRet.style.gridTemplateColumns = 'repeat(8, 1fr)';
+                cRet.innerHTML = tfRets.map(tf => {
+                    const isActive = window.currentLiveLookback === tf.d;
+                    const bgCol = isActive ? 'var(--accent-dim)' : 'transparent';
+                    const txtCol = isActive ? 'var(--accent)' : 'var(--muted)';
+                    
+                    let pctHtml = `<div style="font-size:0.65rem;color:var(--muted);">--</div>`;
+                    if (tf.d !== 9999) {
+                        const ri = globalLiveData.length - 1 - tf.d;
+                        if (ri >= 0) {
+                            const pct = (snap.nav - globalLiveData[ri].nav) / globalLiveData[ri].nav * 100;
+                            const pCol = pct >= 0 ? 'var(--accent)' : 'var(--red)';
+                            pctHtml = `<div style="font-size:0.65rem;font-weight:400;color:${pCol};">${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div>`;
+                        }
+                    } else {
+                        pctHtml = `<div style="font-size:0.65rem;color:transparent;user-select:none;">--</div>`;
+                    }
+                    
+                    return `<div onclick="updateLiveChartOnly(${tf.d}, null)" style="text-align:center;cursor:pointer;background:${bgCol};border-radius:4px;padding:3px 0;transition:all 0.1s;">
+                        <div style="font-size:0.65rem;color:${txtCol};font-weight:500;text-transform:uppercase;margin-bottom:1px;">${tf.l}</div>
+                        ${pctHtml}
+                    </div>`;
                 }).join('');
+
+
 
                 // ── Psychology logic (mirrors Simulator protocol text) ───────────────────
                 const livePsyEl = document.getElementById('livePsyMsg');
@@ -6250,6 +6407,182 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                     );
                 }
 
+            }
+
+            // =============================================================================
+            // §13B · LIVE COCKPIT — RRG PANEL POPULATOR
+            // =============================================================================
+            // Computes Relative Strength metrics for the currently loaded fund and
+            // populates the #liveRrgPanel at the bottom of #liveChartModal.
+            // Called once per initLiveChart() invocation (async, non-blocking).
+            // Uses fetchNifty50Nav() which reads from IDB — no extra network call
+            // needed if the benchmark data is already cached from app open.
+            // =============================================================================
+            async function _populateLiveCockpitRrgPanel() {
+                if (!globalLiveData || globalLiveData.length < 100) return;
+
+                const prices = globalLiveData.map(d => d.nav);
+                const dates  = globalLiveData.map(d =>
+                    window.normalizeDate ? window.normalizeDate(d.date) : d.date);
+
+                // ── Fetch benchmark (IDB-first, same path as RRG scanner) ──────────
+                const niftyMap = await fetchNifty50Nav();
+
+                // ── Build date-aligned Nifty 50 series with forward-fill ─────────
+                let n50 = dates.map(d => (niftyMap && niftyMap[d]) ? niftyMap[d] : null);
+                let lastKnown = null;
+                for (let i = 0; i < n50.length; i++) {
+                    if (n50[i] !== null) lastKnown = n50[i];
+                    else if (lastKnown !== null) n50[i] = lastKnown;
+                }
+                const niftyPrices = Object.keys(niftyMap || {}).sort()
+                    .map(d => niftyMap[d]).filter(v => v > 0);
+
+                // ── RS ratio series ───────────────────────────────────────────────
+                const rsArray = prices.map((p, k) => {
+                    const b = n50[k];
+                    if (b && b > 0) return p / b;
+                    if (k < 50) return 1;
+                    let s = 0; for (let j = 0; j < 50; j++) s += prices[k - j];
+                    return p / (s / 50);
+                });
+
+                // ── Indicators (sliced to last 100 bars for perf) ────────────────
+                const recentRs     = rsArray.slice(-100);
+                const recentPrices = prices.slice(-100);
+                const rsHma        = calcHMA(recentRs, 30);
+                const adxVal       = calcCloseOnlyADX(recentPrices, 14);
+                const rsTrendUp    = recentRs[recentRs.length - 1] > rsHma[rsHma.length - 1];
+
+                // ── Momentum returns ──────────────────────────────────────────────
+                const mom1m = calcReturn(prices, 21);
+                const mom2m = calcReturn(prices, 42);
+                const mom3m = calcReturn(prices, 63);
+
+                const niftyMom1m = niftyPrices.length > 21
+                    ? calcReturn(niftyPrices, Math.min(21, niftyPrices.length - 1)) : null;
+                const niftyMom2m = niftyPrices.length > 42
+                    ? calcReturn(niftyPrices, Math.min(42, niftyPrices.length - 1)) : null;
+                const niftyMom3m = niftyPrices.length > 63
+                    ? calcReturn(niftyPrices, Math.min(63, niftyPrices.length - 1)) : null;
+
+                const alpha1m = (niftyMom1m != null) ? mom1m - niftyMom1m : null;
+                const alpha2m = (niftyMom2m != null) ? mom2m - niftyMom2m : null;
+                const alpha3m = (niftyMom3m != null) ? mom3m - niftyMom3m : null;
+
+                // ── BAF for same AMC as current fund ─────────────────────────────
+                const currentCode = document.getElementById('fundSelect')?.value;
+                let baf1m = null, baf2m = null, baf3m = null;
+                if (currentCode && window.amcFunds) {
+                    for (const [, funds] of Object.entries(window.amcFunds)) {
+                        if (funds.some(f => String(f.code) === String(currentCode))) {
+                            const bafFund = funds.find(f =>
+                                f.name.toLowerCase().includes('balanced advantage'));
+                            if (bafFund) {
+                                // Fetch BAF NAV from IDB (monkey-patched fetch serves cache)
+                                try {
+                                    const burl = `https://api.mfapi.in/mf/${bafFund.code}`;
+                                    const bres  = await fetch(burl);
+                                    const bdata = await bres.json();
+                                    if (bdata?.data && Array.isArray(bdata.data)) {
+                                        const bRows = bdata.data.slice().reverse()
+                                            .filter(d => !isNaN(parseFloat(d.nav)));
+                                        const bp = bRows.map(d => parseFloat(d.nav));
+                                        if (bp.length > 63) {
+                                            baf1m = calcReturn(bp, 21);
+                                            baf2m = calcReturn(bp, 42);
+                                            baf3m = calcReturn(bp, 63);
+                                        }
+                                    }
+                                } catch (_) {}
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // ── Quadrant ──────────────────────────────────────────────────────
+                let quadrant = 'LAGGING';
+                if (adxVal >= 15) {
+                    if      (rsTrendUp  && (alpha1m == null || alpha1m > 0))  quadrant = 'LEADING';
+                    else if (rsTrendUp)                                        quadrant = 'WEAKENING';
+                    else if (!rsTrendUp && alpha1m != null && alpha1m > 0)    quadrant = 'IMPROVING';
+                } else {
+                    quadrant = 'CHOPPY';
+                }
+
+                // ── Last RS < HMA cross-down date ─────────────────────────────────
+                let lastCrossDate = 'N/A';
+                const hmaOffset = rsArray.length - recentRs.length;
+                for (let i = rsArray.length - 1; i >= hmaOffset + 1; i--) {
+                    const hi = i - hmaOffset;
+                    if (hi < 1) break;
+                    if (rsArray[i] < rsHma[hi] && rsArray[i-1] >= rsHma[hi-1]) {
+                        lastCrossDate = (dates[i] && window.formatHudDate)
+                            ? window.formatHudDate(dates[i]) : dates[i];
+                        break;
+                    }
+                }
+
+                // ── DOM helpers ───────────────────────────────────────────────────
+                const fmt = v => {
+                    if (v == null || isNaN(v)) return '--';
+                    const col = v >= 0 ? 'var(--accent)' : 'var(--red)';
+                    return `<span style="color:${col}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</span>`;
+                };
+
+                const QUAD_STYLE = {
+                    LEADING:   { border: '#00e8a2', bg: 'rgba(0,232,162,0.06)',  color: '#00e8a2',
+                                 sub: 'RS > HMA · Outperforming' },
+                    IMPROVING: { border: '#3b82f6', bg: 'rgba(59,130,246,0.06)', color: '#3b82f6',
+                                 sub: 'RS < HMA · Trend Building' },
+                    WEAKENING: { border: '#c97a00', bg: 'rgba(201,122,0,0.06)',  color: '#c97a00',
+                                 sub: 'RS > HMA · Momentum Fading' },
+                    LAGGING:   { border: '#c8102e', bg: 'rgba(200,16,46,0.06)',  color: '#c8102e',
+                                 sub: 'RS < HMA · Underperforming' },
+                    CHOPPY:    { border: 'var(--border)', bg: 'var(--surface)',   color: 'var(--muted)',
+                                 sub: 'ADX < 15 · No Direction' },
+                };
+
+                // ── Populate quadrant box ─────────────────────────────────────────
+                const qs = QUAD_STYLE[quadrant] || QUAD_STYLE.LAGGING;
+                const sBox = document.getElementById('lcRrgStatusBox');
+                if (sBox) {
+                    sBox.style.borderColor = qs.border;
+                    sBox.style.background  = qs.bg;
+                }
+                const sLbl = document.getElementById('lcRrgStatusLabel');
+                if (sLbl) { sLbl.textContent = quadrant; sLbl.style.color = qs.color; }
+                const sSub = document.getElementById('lcRrgStatusSub');
+                if (sSub) sSub.textContent = qs.sub;
+                const sCrs = document.getElementById('lcRrgCrossDate');
+                if (sCrs) sCrs.textContent = `Last RS<HMA: ${lastCrossDate}`;
+
+                // ── RS Trend + ADX ────────────────────────────────────────────────
+                const tEl = document.getElementById('lcRrgRSTrend');
+                if (tEl) { tEl.textContent = rsTrendUp ? 'UP ⤴' : 'DOWN ⤵';
+                           tEl.style.color = rsTrendUp ? 'var(--accent)' : 'var(--red)'; }
+
+                const aEl = document.getElementById('lcRrgADX');
+                if (aEl) { aEl.textContent = adxVal != null ? adxVal.toFixed(1) : '--';
+                           aEl.style.color = (adxVal && adxVal > 25) ? 'var(--accent)' : 'var(--red)'; }
+
+                // ── 6-column momentum table ───────────────────────────────────────
+                document.getElementById('lcRrg1mF').innerHTML    = fmt(mom1m);
+                document.getElementById('lcRrg2mF').innerHTML    = fmt(mom2m);
+                document.getElementById('lcRrg3mF').innerHTML    = fmt(mom3m);
+                document.getElementById('lcRrg1mI').innerHTML    = fmt(niftyMom1m);
+                document.getElementById('lcRrg2mI').innerHTML    = fmt(niftyMom2m);
+                document.getElementById('lcRrg3mI').innerHTML    = fmt(niftyMom3m);
+                document.getElementById('lcRrg1mA').innerHTML    = fmt(alpha1m);
+                document.getElementById('lcRrg2mA').innerHTML    = fmt(alpha2m);
+                document.getElementById('lcRrg3mA').innerHTML    = fmt(alpha3m);
+                document.getElementById('lcRrg1mBafP').innerHTML = fmt(baf1m);
+                document.getElementById('lcRrg2mBafP').innerHTML = fmt(baf2m);
+                document.getElementById('lcRrg3mBafP').innerHTML = fmt(baf3m);
+                document.getElementById('lcRrg1mBafA').innerHTML = baf1m != null ? fmt(mom1m - baf1m) : '--';
+                document.getElementById('lcRrg2mBafA').innerHTML = baf2m != null ? fmt(mom2m - baf2m) : '--';
+                document.getElementById('lcRrg3mBafA').innerHTML = baf3m != null ? fmt(mom3m - baf3m) : '--';
             }
 
             // =============================================================================
@@ -8730,7 +9063,7 @@ This is exactly how the system is meant to be played.
             }
 
             // =============================================================================
-            // §G7 · DEPLOY PAUSED SIP  (Gap 7 — LD244N)
+            // §G7 · DEPLOY PAUSED SIP  (Gap 7 — LD244T)
             // =============================================================================
             // deployPausedSip()
             //   Called when the user taps the "Deploy Paused SIP" button that appears
@@ -9200,7 +9533,7 @@ This is exactly how the system is meant to be played.
             // =============================================================================
             // §G8 · NEW FEATURE BUNDLE (LD244M additions)
             // =============================================================================
-            // LD244N · NEW FEATURE JS
+            // LD244T · NEW FEATURE JS
             // =============================================================================
 
             // ── SIP vs Active Trading Comparison ─────────────────────────────────────
@@ -10763,7 +11096,7 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
             //   Layers:
             //     1. HMA(30) line — steel-blue, 1.5 px — the trend-smoothed RS baseline.
             //     2. RS line — 1.5 px, colour-coded green when RS ≥ HMA (outperforming
-            //        the universe average), red when RS < HMA (underperforming).
+            //        HMA(30) = strengthening), red when RS < HMA(30) = weakening).
             //
             //   The Y-scale is computed dynamically from visible RS and HMA values with
             //   a 10 % padding margin on each side.
@@ -10810,8 +11143,10 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
 
                 const vRS = rsSlice.filter(v => v != null);
                 const vHMA = hmaSlice.filter(v => v != null);
-                let maxVal = Math.max(...vRS, ...vHMA);
-                let minVal = Math.min(...vRS, ...vHMA);
+                // PERF-01B: reduce() avoids stack overflow on large lookback windows
+                const _combined = vRS.concat(vHMA);
+                let maxVal = _combined.reduce((m, v) => v > m ? v : m, -Infinity);
+                let minVal = _combined.reduce((m, v) => v < m ? v : m,  Infinity);
                 let pad = (maxVal - minVal) * 0.1;
                 maxVal += pad;
                 minVal -= pad;
@@ -11334,13 +11669,90 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
             /**
              * runRRGScanner()  [§32 — Scanners]
              * ────────────────
-             * Batch-fetches all 52 funds, computes RS-Ratio and RS-Momentum (HMA)
-             * relative to the Nifty 500, and filters by the requested RRG quadrant.
+             * Batch-fetches all funds, computes RS-Ratio and RS-Momentum (HMA)
+             * RS = fund_NAV / Nifty50_NAV (UTI Nifty 50 proxy). Alpha = fund_return - Nifty50_return.
              *
              * @param {'Leading'|'Improving'|'Weakening'|'Lagging'} targetQuadrant
              * @param {boolean} [forceRefresh=false] - Bypass the 30-min scan cache
              * @returns {Promise<void>}
              */
+
+            // =============================================================================
+            // §32A · NIFTY 50 BENCHMARK FETCH  (helper for RRG RS calculation)
+            // =============================================================================
+            // Reads Nifty 50 benchmark NAV from IDB — the same cache populated when the
+            // app downloads all fund data on open. No separate network call is made.
+            //
+            // Candidate order (first with ≥ 250 valid rows wins):
+            //   1. UTI  Nifty 50 Direct Growth — 120716  (primary, pre-IDB-cached)
+            //   2. HDFC Nifty 50 Direct Growth — 119063  (fallback, pre-IDB-cached)
+            //   3. Kotak Nifty 50 Direct Growth — 148978 (fallback, pre-IDB-cached)
+            //   4. ABSL Nifty 50 Direct Growth  — 119648 (fallback, pre-IDB-cached)
+            //
+            // Result is stored under NIFTY50_CACHE_KEY for 12 h to avoid re-building
+            // the navMap on every scan within the same session.
+            // =============================================================================
+            async function fetchNifty50Nav() {
+                // ── Return our own processed navMap if still fresh ─────────────────
+                try {
+                    if (window._idbOpenDB && window._idbGetCache && window._idbStores) {
+                        const db     = await window._idbOpenDB();
+                        const cached = await window._idbGetCache(db, window._idbStores.STORE_DATA, NIFTY50_CACHE_KEY);
+                        const meta   = await window._idbGetCache(db, window._idbStores.STORE_META, NIFTY50_CACHE_KEY);
+                        if (cached && meta && (Date.now() - meta.timestamp < 12 * 3600 * 1000)) {
+                            return cached;
+                        }
+                    }
+                } catch (_) {}
+
+                // ── Candidates: all are in amcFunds → already in IDB from app open ──
+                const CANDIDATES = [
+                    { code: '120716', label: 'UTI Nifty 50 Direct' },
+                    { code: '119063', label: 'HDFC Nifty 50 Direct' },
+                    { code: '148978', label: 'Kotak Nifty 50 Direct' },
+                    { code: '119648', label: 'ABSL Nifty 50 Direct' },
+                ];
+
+                for (const candidate of CANDIDATES) {
+                    try {
+                        // Re-use the same IDB-cached response that was fetched on app open.
+                        // window.fetch is monkey-patched in §37 to serve from IDB first.
+                        const url  = `https://api.mfapi.in/mf/${candidate.code}`;
+                        const res  = await fetch(url);
+                        if (!res.ok) continue;
+                        const data = await res.json();
+                        if (!data?.data || !Array.isArray(data.data) || data.data.length < 250) continue;
+
+                        // Build ISO date → nav map
+                        const navMap = {};
+                        data.data.slice().reverse().forEach(d => {
+                            const iso = window.normalizeDate ? window.normalizeDate(d.date) : d.date;
+                            const nav = parseFloat(d.nav);
+                            if (iso && !isNaN(nav) && nav > 0) navMap[iso] = nav;
+                        });
+                        if (Object.keys(navMap).length < 250) continue;
+
+                        console.log(`[fetchNifty50Nav] Using ${candidate.label} (${candidate.code})`);
+
+                        // Persist processed navMap
+                        try {
+                            if (window._idbOpenDB && window._idbSetCache && window._idbStores) {
+                                const db = await window._idbOpenDB();
+                                await window._idbSetCache(db, window._idbStores.STORE_DATA, NIFTY50_CACHE_KEY, navMap);
+                                await window._idbSetCache(db, window._idbStores.STORE_META, NIFTY50_CACHE_KEY, { timestamp: Date.now() });
+                            }
+                        } catch (_) {}
+
+                        return navMap;
+                    } catch (err) {
+                        console.warn(`[fetchNifty50Nav] ${candidate.label} failed:`, err.message);
+                    }
+                }
+
+                console.warn('[fetchNifty50Nav] All candidates failed — RRG scan aborted.');
+                return null;
+            }
+
             async function runRRGScanner(targetQuadrant, forceRefresh = false) {
 
                 const currentToken = ++_activeScannerToken;
@@ -11396,10 +11808,22 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
 
                 const fundsToScan = Object.values(amcFunds).flat();
                 const fundCache = [];
-                let sum1m = 0,
-                    sum2m = 0,
-                    sum3m = 0;
                 let completed = 0;
+
+                // NIFTY50 FIX: fetch benchmark once before processing funds
+                ovTxt.textContent = 'FETCHING NIFTY 50 BENCHMARK...';
+                const nifty50NavMap = await fetchNifty50Nav();
+                if (!nifty50NavMap) {
+                    console.warn('[RRG] Nifty 50 fetch failed — scan aborted.');
+                    ovEl.style.display = 'none';
+                    document.getElementById('setupScreen').style.display = 'flex';
+                    const ovTxt2 = document.getElementById('ovTxt');
+                    if (ovTxt2) { ovTxt2.textContent = 'NIFTY 50 BENCHMARK UNAVAILABLE — retry later'; ovTxt2.style.color = 'var(--red)'; }
+                    setTimeout(() => { ovEl.style.display = 'none'; }, 3000);
+                    return;
+                }
+                const nifty50Dates  = Object.keys(nifty50NavMap).sort();
+                const nifty50Prices = nifty50Dates.map(d => nifty50NavMap[d]);
 
                 const processFund = async (fund) => {
                     try {
@@ -11407,25 +11831,49 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                         const res = await fetch(url);
                         const data = await res.json();
                         if (!data?.data) return;
-                        const prices = data.data.map(d => parseFloat(d.nav)).filter(n => !isNaN(n)).reverse();
+                        const rawRows = data.data.slice().reverse(); // ascending
+                        // BUG-09: filter NaN rows BEFORE splitting — keeps prices/dates index-aligned
+                        const validRows = rawRows.filter(d => !isNaN(parseFloat(d.nav)));
+                        const prices = validRows.map(d => parseFloat(d.nav));
+                        const dates  = validRows.map(d => window.normalizeDate ? window.normalizeDate(d.date) : d.date);
                         if (prices.length < 100) return;
+
+                        // NIFTY50 FIX: build date-aligned Nifty50 series for this fund
+                        // rs_ratio = fund_NAV / nifty50_NAV  (matches TV: rs_ratio = current_close / bench_close)
+                        let n50Aligned = dates.map(d => nifty50NavMap[d] || null);
+                        // Forward-fill any missing Nifty dates (weekends / holidays)
+                        let lastKnown = null;
+                        for (let i = 0; i < n50Aligned.length; i++) {
+                            if (n50Aligned[i] !== null) lastKnown = n50Aligned[i];
+                            else if (lastKnown !== null) n50Aligned[i] = lastKnown;
+                        }
+
+                        // Fund returns (absolute)
                         const mom1m = calcReturn(prices, 21);
                         const mom2m = calcReturn(prices, 42);
                         const mom3m = calcReturn(prices, 63);
+
+                        // NIFTY50 FIX: Nifty 50 returns at same lookback (alpha = fund - nifty50)
+                        const niftyMom1m = calcReturn(nifty50Prices, Math.min(21, nifty50Prices.length - 1));
+                        const niftyMom2m = calcReturn(nifty50Prices, Math.min(42, nifty50Prices.length - 1));
+                        const niftyMom3m = calcReturn(nifty50Prices, Math.min(63, nifty50Prices.length - 1));
+
                         // Compute regime for scan-row badge
-                        const scanDates = data.data.slice().reverse().map(d => window.normalizeDate ? window.normalizeDate(d.date) : d.date);
-                        const scanWRsi = window.buildWeeklyRsiFast(prices, window.userRsiLength || 4, scanDates);
+                        const scanWRsi = window.buildWeeklyRsiFast(prices, window.userRsiLength || 4, dates);
                         const lastWr   = scanWRsi[scanWRsi.length - 1] || 50;
-                        const scanRegime = lastWr >= 50 ? 'A' : lastWr >= 40 ? 'B' : 'C';
-                        sum1m += mom1m;
-                        sum2m += mom2m;
-                        sum3m += mom3m;
+                        const scanRegime = lastWr >= 50 ? 'Hope' : lastWr >= 40 ? 'Watch' : 'Fear';
+
                         fundCache.push({
                             fund,
                             prices,
+                            dates,
+                            n50Aligned,
                             mom1m,
                             mom2m,
                             mom3m,
+                            niftyMom1m,
+                            niftyMom2m,
+                            niftyMom3m,
                             scanRegime,
                             lastWr,
                         });
@@ -11454,35 +11902,52 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                     return;
                 }
 
-                const bench1m = sum1m / fundCache.length;
-                const bench2m = sum2m / fundCache.length;
-                const bench3m = sum3m / fundCache.length;
+                // NIFTY50 FIX: bench is now actual Nifty 50 returns, not universe average
+                const niftyMom1m = fundCache[0]?.niftyMom1m ?? 0;
+                const niftyMom2m = fundCache[0]?.niftyMom2m ?? 0;
+                const niftyMom3m = fundCache[0]?.niftyMom3m ?? 0;
+                // Keep bench1m/2m/3m for display in scanner UI header
+                const bench1m = niftyMom1m;
+                const bench2m = niftyMom2m;
+                const bench3m = niftyMom3m;
 
                 ovTxt.textContent = 'CRUNCHING RRG MATRICES...';
 
                 const allFunds = fundCache.map(({
                     fund,
                     prices,
+                    dates,
+                    n50Aligned,
                     mom1m,
                     mom2m,
                     mom3m,
+                    niftyMom1m: fNiftyMom1m,
+                    niftyMom2m: fNiftyMom2m,
+                    niftyMom3m: fNiftyMom3m,
                     scanRegime,
                     lastWr,
                 }) => {
-                    const alpha1m = mom1m - bench1m;
-                    const alpha2m = mom2m - bench2m;
-                    const alpha3m = mom3m - bench3m;
+                    // NIFTY50 FIX: alpha = fund_return - nifty50_return
+                    // Matches TV: alpha_1m = mom_1m_index - mom_1m_bench
+                    const alpha1m = mom1m - fNiftyMom1m;
+                    const alpha2m = mom2m - fNiftyMom2m;
+                    const alpha3m = mom3m - fNiftyMom3m;
 
+                    // NIFTY50 FIX: RS = fund_NAV / nifty50_NAV
+                    // Matches TV: rs_ratio = current_close / bench_close
                     const rsArray = prices.map((p, k) => {
-                        if (k < 50) return 1;
-                        let sum = 0;
-                        for (let j = 0; j < 50; j++) sum += prices[k - j];
-                        return p / (sum / 50);
+                        const n50 = n50Aligned[k];
+                        return (n50 && n50 > 0) ? p / n50 : 1;
                     });
 
-                    const rsHma = calcHMA(rsArray, 30);
-                    const rsTrendUp = rsArray[rsArray.length - 1] > rsHma[rsHma.length - 1];
-                    const adxVal = calcCloseOnlyADX(prices, 14);
+                    // PERF-02B: HMA(30) and ADX(14) only need ~100 bars of warmup —
+                    // slicing avoids iterating 5000+ bars × 58 funds on the main thread.
+                    const recentPrices  = prices.slice(-100);
+                    const recentRsArray = rsArray.slice(-100);
+
+                    const rsHma = calcHMA(recentRsArray, 30);
+                    const rsTrendUp = recentRsArray[recentRsArray.length - 1] > rsHma[rsHma.length - 1];
+                    const adxVal = calcCloseOnlyADX(recentPrices, 14);
                     const isChoppy = adxVal < 15;
 
                     let quadrant = 'LAGGING';
@@ -11941,7 +12406,22 @@ ${d.tsl > 0
 
                     const drsiWmaArray4 = calcWMASeries(dRsiArray, 20);
 
+                    // NIFTY50 FIX: RS = fund_NAV / nifty50_NAV (matches TradingView reference)
+                    ovTxt.textContent = 'FETCHING NIFTY 50 BENCHMARK...';
+                    const detailNiftyMap = await fetchNifty50Nav();
+
+                    // Date-align Nifty 50 to this fund's date series with forward-fill
+                    let detailN50 = fDates.map(d => (detailNiftyMap && detailNiftyMap[d]) ? detailNiftyMap[d] : null);
+                    let lastKnownN50 = null;
+                    for (let i = 0; i < detailN50.length; i++) {
+                        if (detailN50[i] !== null) lastKnownN50 = detailN50[i];
+                        else if (lastKnownN50 !== null) detailN50[i] = lastKnownN50;
+                    }
+
                     const rsArray = fPrices.map((p, k) => {
+                        const n50 = detailN50[k];
+                        // Fallback to self-SMA only if Nifty 50 data unavailable for this date
+                        if (n50 && n50 > 0) return p / n50;
                         if (k < 50) return 1;
                         let sum = 0;
                         for (let j = 0; j < 50; j++) sum += fPrices[k - j];
@@ -13590,7 +14070,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
             // =============================================================================
             // §GA · GAP-FILL IMPLEMENTATIONS (LD244M)
             // =============================================================================
-            // LD244N · GAP IMPLEMENTATIONS
+            // LD244T · GAP IMPLEMENTATIONS
             // Gap 1 — STCG Cliff Edge Alert     (renderStcgCliffAlert)
             // Gap 2 — Regime Fear→Hope Recovery Alert (checked inside updateDisplay)
             // Gap 3 — Concentration Guard        (checkConcentrationGuard)
@@ -14301,9 +14781,10 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
     </body>
 
 
+
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD244N
+    END OF FILE — LD244T
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js

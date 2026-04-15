@@ -13,33 +13,53 @@
   CHANGELOG (LD244U → LD244V)
   ───────────────────────────
   BUG-A   Deleted dead function deployPausedSip() (no underscore, §G7 block).
-          It was a pre-§G7 remnant that was never called by any HTML element
-          (the button uses _deployPausedSip) but referenced three variables
-          that do not exist anywhere in the codebase:
-            _sipPausedAmount  (only _pausedSipAmount is declared — at line 14197)
-            _sipWasInRegimeC  (never declared)
-            deployPausedSipBtn (no such DOM element ID)
-          Under 'use strict' (added in LD244U CODE-01) all three would throw
-          ReferenceError at runtime.  The §G7 section header is retained with
-          a pointer to the real implementation (_deployPausedSip).
+          Referenced _sipPausedAmount / _sipWasInRegimeC / deployPausedSipBtn —
+          none declared anywhere. Would ReferenceError under 'use strict'.
 
-  BUG-B   Removed undeclared _sipPausedAmount, _sipWasInRegimeC references —
-          follows directly from BUG-A removal.
+  BUG-B   Undeclared _sipPausedAmount / _sipWasInRegimeC removed — BUG-A.
 
-  BUG-C   Removed redundant `let buyDeltaLevel = -15` (§3) and the pointless
-          reassignment `buyDeltaLevel = BUY_DELTA_LEVEL` inside saveFundSelection().
-          The Q-02 fix (LD244N) declared BUY_DELTA_LEVEL as a const but never
-          deleted the mutable let copy.  All 20+ call-sites now reference
-          BUY_DELTA_LEVEL directly — the mutable alias is gone.
+  BUG-C   Removed redundant `let buyDeltaLevel = -15`.  All 20+ call-sites
+          now reference BUY_DELTA_LEVEL (const §3) directly.
 
-  BUG-D   _sipWasInRegimeC strict-mode ReferenceError — resolved by BUG-A.
+  BUG-D   _sipWasInRegimeC strict-mode crash — resolved by BUG-A.
 
   ISSUE-E rationaleBar / showCustomRationale() clarified as vestigial dead UI.
-          #rationaleBar defaults to display:none and is never shown by any live
-          code path — active rationale capture is in the F3 Pre-Trade Checklist.
-          showCustomRationale() replaced with a no-op + explanatory comment.
-          hideRationaleBar() made null-safe with guard checks on all three
-          DOM lookups.
+
+  FIX-02  Live Cockpit RS Box — last-cross-date search was hardcoded to hunt
+          only for cross-DOWN events (RS < HMA).  Now bidirectional:
+          LEADING/WEAKENING funds (RS > HMA) → searches for last cross-UP.
+          IMPROVING/LAGGING funds (RS < HMA) → searches for last cross-DOWN.
+          Label was static "Last RS<HMA:" — now dynamic: "RS>HMA since:" or
+          "RS<HMA since:" matching actual quadrant direction.
+
+  FIX-04  What-If chart — "Your Path" curve used strokeStyle '#000' which is
+  FIX-08  invisible on the dark theme canvas.  Changed to '#c8c8c8' (light
+          grey — visible, distinct from the green Sacred Rule dashed line).
+          HTML legend swatch updated from background:#000 → #c8c8c8 so the
+          legend matches what is actually drawn on canvas.
+
+  FIX-06  Simulation random start date was always bar 200 for funds with fewer
+          than 450 bars (NPS schemes, newer MFs).  Root cause: Math.random()
+          × (fullHistory.length − 450) evaluated to Math.random() × negative
+          number or 0, giving values ≤ 200 which clamped to 200 every run.
+          Fix: range clamped to Math.max(1, fullHistory.length − MIN_DATA_BARS
+          − 50) so the random start spans the full available history.
+
+  FIX-07  Process Audit — violation log with many entries pushed the Behavioral
+          Remarks section off-screen with no way to reach it.  Violation list
+          now shows first 5 rows with a "▼ Show N more violations" inline
+          toggle button.  Remarks are always visible without scrolling.
+
+  FIX-09  SIP vs Active chart — "Your Trades" curve used strokeStyle '#000000'
+          (same dark-theme issue as FIX-04).  Changed to '#c8c8c8' to match
+          the What-If chart and remain visible on dark backgrounds.
+
+  FIX-10  Training BLIND button — inline style on #blindToggle
+          (background:transparent; border:none; color:var(--muted)) had higher
+          CSS specificity than #blindToggle.active, so the .active class could
+          never visually activate.  Inline style removed; the .active CSS rule
+          (border-color:var(--red); color:var(--red); background:var(--red-dim))
+          now applies correctly when blind mode is toggled on.
 
   CHANGELOG (LD244T → LD244U)
   CODE-01   Added 'use strict'; at the top of the <script> block — catches
@@ -3518,7 +3538,9 @@
                     <button class="setup-btn setup-btn-sim" style="flex:2;padding:11px 4px;" onclick="initGame('random')">Random Simulation</button>
                     <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 8px;cursor:pointer;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--surface2);" onclick="toggleBlindMode()">
                         <span class="c-label" style="margin-bottom:2px;">Training</span>
-                        <button id="blindToggle" style="pointer-events:none;font-family:var(--mono);font-size:0.6rem;background:transparent;border:none;color:var(--muted);">BLIND</button>
+                        <!-- FIX (10): removed inline background/border/color overrides that
+                             blocked the .active CSS class from visually toggling the button -->
+                        <button id="blindToggle" style="pointer-events:none;font-family:var(--mono);font-size:0.6rem;">BLIND</button>
                     </div>
                 </div>
 
@@ -4080,7 +4102,7 @@ border-radius:var(--radius);padding:6px 9px;">
                         </div>
                         <canvas id="whatIfCanvas"></canvas>
                         <div class="wi-legend">
-                            <span><span style="display:inline-block;width:20px;height:2px;background:#000;vertical-align:middle;"></span>
+                            <span><span style="display:inline-block;width:20px;height:2px;background:#c8c8c8;vertical-align:middle;"></span>
                                 Your Path</span>
                             <span><span style="display:inline-block;width:20px;height:2px;background:var(--accent);vertical-align:middle;border-top:2px dashed var(--accent);"></span>
                                 Sacred Rule</span>
@@ -6653,16 +6675,33 @@ if (snap.tsl.tslHit) {
                     quadrant = 'CHOPPY';
                 }
 
-                // ── Last RS < HMA cross-down date ─────────────────────────────────
+                // ── Last RS ↔ HMA cross date (direction depends on current quadrant) ────
+                // FIX (2): search for the correct cross direction based on quadrant.
+                // LEADING/WEAKENING = RS is above HMA → find last cross-UP (RS went above HMA)
+                // IMPROVING/LAGGING = RS is below HMA → find last cross-DOWN (RS fell below HMA)
                 let lastCrossDate = 'N/A';
+                let lastCrossLabel = 'Last cross:';
                 const hmaOffset = rsArray.length - recentRs.length;
+                const rsIsCurrentlyAbove = rsTrendUp;
                 for (let i = rsArray.length - 1; i >= hmaOffset + 1; i--) {
                     const hi = i - hmaOffset;
                     if (hi < 1) break;
-                    if (rsArray[i] < rsHma[hi] && rsArray[i-1] >= rsHma[hi-1]) {
-                        lastCrossDate = (dates[i] && window.formatHudDate)
-                            ? window.formatHudDate(dates[i]) : dates[i];
-                        break;
+                    if (rsIsCurrentlyAbove) {
+                        // RS above HMA now → find last time RS crossed UP above HMA
+                        if (rsArray[i] >= rsHma[hi] && rsArray[i-1] < rsHma[hi-1]) {
+                            lastCrossDate  = (dates[i] && window.formatHudDate)
+                                ? window.formatHudDate(dates[i]) : dates[i];
+                            lastCrossLabel = 'RS>HMA since:';
+                            break;
+                        }
+                    } else {
+                        // RS below HMA now → find last time RS crossed DOWN below HMA
+                        if (rsArray[i] < rsHma[hi] && rsArray[i-1] >= rsHma[hi-1]) {
+                            lastCrossDate  = (dates[i] && window.formatHudDate)
+                                ? window.formatHudDate(dates[i]) : dates[i];
+                            lastCrossLabel = 'RS<HMA since:';
+                            break;
+                        }
                     }
                 }
 
@@ -6698,7 +6737,7 @@ if (snap.tsl.tslHit) {
                 const sSub = document.getElementById('lcRrgStatusSub');
                 if (sSub) sSub.textContent = qs.sub;
                 const sCrs = document.getElementById('lcRrgCrossDate');
-                if (sCrs) sCrs.textContent = `Last RS<HMA: ${lastCrossDate}`;
+                if (sCrs) sCrs.textContent = `${lastCrossLabel} ${lastCrossDate}`;
 
                 // ── RS Trend + ADX ────────────────────────────────────────────────
                 const tEl = document.getElementById('lcRrgRSTrend');
@@ -7433,10 +7472,10 @@ ${c.text}</span>
                 });
                 ctx.stroke();
 
-                // Price line
+                // Price line — FIX: #000 invisible on dark theme → use light grey
                 ctx.beginPath();
                 ctx.lineWidth = 1.5;
-                ctx.strokeStyle = '#000';
+                ctx.strokeStyle = '#c8c8c8';
                 navs.forEach((v, i) => i === 0 ? ctx.moveTo(mapX(i), mapY(v)) : ctx.lineTo(mapX(i), mapY(v)));
                 ctx.stroke();
 
@@ -7872,7 +7911,12 @@ ${c.text}</span>
                 } else if (mode === 'sip') {
                     simStartIdx = Math.max(20, fullHistory.length - 750);
                 } else {
-                    simStartIdx = Math.floor(Math.random() * (fullHistory.length - 450)) + 200;
+                    // FIX (6): `fullHistory.length - 450` can be zero or negative for shorter
+                    // funds (NPS, newer schemes).  Math.random() × 0 = 0 → always bar 200.
+                    // Clamp to [1, fullHistory.length - MIN_DATA_BARS - 50] so every run
+                    // picks a genuinely different random start across the available history.
+                    const rangeMax = Math.max(1, fullHistory.length - MIN_DATA_BARS - 50);
+                    simStartIdx = Math.floor(Math.random() * rangeMax) + MIN_DATA_BARS;
                 }
 
                 if (simStartIdx < 20) simStartIdx = 20;
@@ -8590,20 +8634,42 @@ This is exactly how the system is meant to be played.
                 document.getElementById('feedbackContainer').innerHTML = remarks;
 
                 // ── Violation log ─────────────────────────────────────────────────────────
+                // FIX (7): When many violations exist the feedbackContainer (Behavioral Remarks)
+                // was pushed off-screen.  Collapse to first 5 rows with an expandable toggle.
+                const VIOL_PREVIEW = 5;
                 let violHtml = '';
                 if (violationLog.length === 0) {
                     violHtml = `<div style="font-size:0.62rem;color:var(--accent);padding:6px 0;">✅ Zero rule violations recorded.</div>`;
                 } else {
-                    violHtml = violationLog.map(v => {
-                        const col = v.severity === 'danger' ? 'var(--red)' : 'var(--accent2)';
+                    const renderRow = v => {
+                        const col  = v.severity === 'danger' ? 'var(--red)' : 'var(--accent2)';
                         const icon = v.severity === 'danger' ? '🚨' : '⚠️';
                         return `<div style="display:flex;gap:6px;align-items:flex-start;padding:4px 0;
-        border-bottom:1px solid var(--border);font-size:0.58rem;">
-        <span style="flex-shrink:0;">${icon}</span>
-        <span style="color:var(--muted2);flex-shrink:0;min-width:50px;">Day ${v.day}</span>
-        <span style="color:${col};flex:1;">${v.rule}</span>
-        </div>`;
-                    }).join('');
+                            border-bottom:1px solid var(--border);font-size:0.58rem;">
+                            <span style="flex-shrink:0;">${icon}</span>
+                            <span style="color:var(--muted2);flex-shrink:0;min-width:50px;">Day ${v.day}</span>
+                            <span style="color:${col};flex:1;">${v.rule}</span>
+                        </div>`;
+                    };
+                    const preview  = violationLog.slice(0, VIOL_PREVIEW).map(renderRow).join('');
+                    const overflow = violationLog.slice(VIOL_PREVIEW).map(renderRow).join('');
+                    const extra    = violationLog.length - VIOL_PREVIEW;
+                    if (extra <= 0) {
+                        violHtml = preview;
+                    } else {
+                        violHtml = preview
+                            + `<div id="violOverflow" style="display:none;">${overflow}</div>`
+                            + `<div id="violToggleBtn" onclick="
+                                    const ov=document.getElementById('violOverflow');
+                                    const btn=document.getElementById('violToggleBtn');
+                                    const shown=ov.style.display!=='none';
+                                    ov.style.display=shown?'none':'block';
+                                    btn.textContent=shown?'▼ Show ${extra} more violations':'▲ Collapse violations';
+                                " style="font-size:0.55rem;color:var(--accent2);cursor:pointer;
+                                    padding:5px 0;text-align:center;letter-spacing:0.04em;">
+                                ▼ Show ${extra} more violations
+                            </div>`;
+                    }
                 }
                 const violContainer = document.getElementById('violationLogContainer');
                 if (violContainer) violContainer.innerHTML = violHtml;
@@ -9445,10 +9511,10 @@ This is exactly how the system is meant to be played.
                 ctx.stroke();
                 ctx.setLineDash([]);
 
-                // My curve
+                // My curve — FIX (4): #000 is invisible on dark theme; use light-grey instead
                 ctx.beginPath();
                 ctx.lineWidth = 1.5;
-                ctx.strokeStyle = '#000';
+                ctx.strokeStyle = '#c8c8c8';
                 myEq2.forEach((v, i) => i === 0 ? ctx.moveTo(mapX(i), mapY(v)) : ctx.lineTo(mapX(i), mapY(v)));
                 ctx.stroke();
 
@@ -9758,7 +9824,7 @@ This is exactly how the system is meant to be played.
 
                 const seriesDef = [{
                         key: 'actual',
-                        color: '#000000',
+                        color: '#c8c8c8', // FIX (9): was #000000 — invisible on dark theme
                         label: 'Your Trades',
                         lw: 2
                     },
@@ -10535,7 +10601,7 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
                         // ── Raw price line ────────────────────────────────────────────────
                         ctx.beginPath();
                         ctx.lineWidth = 1.5;
-                        ctx.strokeStyle = '#000000';
+                        ctx.strokeStyle = '#c8c8c8'; // FIX: was #000000 — invisible on dark theme
                         for (let i = drawStart; i < data.length; i++) {
                             const x = mapX(i),
                                 y = mapY(data[i].nav);

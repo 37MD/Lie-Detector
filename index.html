@@ -1,17 +1,47 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD244U
+  LIE DETECTOR  LD244V
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
-  File       : LD244U.html
-  Version    : LD244U  (successor to LD244U)
+  File       : LD244V.html
+  Version    : LD244V  (successor to LD244U)
   Released   : April 2026
   Author     : npsnav.in
   Licence    : Proprietary — All rights reserved
 
-  CHANGELOG (LD244T → LD244U)
+  CHANGELOG (LD244U → LD244V)
   ───────────────────────────
+  BUG-A   Deleted dead function deployPausedSip() (no underscore, §G7 block).
+          It was a pre-§G7 remnant that was never called by any HTML element
+          (the button uses _deployPausedSip) but referenced three variables
+          that do not exist anywhere in the codebase:
+            _sipPausedAmount  (only _pausedSipAmount is declared — at line 14197)
+            _sipWasInRegimeC  (never declared)
+            deployPausedSipBtn (no such DOM element ID)
+          Under 'use strict' (added in LD244U CODE-01) all three would throw
+          ReferenceError at runtime.  The §G7 section header is retained with
+          a pointer to the real implementation (_deployPausedSip).
+
+  BUG-B   Removed undeclared _sipPausedAmount, _sipWasInRegimeC references —
+          follows directly from BUG-A removal.
+
+  BUG-C   Removed redundant `let buyDeltaLevel = -15` (§3) and the pointless
+          reassignment `buyDeltaLevel = BUY_DELTA_LEVEL` inside saveFundSelection().
+          The Q-02 fix (LD244N) declared BUY_DELTA_LEVEL as a const but never
+          deleted the mutable let copy.  All 20+ call-sites now reference
+          BUY_DELTA_LEVEL directly — the mutable alias is gone.
+
+  BUG-D   _sipWasInRegimeC strict-mode ReferenceError — resolved by BUG-A.
+
+  ISSUE-E rationaleBar / showCustomRationale() clarified as vestigial dead UI.
+          #rationaleBar defaults to display:none and is never shown by any live
+          code path — active rationale capture is in the F3 Pre-Trade Checklist.
+          showCustomRationale() replaced with a no-op + explanatory comment.
+          hideRationaleBar() made null-safe with guard checks on all three
+          DOM lookups.
+
+  CHANGELOG (LD244T → LD244U)
   CODE-01   Added 'use strict'; at the top of the <script> block — catches
             accidental globals and silent assignment errors at runtime.
 
@@ -66,11 +96,33 @@
             Regime Change Scanner row, Asset Allocator row, Part 5 Step 1
             (Universe Scan), and Part 6 scanner section.
 
+  BUG-11    renderAlphaStrip() (Live Analytics — Alpha vs Benchmark strip):
+            The benchmark return for all 4 cells (1M / 3M / 6M / 1Y) was
+            calculated by multiplying today's live 1-day % change from Yahoo
+            Finance by the number of trading days in the period
+            (e.g. -1% × 250 = -250% for 1Y).  This produced nonsensical
+            alpha values whenever the benchmark had an unusual single-day move.
+            Fix: renderAlphaStrip() is now async and calls fetchNifty50Nav()
+            to retrieve the IDB-cached Nifty 50 NAV series (same UTI / HDFC /
+            Kotak / ABSL fallback cascade used by RRG — zero extra network call).
+            Benchmark returns are now calculated from actual historical NAV prices
+            date-aligned to the fund's trading calendar, using the same formula
+            as fund returns: (niftyEnd − niftyStart) / niftyStart × 100.
+            If the IDB cache is cold or date alignment fails, the cell shows "—"
+            instead of a garbage extrapolated value.
+            Caller in updateLiveChart() updated: passes fundDates[] instead of
+            the 1-day benchmarkPct1d float.
+
+  SOP-05    Alpha vs Benchmark Gap-5 SOP entry corrected: timeframes updated
+            from "1D / 1M / 3M" to "1M / 3M / 6M / 1Y" (matching the strip),
+            and calculation description updated to reflect the IDB-based fix.
+            Live Analytics SOP entry rewritten with full card inventory.
+
   CODE-06   Fixed stray double-comma (`, ,`) in the ABSL fund array tail that
             was creating a sparse-array slot.  No behavioural change but
             strict-mode would throw on this in some engines.
 
-  CHANGELOG (LD244N → LD244U)
+  CHANGELOG (LD244N → LD244T)
   ───────────────────────────
   BUG-09    runRRGScanner() processFund(): rawRows now filtered for NaN
             *before* splitting into prices[] / dates[], keeping both arrays
@@ -260,7 +312,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector LD244U</title>
+        <title>Lie Detector LD244V</title>
                   <link rel="manifest" href="manifest.json">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -303,7 +355,7 @@
         <style>
             /*
              * ====================================================================
-             * STYLESHEET — LIE DETECTOR LD244U
+             * STYLESHEET — LIE DETECTOR LD244V
              * ====================================================================
              * Organisation
              * ─────────────
@@ -2038,7 +2090,7 @@
                 color: var(--accent) !important;
             }
             /* ══════════════════════════════════════════════════════════════
-   LD244U FEATURE STYLES
+   LD244T FEATURE STYLES
    F1 Mistake Classifier · F2 Blind Mode · F3+F9 Pre-Trade Sheet
    F4 Rule-Violation Confirm · F5 Regime Drill · F6 What-If
    F7 Delta Heatmap · F8 Tranche Tracker · F11 Hold Distribution
@@ -2901,7 +2953,7 @@
             <!-- ── Header ────────────────────────────────────────────────────── -->
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD244U</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD244V</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -3193,7 +3245,7 @@
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--gold);">Live Analytics</td>
-                            <td>Multi-period return analysis (1M / 3M / 6M / 1Y), regime breakdown chart, and net-worth strip for the selected fund.</td>
+                            <td>Full-page analysis dashboard for the selected fund. Cards: NAV, Regime (A/B/C), W-RSI, D-RSI, Delta, WMA20, SMA50, 24-month Regime History grid (A/B/C colour-coded per month, tappable to drill into that window), Growth % row (1M / 3M / 6M / 1Y / 2Y / 3Y returns), Signal Checklist (live gate check — Regime, TSL, WMA20, D-RSI, D-RSI vs W-RSI), Verdict banner (same logic as Live Cockpit alert), and <strong>Alpha vs Benchmark strip</strong> (1M / 3M / 6M / 1Y — Fund Return minus actual IDB-cached Nifty 50 NAV return, date-aligned).</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--gold);">📊 Asset Allocator</td>
@@ -3289,8 +3341,8 @@
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">Alpha vs Benchmark &nbsp;(Gap 5)</td>
-                            <td>Live Cockpit or Live Analytics open</td>
-                            <td>1D / 1M / 3M alpha strip vs Nifty benchmark shown in the cockpit header — confirms fund is outperforming.</td>
+                            <td>Live Analytics open</td>
+                            <td>1M / 3M / 6M / 1Y alpha cells (Fund Return − Nifty 50 Return). Benchmark returns are calculated from the IDB-cached Nifty 50 NAV series (same date-aligned historical data used by RRG) — not extrapolated from today's 1-day move. Green = outperforming Nifty 50 by &gt;0.5%, Red = underperforming by &gt;0.5%.</td>
                         </tr>
                         <tr>
                             <td style="font-weight:700;color:var(--accent);">Deployment Meter &nbsp;(Gap 6)</td>
@@ -3368,7 +3420,7 @@
                 </div>
 
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD244U &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD244V &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
 
@@ -3392,7 +3444,7 @@
             <!-- ── Logo / title strip (unchanged) ── -->
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244U 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244V 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
             <!-- ── ROW 1 · Alert Summary + Regime Change Scanner ── -->
@@ -4461,7 +4513,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
         <script>
             'use strict';
             // =============================================================================
-            // JAVASCRIPT ENGINE — LIE DETECTOR LD244U
+            // JAVASCRIPT ENGINE — LIE DETECTOR LD244V
             // =============================================================================
             //
             // ─────────────────────────────────────────────────────────────────────
@@ -4884,7 +4936,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             // Live Cockpit state: globalLiveData, globalWeeklyRsiCache, globalDailyRsiCache,
             //                     globalLowessCache, _lastFetchedCode, _lastRsiLength
             //
-            // Shared            : userRsiLength, buyDeltaLevel, _activeScannerToken,
+            // Shared            : userRsiLength, BUY_DELTA_LEVEL (const), _activeScannerToken,
             //                     window.currentLiveLookback, window.currentSimLookback
             //
             // ── Named constants (replaces magic numbers throughout the codebase) ─────
@@ -4953,7 +5005,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             let maxDrawdown = 0;
 
             let userRsiLength = 4;
-            let buyDeltaLevel = -15;
+            // BUG-C FIX (LD244V): removed redundant `let buyDeltaLevel = -15`.
+            // Use the named constant BUY_DELTA_LEVEL (§3) directly at all call-sites.
 
             let prevRegime = null;
             let currentRegimeLog = 'A';
@@ -5212,8 +5265,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 // FIXED: Instantly update global variables when user types in the boxes
                 userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
                 localStorage.setItem('ld_v3_rsi_length', userRsiLength);
-
-                buyDeltaLevel = BUY_DELTA_LEVEL; // Q-02 FIX: use named constant
+                // BUG-C FIX: buyDeltaLevel reassignment removed — BUY_DELTA_LEVEL constant is used directly
 
             }
 
@@ -6406,8 +6458,8 @@ if (snap.tsl.tslHit) {
                     } else if (snap.drsi < 40) {
                         alertText = `🟢 OVERSOLD RSI<40 ➔ BUY TRANCHE`;
                         alertClass = 'alert-buy';
-                    } else if (snap.delta < buyDeltaLevel) {
-                        alertText = `🟢 SLINGSHOT Δ<${buyDeltaLevel} ➔ BUY TRANCHE`;
+                    } else if (snap.delta < BUY_DELTA_LEVEL) {
+                        alertText = `🟢 SLINGSHOT Δ<${BUY_DELTA_LEVEL} ➔ BUY TRANCHE`;
                         alertClass = 'alert-buy';
                     }
                 }
@@ -6472,7 +6524,7 @@ if (snap.tsl.tslHit) {
                             `<div class='psy-line'>1. DO NOT BUY the NC breakdown.</div>` +
                             `<div class='psy-line'>2. If holding, tighten TSL to box low.</div>`;
                     } else if (snap.regime === 'A') {
-                        if (snap.pcAlert || snap.drsi < 40 || snap.delta < buyDeltaLevel) {
+                        if (snap.pcAlert || snap.drsi < 40 || snap.delta < BUY_DELTA_LEVEL) {
                             psyText = `<div class='psy-line'>🟢 PROTOCOL: CAPITAL DEPLOYMENT</div>` +
                                 `<div class='psy-line'>1. Buy 10-25% tranche (Signal Confirmed).</div>` +
                                 `<div class='psy-line'>2. Verify TSL floor is set below entry.</div>`;
@@ -6952,11 +7004,11 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                     }).join('');
                 }
 
-                // ── Alert banner ─────────────────────────────────────────────────────────
                 // ── GAP 5: Alpha vs Benchmark strip ──────────────────────────────────
-                const _benchValEl = document.getElementById('anBenchmarkVal');
-                const _benchPct1d = _benchValEl ? parseFloat(_benchValEl.textContent) || 0 : 0;
-                renderAlphaStrip(prices, _benchPct1d);
+                // Pass fund dates for date-aligned IDB Nifty 50 benchmark calculation
+                const _fundDates = globalLiveData.map(d => window.normalizeDate(d.date));
+                renderAlphaStrip(prices, _fundDates).catch(e =>
+                    console.warn('[renderAlphaStrip]', e.message || e));
 
                 let alertText = '';
                 let alertClass = '';
@@ -6986,8 +7038,8 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                     } else if (lastDRsi < 40) {
                         alertText = `🟢 OVERSOLD RSI<40 ➔ BUY TRANCHE`;
                         alertClass = 'alert-buy';
-                    } else if (snap.delta < buyDeltaLevel) {
-                        alertText = `🟢 SLINGSHOT Δ<${buyDeltaLevel} ➔ BUY TRANCHE`;
+                    } else if (snap.delta < BUY_DELTA_LEVEL) {
+                        alertText = `🟢 SLINGSHOT Δ<${BUY_DELTA_LEVEL} ➔ BUY TRANCHE`;
                         alertClass = 'alert-buy';
                     }
                 }
@@ -7030,9 +7082,9 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                         val: tslHit ? 'BREACHED' : 'SAFE'
                     },
                     {
-                        icon: snap.delta < buyDeltaLevel ? '✅' : '➖',
-                        pass: snap.delta < buyDeltaLevel,
-                        text: `Slingshot (Delta < ${buyDeltaLevel})`,
+                        icon: snap.delta < BUY_DELTA_LEVEL ? '✅' : '➖',
+                        pass: snap.delta < BUY_DELTA_LEVEL,
+                        text: `Slingshot (Delta < ${BUY_DELTA_LEVEL})`,
                         val: `${lastDelta.toFixed(1)}`
                     },
                     {
@@ -7946,8 +7998,8 @@ ${c.text}</span>
                         } else if (snap.drsi < 40) {
                             alertText = `🟢 OVERSOLD RSI<40 ➔ BUY TRANCHE`;
                             alertClass = 'alert-buy';
-                        } else if (snap.delta < buyDeltaLevel) {
-                            alertText = `🟢 SLINGSHOT Δ<${buyDeltaLevel} ➔ BUY TRANCHE`;
+                        } else if (snap.delta < BUY_DELTA_LEVEL) {
+                            alertText = `🟢 SLINGSHOT Δ<${BUY_DELTA_LEVEL} ➔ BUY TRANCHE`;
                             alertClass = 'alert-buy';
                         }
                     }
@@ -7977,7 +8029,7 @@ ${c.text}</span>
                         `<div class='psy-line'>1. SELL 20% to lock in partial discipline.</div>` +
                         `<div class='psy-line'>2. CANCEL all pending BUY orders.</div>`;
                 } else if (snap.regime === 'A') {
-                    if (snap.pcAlert || snap.drsi < 40 || snap.delta < buyDeltaLevel) {
+                    if (snap.pcAlert || snap.drsi < 40 || snap.delta < BUY_DELTA_LEVEL) {
                         psyText = `<div class='psy-line'>🟢 PROTOCOL: CAPITAL DEPLOYMENT</div>` +
                             `<div class='psy-line'>1. Buy 10-25% tranche (Signal Confirmed).</div>` +
                             `<div class='psy-line'>2. Verify TSL floor is set below entry.</div>`;
@@ -8252,7 +8304,7 @@ No trades executed yet.
                                 } // minor credit
                                 // SIP in C/B: engine already pauses SIP; if somehow executed, no penalty
                             } else if (regime === 'A') {
-                                if (dr < 40 || pcAlert || d < buyDeltaLevel) {
+                                if (dr < 40 || pcAlert || d < BUY_DELTA_LEVEL) {
                                     scoreEntry += 20;
                                     goodBuys++;
                                 } else {
@@ -8346,12 +8398,12 @@ No trades executed yet.
                     }
 
                     // ── Penalise missed buy signals ────────────────────────────────────
-                    const isBuySignal = regime === 'A' && (dr < 40 || d < buyDeltaLevel || pcAlert);
+                    const isBuySignal = regime === 'A' && (dr < 40 || d < BUY_DELTA_LEVEL || pcAlert);
                     if (isBuySignal && !hasBuy && (dayNum - lastMissedBuyDay) > 5) {
                         missedBuyEvents++;
                         scoreEntry -= 10;
                         lastMissedBuyDay = dayNum;
-                        const sigType = dr < 40 ? 'RSI < 40 Oversold' : d < buyDeltaLevel ? `Slingshot Δ<${buyDeltaLevel}` : 'PC Breakout';
+                        const sigType = dr < 40 ? 'RSI < 40 Oversold' : d < BUY_DELTA_LEVEL ? `Slingshot Δ<${BUY_DELTA_LEVEL}` : 'PC Breakout';
                         violationLog.push({
                             day: dayNum,
                             rule: `MISSED BUY SIGNAL — ${sigType} in Regime Hope ignored`,
@@ -8706,7 +8758,7 @@ This is exactly how the system is meant to be played.
                 if (isBuy) {
                     if (snap.regime === 'C' || snap.tsl.tslHit) return 'VIOLATION';
                     if (snap.regime === 'B') return 'VIOLATION';
-                    if (snap.regime === 'A' && (snap.drsi < 40 || snap.pcAlert || snap.delta < buyDeltaLevel))
+                    if (snap.regime === 'A' && (snap.drsi < 40 || snap.pcAlert || snap.delta < BUY_DELTA_LEVEL))
                         return 'CORRECT';
                     return 'PREMATURE';
                 }
@@ -8843,7 +8895,7 @@ This is exactly how the system is meant to be played.
                         });
                         checks.push({
                             label: `Signal active (D-RSI<40 / PC / Slingshot)`,
-                            pass: snap.drsi < 40 || snap.pcAlert || snap.delta < buyDeltaLevel,
+                            pass: snap.drsi < 40 || snap.pcAlert || snap.delta < BUY_DELTA_LEVEL,
                             val: snap.drsi < 40 ? `D-RSI ${Math.round(snap.drsi)}` : snap.pcAlert ? 'PC' : `Δ ${snap.delta.toFixed(1)}`
                         });
                         checks.push({
@@ -8898,7 +8950,7 @@ This is exactly how the system is meant to be played.
                         } else if (passCount >= 3) {
                             advice = 'BUY 25% — Confirmed Signal';
                             cls = 'advisor-25';
-                        } else if (snap.pcAlert || snap.delta < buyDeltaLevel) {
+                        } else if (snap.pcAlert || snap.delta < BUY_DELTA_LEVEL) {
                             advice = 'BUY 10% — Tentative Signal';
                             cls = 'advisor-10';
                         } else {
@@ -9153,67 +9205,14 @@ This is exactly how the system is meant to be played.
             }
 
             // =============================================================================
-            // §G7 · DEPLOY PAUSED SIP  (Gap 7 — LD244U)
+            // §G7 · DEPLOY PAUSED SIP  (Gap 7)
             // =============================================================================
-            // deployPausedSip()
-            //   Called when the user taps the "Deploy Paused SIP" button that appears
-            //   after a Regime Fear recovery.  Executes a lump-sum BUY using the accumulated
-            //   _sipPausedAmount (sum of all SIP installments skipped during the bear phase).
-            //
-            //   Guards:
-            //   • Regime must be A and TSL must not be breached.
-            //   • Insufficient cash guard (same as standard BUY).
-            //   • Resets _sipPausedAmount to 0 after deployment.
-            //   • Hides the button after execution.
+            // Entry point: _deployPausedSip()  — defined alongside _trackPausedSip(),
+            // _pausedSipAmount, and _pausedSipCount in the Gap 7 block near end of script.
+            // BUG-A FIX (LD244V): removed dead deployPausedSip() (no underscore) which
+            // referenced three undeclared variables (_sipPausedAmount, _sipWasInRegimeC,
+            // deployPausedSipBtn) and would have thrown ReferenceErrors under 'use strict'.
             // =============================================================================
-
-            function deployPausedSip() {
-                if (_sipPausedAmount <= 0) return;
-                const snap = buildEngineSnapshot(
-                    currentIdx, _cachedSimNavs,
-                    simStartIdx, simDailyRsiCache, simWeeklyRsiCache, simLowessCache,
-                    cash, tranches, peakNetWorth
-                );
-                // Final safety gate — only deploy in confirmed Regime Hope
-                if (snap.regime !== 'A' || snap.tsl.tslHit) {
-                    flashBanner('⚠️ CANNOT DEPLOY — Regime not A or TSL breached', 'alert-danger', 2000);
-                    return;
-                }
-                const amt = Math.min(_sipPausedAmount, cash);
-                if (amt <= 10 || snap.nav <= 0) {
-                    flashBanner('⚠️ INSUFFICIENT CASH', 'alert-danger', 2000);
-                    return;
-                }
-                const boughtUnits = amt / snap.nav;
-                tranches.push({
-                    day:    currentIdx - simStartIdx,
-                    idx:    currentIdx,
-                    units:  boughtUnits,
-                    price:  snap.nav,
-                    regime: snap.regime
-                });
-                cash -= amt;
-                tradeLog.push({
-                    day:    currentIdx - simStartIdx,
-                    action: 'SIP DEPLOY',
-                    nav:    snap.nav,
-                    units:  boughtUnits,
-                    tax:    0,
-                    regime: snap.regime,
-                    note:   `Paused SIP deployed (₹${Math.round(amt).toLocaleString('en-IN')})`,
-                    tag:    'CORRECT'
-                });
-                flashBanner(
-                    `🟢 PAUSED SIP DEPLOYED — ₹${Math.round(amt).toLocaleString('en-IN')} invested at Regime Hope`,
-                    'alert-buy', 3000
-                );
-                // Reset paused state
-                _sipPausedAmount = 0;
-                _sipWasInRegimeC = false;
-                const btn = document.getElementById('deployPausedSipBtn');
-                if (btn) btn.style.display = 'none';
-                updateDisplay();
-            }
 
             // ── F5: Regime Transition Drill ───────────────────────────────────────────
             async function openRegimeDrill() {
@@ -9374,7 +9373,7 @@ This is exactly how the system is meant to be played.
                     const tsl = simLowessCache[i] ?? 0;
                     const tslHit = tsl > 0 && nav < tsl;
                     // Perfect logic: buy 25% on signal, sell all on Regime Fear or TSL
-                    if (regime === 'A' && !tslHit && (dr < 40 || d < buyDeltaLevel)) {
+                    if (regime === 'A' && !tslHit && (dr < 40 || d < BUY_DELTA_LEVEL)) {
                         const amt = optCash * 0.25;
                         if (amt > 10) {
                             optUnits += amt / nav;
@@ -9552,7 +9551,7 @@ This is exactly how the system is meant to be played.
                     if (t.regime === 'A') score += 4;
                     if (dr < 40) score += 3;
                     else if (dr < 50) score += 1;
-                    if (delta < buyDeltaLevel) score += 2;
+                    if (delta < BUY_DELTA_LEVEL) score += 2;
                     if (delta < 0) score += 1;
                     const qClass = score >= 7 ? 'q-high' : score >= 4 ? 'q-mid' : 'q-low';
                     const qLabel = score >= 7 ? `${score}/10 HIGH` : score >= 4 ? `${score}/10 MED` : `${score}/10 LOW`;
@@ -9623,7 +9622,7 @@ This is exactly how the system is meant to be played.
             // =============================================================================
             // §G8 · NEW FEATURE BUNDLE (LD244M additions)
             // =============================================================================
-            // LD244U · NEW FEATURE JS
+            // LD244T · NEW FEATURE JS
             // =============================================================================
 
             // ── SIP vs Active Trading Comparison ─────────────────────────────────────
@@ -9710,7 +9709,7 @@ This is exactly how the system is meant to be played.
                     curves.weekly.push(s2Cash + s2Units * nav);
 
                     // Strategy 3: AutoBuy Slingshot only, T+2 freeze via cooldown counter (not bar mutation)
-                    const isSling = regime === 'A' && !tslHit && (dr < 40 || d < buyDeltaLevel);
+                    const isSling = regime === 'A' && !tslHit && (dr < 40 || d < BUY_DELTA_LEVEL);
                     if (isSling && bar > s3CooldownUntil) {
                         const a = Math.min(sipAmt, s3Cash);
                         if (a > 0) {
@@ -9833,21 +9832,24 @@ This is exactly how the system is meant to be played.
                 }).join('');
             }
 
+            // ISSUE-E NOTE (LD244V): showCustomRationale / submitRationale are vestigial.
+            // The rationaleBar (#rationaleBar) defaults to display:none and is never set
+            // to flex by any live code path — the chips and CUSTOM button are therefore
+            // never visible in practice.  The active rationale capture is the note field
+            // inside the F3/F9 Pre-Trade Checklist (_showPreTradeChecklist).
+            // These functions are retained as no-ops so no HTML onclick breakage occurs.
             function showCustomRationale() {
-                document.getElementById('rationaleChips').style.display = 'none';
-                document.getElementById('rationaleCustomRow').style.display = 'flex';
-                const inp = document.getElementById('rationaleInput');
-                if (inp) {
-                    inp.value = '';
-                    inp.focus();
-                }
+                // No-op: rationaleBar is not exposed in the current trade pipeline.
+                // Rationale is captured via the F3 Pre-Trade Checklist note field.
             }
 
             function hideRationaleBar() {
                 const bar = document.getElementById('rationaleBar');
                 if (bar) bar.style.display = 'none';
-                document.getElementById('rationaleChips').style.display = 'flex';
-                document.getElementById('rationaleCustomRow').style.display = 'none';
+                const chips = document.getElementById('rationaleChips');
+                if (chips) chips.style.display = 'flex';
+                const customRow = document.getElementById('rationaleCustomRow');
+                if (customRow) customRow.style.display = 'none';
             }
 
             // Q-01 FIX: submitRationaleCode / submitRationale now go through trade() so the
@@ -9974,7 +9976,7 @@ This is exactly how the system is meant to be played.
             //                Pauses automatically in Regime Fear or TSL breach.
             //
             //   'autobuy'  — fires only on a confirmed slingshot signal (D-RSI<40 /
-            //                Delta < buyDeltaLevel / PC Breakout) in Regime Hope.
+            //                Delta < BUY_DELTA_LEVEL / PC Breakout) in Regime Hope.
             //                Enforces a T+2 freeze after each buy to prevent chasing.
 
             // Patched SIP logic inside nextDay() — called by the existing nextDay function
@@ -9999,7 +10001,7 @@ This is exactly how the system is meant to be played.
                     // AutoBuy: fire on slingshot signal, then freeze for T+2 (2 trading days)
                     if (dayNum <= _sipFreezeUntilDay) return; // frozen
                     const isSignal = snap.regime === 'A' && !snap.tsl.tslHit &&
-                        (snap.drsi < 40 || snap.delta < buyDeltaLevel || snap.pcAlert);
+                        (snap.drsi < 40 || snap.delta < BUY_DELTA_LEVEL || snap.pcAlert);
                     if (!isSignal) return;
                     const amt = Math.min(sipAmt, cash);
                     if (amt > 10 && snap.nav > 0) {
@@ -10034,7 +10036,7 @@ This is exactly how the system is meant to be played.
                         flashBanner(`⏸ WEEKLY SIP PAUSED — ${snap.tsl.tslHit ? 'TSL Breach' : 'Regime Fear'}`, 'alert-danger', 2500);
                         return;
                     }
-                    const isBoost = snap.drsi < 40 || snap.delta < buyDeltaLevel || snap.pcAlert;
+                    const isBoost = snap.drsi < 40 || snap.delta < BUY_DELTA_LEVEL || snap.pcAlert;
                     const amt = Math.min(sipAmt * (isBoost ? 1.5 : 1.0), cash);
                     if (amt > 10 && snap.nav > 0) {
                         tranches.push({
@@ -10175,7 +10177,7 @@ This is exactly how the system is meant to be played.
                         if (tslHit || regime === 'C') {
                             alertIcon = '🚨';
                             alertTip = 'Exit';
-                        } else if (regime === 'A' && (dr < 40 || delta < buyDeltaLevel)) {
+                        } else if (regime === 'A' && (dr < 40 || delta < BUY_DELTA_LEVEL)) {
                             alertIcon = '🟢';
                             alertTip = 'Buy';
                         }
@@ -13970,7 +13972,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                         } else if (snap.regime === 'A' && snap.drsi < 40) {
                             item.val = `RSI ${Math.round(snap.drsi)}`;
                             results.RSI_DIP.push(item);
-                        } else if (snap.regime === 'A' && snap.delta < buyDeltaLevel) {
+                        } else if (snap.regime === 'A' && snap.delta < BUY_DELTA_LEVEL) {
                             item.val = `SLING \u0394${Math.round(snap.delta)}`;
                             results.SLINGSHOT.push(item);
                         } else {
@@ -14123,7 +14125,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                             snap.ncAlert ||
                             (snap.regime === 'A' && snap.pcAlert) ||
                             (snap.regime === 'A' && snap.drsi < 40) ||
-                            (snap.regime === 'A' && snap.delta < buyDeltaLevel);
+                            (snap.regime === 'A' && snap.delta < BUY_DELTA_LEVEL);
 
                         if (isActionable) {
                             count++;
@@ -14161,7 +14163,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
             // =============================================================================
             // §GA · GAP-FILL IMPLEMENTATIONS (LD244M)
             // =============================================================================
-            // LD244U · GAP IMPLEMENTATIONS
+            // LD244T · GAP IMPLEMENTATIONS
             // Gap 1 — STCG Cliff Edge Alert     (renderStcgCliffAlert)
             // Gap 2 — Regime Fear→Hope Recovery Alert (checked inside updateDisplay)
             // Gap 3 — Concentration Guard        (checkConcentrationGuard)
@@ -14393,41 +14395,73 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
             /**
              * renderAlphaStrip()
              * ──────────────────
-             * Renders the live alpha strip in the Cockpit header: computes the fund's
-             * 1-day, 1-week, and 1-month returns and subtracts the benchmark equivalent
-             * to display raw alpha in green/red chips.
+             * Renders the 4-cell alpha strip (1M / 3M / 6M / 1Y) in Live Analytics.
              *
-             * @param {number[]} fundNavs        - Full NAV series for the selected fund
-             * @param {number}   benchmarkPct1d  - Live benchmark 1-day % change (from §8)
+             * BUG FIX (LD244U): The previous implementation estimated the benchmark
+             * return by multiplying today's live 1-day % × number of trading days
+             * (e.g. -1% × 250 = -250% for 1Y).  This produced wildly incorrect alpha
+             * values whenever the benchmark had an unusual single-day move.
+             *
+             * Fix: fetchNifty50Nav() is called to retrieve the IDB-cached Nifty 50
+             * NAV series (UTI / HDFC / Kotak / ABSL fallback — zero extra network call).
+             * The series is date-aligned to the fund's trading calendar, and benchmark
+             * returns are calculated with the identical formula used for fund returns:
+             *   benchRet = (niftyEnd − niftyStart) / niftyStart × 100
+             * If the IDB cache is cold (rare), the cell shows "—" rather than a
+             * meaningless extrapolated figure.
+             *
+             * @param {number[]} fundNavs   - Full NAV series for the selected fund (oldest→newest)
+             * @param {string[]} fundDates  - ISO date strings parallel to fundNavs
+             * @returns {Promise<void>}
              */
-            function renderAlphaStrip(fundNavs, benchmarkPct1d) {
+            async function renderAlphaStrip(fundNavs, fundDates) {
                 const el = document.getElementById('laAlphaStrip');
                 if (!el || fundNavs.length < 21) return;
 
-                const last  = fundNavs.length - 1;
-                const tfs   = [
+                const tfs = [
                     { label: '1M',  d: 21  },
                     { label: '3M',  d: 63  },
                     { label: '6M',  d: 125 },
                     { label: '1Y',  d: 250 },
                 ];
 
-                // Estimate annualised benchmark return from the 1-day live pct
-                // This is a rough proxy — real multi-period bench data isn't available via the CORS proxy
-                const benchProxyMap = { '1M': benchmarkPct1d * 21, '3M': benchmarkPct1d * 63,
-                                        '6M': benchmarkPct1d * 125, '1Y': benchmarkPct1d * 250 };
+                // ── Fetch real Nifty 50 NAV series from IDB (no network call) ─────────
+                let niftyMap = null;
+                try { niftyMap = await fetchNifty50Nav(); } catch (_) {}
+
+                // ── Align Nifty NAVs to fund's date axis ─────────────────────────────
+                // fundDates are already normalised ISO strings; niftyMap keys are the same format.
+                const niftyAligned = fundDates.map(d => (niftyMap && niftyMap[d]) ? niftyMap[d] : null);
+                const last = fundNavs.length - 1;
 
                 el.innerHTML = tfs.map(tf => {
+                    const cellLabel = `${tf.label} α`;
+
                     if (last < tf.d) {
-                        return `<div class="alpha-cell"><div class="alpha-lbl">${tf.label}</div><div class="alpha-val alpha-neu">—</div></div>`;
+                        return `<div class="alpha-cell"><div class="alpha-lbl">${cellLabel}</div><div class="alpha-val alpha-neu">—</div></div>`;
                     }
-                    const fundRet  = (fundNavs[last] - fundNavs[last - tf.d]) / fundNavs[last - tf.d] * 100;
-                    const benchRet = benchProxyMap[tf.label] || 0;
+
+                    // Fund return: actual NAV change over the window
+                    const fundRet = (fundNavs[last] - fundNavs[last - tf.d]) / fundNavs[last - tf.d] * 100;
+
+                    // Benchmark return: walk forward from target bar to find first non-null Nifty NAV
+                    // (covers weekends / holidays where Nifty has no entry on that exact date)
+                    const niftyEnd   = niftyAligned[last];
+                    let   startIdx   = last - tf.d;
+                    while (startIdx < last && niftyAligned[startIdx] === null) startIdx++;
+                    const niftyStart = niftyAligned[startIdx];
+
+                    if (!niftyEnd || !niftyStart || niftyEnd <= 0 || niftyStart <= 0) {
+                        // IDB cache cold or date alignment failed — show dash rather than garbage
+                        return `<div class="alpha-cell"><div class="alpha-lbl">${cellLabel}</div><div class="alpha-val alpha-neu">—</div></div>`;
+                    }
+
+                    const benchRet = (niftyEnd - niftyStart) / niftyStart * 100;
                     const alpha    = fundRet - benchRet;
                     const cls      = alpha > 0.5 ? 'alpha-pos' : alpha < -0.5 ? 'alpha-neg' : 'alpha-neu';
                     const sign     = alpha >= 0 ? '+' : '';
                     return `<div class="alpha-cell">
-                        <div class="alpha-lbl">${tf.label} α</div>
+                        <div class="alpha-lbl">${cellLabel}</div>
                         <div class="alpha-val ${cls}">${sign}${alpha.toFixed(1)}%</div>
                     </div>`;
                 }).join('');
@@ -14876,7 +14910,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
 
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD244U
+    END OF FILE — LD244V
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js

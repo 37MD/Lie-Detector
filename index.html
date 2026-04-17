@@ -1,18 +1,79 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD244V
+  LIE DETECTOR  LD244X
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
-  File       : LD244V.html
-  Version    : LD244V  (successor to LD244U)
+  File       : LD244X.html
+  Version    : LD244X  (successor to LD244W)
+
+  CHANGELOG (LD244W → LD244X)  PHASE 2 — ENHANCED FUND COMPARISON
+  ─────────────────────────────────────────────────────────────────
+  X-1  AMC FILTER PILLS
+       Compare modal now has AMC pills (ALL/HDFC/ICICI/KOTAK/ABSL).
+       Selecting an AMC filters both Fund A and Fund B dropdowns instantly.
+
+  X-2  FUND TYPE FILTER (C2 / C3)
+       Three type pills: ALL | C2 Asset Alloc (BAF funds only) | C3 Momentum
+       (equity/sectoral non-BAF funds — swap candidates). Selecting C2 with
+       a specific AMC auto-loads BAF as Fund A and the AMC's Flexicap as Fund B
+       for a one-tap Asset Allocation comparison.
+
+  X-3  WEEKLY RSI PERIOD SELECTOR (4 / 8 / 14, default 4)
+       Three RSI-period pills in the filter bar. The active period drives the
+       D-RSI calculation in the snapshot. All three weekly RSI values (4/8/14)
+       are always shown simultaneously in a dedicated Go/No-Go row.
+       Go = filled green circle (●) when W-RSI ≥ 50.
+       No-Go = hollow red circle (○) when W-RSI < 50.
+
+  X-4  DATE RANGE RELATIVE GROWTH SECTION
+       A second section below the snapshot table accepts a From/To date range.
+       A table renders Start NAV, End NAV, and Growth % for each fund.
+       Winner (higher growth) highlighted in RED. Positive growth = green.
+       Dates are snapped to nearest actual trading day for each fund.
+       Running GO also auto-triggers the date range calc if dates are filled.
+
+  X-5  NAV DATA CACHE (_cmpCache)
+       Fund data is cached in _cmpCache after first fetch. Switching RSI
+       periods or re-running date range does not re-fetch from the API.
+
+  X-6  6M RETURN ROW ADDED
+       Snapshot table now shows 6M % in addition to 1D/1W/1M/3M/1Y.
+
+  X-7  VERSION STRINGS UPDATED
+       LD244W → LD244X throughout all visible surfaces.
   Released   : April 2026
   Author     : npsnav.in
   Licence    : Proprietary — All rights reserved
 
-  CHANGELOG (LD244U → LD244V)
-  ───────────────────────────
-  BUG-A   Deleted dead function deployPausedSip() (no underscore, §G7 block).
+  CHANGELOG (LD244V → LD244W)  PHASE 1
+  ─────────────────────────────────────
+  P1-1  REGIME LABEL SYNC
+        RRG Alpha Dashboard now shows Hope / Watch / Fear (was A/B/C).
+        All three display surfaces — RRG Scanner, Alpha Dashboard, Live Cockpit —
+        are now consistent. regimeLabelMap applied in openRRGDetail().
+
+  P1-2  C3 MOMENTUM SWAP HIGHLIGHT + STARTUP BADGE
+        Condition 3 swap candidates are now highlighted in bold green and are
+        tappable (opens Live Cockpit). Asset Allocator button on home screen
+        shows a (N) badge count of new C3 candidates detected on startup via
+        a silent background scan launched 4 s after DOMContentLoaded.
+
+  P1-3  BAF GATE FOR NPS TIER 1 & TIER 2 (ALL AMC)
+        runAssetAllocator() now separately fetches the AMC MF Balanced Advantage
+        Fund when mode is NPS_T1 or NPS_T2 and passes it to renderTriggerMonitor
+        as externalBaf. Condition 2 comparison now works correctly in NPS modes.
+
+  P1-4  SHORTLISTED INVESTMENTS SECTION (ALERT PAGE BOTTOM)
+        renderAlertSummaryUI() now appends a 4-AMC box section at the bottom of
+        the Alert page. Each box shows the top qualifying fund (Regime Hope +
+        1M > BAF + 2%) per AMC. Tapping opens Live Cockpit. Scan loop now
+        tracks r1m, amc, and _bafR1mByAmc; SHORTLISTED bucket added to results.
+
+  P1-5  VERSION & SOP UPDATED
+        All visible LD244V strings updated to LD244W. SOP Part 10 added with
+        full documentation of Phase 1 new features.
+
           It was a pre-§G7 remnant that was never called by any HTML element
           (the button uses _deployPausedSip) but referenced three variables
           that do not exist anywhere in the codebase:
@@ -312,7 +373,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector LD244V</title>
+        <title>Lie Detector LD244W</title>
                   <link rel="manifest" href="manifest.json">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -355,7 +416,7 @@
         <style>
             /*
              * ====================================================================
-             * STYLESHEET — LIE DETECTOR LD244V
+             * STYLESHEET — LIE DETECTOR LD244W
              * ====================================================================
              * Organisation
              * ─────────────
@@ -2953,7 +3014,7 @@
             <!-- ── Header ────────────────────────────────────────────────────── -->
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD244V</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD244W</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -3412,6 +3473,49 @@
                     </tbody>
                 </table>
 
+                <!-- ═══ PART 10 — LD244W PHASE 1 UPGRADES ════════════════════════════ -->
+                <div class="sop-part sop-part-green">PART 10 — LD244W PHASE 1 NEW FEATURES</div>
+
+                <table class="sop-gap-table">
+                    <thead>
+                        <tr><th>FEATURE</th><th>WHAT CHANGED / HOW TO USE</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Regime Label Sync (Phase 1 · Fix 1)</td>
+                            <td>The RRG Alpha Dashboard now displays <strong>Hope / Watch / Fear</strong> (matching Live Cockpit and RRG Scanner). Previous versions showed A/B/C only in the dashboard box, causing confusion when cross-checking screens. All three surfaces — RRG Scanner, RRG Alpha Dashboard, Live Cockpit — are now consistent.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">C3 Momentum Swap Highlight (Phase 1 · Fix 2)</td>
+                            <td>
+                                In the Asset Allocator Trigger Monitor (Condition 3), fund names that are <em>new swap candidates</em> now appear in <strong style="color:#009e70;">bold green</strong> and are <strong>tappable</strong> — tapping opens the Live Cockpit directly for that fund.<br><br>
+                                On the home screen, the Asset Allocator button shows a <strong style="color:#009e70;">(N)</strong> counter badge when new C3 swap-candidate funds are detected on startup (e.g. "(2)" = 2 new funds to consider swapping into). The scan runs silently 4 seconds after the app loads using cached/live data.<br><br>
+                                <strong>Action:</strong> When the badge shows a number, open Asset Allocator → run Trigger Monitor → review C3 → tap the highlighted fund → execute swap per SOP (Step 4 — Switch SOP).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">BAF Gate for NPS Tier 1 &amp; Tier 2 (Phase 1 · Fix 3)</td>
+                            <td>
+                                Condition 2 (the BAF Gate) now works correctly for <strong>NPS Tier I</strong> and <strong>NPS Tier II</strong> modes. Previously the BAF benchmark was not found for NPS funds (since they use the npsnav.in API, not mfapi.in), so C2 silently showed N/A or failed.<br><br>
+                                Fix: when you run Asset Allocator in NPS mode, the app now separately fetches the <em>same AMC's MF Balanced Advantage Fund</em> from mfapi.in and uses its 1-month return as the C2 hurdle benchmark. This gives a proper apples-to-apples comparison even though the NPS fund universe is different.<br><br>
+                                <strong>How C2 works:</strong> The selected NPS fund's 1M return must exceed the AMC's MF BAF 1M return. If BAF is outperforming your NPS equity fund, it signals the equity risk premium may not be sufficient — C2 fails, and the Trigger Monitor flags it.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Shortlisted Investments Box (Phase 1 · Fix 4)</td>
+                            <td>
+                                At the bottom of the <strong>Alert Summary page</strong>, a new section titled <em>"Shortlisted Investments — Buy as per SOP"</em> appears after every full scan.<br><br>
+                                It shows up to <strong>4 AMC boxes</strong> (one per major AMC). Each box displays the top-qualifying fund that meets <strong>all</strong> of:<br>
+                                &nbsp;&nbsp;• Regime Hope (W-RSI ≥ 50)<br>
+                                &nbsp;&nbsp;• 1-Month return &gt; BAF 1M return + 2% hurdle<br>
+                                &nbsp;&nbsp;• Not an NPS/SMTP fund<br><br>
+                                The box shows the fund name, 1M return, hurdle rate, and W-RSI / D-RSI. <strong>Tapping the box opens the Live Cockpit</strong> for that fund so you can verify signals before buying.<br><br>
+                                If no fund from an AMC qualifies, the box shows "— No qualifying fund". This section is intended as your final shortlist — verify Condition 1 (Regime), Condition 2 (BAF gate), and signal confirmation in Live Cockpit before executing.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
                 <!-- ═══ THE ONE-LINE TRUTH ══════════════════════════════════════════ -->
                 <div class="sop-oneliner">
                     "Buy Regime Hope dips in the strongest RRG fund.&nbsp; Hold until TSL or Regime Fear.&nbsp;
@@ -3420,7 +3524,7 @@
                 </div>
 
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD244V &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD244W &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
 
@@ -3444,7 +3548,7 @@
             <!-- ── Logo / title strip (unchanged) ── -->
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244V 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244W 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
             <!-- ── ROW 1 · Alert Summary + Regime Change Scanner ── -->
@@ -3499,7 +3603,7 @@
                 <!-- ROW 7 · Watchlist + Asset Allocator -->
                 <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
                     <button class="setup-btn" style="flex:1;border-color:#a855f7;color:#7c3aed;font-size:0.63rem;" onclick="openWatchlist()">📌 Watchlist</button>
-                    <button class="setup-btn" style="flex:1;border-color:var(--gold);color:var(--gold);font-size:0.63rem;" onclick="openAssetAllocator()">📊 Asset Allocator</button>
+                    <button class="setup-btn" style="flex:1;border-color:var(--gold);color:var(--gold);font-size:0.63rem;" onclick="openAssetAllocator()">📊 Asset Allocator <span id="assetAllocC3Badge" style="display:none;font-size:0.58rem;font-weight:700;color:#009e70;"></span></button>
                 </div>
 
                 <!-- ROW 8 · Compare 2 Funds + BAF NPS Switch -->
@@ -4306,19 +4410,91 @@ border-top:1px solid var(--border);font-size:0.58rem;color:var(--muted);text-ali
         <!-- ────────────────────────────────────────────────────────────────────────── -->
         <!-- MODAL  —  FUND COMPARISON                                     z-index:  600 -->
         <!-- ────────────────────────────────────────────────────────────────────────── -->
+        <!-- LD244X — ENHANCED FUND COMPARISON MODAL -->
         <div id="compareModal" class="modal-overlay">
             <div class="modal-close">
-                <span class="modal-title" style="color:var(--border2);">FUND COMPARISON</span>
+                <span class="modal-title" style="color:var(--border2);">⇄ FUND COMPARISON</span>
                 <span class="modal-close-btn" onclick="document.getElementById('compareModal').style.display='none';
 document.getElementById('setupScreen').style.display='flex'">[ X ] CLOSE</span>
             </div>
-            <div style="padding:8px;display:flex;gap:6px;flex-shrink:0;border-bottom:1px solid var(--border);">
+
+            <!-- ── FILTER ROW 1: AMC + Fund Type ── -->
+            <div style="padding:6px 8px 4px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;flex-wrap:wrap;gap:5px;align-items:center;">
+                <span style="font-size:0.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;">AMC</span>
+                <div id="cmpAmcPills" style="display:flex;gap:3px;flex-wrap:wrap;">
+                    <button class="cmp-pill cmp-pill-active" onclick="setCmpAMC('ALL',this)">ALL</button>
+                    <button class="cmp-pill" onclick="setCmpAMC('HDFC',this)">HDFC</button>
+                    <button class="cmp-pill" onclick="setCmpAMC('ICICI',this)">ICICI</button>
+                    <button class="cmp-pill" onclick="setCmpAMC('KOTAK',this)">KOTAK</button>
+                    <button class="cmp-pill" onclick="setCmpAMC('ABSL',this)">ABSL</button>
+                </div>
+                <span style="font-size:0.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-left:4px;white-space:nowrap;">TYPE</span>
+                <div id="cmpTypePills" style="display:flex;gap:3px;flex-wrap:wrap;">
+                    <button class="cmp-pill cmp-pill-active" onclick="setCmpType('ALL',this)">ALL</button>
+                    <button class="cmp-pill" onclick="setCmpType('C2',this)" title="Asset Allocation / BAF">C2 Asset Alloc</button>
+                    <button class="cmp-pill" onclick="setCmpType('C3',this)" title="C3 Momentum Swap Candidates">C3 Momentum</button>
+                </div>
+            </div>
+
+            <!-- ── FILTER ROW 2: RSI Period ── -->
+            <div style="padding:4px 8px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:6px;">
+                <span style="font-size:0.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;">Weekly RSI</span>
+                <div id="cmpRsiPills" style="display:flex;gap:4px;">
+                    <button class="cmp-pill cmp-pill-rsi cmp-pill-active" onclick="setCmpRsi(4,this)">RSI-4</button>
+                    <button class="cmp-pill cmp-pill-rsi" onclick="setCmpRsi(8,this)">RSI-8</button>
+                    <button class="cmp-pill cmp-pill-rsi" onclick="setCmpRsi(14,this)">RSI-14</button>
+                </div>
+                <span id="cmpRsiNote" style="font-size:0.48rem;color:var(--muted);margin-left:4px;">● ≥50 = GO &nbsp; ○ &lt;50 = NO GO</span>
+            </div>
+
+            <!-- ── FUND SELECTOR ROW ── -->
+            <div style="padding:6px 8px;display:flex;gap:6px;flex-shrink:0;border-bottom:1px solid var(--border);align-items:center;">
                 <select id="cmpFundA" class="dropdown" style="margin-bottom:0;flex:1;font-size:0.62rem;"></select>
                 <select id="cmpFundB" class="dropdown" style="margin-bottom:0;flex:1;font-size:0.62rem;"></select>
-                <button class="setup-btn" style="border-color:var(--accent);color:var(--accent);padding:8px;flex-shrink:0;white-space:nowrap;" onclick="runComparison()">GO</button>
+                <button class="setup-btn" style="border-color:var(--accent);color:var(--accent);padding:8px 10px;flex-shrink:0;white-space:nowrap;font-size:0.62rem;" onclick="runComparison()">GO ▶</button>
             </div>
-            <div id="cmpResult" style="flex-grow:1;overflow-y:auto;padding:8px;font-size:0.72rem;"></div>
+
+            <!-- ── SECTION 1: Live Snapshot Comparison ── -->
+            <div id="cmpResult" style="padding:8px;font-size:0.72rem;border-bottom:2px solid var(--border2);"></div>
+
+            <!-- ── SECTION 2: Date Range Relative Growth ── -->
+            <div style="flex-shrink:0;padding:6px 8px 4px;border-bottom:1px solid var(--border);background:var(--surface2);">
+                <div style="font-size:0.55rem;color:var(--border2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;font-weight:700;">📅 RELATIVE GROWTH — DATE RANGE</div>
+                <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;">
+                    <label style="font-size:0.5rem;color:var(--muted);white-space:nowrap;">FROM</label>
+                    <input type="date" id="cmpDateFrom" style="background:var(--bg);border:1px solid var(--border);color:var(--text);
+font-size:0.58rem;padding:3px 5px;border-radius:4px;font-family:var(--mono);" />
+                    <label style="font-size:0.5rem;color:var(--muted);white-space:nowrap;">TO</label>
+                    <input type="date" id="cmpDateTo" style="background:var(--bg);border:1px solid var(--border);color:var(--text);
+font-size:0.58rem;padding:3px 5px;border-radius:4px;font-family:var(--mono);" />
+                    <button class="setup-btn" style="border-color:var(--border2);color:var(--border2);padding:4px 8px;font-size:0.58rem;white-space:nowrap;" onclick="runDateRangeComparison()">CALC</button>
+                </div>
+            </div>
+            <div id="cmpDateResult" style="padding:8px;font-size:0.70rem;overflow-y:auto;flex-grow:1;"></div>
         </div>
+
+        <style>
+            /* ── CMP PILLS ── */
+            .cmp-pill {
+                background: var(--surface2);
+                border: 1px solid var(--border);
+                color: var(--muted);
+                padding: 3px 7px;
+                border-radius: 10px;
+                font-size: 0.52rem;
+                cursor: pointer;
+                font-family: var(--mono);
+                letter-spacing: 0.04em;
+                transition: all 0.15s;
+                white-space: nowrap;
+            }
+            .cmp-pill:hover { border-color: var(--border2); color: var(--text); }
+            .cmp-pill.cmp-pill-active { border-color: var(--accent); color: var(--accent); background: rgba(0,232,162,0.08); }
+            .cmp-pill-rsi.cmp-pill-active { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,0.08); }
+            /* Go/No-Go circles */
+            .rsi-go  { display:inline-block;width:10px;height:10px;border-radius:50%;background:#009e70;border:2px solid #009e70;margin-right:3px;vertical-align:middle; }
+            .rsi-nogo{ display:inline-block;width:10px;height:10px;border-radius:50%;background:transparent;border:2px solid #c8102e;margin-right:3px;vertical-align:middle; }
+        </style>
 
 
         <!-- ────────────────────────────────────────────────────────────────────────── -->
@@ -4513,7 +4689,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
         <script>
             'use strict';
             // =============================================================================
-            // JAVASCRIPT ENGINE — LIE DETECTOR LD244V
+            // JAVASCRIPT ENGINE — LIE DETECTOR LD244X
             // =============================================================================
             //
             // ─────────────────────────────────────────────────────────────────────
@@ -5005,7 +5181,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             let maxDrawdown = 0;
 
             let userRsiLength = 4;
-            // BUG-C FIX (LD244V): removed redundant `let buyDeltaLevel = -15`.
+            window.userRsiLength = userRsiLength; // LD244Y BUG-1 FIX: expose to window so Asset Allocator + scanners always use live value
+            // BUG-C FIX (LD244W): removed redundant `let buyDeltaLevel = -15`.
             // Use the named constant BUY_DELTA_LEVEL (§3) directly at all call-sites.
 
             let prevRegime = null;
@@ -5264,6 +5441,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
 
                 // FIXED: Instantly update global variables when user types in the boxes
                 userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
+                window.userRsiLength = userRsiLength; // LD244Y BUG-1 FIX: keep window in sync for Asset Allocator + scanners
                 localStorage.setItem('ld_v3_rsi_length', userRsiLength);
                 // BUG-C FIX: buyDeltaLevel reassignment removed — BUY_DELTA_LEVEL constant is used directly
 
@@ -5308,7 +5486,11 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     if (sel.selectedIndex === -1) sel.selectedIndex = 0;
                 }
                 const savedRsi = localStorage.getItem('ld_v3_rsi_length');
-                if (savedRsi !== null) document.getElementById('rsiLengthIn').value = savedRsi;
+                if (savedRsi !== null) {
+                    document.getElementById('rsiLengthIn').value = savedRsi;
+                    userRsiLength = parseInt(savedRsi) || 4;         // LD244Y BUG-1 FIX: restore runtime var
+                    window.userRsiLength = userRsiLength;             // LD244Y BUG-1 FIX: expose to window
+                }
 
                 // ── 2. Fund dropdown change handlers ─────────────────────────────────────
                 sel.removeEventListener('change', updateLiveEstimate);
@@ -5331,6 +5513,53 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
 
                 // ── 8. Auto-stress scenarios ──────────────────────────────────────────────
                 populateAutoStressScenarios();
+
+                // ── 9. LD244W: Silent C3 Momentum Swap scan on startup ───────────────────
+                // Runs in background; updates Asset Allocator badge (#assetAllocC3Badge)
+                // with count of new swap-candidate funds (Regime Hope, beating hurdle >3%).
+                setTimeout(async () => {
+                    try {
+                        const amc   = localStorage.getItem('ld_v3_amc') || 'ICICI';
+                        const funds = (window.amcFunds || {})[amc] || [];
+                        const mfFunds = funds.filter(f => !f.code.startsWith('SM'));
+                        if (mfFunds.length < 3) return;
+                        // Quick fetch: only grab the last-known IDB-cached data — no network
+                        const snapshots = [];
+                        for (const f of mfFunds) {
+                            try {
+                                const url = `https://api.mfapi.in/mf/${f.code}`;
+                                const res = await fetch(url);
+                                const data = await res.json();
+                                if (!data?.data) continue;
+                                const valid = [...data.data].reverse().filter(d => !isNaN(parseFloat(d.nav)));
+                                if (valid.length < 30) continue;
+                                const prices = valid.map(d => parseFloat(d.nav));
+                                const dates  = valid.map(d => window.normalizeDate ? window.normalizeDate(d.date) : d.date);
+                                const wRsi   = window.buildWeeklyRsiFast ? window.buildWeeklyRsiFast(prices, window.userRsiLength || 4, dates) : [];
+                                const lastWr = wRsi[wRsi.length - 1] || 50;
+                                const r1m    = prices.length > 21 ? (prices[prices.length-1] - prices[prices.length-22]) / prices[prices.length-22] * 100 : 0;
+                                snapshots.push({ code: f.code, name: f.name, wrsi: lastWr, regime: lastWr >= 50 ? 'A' : lastWr >= 40 ? 'B' : 'C', r1m });
+                            } catch(_){}
+                        }
+                        snapshots.sort((a,b) => b.r1m - a.r1m);
+                        const baf = snapshots.find(s => s.name.toLowerCase().includes('balanced advantage'));
+                        const bafR = baf ? baf.r1m : -999;
+                        const hurdle = bafR + 2.0;
+                        // Held funds from last allocator run (top2 codes)
+                        let heldCodes = [];
+                        try {
+                            const lsAlloc = localStorage.getItem('ld_v3_last_alloc_top2');
+                            if (lsAlloc) heldCodes = JSON.parse(lsAlloc);
+                        } catch(_){}
+                        const candidates = snapshots.filter(s => s.regime === 'A' && s.r1m > hurdle && !heldCodes.includes(s.code));
+                        window._c3NewFundCount = candidates.length;
+                        const badge = document.getElementById('assetAllocC3Badge');
+                        if (badge) {
+                            badge.textContent = candidates.length > 0 ? `(${candidates.length})` : '';
+                            badge.style.display = candidates.length > 0 ? 'inline' : 'none';
+                        }
+                    } catch(_){}
+                }, 4000); // Delay so IDB engine is ready
 
             }); // end DOMContentLoaded
 
@@ -6342,6 +6571,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 saveFundSelection();
                 document.getElementById('liveChartFundName').textContent = getBriefFundName();
                 userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
+                window.userRsiLength = userRsiLength; // LD244Y BUG-1 FIX
 
                 const hasData = await ensureLiveData();
                 if (!hasData) return;
@@ -6745,17 +6975,17 @@ if (snap.tsl.tslHit) {
             async function initLiveAnalytics() {
                 saveFundSelection();
                 userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
+                window.userRsiLength = userRsiLength; // LD244Y BUG-1 FIX
                 document.getElementById('liveFundName').textContent = getBriefFundName();
 
                 const hasData = await ensureLiveData();
                 if (!hasData) return;
 
-                // CRITICAL: Pre-calculate full momentum history for 24-month grid
-                const allPrices = globalLiveData.map(d => d.nav);
-                const allDates = globalLiveData.map(d => window.normalizeDate(d.date));
-                globalWeeklyRsiCache = window.buildWeeklyRsiFast(allPrices, userRsiLength, allDates);
-                globalDailyRsiCache = window.buildDailyRsiFast(allPrices, userRsiLength);
-                globalLowessCache = window.buildLowessGaussianFast(allPrices);
+                // LD244Y BUG-3 FIX: ensureLiveData() already rebuilds globalWeeklyRsiCache,
+                // globalDailyRsiCache and globalLowessCache when userRsiLength changes (via
+                // _lastRsiLength guard). The redundant rebuild below was removed to prevent
+                // double computation and stale-cache races. Caches are now authoritative after
+                // ensureLiveData() returns.
 
                 if (globalLiveData.length < 80) {
                     // Q-08 FIX
@@ -7126,66 +7356,200 @@ ${c.text}</span>
 
             /** Close Live Analytics and return to Setup screen. */
             // =============================================================================
-            // §15 · FUND COMPARISON VIEW
+            // §15 · FUND COMPARISON VIEW  (LD244X — Enhanced)
             // =============================================================================
-            // openCompareModal() — populate both dropdowns, show modal
-            // runComparison()    — parallel-fetch two funds, render side-by-side metrics
+            // openCompareModal()       — populate dropdowns, show modal
+            // setCmpAMC(amc, el)       — filter dropdowns by AMC pill
+            // setCmpType(type, el)     — filter dropdowns by fund type (ALL/C2/C3)
+            // setCmpRsi(period, el)    — set active Weekly RSI period (4/8/14)
+            // updateCmpDropdowns()     — rebuild fund A/B dropdowns from current filters
+            // runComparison()          — fetch two funds, render snapshot + RSI Go/No-Go
+            // runDateRangeComparison() — render relative-growth table over date range
+
+            // ── Module-level state for Compare filters ──
+            let _cmpAMC    = 'ALL';   // 'ALL' | 'HDFC' | 'ICICI' | 'KOTAK' | 'ABSL'
+            let _cmpType   = 'ALL';   // 'ALL' | 'C2' | 'C3'
+            let _cmpRsiPer = 4;       // 4 | 8 | 14
+
+            // Cached full fund data for date-range reuse (code → {navs, dates, hist})
+            const _cmpCache = {};
 
             /**
              * openCompareModal()  [§15 — Fund Comparison View]
-             * ──────────────────
-             * Opens the Fund Comparison modal and triggers runComparison() to fetch
-             * and render side-by-side NAV performance for the selected fund pair.
              */
             function openCompareModal() {
-                const allFunds = Object.values(amcFunds).flat();
-                ['cmpFundA', 'cmpFundB'].forEach((id, k) => {
-                    const sel = document.getElementById(id);
-                    if (!sel) return;
-                    sel.innerHTML = allFunds.map(f =>
-                        `<option value="${f.code}">${f.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim()}</option>`
-                    ).join('');
-                    if (k === 1 && allFunds.length > 1) sel.selectedIndex = 1;
-                });
+                _cmpAMC    = 'ALL';
+                _cmpType   = 'ALL';
+                _cmpRsiPer = 4;
+
+                // Reset pill states
+                document.querySelectorAll('#cmpAmcPills .cmp-pill').forEach((b,i) => b.classList.toggle('cmp-pill-active', i===0));
+                document.querySelectorAll('#cmpTypePills .cmp-pill').forEach((b,i) => b.classList.toggle('cmp-pill-active', i===0));
+                document.querySelectorAll('#cmpRsiPills .cmp-pill').forEach((b,i) => b.classList.toggle('cmp-pill-active cmp-pill-rsi', false));
+                const rsiPills = document.querySelectorAll('#cmpRsiPills .cmp-pill');
+                rsiPills.forEach((b,i) => { b.classList.remove('cmp-pill-active'); });
+                if (rsiPills[0]) rsiPills[0].classList.add('cmp-pill-active');
+
+                // Set default dates: 1-year range
+                const today = new Date();
+                const oneYearAgo = new Date(today); oneYearAgo.setFullYear(today.getFullYear() - 1);
+                const fmt = d => d.toISOString().split('T')[0];
+                const df = document.getElementById('cmpDateFrom');
+                const dt = document.getElementById('cmpDateTo');
+                if (df) df.value = fmt(oneYearAgo);
+                if (dt) dt.value = fmt(today);
+
+                document.getElementById('cmpResult').innerHTML = '';
+                document.getElementById('cmpDateResult').innerHTML = '';
+
+                updateCmpDropdowns();
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('compareModal').style.display = 'flex';
             }
 
+            function setCmpAMC(amc, el) {
+                _cmpAMC = amc;
+                document.querySelectorAll('#cmpAmcPills .cmp-pill').forEach(b => b.classList.remove('cmp-pill-active'));
+                if (el) el.classList.add('cmp-pill-active');
+                updateCmpDropdowns();
+            }
+
+            function setCmpType(type, el) {
+                _cmpType = type;
+                document.querySelectorAll('#cmpTypePills .cmp-pill').forEach(b => b.classList.remove('cmp-pill-active'));
+                if (el) el.classList.add('cmp-pill-active');
+                updateCmpDropdowns();
+            }
+
+            function setCmpRsi(period, el) {
+                _cmpRsiPer = period;
+                document.querySelectorAll('#cmpRsiPills .cmp-pill').forEach(b => b.classList.remove('cmp-pill-active'));
+                if (el) el.classList.add('cmp-pill-active');
+            }
+
+            /**
+             * updateCmpDropdowns()
+             * Rebuilds Fund A / Fund B dropdowns based on current AMC + Type filters.
+             * C2 mode: BAF (Balanced Advantage) funds only.
+             * C3 mode: Non-BAF, non-NPS funds (equity/sectoral — swap candidates).
+             */
+            function updateCmpDropdowns() {
+                let pool;
+                if (_cmpAMC === 'ALL') {
+                    pool = Object.values(amcFunds).flat();
+                } else {
+                    pool = (amcFunds[_cmpAMC] || []).slice();
+                }
+
+                if (_cmpType === 'C2') {
+                    // C2 = Asset Allocation / BAF funds
+                    pool = pool.filter(f => /balanced advantage/i.test(f.name) || /hybrid 95/i.test(f.name));
+                } else if (_cmpType === 'C3') {
+                    // C3 = Equity / sectoral funds (non-BAF, non-NPS)
+                    pool = pool.filter(f =>
+                        !/balanced advantage/i.test(f.name) &&
+                        !/hybrid 95/i.test(f.name) &&
+                        !/\[NPS\]/i.test(f.name) &&
+                        !/gold|silver/i.test(f.name)
+                    );
+                }
+
+                // If C2 with specific AMC selected → pre-select BAF as Fund A,
+                // and best equity fund of that AMC as Fund B (quick compare shortcut)
+                let preA = 0, preB = 1;
+                if (_cmpType === 'C2' && _cmpAMC !== 'ALL') {
+                    preA = 0; // BAF
+                    // For Fund B, find the Flexicap / main equity of the AMC
+                    const equityPool = (amcFunds[_cmpAMC] || []).filter(f =>
+                        /flexi|flexicap/i.test(f.name) && !/\[NPS\]/i.test(f.name)
+                    );
+                    if (equityPool.length) {
+                        // inject the flexi into pool as index 1 for comparison
+                        if (!pool.find(f => f.code === equityPool[0].code)) {
+                            pool.push(equityPool[0]);
+                        }
+                        preB = pool.findIndex(f => f.code === equityPool[0].code);
+                        if (preB < 0) preB = 1;
+                    }
+                }
+
+                ['cmpFundA', 'cmpFundB'].forEach((id, k) => {
+                    const sel = document.getElementById(id);
+                    if (!sel) return;
+                    sel.innerHTML = pool.map(f =>
+                        `<option value="${f.code}">${f.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim()}</option>`
+                    ).join('');
+                    sel.selectedIndex = k === 0 ? preA : Math.min(preB, pool.length - 1);
+                });
+            }
+
+            /**
+             * _fetchCmpFund(code)
+             * Fetches NAV history for a fund code, caches result in _cmpCache.
+             * Returns {name, navs, dates, hist}
+             */
+            async function _fetchCmpFund(code) {
+                if (_cmpCache[code]) return _cmpCache[code];
+                const url = code.startsWith('SM') ?
+                    `https://npsnav.in/api/historical/${code}` :
+                    `https://api.mfapi.in/mf/${code}`;
+                const res = await fetch(url);
+                const raw = await res.json();
+                const hist = raw.data
+                    .map(d => ({ nav: parseFloat(d.nav), date: window.normalizeDate(d.date) }))
+                    .filter(d => Number.isFinite(d.nav) && d.nav > 0)
+                    .reverse();
+                const result = {
+                    name: raw.meta?.fund_name || code,
+                    navs: hist.map(d => d.nav),
+                    dates: hist.map(d => d.date),
+                    hist
+                };
+                _cmpCache[code] = result;
+                return result;
+            }
+
+            /**
+             * runComparison()  [§15 — Live Snapshot + RSI Go/No-Go]
+             */
             async function runComparison() {
                 const codeA = document.getElementById('cmpFundA').value;
                 const codeB = document.getElementById('cmpFundB').value;
                 const resEl = document.getElementById('cmpResult');
-                resEl.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);">Loading…</div>`;
+                resEl.innerHTML = `<div style="text-align:center;padding:16px;color:var(--muted);font-size:0.65rem;">Loading data…</div>`;
 
-                const fetchMeta = async (code) => {
-                    const url = code.startsWith('SM') ?
-                        `https://npsnav.in/api/historical/${code}` :
-                        `https://api.mfapi.in/mf/${code}`;
-                    const res = await fetch(url);
-                    const raw = await res.json();
-                    const hist = raw.data
-                        .map(d => ({
-                            nav: parseFloat(d.nav),
-                            date: window.normalizeDate(d.date)
-                        }))
-                        .filter(d => Number.isFinite(d.nav) && d.nav > 0).reverse();
-                    const navs = hist.map(d => d.nav);
-                    const dates = hist.map(d => d.date);
-                    const wRsi = window.buildWeeklyRsiFast(navs, userRsiLength, dates);
-                    const dRsi = window.buildDailyRsiFast(navs, userRsiLength);
+                const buildMeta = (code, fd) => {
+                    const { navs, dates } = fd;
                     const lastIdx = navs.length - 1;
-                    const wr = wRsi[lastIdx],
-                        dr = dRsi[lastIdx];
-                    const regime = wr >= 50 ? 'A' : wr >= 40 ? 'B' : 'C';
+
+                    // Weekly RSI for periods 4, 8, 14
+                    const wRsi4  = window.buildWeeklyRsiFast(navs, 4, dates);
+                    const wRsi8  = window.buildWeeklyRsiFast(navs, 8, dates);
+                    const wRsi14 = window.buildWeeklyRsiFast(navs, 14, dates);
+                    const dRsi   = window.buildDailyRsiFast(navs, _cmpRsiPer);
+
+                    const wr  = wRsi4[lastIdx]  ?? 50;
+                    const wr8 = wRsi8[lastIdx]  ?? 50;
+                    const wr14= wRsi14[lastIdx] ?? 50;
+                    const dr  = dRsi[lastIdx]   ?? 50;
+
+                    // LD244Y BUG-2 FIX: regime classification must match userRsiLength (Page-1 setting),
+                    // not always RSI-4. Pick the pre-built array whose period is closest to userRsiLength.
+                    const _ul = window.userRsiLength || 4;
+                    const regimeWr = _ul >= 14 ? wr14 : _ul >= 8 ? wr8 : wr;
+                    const regime = regimeWr >= 50 ? 'A' : regimeWr >= 40 ? 'B' : 'C';
                     const lowess = window.buildLowessGaussianFast(navs, 8, 10);
                     const tslFloor = lowess[lastIdx] ?? 0;
                     const tslHit = tslFloor > 0 && navs[lastIdx] < tslFloor;
-                    const ret = (p) => navs.length > p ? ((navs[lastIdx] - navs[lastIdx - p]) / navs[lastIdx - p] * 100).toFixed(1) : '--';
+                    const ret = (p) => navs.length > p
+                        ? ((navs[lastIdx] - navs[lastIdx - p]) / navs[lastIdx - p] * 100).toFixed(1)
+                        : '--';
+
                     return {
-                        name: raw.meta?.fund_name || code,
+                        name: fd.name,
                         nav: navs[lastIdx],
                         regime,
-                        wr,
+                        wr, wr8, wr14,
                         dr,
                         delta: dr - wr,
                         tslHit,
@@ -7193,56 +7557,241 @@ ${c.text}</span>
                         r1w: ret(5),
                         r1m: ret(21),
                         r3m: ret(63),
+                        r6m: ret(125),
                         r1y: ret(250)
                     };
                 };
 
                 try {
-                    const [a, b] = await Promise.all([fetchMeta(codeA), fetchMeta(codeB)]);
+                    const [fdA, fdB] = await Promise.all([_fetchCmpFund(codeA), _fetchCmpFund(codeB)]);
+                    const a = buildMeta(codeA, fdA);
+                    const b = buildMeta(codeB, fdB);
+
                     const regCol = r => r === 'A' ? 'var(--accent)' : r === 'B' ? 'var(--accent2)' : 'var(--red)';
+                    const regLabel = r => r === 'A' ? 'Regime Hope' : r === 'B' ? 'Regime Watch' : 'Regime Fear';
+
+                    // RSI Go/No-Go circles builder
+                    const rsiSignal = (val, period) => {
+                        const isGo = val >= 50;
+                        const col  = isGo ? '#009e70' : '#c8102e';
+                        const fill = isGo ? '#009e70' : 'transparent';
+                        return `<span style="display:inline-flex;align-items:center;gap:2px;font-size:0.52rem;">
+<svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="${fill}" stroke="${col}" stroke-width="1.5"/></svg>
+<span style="color:${col};font-weight:700;">RSI-${period}: ${Math.round(val)}</span>
+</span>`;
+                    };
+
                     const row = (lbl, va, vb, higherBetter = true) => {
-                        const numA = parseFloat(va),
-                            numB = parseFloat(vb);
+                        const numA = parseFloat(va), numB = parseFloat(vb);
                         const aWins = !isNaN(numA) && !isNaN(numB) && (higherBetter ? numA > numB : numA < numB);
                         const bWins = !isNaN(numA) && !isNaN(numB) && (higherBetter ? numB > numA : numB < numA);
-                        return `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;padding:5px 0;border-bottom:1px solid var(--border);font-size:0.70rem;align-items:center;">
-            <div style="${aWins ? 'font-weight:700;' : ''}color:${aWins ? 'var(--accent)' : 'var(--text)'}">${va}</div>
-            <div style="text-align:center;font-size:0.58rem;color:var(--muted);text-transform:uppercase;">${lbl}</div>
-            <div style="${bWins ? 'font-weight:700;' : ''}color:${bWins ? 'var(--accent)' : 'var(--text)'};text-align:right">${vb}</div>
-            </div>`;
+                        return `<div style="display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:2px;padding:4px 0;
+border-bottom:1px solid var(--border);font-size:0.68rem;align-items:center;">
+<div style="${aWins?'font-weight:700;':''}color:${aWins?'var(--accent)':'var(--text)'}">${va}</div>
+<div style="text-align:center;font-size:0.52rem;color:var(--muted);text-transform:uppercase;">${lbl}</div>
+<div style="${bWins?'font-weight:700;':''}color:${bWins?'var(--accent)':'var(--text)'};text-align:right">${vb}</div>
+</div>`;
                     };
 
                     const selA = document.getElementById('cmpFundA');
                     const selB = document.getElementById('cmpFundB');
-                    const nameA = selA.options[selA.selectedIndex].text.replace(/fund/gi, '').trim().slice(0, 22);
-                    const nameB = selB.options[selB.selectedIndex].text.replace(/fund/gi, '').trim().slice(0, 22);
+                    const nameA = selA.options[selA.selectedIndex].text.trim().slice(0, 24);
+                    const nameB = selB.options[selB.selectedIndex].text.trim().slice(0, 24);
+
                     resEl.innerHTML = `
-        <div style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:4px;padding:4px 0;margin-bottom:4px;">
-        <div style="font-size:0.55rem;color:var(--accent);font-weight:700;line-height:1.3;">${nameA}</div>
-        <div></div>
-        <div style="font-size:0.55rem;color:var(--accent);font-weight:700;line-height:1.3;text-align:right;">${nameB}</div>
-        </div>
-        ${row('NAV ₹', `₹${a.nav.toFixed(2)}`, `₹${b.nav.toFixed(2)}`)}
-        <div style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:4px;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.62rem;">
-        <div style="color:${regCol(a.regime)};font-weight:700;">${a.regime==='A'?'Regime Hope':a.regime==='B'?'Regime Watch':'Regime Fear'}</div>
-        <div style="text-align:center;font-size:0.52rem;color:var(--muted);text-transform:uppercase;">Regime</div>
-        <div style="color:${regCol(b.regime)};font-weight:700;text-align:right;">${b.regime==='A'?'Regime Hope':b.regime==='B'?'Regime Watch':'Regime Fear'}</div>
-        </div>
-        ${row('W-RSI', Math.round(a.wr), Math.round(b.wr))}
-        ${row('D-RSI', Math.round(a.dr), Math.round(b.dr))}
-        ${row('Delta Δ', a.delta.toFixed(1), b.delta.toFixed(1))}
-        <div style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:4px;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.62rem;">
-        <div style="color:${a.tslHit ? 'var(--red)' : 'var(--accent)'};">${a.tslHit ? '🚨 BREACH' : '✅ SAFE'}</div>
-        <div style="text-align:center;font-size:0.52rem;color:var(--muted);text-transform:uppercase;">TSL Floor</div>
-        <div style="color:${b.tslHit ? 'var(--red)' : 'var(--accent)'};text-align:right;">${b.tslHit ? '🚨 BREACH' : '✅ SAFE'}</div>
-        </div>
-        ${row('1D %', a.r1d + '%', b.r1d + '%')}
-        ${row('1W %', a.r1w + '%', b.r1w + '%')}
-        ${row('1M %', a.r1m + '%', b.r1m + '%')}
-        ${row('3M %', a.r3m + '%', b.r3m + '%')}
-        ${row('1Y %', a.r1y + '%', b.r1y + '%')}`;
+<!-- Fund name headers -->
+<div style="display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:4px;padding:4px 0 6px;margin-bottom:2px;border-bottom:2px solid var(--border);">
+<div style="font-size:0.54rem;color:var(--border2);font-weight:700;line-height:1.4;">${nameA}</div>
+<div style="text-align:center;font-size:0.5rem;color:var(--muted);">vs</div>
+<div style="font-size:0.54rem;color:var(--border2);font-weight:700;line-height:1.4;text-align:right;">${nameB}</div>
+</div>
+
+<!-- RSI Go/No-Go row — all 3 periods -->
+<div style="display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:2px;padding:5px 0;border-bottom:1px solid var(--border);align-items:start;">
+<div style="display:flex;flex-direction:column;gap:3px;">
+${rsiSignal(a.wr, 4)} ${rsiSignal(a.wr8, 8)} ${rsiSignal(a.wr14, 14)}
+</div>
+<div style="text-align:center;font-size:0.5rem;color:var(--muted);text-transform:uppercase;padding-top:4px;">W-RSI<br>Go/No-Go</div>
+<div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end;">
+${rsiSignal(b.wr, 4)} ${rsiSignal(b.wr8, 8)} ${rsiSignal(b.wr14, 14)}
+</div>
+</div>
+
+<!-- Regime -->
+<div style="display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:2px;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.62rem;">
+<div style="color:${regCol(a.regime)};font-weight:700;">${regLabel(a.regime)}</div>
+<div style="text-align:center;font-size:0.5rem;color:var(--muted);text-transform:uppercase;">Regime</div>
+<div style="color:${regCol(b.regime)};font-weight:700;text-align:right;">${regLabel(b.regime)}</div>
+</div>
+
+${row('NAV ₹', '₹'+a.nav.toFixed(2), '₹'+b.nav.toFixed(2))}
+${row('D-RSI ('+_cmpRsiPer+')', Math.round(a.dr), Math.round(b.dr))}
+${row('Delta Δ (D−W)', a.delta.toFixed(1), b.delta.toFixed(1))}
+
+<!-- TSL -->
+<div style="display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:2px;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.62rem;">
+<div style="color:${a.tslHit?'var(--red)':'var(--accent)'};">${a.tslHit?'🚨 BREACH':'✅ SAFE'}</div>
+<div style="text-align:center;font-size:0.5rem;color:var(--muted);text-transform:uppercase;">TSL Floor</div>
+<div style="color:${b.tslHit?'var(--red)':'var(--accent)'};text-align:right;">${b.tslHit?'🚨 BREACH':'✅ SAFE'}</div>
+</div>
+
+${row('1D %', a.r1d+'%', b.r1d+'%')}
+${row('1W %', a.r1w+'%', b.r1w+'%')}
+${row('1M %', a.r1m+'%', b.r1m+'%')}
+${row('3M %', a.r3m+'%', b.r3m+'%')}
+${row('6M %', a.r6m+'%', b.r6m+'%')}
+${row('1Y %', a.r1y+'%', b.r1y+'%')}`;
+
+                    // Auto-run date range if dates are pre-filled
+                    const df = document.getElementById('cmpDateFrom');
+                    const dt = document.getElementById('cmpDateTo');
+                    if (df?.value && dt?.value) runDateRangeComparison();
+
                 } catch (e) {
-                    resEl.innerHTML = `<div style="color:var(--red);padding:20px;text-align:center;">Error: ${e.message}</div>`;
+                    resEl.innerHTML = `<div style="color:var(--red);padding:16px;text-align:center;font-size:0.65rem;">Error: ${e.message}</div>`;
+                }
+            }
+
+            /**
+             * runDateRangeComparison()  [§15 — Relative Growth over Date Range]
+             * ─────────────────────────
+             * Reads cached NAV data for Fund A and Fund B and computes the exact
+             * growth (%) between the user-selected From / To dates.
+             * A table is rendered with Red highlight on the higher-growth fund.
+             * Green is used for positive growth, Red for negative growth values.
+             */
+            async function runDateRangeComparison() {
+                const codeA   = document.getElementById('cmpFundA').value;
+                const codeB   = document.getElementById('cmpFundB').value;
+                const fromVal = document.getElementById('cmpDateFrom').value;
+                const toVal   = document.getElementById('cmpDateTo').value;
+                const resEl   = document.getElementById('cmpDateResult');
+
+                if (!fromVal || !toVal) {
+                    resEl.innerHTML = `<div style="color:var(--muted);font-size:0.62rem;padding:8px;">Please enter both From and To dates.</div>`;
+                    return;
+                }
+                if (fromVal >= toVal) {
+                    resEl.innerHTML = `<div style="color:var(--red);font-size:0.62rem;padding:8px;">From date must be before To date.</div>`;
+                    return;
+                }
+
+                resEl.innerHTML = `<div style="text-align:center;padding:12px;color:var(--muted);font-size:0.62rem;">Calculating…</div>`;
+
+                const findNavOnOrAfter = (hist, targetDate) => {
+                    // hist is sorted ascending by date string; find nearest date >= targetDate
+                    for (let i = 0; i < hist.length; i++) {
+                        if (hist[i].date >= targetDate) return hist[i];
+                    }
+                    return null;
+                };
+                const findNavOnOrBefore = (hist, targetDate) => {
+                    // find nearest date <= targetDate
+                    for (let i = hist.length - 1; i >= 0; i--) {
+                        if (hist[i].date <= targetDate) return hist[i];
+                    }
+                    return null;
+                };
+
+                const calcGrowth = (startNav, endNav) =>
+                    ((endNav - startNav) / startNav * 100);
+
+                try {
+                    const [fdA, fdB] = await Promise.all([_fetchCmpFund(codeA), _fetchCmpFund(codeB)]);
+
+                    const fromDate = fromVal.replace(/-/g, '-');
+                    const toDate   = toVal.replace(/-/g, '-');
+
+                    // Nearest actual trading dates for each fund
+                    const aStart = findNavOnOrAfter(fdA.hist, fromDate);
+                    const aEnd   = findNavOnOrBefore(fdA.hist, toDate);
+                    const bStart = findNavOnOrAfter(fdB.hist, fromDate);
+                    const bEnd   = findNavOnOrBefore(fdB.hist, toDate);
+
+                    if (!aStart || !aEnd) {
+                        resEl.innerHTML = `<div style="color:var(--red);font-size:0.62rem;padding:8px;">Fund A: no data in selected range.</div>`;
+                        return;
+                    }
+                    if (!bStart || !bEnd) {
+                        resEl.innerHTML = `<div style="color:var(--red);font-size:0.62rem;padding:8px;">Fund B: no data in selected range.</div>`;
+                        return;
+                    }
+
+                    const gA = calcGrowth(aStart.nav, aEnd.nav);
+                    const gB = calcGrowth(bStart.nav, bEnd.nav);
+                    const diff = gA - gB; // positive = A outperformed
+
+                    const aWins = gA > gB;
+                    const bWins = gB > gA;
+
+                    const selA = document.getElementById('cmpFundA');
+                    const selB = document.getElementById('cmpFundB');
+                    const nameA = selA.options[selA.selectedIndex].text.trim().slice(0, 20);
+                    const nameB = selB.options[selB.selectedIndex].text.trim().slice(0, 20);
+
+                    const gColor = (v, wins) => {
+                        if (wins) return '#c8102e';          // RED = higher growth (winner)
+                        if (v >= 0) return 'var(--accent)';  // Green = positive growth
+                        return 'var(--red)';                 // Red = negative
+                    };
+                    const sign = v => (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+                    const diffColor = diff > 0.05 ? '#c8102e' : diff < -0.05 ? 'var(--accent)' : 'var(--muted)';
+
+                    resEl.innerHTML = `
+<table style="width:100%;border-collapse:collapse;font-size:0.65rem;">
+<thead>
+<tr style="background:var(--surface2);border-bottom:1px solid var(--border);">
+<th style="padding:5px 4px;text-align:left;font-size:0.5rem;color:var(--muted);font-weight:500;text-transform:uppercase;">Metric</th>
+<th style="padding:5px 4px;text-align:center;font-size:0.5rem;color:var(--border2);font-weight:700;text-transform:uppercase;">${nameA}</th>
+<th style="padding:5px 4px;text-align:center;font-size:0.5rem;color:var(--border2);font-weight:700;text-transform:uppercase;">${nameB}</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom:1px solid var(--border);">
+<td style="padding:4px;color:var(--muted);font-size:0.55rem;">Start Date</td>
+<td style="padding:4px;text-align:center;color:var(--text);">${aStart.date}</td>
+<td style="padding:4px;text-align:center;color:var(--text);">${bStart.date}</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border);">
+<td style="padding:4px;color:var(--muted);font-size:0.55rem;">Start NAV ₹</td>
+<td style="padding:4px;text-align:center;color:var(--text);">₹${aStart.nav.toFixed(3)}</td>
+<td style="padding:4px;text-align:center;color:var(--text);">₹${bStart.nav.toFixed(3)}</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border);">
+<td style="padding:4px;color:var(--muted);font-size:0.55rem;">End Date</td>
+<td style="padding:4px;text-align:center;color:var(--text);">${aEnd.date}</td>
+<td style="padding:4px;text-align:center;color:var(--text);">${bEnd.date}</td>
+</tr>
+<tr style="border-bottom:1px solid var(--border);">
+<td style="padding:4px;color:var(--muted);font-size:0.55rem;">End NAV ₹</td>
+<td style="padding:4px;text-align:center;color:var(--text);">₹${aEnd.nav.toFixed(3)}</td>
+<td style="padding:4px;text-align:center;color:var(--text);">₹${bEnd.nav.toFixed(3)}</td>
+</tr>
+<tr style="border-bottom:2px solid var(--border2);background:rgba(0,0,0,0.04);">
+<td style="padding:5px 4px;font-weight:700;font-size:0.6rem;color:var(--text);">Growth %</td>
+<td style="padding:5px 4px;text-align:center;font-weight:900;font-size:0.78rem;color:${gColor(gA, aWins)};
+${aWins?'text-shadow:0 0 8px rgba(200,16,46,0.35);':''}">
+${aWins?'▲ ':''}${sign(gA)}
+</td>
+<td style="padding:5px 4px;text-align:center;font-weight:900;font-size:0.78rem;color:${gColor(gB, bWins)};
+${bWins?'text-shadow:0 0 8px rgba(200,16,46,0.35);':''}">
+${bWins?'▲ ':''}${sign(gB)}
+</td>
+</tr>
+<tr>
+<td style="padding:5px 4px;font-size:0.52rem;color:var(--muted);">Relative Edge</td>
+<td colspan="2" style="padding:5px 4px;text-align:center;font-weight:700;color:${diffColor};font-size:0.65rem;">
+${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' + Math.abs(diff).toFixed(2) + '%'}
+</td>
+</tr>
+</tbody>
+</table>
+<div style="margin-top:6px;font-size:0.48rem;color:var(--muted);text-align:center;padding-bottom:4px;">
+🔴 Red = Higher Growth (Winner) &nbsp;|&nbsp; Green = Positive &nbsp;|&nbsp; Dates snapped to nearest trading day
+</div>`;
+
+                } catch (e) {
+                    resEl.innerHTML = `<div style="color:var(--red);padding:12px;text-align:center;font-size:0.62rem;">Error: ${e.message}</div>`;
                 }
             }
 
@@ -7822,6 +8371,7 @@ ${c.text}</span>
                 document.getElementById('simModeTag').textContent = tagText;
 
                 userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
+                window.userRsiLength = userRsiLength; // LD244Y BUG-1 FIX
 
                 fullHistory = await fetchFundData();
                 if (!fullHistory || !fullHistory.length) return;  // BUG-03: null guard
@@ -9209,7 +9759,7 @@ This is exactly how the system is meant to be played.
             // =============================================================================
             // Entry point: _deployPausedSip()  — defined alongside _trackPausedSip(),
             // _pausedSipAmount, and _pausedSipCount in the Gap 7 block near end of script.
-            // BUG-A FIX (LD244V): removed dead deployPausedSip() (no underscore) which
+            // BUG-A FIX (LD244W): removed dead deployPausedSip() (no underscore) which
             // referenced three undeclared variables (_sipPausedAmount, _sipWasInRegimeC,
             // deployPausedSipBtn) and would have thrown ReferenceErrors under 'use strict'.
             // =============================================================================
@@ -9832,7 +10382,7 @@ This is exactly how the system is meant to be played.
                 }).join('');
             }
 
-            // ISSUE-E NOTE (LD244V): showCustomRationale / submitRationale are vestigial.
+            // ISSUE-E NOTE (LD244W): showCustomRationale / submitRationale are vestigial.
             // The rationaleBar (#rationaleBar) defaults to display:none and is never set
             // to flex by any live code path — the chips and CUSTOM button are therefore
             // never visible in practice.  The active rationale capture is the note field
@@ -12615,7 +13165,9 @@ ${d.tsl > 0
 
                     const rBox = document.getElementById('rrgRegimeBox');
                     const rLbl = document.getElementById('rrgRegimeLabel');
-                    rLbl.textContent = currentRegime;
+                    // LD244W: sync label with Live Cockpit + RRG Scanner (Hope/Watch/Fear)
+                    const regimeLabelMap = { A: 'Hope', B: 'Watch', C: 'Fear' };
+                    rLbl.textContent = regimeLabelMap[currentRegime] || currentRegime;
 
                     const regimeStyles = {
                         A: {
@@ -13349,6 +13901,30 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 ovEl.style.display = 'flex';
                 ovTxt.textContent = 'FETCHING DATA...';
 
+                // LD244W: For NPS modes, also fetch the AMC MF BAF fund so Condition 2
+                // (BAF gate) has a valid benchmark — in NPS mode fundsData won't contain MF BAF.
+                let _bafDataForNps = null;
+                if (type !== 'MF') {
+                    const bafFund = fundsList.find(f => !f.code.startsWith('SM') && f.name.toLowerCase().includes('balanced advantage'));
+                    if (bafFund) {
+                        try {
+                            const bRes = await fetch(`https://api.mfapi.in/mf/${bafFund.code}`);
+                            const bData = await bRes.json();
+                            if (bData?.data) {
+                                const bValid = [...bData.data].reverse().filter(d => !isNaN(parseFloat(d.nav)));
+                                const bPrices = bValid.map(d => parseFloat(d.nav));
+                                if (bPrices.length > 21) {
+                                    _bafDataForNps = {
+                                        name: bafFund.name.replace(/ - Growth| - Direct/gi,'').trim(),
+                                        code: bafFund.code,
+                                        r1m: (bPrices[bPrices.length-1] - bPrices[bPrices.length-22]) / bPrices[bPrices.length-22] * 100
+                                    };
+                                }
+                            }
+                        } catch(_){}
+                    }
+                }
+
                 const fundsData = {};
                 let completed = 0;
 
@@ -13608,10 +14184,11 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
 
                 ovEl.style.display = 'none';
                 renderAssetAllocatorBoxes(allocations);
-                renderTriggerMonitor(fundsData, allocations);
+                // LD244W: pass MF BAF data separately so C2 gate works for NPS modes too
+                renderTriggerMonitor(fundsData, allocations, _bafDataForNps);
             }
 
-            function renderTriggerMonitor(fundsData, allocs) {
+            function renderTriggerMonitor(fundsData, allocs, externalBaf) {
                 const el = document.getElementById('triggerMonitor');
                 if (!el || allocs.length === 0) return;
 
@@ -13646,7 +14223,9 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const held2 = snapshot.find(f => f.code === heldCodes[1]);
 
                 // ── Condition checks ──────────────────────────────────────────────────
-                const bafLive = snapshot.find(f => f.name.toLowerCase().includes('balanced advantage'));
+                // LD244W: For NPS modes, externalBaf carries the MF BAF 1M return as benchmark
+                const bafLive = snapshot.find(f => f.name.toLowerCase().includes('balanced advantage'))
+                              || (externalBaf ? { name: externalBaf.name, code: externalBaf.code, r1m: externalBaf.r1m } : null);
                 const bafLiveMom = bafLive ? bafLive.r1m : -999;
                 const bafThreshold = bafLiveMom + 2.0;
 
@@ -13732,16 +14311,35 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 document.getElementById('tmCond2').outerHTML = `<div id="tmCond2">${condHTML('🛡️', 'CONDITION 2 — BAF ALPHA GATE', c2detail, c2trigger, '⚠ RETREAT TO BAF', '✓ BEATING BAF')}</div>`;
 
                 // ── Condition 3: Momentum Swap ─────────────────────────────────────────
+                // LD244W: fund names highlighted bold+green when triggered, clickable to Live Cockpit
+                const _c3FundLink = (fund, triggered) => {
+                    if (!fund) return '—';
+                    const style = triggered
+                        ? `font-weight:700;color:#009e70;cursor:pointer;text-decoration:underline;`
+                        : `color:var(--muted2);`;
+                    return `<span style="${style}" onclick="launchLiveFromAlert('${fund.code}')">${fund.name.replace(/ - Growth| - Direct/gi,'').trim()}</span>`;
+                };
                 let c3detail = `<em style="font-size:0.5rem;color:var(--muted);">Only Regime Hope funds considered as swap candidates.</em><br>`;
                 if (c3aSpread !== null) {
-                    c3detail += `C3a — Best unowned (${bestUnowned?.name ?? '—'}): 1M = ${bestUnowned?.r1m?.toFixed(1) ?? '--'}%<br>`;
+                    c3detail += `C3a — Best unowned: ${_c3FundLink(bestUnowned, c3aTrigger)}: 1M = ${bestUnowned?.r1m?.toFixed(1) ?? '--'}%<br>`;
                     c3detail += `Held rank-1 (${held1?.name ?? '—'}): 1M = ${held1?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3aSpread.toFixed(1)}%</strong> ${c3aTrigger ? '⚠ >3%' : '✓ ≤3%'}<br>`;
                 }
                 if (c3bSpread !== null) {
-                    c3detail += `C3b — 2nd unowned (${secondUnowned?.name ?? '—'}): 1M = ${secondUnowned?.r1m?.toFixed(1) ?? '--'}%<br>`;
+                    c3detail += `C3b — 2nd unowned: ${_c3FundLink(secondUnowned, c3bTrigger)}: 1M = ${secondUnowned?.r1m?.toFixed(1) ?? '--'}%<br>`;
                     c3detail += `Held rank-2 (${held2?.name ?? '—'}): 1M = ${held2?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3bSpread.toFixed(1)}%</strong> ${c3bTrigger ? '⚠ >3%' : '✓ ≤3%'}`;
                 }
                 if (c3aSpread === null && c3bSpread === null) c3detail += 'Insufficient Regime Hope candidates for comparison.';
+
+                // LD244W: count new C3 swap candidates and update badge on Asset Allocator home-screen button
+                const c3NewFunds = [c3aTrigger ? bestUnowned : null, c3bTrigger ? secondUnowned : null].filter(Boolean);
+                const c3Badge = document.getElementById('assetAllocC3Badge');
+                if (c3Badge) {
+                    c3Badge.textContent = c3NewFunds.length > 0 ? `(${c3NewFunds.length})` : '';
+                    c3Badge.style.display = c3NewFunds.length > 0 ? 'inline' : 'none';
+                }
+                // Persist for home-screen badge update
+                try { window._c3NewFundCount = c3NewFunds.length; } catch(_){}
+
                 document.getElementById('tmCond3').outerHTML = `<div id="tmCond3">${condHTML('🔄', 'CONDITION 3 — MOMENTUM SWAP (Regime Hope only)', c3detail, c3trigger, '⚠ TRIGGER SWAP', '✓ HOLD')}</div>`;
 
                 el.style.display = 'block';
@@ -13915,7 +14513,9 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     PC:              [],
                     RSI_DIP:         [],
                     SLINGSHOT:       [],
-                    HOLD:            []
+                    HOLD:            [],
+                    SHORTLISTED:     [],   // LD244W: Condition 3 — meets hurdle rate per AMC
+                    _bafR1mByAmc:    {}    // LD244W: BAF 1M return per AMC for hurdle calc
                 };
                 let processed = 0;
 
@@ -13948,7 +14548,15 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                             drsi:   Math.round(snap.drsi),
                             wrsi:   Math.round(snap.wrsi),
                             delta:  Math.round(snap.delta),
-                            regime: snap.regime
+                            regime: snap.regime,
+                            // LD244W: r1m needed for "Shortlisted Investments" section
+                            r1m:    scanPrices.length > 21 ? (scanPrices[scanPrices.length-1] - scanPrices[scanPrices.length-22]) / scanPrices[scanPrices.length-22] * 100 : 0,
+                            amc:    fund.code.startsWith('SM') ? 'NPS' : (() => {
+                                        for (const a in window.amcFunds) {
+                                            if (window.amcFunds[a].some(f => f.code === fund.code)) return a;
+                                        }
+                                        return 'OTHER';
+                                    })()
                         };
 
                         if (snap.tsl.tslHit) {
@@ -13979,12 +14587,40 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
                             item.val = 'HOLD';
                             results.HOLD.push(item);
                         }
+
+                        // LD244W: Track BAF 1M return per AMC for Shortlisted hurdle calc
+                        if (!item.code.startsWith('SM') && item.name.toLowerCase().includes('balanced advantage')) {
+                            results._bafR1mByAmc[item.amc] = item.r1m;
+                        }
+
                     } catch (e) {}
 
                     processed++;
                     const prog = document.getElementById('alertProg');
                     if (prog) prog.textContent = `${processed}/${allFunds.length} funds processed`;
                     await new Promise(r => setTimeout(r, 10));
+                }
+
+                // LD244W: Populate SHORTLISTED — Regime Hope MF funds beating their AMC BAF hurdle
+                // Hurdle = BAF 1M return + 2% (Condition 3 standard). Max 1 best fund per AMC box.
+                const amcList = Object.keys(window.amcFunds).filter(a => !['NPS'].includes(a));
+                for (const amc of amcList) {
+                    const bafR = results._bafR1mByAmc[amc] ?? -999;
+                    const hurdle = bafR + 2.0;
+                    const mfFunds = Object.values(results).flat()
+                        .filter(it => it && typeof it === 'object' && it.amc === amc
+                                    && it.regime === 'A' && !it.code?.startsWith('SM')
+                                    && it.r1m > hurdle);
+                    mfFunds.sort((a, b) => b.r1m - a.r1m);
+                    if (mfFunds.length > 0) {
+                        results.SHORTLISTED.push({
+                            amc,
+                            fund: mfFunds[0],
+                            hurdle: hurdle.toFixed(1),
+                            bafR:   bafR.toFixed(1),
+                            allQualifying: mfFunds
+                        });
+                    }
                 }
 
                 renderAlertSummaryUI(results);
@@ -14074,6 +14710,102 @@ categories.forEach(cat => {
                     emptyMsg.innerHTML = '✓ UNIVERSE IS CLEAN<br>No critical alerts detected.';
                     content.appendChild(emptyMsg);
                 }
+
+                // ── LD244W: Shortlisted Investments — Buy as per SOP ────────────────────
+                const shortSection = document.createElement('div');
+                shortSection.style.cssText = `
+                    margin-top:20px;
+                    border-top:1px solid var(--border);
+                    padding-top:14px;
+                `;
+
+                const shortTitle = document.createElement('div');
+                shortTitle.style.cssText = `
+                    font-size:0.62rem;font-weight:700;letter-spacing:0.08em;
+                    color:var(--accent);text-align:center;margin-bottom:10px;
+                    text-transform:uppercase;
+                `;
+                shortTitle.innerHTML = '🏆 Shortlisted Investments — Buy as per SOP';
+                shortSection.appendChild(shortTitle);
+
+                const shortSub = document.createElement('div');
+                shortSub.style.cssText = 'font-size:0.52rem;color:var(--muted);text-align:center;margin-bottom:12px;';
+                shortSub.textContent = 'Regime Hope · 1M Return > BAF + 2% hurdle · Tap fund to open Live Cockpit';
+                shortSection.appendChild(shortSub);
+
+                const shortGrid = document.createElement('div');
+                shortGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+
+                const amcOrder = Object.keys(window.amcFunds).filter(a => !['NPS'].includes(a)).slice(0, 4);
+                amcOrder.forEach(amc => {
+                    const entry = (res.SHORTLISTED || []).find(e => e.amc === amc);
+                    const box = document.createElement('div');
+                    box.style.cssText = `
+                        background:var(--surface);
+                        border:1px solid ${entry ? 'var(--accent)' : 'var(--border)'};
+                        border-radius:var(--radius-sm);
+                        padding:10px 8px;
+                        display:flex;flex-direction:column;gap:4px;
+                        cursor:${entry ? 'pointer' : 'default'};
+                        position:relative;
+                        transition:border-color 0.2s;
+                    `;
+                    if (entry) {
+                        box.onclick = () => {
+                            // Close Alert Summary modal and launch Live Cockpit for this fund
+                            const alertModal = document.getElementById('alertSummaryModal');
+                            if (alertModal) alertModal.style.display = 'none';
+                            launchLiveFromAlert(entry.fund.code);
+                        };
+                    }
+
+                    const amcLabel = document.createElement('div');
+                    amcLabel.style.cssText = 'font-size:0.5rem;font-weight:700;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;';
+                    amcLabel.textContent = amc;
+                    box.appendChild(amcLabel);
+
+                    if (entry) {
+                        const fundName = document.createElement('div');
+                        fundName.style.cssText = 'font-size:0.58rem;font-weight:700;color:var(--accent);line-height:1.3;';
+                        fundName.textContent = entry.fund.name.replace(/ - Growth| - Direct/gi,'').replace(/Balanced Advantage/gi,'BAF').trim();
+                        box.appendChild(fundName);
+
+                        const statsRow = document.createElement('div');
+                        statsRow.style.cssText = 'font-size:0.52rem;color:var(--text);display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;';
+                        statsRow.innerHTML = `
+                            <span style="color:#00e8a2;">1M: <strong>${entry.fund.r1m.toFixed(1)}%</strong></span>
+                            <span style="color:var(--muted);">Hurdle: ${entry.hurdle}%</span>
+                        `;
+                        box.appendChild(statsRow);
+
+                        const rsiBadge = document.createElement('div');
+                        rsiBadge.style.cssText = 'font-size:0.5rem;color:var(--muted);margin-top:2px;';
+                        rsiBadge.textContent = `wRSI ${entry.fund.wrsi} · dRSI ${entry.fund.drsi}`;
+                        box.appendChild(rsiBadge);
+
+                        if (entry.allQualifying.length > 1) {
+                            const more = document.createElement('div');
+                            more.style.cssText = 'font-size:0.48rem;color:var(--gold);margin-top:3px;';
+                            more.textContent = `+${entry.allQualifying.length - 1} more qualifying`;
+                            box.appendChild(more);
+                        }
+
+                        const tapHint = document.createElement('div');
+                        tapHint.style.cssText = 'font-size:0.48rem;color:var(--muted2);margin-top:4px;text-align:right;';
+                        tapHint.textContent = '↗ Open Live Cockpit';
+                        box.appendChild(tapHint);
+                    } else {
+                        const none = document.createElement('div');
+                        none.style.cssText = 'font-size:0.55rem;color:var(--muted2);margin-top:4px;';
+                        none.textContent = '— No qualifying fund';
+                        box.appendChild(none);
+                    }
+
+                    shortGrid.appendChild(box);
+                });
+
+                shortSection.appendChild(shortGrid);
+                content.appendChild(shortSection);
             }
 
 
@@ -14910,7 +15642,7 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
 
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD244V
+    END OF FILE — LD244X
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js

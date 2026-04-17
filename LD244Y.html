@@ -7433,13 +7433,15 @@ ${c.text}</span>
              * C2 mode: BAF (Balanced Advantage) funds only.
              * C3 mode: Non-BAF, non-NPS funds (equity/sectoral — swap candidates).
              */
-            function updateCmpDropdowns() {
-                let pool;
-                if (_cmpAMC === 'ALL') {
-                    pool = Object.values(amcFunds).flat();
-                } else {
-                    pool = (amcFunds[_cmpAMC] || []).slice();
-                }
+
+function updateCmpDropdowns() {
+    let pool;
+    if (_cmpAMC === 'ALL') {
+        pool = Object.values(window.amcFunds).flat();
+    } else {
+        pool = (window.amcFunds[_cmpAMC] || []).slice();
+    }
+
 
                 if (_cmpType === 'C2') {
                     // C2 = Asset Allocation / BAF funds
@@ -7454,15 +7456,18 @@ ${c.text}</span>
                     );
                 }
 
-                // If C2 with specific AMC selected → pre-select BAF as Fund A,
-                // and best equity fund of that AMC as Fund B (quick compare shortcut)
-                let preA = 0, preB = 1;
-                if (_cmpType === 'C2' && _cmpAMC !== 'ALL') {
-                    preA = 0; // BAF
-                    // For Fund B, find the Flexicap / main equity of the AMC
-                    const equityPool = (amcFunds[_cmpAMC] || []).filter(f =>
-                        /flexi|flexicap/i.test(f.name) && !/\[NPS\]/i.test(f.name)
-                    );
+// If C2 with specific AMC selected → pre-select BAF as Fund A,
+    // and best equity fund of that AMC as Fund B (quick compare shortcut)
+    let preA = 0, preB = 1;
+    if (_cmpType === 'C2' && _cmpAMC !== 'ALL') {
+        preA = 0; // BAF
+        // For Fund B, find the Flexicap / main equity of the AMC
+        const equityPool = (window.amcFunds[_cmpAMC] || []).filter(f => 
+            /flexi|flexicap/i.test(f.name) && !/\[NPS\]/i.test(f.name)
+        );
+
+
+
                     if (equityPool.length) {
                         // inject the flexi into pool as index 1 for comparison
                         if (!pool.find(f => f.code === equityPool[0].code)) {

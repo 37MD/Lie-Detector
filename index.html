@@ -7410,7 +7410,8 @@ ${c.text}</span>
                 // Reset pill states
                 document.querySelectorAll('#cmpAmcPills .cmp-pill').forEach((b,i) => b.classList.toggle('cmp-pill-active', i===0));
                 document.querySelectorAll('#cmpTypePills .cmp-pill').forEach((b,i) => b.classList.toggle('cmp-pill-active', i===0));
-                document.querySelectorAll('#cmpRsiPills .cmp-pill').forEach((b,i) => b.classList.toggle('cmp-pill-active cmp-pill-rsi', false));
+
+
                 const rsiPills = document.querySelectorAll('#cmpRsiPills .cmp-pill');
                 rsiPills.forEach((b,i) => { b.classList.remove('cmp-pill-active'); });
                 if (rsiPills[0]) rsiPills[0].classList.add('cmp-pill-active');

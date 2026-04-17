@@ -7,7 +7,7 @@
   File       : LD244Y.html
   Version    : LD244Y  (successor to LD244W)
 
-  CHANGELOG (LD244W → LD244Y)  PHASE 2 — ENHANCED FUND COMPARISON
+  CHANGELOG (LD244Y → LD244Y)  PHASE 2 — ENHANCED FUND COMPARISON
   ─────────────────────────────────────────────────────────────────
   X-1  AMC FILTER PILLS
        Compare modal now has AMC pills (ALL/HDFC/ICICI/KOTAK/ABSL).
@@ -46,7 +46,7 @@
   Author     : npsnav.in
   Licence    : Proprietary — All rights reserved
 
-  CHANGELOG (LD244V → LD244W)  PHASE 1
+  CHANGELOG (LD244V → LD244Y)  PHASE 1
   ─────────────────────────────────────
   P1-1  REGIME LABEL SYNC
         RRG Alpha Dashboard now shows Hope / Watch / Fear (was A/B/C).
@@ -71,7 +71,7 @@
         tracks r1m, amc, and _bafR1mByAmc; SHORTLISTED bucket added to results.
 
   P1-5  VERSION & SOP UPDATED
-        All visible LD244V strings updated to LD244W. SOP Part 10 added with
+        All visible LD244V strings updated to LD244Y. SOP Part 10 added with
         full documentation of Phase 1 new features.
 
           It was a pre-§G7 remnant that was never called by any HTML element
@@ -436,7 +436,7 @@
         <style>
             /*
              * ====================================================================
-             * STYLESHEET — LIE DETECTOR LD244W
+             * STYLESHEET — LIE DETECTOR LD244Y
              * ====================================================================
              * Organisation
              * ─────────────
@@ -3034,7 +3034,7 @@
             <!-- ── Header ────────────────────────────────────────────────────── -->
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD244W</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD244Y</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -3493,8 +3493,8 @@
                     </tbody>
                 </table>
 
-                <!-- ═══ PART 10 — LD244W PHASE 1 UPGRADES ════════════════════════════ -->
-                <div class="sop-part sop-part-green">PART 10 — LD244W PHASE 1 NEW FEATURES</div>
+                <!-- ═══ PART 10 — LD244Y PHASE 1 UPGRADES ════════════════════════════ -->
+                <div class="sop-part sop-part-green">PART 10 — LD244Y PHASE 1 NEW FEATURES</div>
 
                 <table class="sop-gap-table">
                     <thead>
@@ -3544,7 +3544,7 @@
                 </div>
 
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD244W &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD244Y &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
 
@@ -3568,7 +3568,7 @@
             <!-- ── Logo / title strip (unchanged) ── -->
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244W 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244Y 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
             <!-- ── ROW 1 · Alert Summary + Regime Change Scanner ── -->
@@ -5207,7 +5207,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
 
             let userRsiLength = 4;
             window.userRsiLength = userRsiLength; // LD244Y BUG-1 FIX: expose to window so Asset Allocator + scanners always use live value
-            // BUG-C FIX (LD244W): removed redundant `let buyDeltaLevel = -15`.
+            // BUG-C FIX (LD244Y): removed redundant `let buyDeltaLevel = -15`.
             // Use the named constant BUY_DELTA_LEVEL (§3) directly at all call-sites.
 
             let prevRegime = null;
@@ -5539,7 +5539,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 // ── 8. Auto-stress scenarios ──────────────────────────────────────────────
                 populateAutoStressScenarios();
 
-                // ── 9. LD244W: Silent C3 Momentum Swap scan on startup ───────────────────
+                // ── 9. LD244Y: Silent C3 Momentum Swap scan on startup ───────────────────
                 // Runs in background; updates Asset Allocator badge (#assetAllocC3Badge)
                 // with count of new swap-candidate funds (Regime Hope, beating hurdle >3%).
                 setTimeout(async () => {
@@ -9784,7 +9784,7 @@ This is exactly how the system is meant to be played.
             // =============================================================================
             // Entry point: _deployPausedSip()  — defined alongside _trackPausedSip(),
             // _pausedSipAmount, and _pausedSipCount in the Gap 7 block near end of script.
-            // BUG-A FIX (LD244W): removed dead deployPausedSip() (no underscore) which
+            // BUG-A FIX (LD244Y): removed dead deployPausedSip() (no underscore) which
             // referenced three undeclared variables (_sipPausedAmount, _sipWasInRegimeC,
             // deployPausedSipBtn) and would have thrown ReferenceErrors under 'use strict'.
             // =============================================================================
@@ -10407,7 +10407,7 @@ This is exactly how the system is meant to be played.
                 }).join('');
             }
 
-            // ISSUE-E NOTE (LD244W): showCustomRationale / submitRationale are vestigial.
+            // ISSUE-E NOTE (LD244Y): showCustomRationale / submitRationale are vestigial.
             // The rationaleBar (#rationaleBar) defaults to display:none and is never set
             // to flex by any live code path — the chips and CUSTOM button are therefore
             // never visible in practice.  The active rationale capture is the note field
@@ -13190,7 +13190,7 @@ ${d.tsl > 0
 
                     const rBox = document.getElementById('rrgRegimeBox');
                     const rLbl = document.getElementById('rrgRegimeLabel');
-                    // LD244W: sync label with Live Cockpit + RRG Scanner (Hope/Watch/Fear)
+                    // LD244Y: sync label with Live Cockpit + RRG Scanner (Hope/Watch/Fear)
                     const regimeLabelMap = { A: 'Hope', B: 'Watch', C: 'Fear' };
                     rLbl.textContent = regimeLabelMap[currentRegime] || currentRegime;
 
@@ -13926,7 +13926,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 ovEl.style.display = 'flex';
                 ovTxt.textContent = 'FETCHING DATA...';
 
-                // LD244W: For NPS modes, also fetch the AMC MF BAF fund so Condition 2
+                // LD244Y: For NPS modes, also fetch the AMC MF BAF fund so Condition 2
                 // (BAF gate) has a valid benchmark — in NPS mode fundsData won't contain MF BAF.
                 let _bafDataForNps = null;
                 if (type !== 'MF') {
@@ -14209,7 +14209,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
 
                 ovEl.style.display = 'none';
                 renderAssetAllocatorBoxes(allocations);
-                // LD244W: pass MF BAF data separately so C2 gate works for NPS modes too
+                // LD244Y: pass MF BAF data separately so C2 gate works for NPS modes too
                 renderTriggerMonitor(fundsData, allocations, _bafDataForNps);
             }
 
@@ -14248,7 +14248,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const held2 = snapshot.find(f => f.code === heldCodes[1]);
 
                 // ── Condition checks ──────────────────────────────────────────────────
-                // LD244W: For NPS modes, externalBaf carries the MF BAF 1M return as benchmark
+                // LD244Y: For NPS modes, externalBaf carries the MF BAF 1M return as benchmark
                 const bafLive = snapshot.find(f => f.name.toLowerCase().includes('balanced advantage'))
                               || (externalBaf ? { name: externalBaf.name, code: externalBaf.code, r1m: externalBaf.r1m } : null);
                 const bafLiveMom = bafLive ? bafLive.r1m : -999;
@@ -14359,7 +14359,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 document.getElementById('tmCond2').outerHTML = `<div id="tmCond2">${condHTML('🛡️', 'CONDITION 2 — BAF ALPHA GATE', c2detail, c2trigger, '⚠ RETREAT TO BAF', '✓ BEATING BAF')}</div>`;
 
                 // ── Condition 3: Momentum Swap ─────────────────────────────────────────
-                // LD244W: fund names highlighted bold+green when triggered, clickable to Live Cockpit
+                // LD244Y: fund names highlighted bold+green when triggered, clickable to Live Cockpit
                 const _c3FundLink = (fund, triggered) => {
                     if (!fund) return '—';
                     const style = triggered
@@ -14378,7 +14378,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 }
                 if (c3aSpread === null && c3bSpread === null) c3detail += 'Insufficient Regime Hope candidates for comparison.';
 
-                // LD244W: count new C3 swap candidates and update badge on Asset Allocator home-screen button
+                // LD244Y: count new C3 swap candidates and update badge on Asset Allocator home-screen button
                 const c3NewFunds = [c3aTrigger ? bestUnowned : null, c3bTrigger ? secondUnowned : null].filter(Boolean);
                 const c3Badge = document.getElementById('assetAllocC3Badge');
                 if (c3Badge) {
@@ -14562,8 +14562,8 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     RSI_DIP:         [],
                     SLINGSHOT:       [],
                     HOLD:            [],
-                    SHORTLISTED:     [],   // LD244W: Condition 3 — meets hurdle rate per AMC
-                    _bafR1mByAmc:    {}    // LD244W: BAF 1M return per AMC for hurdle calc
+                    SHORTLISTED:     [],   // LD244Y: Condition 3 — meets hurdle rate per AMC
+                    _bafR1mByAmc:    {}    // LD244Y: BAF 1M return per AMC for hurdle calc
                 };
                 let processed = 0;
 
@@ -14597,7 +14597,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
                             wrsi:   Math.round(snap.wrsi),
                             delta:  Math.round(snap.delta),
                             regime: snap.regime,
-                            // LD244W: r1m needed for "Shortlisted Investments" section
+                            // LD244Y: r1m needed for "Shortlisted Investments" section
                             r1m:    scanPrices.length > 21 ? (scanPrices[scanPrices.length-1] - scanPrices[scanPrices.length-22]) / scanPrices[scanPrices.length-22] * 100 : 0,
                             amc:    fund.code.startsWith('SM') ? 'NPS' : (() => {
                                         for (const a in window.amcFunds) {
@@ -14636,7 +14636,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
                             results.HOLD.push(item);
                         }
 
-                        // LD244W: Track BAF 1M return per AMC for Shortlisted hurdle calc
+                        // LD244Y: Track BAF 1M return per AMC for Shortlisted hurdle calc
                         if (!item.code.startsWith('SM') && item.name.toLowerCase().includes('balanced advantage')) {
                             results._bafR1mByAmc[item.amc] = item.r1m;
                         }
@@ -14649,7 +14649,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
                     await new Promise(r => setTimeout(r, 10));
                 }
 
-                // LD244W: Populate SHORTLISTED — Regime Hope MF funds beating their AMC BAF hurdle
+                // LD244Y: Populate SHORTLISTED — Regime Hope MF funds beating their AMC BAF hurdle
                 // Hurdle = BAF 1M return + 2% (Condition 3 standard). Max 1 best fund per AMC box.
                 const amcList = Object.keys(window.amcFunds).filter(a => !['NPS'].includes(a));
                 for (const amc of amcList) {
@@ -14759,7 +14759,7 @@ categories.forEach(cat => {
                     content.appendChild(emptyMsg);
                 }
 
-                // ── LD244W: Shortlisted Investments — Buy as per SOP ────────────────────
+                // ── LD244Y: Shortlisted Investments — Buy as per SOP ────────────────────
                 const shortSection = document.createElement('div');
                 shortSection.style.cssText = `
                     margin-top:20px;

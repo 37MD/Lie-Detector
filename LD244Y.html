@@ -373,8 +373,28 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector LD244W</title>
-                  <link rel="manifest" href="manifest.json">
+        <title>Lie Detector — NPS NAV Chart</title>
+
+        <!-- PWA Meta Tags -->
+        <link rel="manifest" href="manifest.json">
+        <meta name="theme-color" content="#0d0d0d">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="LieDetector">
+        <meta name="application-name" content="LieDetector">
+        <meta name="description" content="NPS & MF NAV chart with RSI Lie Detector, Asset Allocator and Live Cockpit.">
+        <meta name="msapplication-TileColor" content="#0d0d0d">
+        <meta name="msapplication-TileImage" content="icons/icon-144.png">
+
+        <!-- Apple Touch Icons -->
+        <link rel="apple-touch-icon" href="icons/icon-152.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+        <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-96.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="icons/icon-96.png">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -3710,6 +3730,11 @@
                         ⚡ TRIGGER MONITOR — LIVE DAILY CHECK</div>
                     <div id="tmHolding" style="font-size:0.58rem;color:var(--muted);margin-bottom:8px;line-height:1.5;">
                     </div>
+                    <!-- LD244Y FIX 3b: Switch-Now prompt when top-ranked fund differs from active fund -->
+                    <div id="tmSwitchPrompt" style="display:none;background:rgba(0,158,112,0.12);border:1.5px solid #009e70;border-radius:var(--radius-sm);padding:7px 10px;margin-bottom:8px;font-size:0.58rem;line-height:1.5;">
+                        <span id="tmSwitchMsg" style="color:var(--text);"></span>
+                        <button id="tmSwitchBtn" style="margin-left:8px;padding:2px 8px;font-size:0.56rem;font-weight:700;background:#009e70;color:#fff;border:none;border-radius:3px;cursor:pointer;">&#x26A1; SWITCH NOW</button>
+                    </div>
                     <div style="display:flex;flex-direction:column;gap:6px;">
                         <div id="tmCond1" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
                         </div>
@@ -5365,7 +5390,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             //
             window.normalizeDate = function(dStr) {
                 if (!dStr) return '';
-                dStr = dStr.replace(/\//g, '-');
+                dStr = dStr.replace(/[\/]/g, '-');  // LD244Y FIX: was /\// (broken) → /[\/]/g matches forward-slash correctly
                 const pts = dStr.split('-');
                 if (pts.length === 3 && pts[0].length !== 4) {
                     return `${pts[2]}-${pts[1]}-${pts[0]}`;
@@ -5531,7 +5556,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                                 const res = await fetch(url);
                                 const data = await res.json();
                                 if (!data?.data) continue;
-                                const valid = [...data.data].reverse().filter(d => !isNaN(parseFloat(d.nav)));
+                                const valid = [...data.data].reverse().filter(d => Number.isFinite(parseFloat(d.nav)) && parseFloat(d.nav) > 0) /* LD244Y NAV-FILTER-FIX */;
                                 if (valid.length < 30) continue;
                                 const prices = valid.map(d => parseFloat(d.nav));
                                 const dates  = valid.map(d => window.normalizeDate ? window.normalizeDate(d.date) : d.date);
@@ -6858,7 +6883,7 @@ if (snap.tsl.tslHit) {
                                     const bdata = await bres.json();
                                     if (bdata?.data && Array.isArray(bdata.data)) {
                                         const bRows = bdata.data.slice().reverse()
-                                            .filter(d => !isNaN(parseFloat(d.nav)));
+                                            .filter(d => Number.isFinite(parseFloat(d.nav)) && parseFloat(d.nav) > 0) /* LD244Y NAV-FILTER-FIX */;
                                         const bp = bRows.map(d => parseFloat(d.nav));
                                         if (bp.length > 63) {
                                             baf1m = calcReturn(bp, 21);
@@ -7433,15 +7458,13 @@ ${c.text}</span>
              * C2 mode: BAF (Balanced Advantage) funds only.
              * C3 mode: Non-BAF, non-NPS funds (equity/sectoral — swap candidates).
              */
-
-function updateCmpDropdowns() {
-    let pool;
-    if (_cmpAMC === 'ALL') {
-        pool = Object.values(window.amcFunds).flat();
-    } else {
-        pool = (window.amcFunds[_cmpAMC] || []).slice();
-    }
-
+            function updateCmpDropdowns() {
+                let pool;
+                if (_cmpAMC === 'ALL') {
+                    pool = Object.values(amcFunds).flat();
+                } else {
+                    pool = (amcFunds[_cmpAMC] || []).slice();
+                }
 
                 if (_cmpType === 'C2') {
                     // C2 = Asset Allocation / BAF funds
@@ -7456,18 +7479,15 @@ function updateCmpDropdowns() {
                     );
                 }
 
-// If C2 with specific AMC selected → pre-select BAF as Fund A,
-    // and best equity fund of that AMC as Fund B (quick compare shortcut)
-    let preA = 0, preB = 1;
-    if (_cmpType === 'C2' && _cmpAMC !== 'ALL') {
-        preA = 0; // BAF
-        // For Fund B, find the Flexicap / main equity of the AMC
-        const equityPool = (window.amcFunds[_cmpAMC] || []).filter(f => 
-            /flexi|flexicap/i.test(f.name) && !/\[NPS\]/i.test(f.name)
-        );
-
-
-
+                // If C2 with specific AMC selected → pre-select BAF as Fund A,
+                // and best equity fund of that AMC as Fund B (quick compare shortcut)
+                let preA = 0, preB = 1;
+                if (_cmpType === 'C2' && _cmpAMC !== 'ALL') {
+                    preA = 0; // BAF
+                    // For Fund B, find the Flexicap / main equity of the AMC
+                    const equityPool = (amcFunds[_cmpAMC] || []).filter(f =>
+                        /flexi|flexicap/i.test(f.name) && !/\[NPS\]/i.test(f.name)
+                    );
                     if (equityPool.length) {
                         // inject the flexi into pool as index 1 for comparison
                         if (!pool.find(f => f.code === equityPool[0].code)) {
@@ -11901,7 +11921,7 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
                         const res = await fetch(url);
                         const data = await res.json();
                         if (!data?.data) return;
-                        const validData = [...data.data].reverse().filter(d => !isNaN(parseFloat(d.nav)));
+                        const validData = [...data.data].reverse().filter(d => Number.isFinite(parseFloat(d.nav)) && parseFloat(d.nav) > 0) /* LD244Y NAV-FILTER-FIX */;
                         const prices = validData.map(d => parseFloat(d.nav));
                         const dates  = validData.map(d => window.normalizeDate(d.date));
                         if (prices.length < 80) return;
@@ -12146,7 +12166,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                         const data = await res.json();
                         if (!data?.data) return;
 
-                        const validData = [...data.data].reverse().filter(d => !isNaN(parseFloat(d.nav)));
+                        const validData = [...data.data].reverse().filter(d => Number.isFinite(parseFloat(d.nav)) && parseFloat(d.nav) > 0) /* LD244Y NAV-FILTER-FIX */;
                         const prices = validData.map(d => parseFloat(d.nav));
                         const dates  = validData.map(d => window.normalizeDate(d.date));
 
@@ -12375,7 +12395,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                         data.data.slice().reverse().forEach(d => {
                             const iso = window.normalizeDate ? window.normalizeDate(d.date) : d.date;
                             const nav = parseFloat(d.nav);
-                            if (iso && !isNaN(nav) && nav > 0) navMap[iso] = nav;
+                            if (iso && Number.isFinite(nav) && nav > 0) navMap[iso] = nav; // LD244Y NAV-FILTER-FIX
                         });
                         if (Object.keys(navMap).length < 250) continue;
 
@@ -12480,7 +12500,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                         if (!data?.data) return;
                         const rawRows = data.data.slice().reverse(); // ascending
                         // BUG-09: filter NaN rows BEFORE splitting — keeps prices/dates index-aligned
-                        const validRows = rawRows.filter(d => !isNaN(parseFloat(d.nav)));
+                        const validRows = rawRows.filter(d => Number.isFinite(parseFloat(d.nav)) && parseFloat(d.nav) > 0) /* LD244Y NAV-FILTER-FIX */;
                         const prices = validRows.map(d => parseFloat(d.nav));
                         const dates  = validRows.map(d => window.normalizeDate ? window.normalizeDate(d.date) : d.date);
                         if (prices.length < 100) return;
@@ -13035,7 +13055,7 @@ ${d.tsl > 0
                     if (!raw?.data) throw new Error('No data returned from API.');
 
                     const validData = raw.data
-                        .filter(d => !isNaN(parseFloat(d.nav)))
+                        .filter(d => Number.isFinite(parseFloat(d.nav)) && parseFloat(d.nav) > 0) /* LD244Y NAV-FILTER-FIX */
                         .reverse();
 
                     const fPrices = validData.map(d => parseFloat(d.nav));
@@ -13916,7 +13936,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                             const bRes = await fetch(`https://api.mfapi.in/mf/${bafFund.code}`);
                             const bData = await bRes.json();
                             if (bData?.data) {
-                                const bValid = [...bData.data].reverse().filter(d => !isNaN(parseFloat(d.nav)));
+                                const bValid = [...bData.data].reverse().filter(d => Number.isFinite(parseFloat(d.nav)) && parseFloat(d.nav) > 0) /* LD244Y NAV-FILTER-FIX */;
                                 const bPrices = bValid.map(d => parseFloat(d.nav));
                                 if (bPrices.length > 21) {
                                     _bafDataForNps = {
@@ -13943,7 +13963,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         const data = await res.json();
                         if (data && data.data) {
 
-                            const validData = [...data.data].reverse().filter(d => !isNaN(parseFloat(d.nav)));
+                            const validData = [...data.data].reverse().filter(d => Number.isFinite(parseFloat(d.nav)) && parseFloat(d.nav) > 0) /* LD244Y NAV-FILTER-FIX */;
                             const prices   = validData.map(d => parseFloat(d.nav));
                             const dates    = validData.map(d => window.normalizeDate(d.date));
                             const wRsiArr  = window.buildWeeklyRsiFast(prices, window.userRsiLength || 4, dates);
@@ -14269,6 +14289,29 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     `<strong>${held2?.name ?? heldCodes[1]}</strong> (${lastAlloc.w2}%) ` +
                     `&nbsp;·&nbsp; Universe: ${snapshot.length} funds`;
 
+                // ── LD244Y FIX 3b: Persist top2 codes so startup scanner can use them ─
+                try {
+                    localStorage.setItem('ld_v3_last_alloc_top2',
+                        JSON.stringify(lastAlloc.top2.map(f => f.code)));
+                } catch(_) {}
+
+                // ── LD244Y FIX 3b: Switch-Now prompt ─────────────────────────────────
+                // Show a green "SWITCH NOW" banner when the Allocator's rank-1 fund
+                // is NOT the currently loaded fund in the Live Cockpit dropdown.
+                const switchPromptEl = document.getElementById('tmSwitchPrompt');
+                const switchMsgEl    = document.getElementById('tmSwitchMsg');
+                const switchBtnEl    = document.getElementById('tmSwitchBtn');
+                const activeFundCode = document.getElementById('fundSelect')?.value;
+                const newTopCode     = lastAlloc.top2[0]?.code;
+                const newTopName     = _s(lastAlloc.top2[0]?.name ?? newTopCode);
+                if (switchPromptEl && newTopCode && activeFundCode !== newTopCode) {
+                    switchMsgEl.innerHTML = `&#x26A1; Allocator recommends <strong>${newTopName}</strong> as rank-1. Your cockpit still shows the previous fund.`;
+                    switchBtnEl.onclick = () => launchLiveFromAlert(newTopCode);
+                    switchPromptEl.style.display = 'block';
+                } else if (switchPromptEl) {
+                    switchPromptEl.style.display = 'none';
+                }
+
                 // ── Helper: render one condition row ─────────────────────────────────
                 const condHTML = (icon, label, detail, triggered, triggerLabel, safeLabel) => {
                     const bgCol = triggered ? 'rgba(200,16,46,0.10)' : 'rgba(0,158,112,0.08)';
@@ -14532,7 +14575,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         const rawData = data.data || data;
                         if (!Array.isArray(rawData)) throw "Err";
 
-const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
+const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(d.nav)) && parseFloat(d.nav) > 0) /* LD244Y NAV-FILTER-FIX */;
                         if (validData.length < 80) throw "Short";
 
                         const scanPrices = validData.map(d => parseFloat(d.nav));
@@ -14840,7 +14883,7 @@ categories.forEach(cat => {
                         const rawData = data.data || data;
                         if (!Array.isArray(rawData)) continue;
 
-const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
+const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(d.nav)) && parseFloat(d.nav) > 0) /* LD244Y NAV-FILTER-FIX */;
                         if (validData.length < 80) continue;
 
                         const scanPrices = validData.map(d => parseFloat(d.nav));
@@ -14879,7 +14922,13 @@ const validData = [...rawData].reverse().filter(d => !isNaN(parseFloat(d.nav)));
             }
 
             function launchLiveFromAlert(code) {
-                document.getElementById('alertSummaryModal').style.display = 'none';
+                // LD244Y FIX 3a: close ALL possible source modals before launching live cockpit
+                ['alertSummaryModal','assetAllocatorModal','watchlistModal','compareModal'].forEach(id => {
+                    const m = document.getElementById(id);
+                    if (m) m.style.display = 'none';
+                });
+                // setupScreen must be visible so initLiveChart can hide it
+                document.getElementById('setupScreen').style.display = 'flex';
                 // Switch AMC if needed
                 let amcMatch = "HDFC";
                 for (const amc in window.amcFunds) {

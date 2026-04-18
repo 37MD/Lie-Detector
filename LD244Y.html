@@ -396,7 +396,8 @@
   │  §35   RRG → Live Cockpit Handoff      (launchLiveFromRRG)                 │
   │  §36   Touch Pinch-Zoom Engine (IIFE)  (attachZoom, showPill)              │
   │  §37   Offline-First IDB Engine (IIFE) (monkey-patched fetch + sync)      │
-  │        BAF ↔ NPS Switch Planner        (openBafNpsModal / routeToFund)     │
+  │  §38   Asset Allocator                 (openAssetAllocator / runAllocator) │
+  │  §39   BAF ↔ NPS Switch Planner        (openBafNpsModal / routeToFund)     │
   └────────────────────────────────────────────────────────────────────────────┘
 
   DATA FLOW
@@ -4905,14 +4906,14 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             //  §29B Chart Bridge                   window.syncNativeChartsWithEngine
             //  §30  RRG Helper Math                calcReturn, WMA, HMA, ADX
             //  §31  RRG Bottom Pane Renderer       renderRRGChartDynamic
-            //  §32  Scanners — Regime + RRG        batch-fetch all 52 funds; classify
+            //  §32  Scanners — Regime + RRG        batch-fetch all 58 funds; classify
             //  §33  RRG Scanner UI Renderers       Leading / Improving result list
             //  §34  RRG Alpha Dashboard            openRRGDetail — 3-pane chart
             //  §35  RRG → Live Cockpit Handoff     launchLiveFromRRG
             //  §36  Touch Pinch-Zoom Engine (IIFE) attachZoom, showPill
             //  §37  Offline-First IDB (IIFE)       monkey-patched fetch + syncAllData
-            //       Asset Allocator                openAssetAllocator / runAssetAllocator
-            //       BAF ↔ NPS Switch Planner       openBafNpsModal / routeToFund
+            //  §38  Asset Allocator                openAssetAllocator / runAssetAllocator
+            //  §39  BAF ↔ NPS Switch Planner       openBafNpsModal / routeToFund
             //
             // ─────────────────────────────────────────────────────────────────────
             //
@@ -12005,18 +12006,14 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
             }
 
             // =============================================================================
-            // SECTION 27 · REGIME HOPE SCANNER & REGIME CHANGE SCANNER
-            // =============================================================================
-            //
-            // =============================================================================
-            // §32 · SCANNERS  (batch-fetch all 52 funds; regime + RRG classification)
+            // §32 · SCANNERS  (batch-fetch all 58 funds; regime + RRG classification)
             // =============================================================================
             // runRegimeAScanner(zone)       — Invest / Hold / Profit zone filter
             // runRegimeChangeScanner()      — detect A→C or Fear→Hope transitions yesterday→today
             // runRRGScanner(quadrant)       — Leading / Improving RRG momentum filter
             // =============================================================================
             // runRegimeAScanner(zone)
-            //   Fetches all 52 funds in parallel batches of 6, builds W-RSI + D-RSI caches
+            //   Fetches all 58 funds in parallel batches of 6, builds W-RSI + D-RSI caches
             //   for each, and classifies into three mutually exclusive Regime Hope sub-zones:
             //
             //     INVEST — W-RSI ≥ 50  AND  delta ≤ 15  AND  one of:
@@ -12057,7 +12054,7 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
             /**
              * runRegimeAScanner()  [§32 — Scanners]
              * ──────────────────
-             * Batch-fetches NAV data for all 52 funds, classifies each into
+             * Batch-fetches NAV data for all 58 funds, classifies each into
              * Regime Hope / Invest / Hold / Profit (A2 sub-zones), and returns
              * a sorted result array for the scanner UI (§33).
              *
@@ -12302,7 +12299,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
             /**
              * runRegimeChangeScanner()  [§32 — Scanners]
              * ─────────────────────────
-             * Batch-scans all 52 funds and identifies those whose Weekly RSI has
+             * Batch-scans all 58 funds and identifies those whose Weekly RSI has
              * crossed a regime boundary (A↔B or B↔C) within the past 5 trading days.
              * Results are rendered in #regimeChangeModal.
              *
@@ -12838,7 +12835,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
             // runRRGScanner(targetQuadrant, forceRefresh)
             //   Orchestrates the full RRG data pipeline:
             //     1. Check IDB for a < 12 h RRG cache (key: 'ld_v3_rrg_cache_ALL_v2').
-            //        Render immediately from cache if fresh (avoids re-fetching 52 funds).
+            //        Render immediately from cache if fresh (avoids re-fetching 58 funds).
             //     2. On cache miss: fetch all funds in batches of 6, compute momentum
             //        returns (1M / 2M / 3M) and alpha vs the universe average.
             //     3. Build RS ratio array vs a 50-bar SMA proxy, compute HMA(30) on RS,
@@ -13791,7 +13788,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
             // response is served from IndexedDB without hitting the network.
             //
             // Public API (on window):
-            //   window.syncAllData()  — prefetch / refresh all 52 fund NAV histories
+            //   window.syncAllData()  — prefetch / refresh all 58 fund NAV histories
             //   window.idbGet(key)    — raw IDB read
             //   window.idbPut(key, value) — raw IDB write
             //
@@ -13801,9 +13798,9 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
             // Cache-hit (fresh < 12h)  → serve from IndexedDB; skip network.
             // Cache-miss / stale       → fetch, merge new entries, write back to IDB.
             // Network failure + stale  → serve stale cache as fallback.
-            // syncAllData()            — background-sync all 52 funds in batches of 4.
-            // Exposes: window._idbOpenDB, _idbSetCache, _idbGetCache, _idbStores  No call-site changes are required in any
-            // other section — all fetch() calls automatically go through this layer.
+            // syncAllData()            — background-sync all 58 funds in batches of 4.
+            // Exposes: window._idbOpenDB, _idbSetCache, _idbGetCache, _idbStores.
+            // No call-site changes are required — all fetch() calls go through this layer.
             //
             // Database layout (IndexedDB):
             //   DB name  : 'LD240C_IncrementalDB'   version 1
@@ -13826,7 +13823,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
             //   Other error           → falls back to the real window.fetch transparently.
             //
             // syncAllData()
-            //   Called once on DOMContentLoaded.  Iterates all 52 funds in batches of 4,
+            //   Called once on DOMContentLoaded.  Iterates all 58 funds in batches of 4,
             //   fetching any whose cache is stale or absent.  Shows the loading overlay
             //   (#ov) with a percentage progress counter.  On network failure, shows
             //   "OFFLINE — CACHED DATA READY" in amber.
@@ -14014,7 +14011,13 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
             })();
 
             // =============================================================================
-            // ASSET ALLOCATOR  (LD244K — redesigned conviction engine)
+            // §38 · ASSET ALLOCATOR  (LD244K — redesigned conviction engine)
+            // =============================================================================
+            // openAssetAllocator()   — opens modal; reads active AMC from DOM / localStorage
+            // runAssetAllocator()    — batch-fetches all AMC funds; scores conviction;
+            //                         outputs weighted allocation + activates Trigger Monitor
+            // renderTriggerMonitor() — C1 (Regime Fear), C2 (BAF gate), C3 (Momentum Swap)
+            // renderAlertSummaryUI() — Shortlisted Investments section (Regime Hope + BAF gate)
             // =============================================================================
             //
             // Pipeline
@@ -15578,6 +15581,23 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 <div id="bafNpsUIInjectionPoint"></div>
 
 <script>
+    // =============================================================================
+    // §39 · BAF ↔ NPS SWITCH PLANNER
+    // =============================================================================
+    // Module-level state : BafNpsState  — tracks npsSwitchesUsed / maxSwitches
+    //
+    // Public functions:
+    //   injectBafNpsUI()     — DOMContentLoaded: injects modal HTML (BUG-08 guard)
+    //   openBafNpsModal()    — opens the planner modal; calls renderNpsDots()
+    //   closeBafNpsModal()   — closes modal; restores setup screen
+    //   routeToFund(code)    — silent-memory routing → Live Cockpit (no re-fetch)
+    //   consumeNpsSwitch()   — increment used-switch counter (max 4 per FY)
+    //   resetNpsSwitches()   — reset counter to 0 on new financial year
+    //   renderNpsDots()      — redraw the 4-dot switch-tracker widget
+    //
+    // NPS Scheme Switch Limit: SEBI permits 4 free switches per FY per subscriber.
+    // flashBanner() fires a danger banner when all 4 switches are exhausted.
+    // =============================================================================
     const BafNpsState = { npsSwitchesUsed: 0, maxSwitches: 4 };
 
     document.addEventListener('DOMContentLoaded', () => { injectBafNpsUI(); });
@@ -15793,21 +15813,9 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         }
     }
 
-    // ════════════════════════════════════════════════════════════════════════════
-    // BAF ↔ NPS SWITCH PLANNER — JAVASCRIPT
-    // ════════════════════════════════════════════════════════════════════════════
-    //
-    // Module-level state : BafNpsState  — tracks npsSwitchesUsed / maxSwitches
-    //
-    // Public functions:
-    //   openBafNpsModal()    — opens the planner modal
-    //   closeBafNpsModal()   — closes modal, restores setup screen
-    //   routeToFund(code)    — silent-memory routing → Live Cockpit (no re-fetch)
-    //   consumeNpsSwitch()   — increment used-switch counter (max 4 per FY)
-    //   resetNpsSwitches()   — reset counter to 0 (new FY)
-    //   renderNpsDots()      — redraw the 4-dot switch-tracker widget
-    //
-    // ════════════════════════════════════════════════════════════════════════════
+    // ─────────────────────────────────────────────────────────────────────────
+    // §39 · Implementation continues below  (see §39 header at section top)
+    // ─────────────────────────────────────────────────────────────────────────
 
     /**
      * consumeNpsSwitch()

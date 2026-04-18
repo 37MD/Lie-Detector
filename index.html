@@ -4,8 +4,8 @@
   LIE DETECTOR  LD244Y
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
-  File       : LD244Y.html
-  Version    : LD244Y  (successor to LD244X)
+  File       : LD244Z.html
+  Version    : LD244Z  (successor to LD244Y)
 
   CHANGELOG (LD244X → LD244Y)
   ─────────────────────────────────────────────────────────────────
@@ -3925,6 +3925,14 @@
                 Auto-refreshes every 60s · Tap row to open Live Cockpit
             </div>
             <div id="watchlistBody" style="flex-grow:1;overflow-y:auto;padding:4px 6px;display:flex;flex-direction:column;gap:4px;"></div>
+
+            <!-- ── Investment Switch Bridge (3c/3d/3e) ─────────────────────── -->
+            <div id="switchBridgeSection" style="padding:8px 8px 4px;border-top:1px solid var(--border);flex-shrink:0;">
+                <div style="font-size:0.6rem;font-weight:700;letter-spacing:0.09em;color:#a855f7;text-align:center;text-transform:uppercase;margin-bottom:8px;">
+                    🔀 Investment Switch Bridge
+                </div>
+                <div id="switchBridgeGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
+            </div>
             <div style="padding:6px 8px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:6px;">
                 <button class="setup-btn" style="border-color:var(--border2);color:var(--muted2);flex:1;font-size:0.55rem;" onclick="refreshWatchlist()">↺ REFRESH ALL</button>
                 <button class="setup-btn" style="border-color:var(--red);color:var(--red);flex:0.6;font-size:0.55rem;" onclick="clearWatchlist()">CLEAR</button>
@@ -4427,8 +4435,8 @@ border-radius:var(--radius);padding:6px 9px;">
                     <span class="nw-val" id="nwVal" style="color:var(--accent);">₹1,00,000</span>
                 </div>
                 <div class="nw-divider"></div>
-                <div class="nw-col">
-                    <span class="nw-lbl">Max DD</span>
+                <div class="nw-col" style="cursor:pointer;" onclick="openLiveBridge()" title="Open Investment Switch Bridge">
+                    <span class="nw-lbl" style="color:#a855f7;text-decoration:underline dotted;text-underline-offset:2px;">Live Bridge</span>
                     <span class="nw-val" id="ddVal" style="color:var(--red);">0.0%</span>
                 </div>
                 <div class="nw-divider"></div>
@@ -10823,7 +10831,89 @@ This is exactly how the system is meant to be played.
                 document.getElementById('watchlistModal').style.display = 'flex';
                 renderWatchlistStubs();
                 refreshWatchlist();
+                renderSwitchBridgeGrid();
                 _watchlistRefreshTimer = setInterval(refreshWatchlist, 60_000);
+            }
+
+            /**
+             * openLiveBridge()  [§23B — Live Bridge]
+             * ──────────────────
+             * Called when tapping "Live Bridge" in the simulator networth-header.
+             * Opens the Watchlist modal (which includes the Investment Switch Bridge
+             * section at the bottom) so the user can see both pinned funds and
+             * AMC switch recommendations in one place.
+             */
+            function openLiveBridge() {
+                openWatchlist();
+            }
+
+            /**
+             * renderSwitchBridgeGrid()  [§23B — Investment Switch Bridge]
+             * ─────────────────────────
+             * Reads per-AMC Switch Now recommendations from localStorage key
+             * 'ld_switch_bridge' (written by renderTriggerMonitor each time the
+             * Asset Allocator runs) and renders 4 boxes: ABSL | Kotak (row 1),
+             * ICICI | HDFC (row 2).
+             */
+            function renderSwitchBridgeGrid() {
+                const grid = document.getElementById('switchBridgeGrid');
+                if (!grid) return;
+
+                let bridge = {};
+                try { bridge = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}'); } catch(_) {}
+
+                const amcOrder = [['ABSL','#00b4d8'], ['KOTAK','#f59e0b'], ['ICICI','#ef4444'], ['HDFC','#3b82f6']];
+                grid.innerHTML = '';
+
+                amcOrder.forEach(([amc, accentCol]) => {
+                    const entry = bridge[amc];
+                    const box = document.createElement('div');
+                    box.style.cssText = `
+                        background:var(--surface2);
+                        border:1px solid ${entry ? accentCol : 'var(--border)'};
+                        border-radius:var(--radius-sm);
+                        padding:8px 7px;
+                        display:flex;flex-direction:column;gap:3px;
+                        cursor:${entry ? 'pointer' : 'default'};
+                        transition:border-color 0.2s;
+                    `;
+                    if (entry) {
+                        box.onclick = () => {
+                            document.getElementById('watchlistModal').style.display = 'none';
+                            launchLiveFromAlert(entry.code);
+                        };
+                    }
+
+                    const amcLbl = document.createElement('div');
+                    amcLbl.style.cssText = `font-size:0.48rem;font-weight:700;color:${entry ? accentCol : 'var(--muted)'};letter-spacing:0.1em;text-transform:uppercase;`;
+                    amcLbl.textContent = amc;
+                    box.appendChild(amcLbl);
+
+                    if (entry) {
+                        const nm = document.createElement('div');
+                        nm.style.cssText = 'font-size:0.56rem;font-weight:700;color:var(--text);line-height:1.3;';
+                        nm.textContent = (entry.name || '').replace(/ - Growth| - Direct/gi,'').replace(/Balanced Advantage/gi,'BAF').trim();
+                        box.appendChild(nm);
+
+                        const stats = document.createElement('div');
+                        stats.style.cssText = 'font-size:0.5rem;color:var(--muted);margin-top:2px;display:flex;gap:5px;flex-wrap:wrap;';
+                        stats.innerHTML = `<span style="color:#00e8a2;">1M: <strong>${typeof entry.r1m==='number' ? entry.r1m.toFixed(1)+'%' : '--'}</strong></span>` +
+                            `<span>wRSI ${entry.wrsi ?? '--'}</span>`;
+                        box.appendChild(stats);
+
+                        const ts = document.createElement('div');
+                        ts.style.cssText = 'font-size:0.44rem;color:var(--muted2);margin-top:2px;';
+                        ts.textContent = entry.ts ? `Updated: ${new Date(entry.ts).toLocaleDateString('en-IN',{day:'2-digit',month:'short'})}` : '';
+                        box.appendChild(ts);
+                    } else {
+                        const none = document.createElement('div');
+                        none.style.cssText = 'font-size:0.52rem;color:var(--muted2);margin-top:3px;';
+                        none.textContent = '— Run Allocator to populate';
+                        box.appendChild(none);
+                    }
+
+                    grid.appendChild(box);
+                });
             }
 
             /**
@@ -14436,15 +14526,15 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const regimeHopeSnap = snapshot.filter(f => f.regime === 'A' && !heldCodes.includes(f.code));
                 regimeHopeSnap.sort((a, b) => b.r1m - a.r1m);
 
-                // C3a: best unowned fund outperforms held rank-1 by >3% on 1M
+                // C3a: best unowned fund outperforms held rank-1 by >2% on 1M  (2a: reduced from 3%)
                 const bestUnowned  = regimeHopeSnap[0];
                 const c3aSpread    = bestUnowned && held1 ? bestUnowned.r1m - (held1?.r1m ?? 0) : null;
-                const c3aTrigger   = c3aSpread !== null && c3aSpread > 3;
+                const c3aTrigger   = c3aSpread !== null && c3aSpread > 2;
 
-                // C3b: 2nd-best unowned outperforms held rank-2 by >3% on 1M (original C3, now filtered)
+                // C3b: 2nd-best unowned outperforms held rank-2 by >2% on 1M  (2a: reduced from 3%)
                 const secondUnowned = regimeHopeSnap[1];
                 const c3bSpread    = secondUnowned && held2 ? secondUnowned.r1m - (held2?.r1m ?? 0) : null;
-                const c3bTrigger   = c3bSpread !== null && c3bSpread > 3;
+                const c3bTrigger   = c3bSpread !== null && c3bSpread > 2;
 
                 const c3trigger    = c3aTrigger || c3bTrigger;
 
@@ -14475,6 +14565,27 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 } else if (switchPromptEl) {
                     switchPromptEl.style.display = 'none';
                 }
+
+                // ── 3e: Persist rank-1 Switch Now fund per AMC to Live Bridge ─────────
+                // 'ld_switch_bridge' stores {HDFC:{code,name,r1m,wrsi,ts}, KOTAK:{...},...}
+                // Read current AMC from localStorage and upsert its entry.
+                try {
+                    const currentAmc = (localStorage.getItem('ld_v3_amc') || 'HDFC').toUpperCase();
+                    const rank1Fund  = lastAlloc.top2[0];
+                    if (rank1Fund) {
+                        const snap1 = snapshot.find(f => f.code === rank1Fund.code);
+                        let bridgeStore = {};
+                        try { bridgeStore = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}'); } catch(_) {}
+                        bridgeStore[currentAmc] = {
+                            code : rank1Fund.code,
+                            name : rank1Fund.name || snap1?.name || rank1Fund.code,
+                            r1m  : snap1?.r1m  ?? null,
+                            wrsi : snap1?.wrsi ?? null,
+                            ts   : Date.now()
+                        };
+                        localStorage.setItem('ld_switch_bridge', JSON.stringify(bridgeStore));
+                    }
+                } catch(_) {}
 
                 // ── Helper: render one condition row ─────────────────────────────────
                 const condHTML = (icon, label, detail, triggered, triggerLabel, safeLabel) => {
@@ -14534,11 +14645,11 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 let c3detail = `<em style="font-size:0.5rem;color:var(--muted);">Only Regime Hope funds considered as swap candidates.</em><br>`;
                 if (c3aSpread !== null) {
                     c3detail += `C3a — Best unowned: ${_c3FundLink(bestUnowned, c3aTrigger)}: 1M = ${bestUnowned?.r1m?.toFixed(1) ?? '--'}%<br>`;
-                    c3detail += `Held rank-1 (${held1?.name ?? '—'}): 1M = ${held1?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3aSpread.toFixed(1)}%</strong> ${c3aTrigger ? '⚠ >3%' : '✓ ≤3%'}<br>`;
+                    c3detail += `Held rank-1 (${held1?.name ?? '—'}): 1M = ${held1?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3aSpread.toFixed(1)}%</strong> ${c3aTrigger ? '⚠ >2%' : '✓ ≤2%'}<br>`;
                 }
                 if (c3bSpread !== null) {
                     c3detail += `C3b — 2nd unowned: ${_c3FundLink(secondUnowned, c3bTrigger)}: 1M = ${secondUnowned?.r1m?.toFixed(1) ?? '--'}%<br>`;
-                    c3detail += `Held rank-2 (${held2?.name ?? '—'}): 1M = ${held2?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3bSpread.toFixed(1)}%</strong> ${c3bTrigger ? '⚠ >3%' : '✓ ≤3%'}`;
+                    c3detail += `Held rank-2 (${held2?.name ?? '—'}): 1M = ${held2?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3bSpread.toFixed(1)}%</strong> ${c3bTrigger ? '⚠ >2%' : '✓ ≤2%'}`;
                 }
                 if (c3aSpread === null && c3bSpread === null) c3detail += 'Insufficient Regime Hope candidates for comparison.';
 
@@ -14926,9 +15037,9 @@ categories.forEach(cat => {
                 // ── LD244W: Shortlisted Investments — Buy as per SOP ────────────────────
                 const shortSection = document.createElement('div');
                 shortSection.style.cssText = `
-                    margin-top:20px;
+                    margin-top:6px;
                     border-top:1px solid var(--border);
-                    padding-top:14px;
+                    padding-top:8px;
                 `;
 
                 const shortTitle = document.createElement('div');
@@ -15002,10 +15113,7 @@ categories.forEach(cat => {
                             box.appendChild(more);
                         }
 
-                        const tapHint = document.createElement('div');
-                        tapHint.style.cssText = 'font-size:0.48rem;color:var(--muted2);margin-top:4px;text-align:right;';
-                        tapHint.textContent = '↗ Open Live Cockpit';
-                        box.appendChild(tapHint);
+                        // 1c: "Open Live Cockpit" hint removed — boxes are self-explanatory taps
                     } else {
                         const none = document.createElement('div');
                         none.style.cssText = 'font-size:0.55rem;color:var(--muted2);margin-top:4px;';
@@ -15865,7 +15973,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD244Y
+    END OF FILE — LD244Z
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js

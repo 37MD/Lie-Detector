@@ -6,6 +6,28 @@
 ================================================================================
   File       : LD244Z.html
   Version    : LD244Z  (successor to LD244Y)
+  Changes    : (1a/1b) Alert Summary — reduced blank space before Shortlisted section
+               (1c) Removed "Open Live Cockpit" hint from all 4 shortlisted boxes
+               (2a) C3a + C3b threshold reduced 3% → 2%
+               (3a) "Max DD" renamed to "Live Bridge" in simulator networth-header
+               (3b) Live Bridge tap opens Watchlist modal
+               (3c) "Investment Switch Bridge" heading added to Watchlist
+               (3d) 4 AMC boxes (ABSL/Kotak row, ICICI/HDFC row)
+               (3e) Allocator writes correct Switch Now fund per AMC to _SJ journal
+               (4)  Live Bridge ddVal shows aggregate P&L of all 4 AMC positions
+               (5)  SWITCH NOW writes to _LP LivePortfolioState with T+2 settlement
+               (6)  Bridge box tap launches custom simulation from switchDate
+               (7)  Simulator alerts persist to journal and appear in bridge boxes
+               (8)  Bridge boxes enlarged (min-height 110px) with full alert display
+               (SJ) _SJ journal API: export/import JSON for mobile backup
+               (LP) ARCH: Decoupled AllocatorState vs LivePortfolioState
+                    - AllocatorState (ld_v3_last_alloc_top2): pure backtest, M-box math
+                      never touched by SWITCH NOW — no more hindsight bias
+                    - LivePortfolioState (ld_live_portfolio): tracks live execution
+                      heldCodes for C3 reads from _LP, not backtest
+                    - T+2 settlement: pending_settlement → active after 2 trading days
+                      C3 badge suppressed during settlement, ⏳ banner shown
+                    - _addTradingDays() skips Saturday/Sunday correctly
 
   CHANGELOG (LD244X → LD244Y)
   ─────────────────────────────────────────────────────────────────
@@ -983,6 +1005,24 @@
                 background: var(--border);
                 align-self: stretch;
             }
+
+            /* ── Switch Bridge Card ─────────────────────────────────────────────────── */
+            #switchBridgeCard {
+                display: none;
+                background: rgba(168,85,247,0.07);
+                border: 1px solid rgba(168,85,247,0.45);
+                border-radius: var(--radius-sm);
+                padding: 6px 10px;
+                margin: 0 8px 4px;
+                flex-shrink: 0;
+            }
+            .sb-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:4px; }
+            .sb-title  { font-size:0.52rem;font-weight:700;color:#a855f7;letter-spacing:0.08em;text-transform:uppercase; }
+            .sb-close  { font-size:0.55rem;color:var(--muted);cursor:pointer;padding:2px 4px; }
+            #switchBridgeCardBody { display:flex;flex-wrap:wrap;gap:5px 12px;font-size:0.54rem; }
+            .sb-field  { display:flex;flex-direction:column;gap:1px; }
+            .sb-field-lbl { font-size:0.44rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em; }
+            .sb-field-val { font-size:0.58rem;font-weight:700;color:var(--text); }
 
             /* ────────────────────────────────────────────────────────────────────────── */
             /* ALERT BANNER                                                             */
@@ -3912,13 +3952,11 @@
             <div class="modal-close">
                 <div style="display:flex;flex-direction:column;">
                     <span class="modal-title" style="color:#a855f7;">📌 WATCHLIST</span>
-                    <span style="font-size:0.48rem;color:var(--muted);margin-top:1px;">Pinned funds — live Regime · D-RSI ·
-                        Alert</span>
+                    <span style="font-size:0.48rem;color:var(--muted);margin-top:1px;">Pinned funds — live Regime · D-RSI · Alert</span>
                 </div>
                 <div style="display:flex;gap:6px;align-items:center;">
                     <button class="setup-btn" style="border-color:#a855f7;color:#a855f7;padding:4px 8px;font-size:0.55rem;" onclick="addCurrentToWatchlist()">+ PIN THIS FUND</button>
-                    <span class="modal-close-btn" onclick="document.getElementById('watchlistModal').style.display='none';document.getElementById('setupScreen').style.display='flex';">[
-                        X ]</span>
+                    <span class="modal-close-btn" onclick="document.getElementById('watchlistModal').style.display='none';document.getElementById('setupScreen').style.display='flex';">[ X ]</span>
                 </div>
             </div>
             <div style="padding:6px 8px;font-size:0.5rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
@@ -3926,13 +3964,27 @@
             </div>
             <div id="watchlistBody" style="flex-grow:1;overflow-y:auto;padding:4px 6px;display:flex;flex-direction:column;gap:4px;"></div>
 
-            <!-- ── Investment Switch Bridge (3c/3d/3e) ─────────────────────── -->
+            <!-- ── Investment Switch Bridge ─────────────────────────────────────── -->
             <div id="switchBridgeSection" style="padding:8px 8px 4px;border-top:1px solid var(--border);flex-shrink:0;">
-                <div style="font-size:0.6rem;font-weight:700;letter-spacing:0.09em;color:#a855f7;text-align:center;text-transform:uppercase;margin-bottom:8px;">
-                    🔀 Investment Switch Bridge
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                    <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.09em;color:#a855f7;text-transform:uppercase;">🔀 Investment Switch Bridge</span>
+                    <span style="font-size:0.46rem;color:var(--muted);">Run Allocator per AMC to populate ↓</span>
                 </div>
-                <div id="switchBridgeGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
+                <div id="switchBridgeGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
             </div>
+
+            <!-- ── Journal Backup / Restore ─────────────────────────────────────── -->
+            <div style="padding:6px 8px 4px;border-top:1px solid var(--border);flex-shrink:0;">
+                <div style="font-size:0.48rem;color:var(--muted);margin-bottom:5px;text-align:center;letter-spacing:0.06em;">SWITCH JOURNAL BACKUP (JSON ← Mobile Storage)</div>
+                <div style="display:flex;gap:5px;">
+                    <button class="setup-btn" style="flex:1;font-size:0.52rem;border-color:#a855f7;color:#a855f7;" onclick="_SJ.export()">⬇ EXPORT JSON</button>
+                    <label class="setup-btn" style="flex:1;font-size:0.52rem;border-color:#00b4d8;color:#00b4d8;cursor:pointer;text-align:center;padding:5px 4px;">
+                        ⬆ IMPORT JSON
+                        <input type="file" accept=".json" style="display:none;" onchange="_SJ.import(this.files[0]);this.value='';">
+                    </label>
+                </div>
+            </div>
+
             <div style="padding:6px 8px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:6px;">
                 <button class="setup-btn" style="border-color:var(--border2);color:var(--muted2);flex:1;font-size:0.55rem;" onclick="refreshWatchlist()">↺ REFRESH ALL</button>
                 <button class="setup-btn" style="border-color:var(--red);color:var(--red);flex:0.6;font-size:0.55rem;" onclick="clearWatchlist()">CLEAR</button>
@@ -4475,6 +4527,15 @@ border-radius:var(--radius);padding:6px 9px;">
                 <div class="tranche-toggle" onclick="this.parentElement.classList.toggle('expanded')">
                     <span>OPEN TRANCHES — none</span><span>▸</span>
                 </div>
+            </div>
+
+            <!-- Switch Bridge Entry Card — shown when sim is launched from Live Bridge watchlist -->
+            <div id="switchBridgeCard">
+                <div class="sb-header">
+                    <span class="sb-title">🔀 Switch Bridge Entry</span>
+                    <span class="sb-close" onclick="document.getElementById('switchBridgeCard').style.display='none';window._switchBridgePurchase=null;">✕</span>
+                </div>
+                <div id="switchBridgeCardBody"></div>
             </div>
 
             <main class="main-sim">
@@ -5743,7 +5804,356 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     } catch(_){}
                 }, 4000); // Delay so IDB engine is ready
 
+                // ── 10. §SJ: Load Switch Journal → sync bridge + start P&L timer ─────────
+                setTimeout(() => {
+                    try {
+                        // Sync journal → ld_switch_bridge (in case browser cleared one but not other)
+                        const j = _SJ.get();
+                        if (j && j.switches && Object.keys(j.switches).length) {
+                            localStorage.setItem('ld_switch_bridge', JSON.stringify(j.switches));
+                        }
+                        // Start 5-min P&L refresh cycle
+                        _startBridgePnLTimer();
+                    } catch(_) {}
+                }, 5500); // after IDB engine + C3 scan settle
+
             }); // end DOMContentLoaded
+
+            // =============================================================================
+            // §SJ · SWITCH JOURNAL  —  localStorage + JSON backup/restore
+            // =============================================================================
+            // _SJ.get()           → full journal object
+            // _SJ.save(j)         → write to localStorage
+            // _SJ.upsert(amc,e)   → merge entry for one AMC, sync ld_switch_bridge
+            // _SJ.export()        → download ld_switch_journal_YYYY-MM-DD.json
+            // _SJ.import(file)    → read JSON from file, restore journal + bridge
+            // _SJ.alert(code,txt) → store latest simulator alert for a fund code
+            // =============================================================================
+            const _SJ = {
+                KEY: 'ld_switch_journal',
+
+                get() {
+                    try {
+                        const raw = localStorage.getItem(this.KEY);
+                        const j = raw ? JSON.parse(raw) : null;
+                        if (j && j.switches) return j;
+                    } catch(_) {}
+                    return { version: 'LD244Z', switches: {}, lastUpdated: 0 };
+                },
+
+                save(j) {
+                    try {
+                        j.lastUpdated = Date.now();
+                        localStorage.setItem(this.KEY, JSON.stringify(j));
+                    } catch(_) {}
+                },
+
+                /** Merge entry for one AMC and keep ld_switch_bridge in sync. */
+                upsert(amc, entry) {
+                    const j = this.get();
+                    j.switches[amc] = { ...(j.switches[amc] || {}), ...entry };
+                    this.save(j);
+                    // Keep legacy ld_switch_bridge key in sync for renderSwitchBridgeGrid
+                    try {
+                        let bridge = {};
+                        try { bridge = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}'); } catch(_) {}
+                        bridge[amc] = j.switches[amc];
+                        localStorage.setItem('ld_switch_bridge', JSON.stringify(bridge));
+                    } catch(_) {}
+                },
+
+                /** Persist the latest simulator alert text for a fund code. */
+                alert(code, alertText, alertClass) {
+                    try {
+                        const j = this.get();
+                        for (const amc of Object.keys(j.switches)) {
+                            if (j.switches[amc]?.code === code) {
+                                j.switches[amc].latestAlert      = alertText  || '';
+                                j.switches[amc].latestAlertClass = alertClass || '';
+                                j.switches[amc].alertTs          = Date.now();
+                            }
+                        }
+                        this.save(j);
+                        // sync bridge
+                        try {
+                            let bridge = {};
+                            try { bridge = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}'); } catch(_) {}
+                            for (const amc of Object.keys(bridge)) {
+                                if (bridge[amc]?.code === code) {
+                                    bridge[amc].latestAlert      = alertText  || '';
+                                    bridge[amc].latestAlertClass = alertClass || '';
+                                }
+                            }
+                            localStorage.setItem('ld_switch_bridge', JSON.stringify(bridge));
+                        } catch(_) {}
+                    } catch(_) {}
+                },
+
+                /** Download the journal as a JSON file for mobile backup. */
+                export() {
+                    try {
+                        const j = this.get();
+                        const blob = new Blob([JSON.stringify(j, null, 2)], { type: 'application/json' });
+                        const url  = URL.createObjectURL(blob);
+                        const a    = document.createElement('a');
+                        a.href     = url;
+                        a.download = `ld_switch_journal_${new Date().toISOString().slice(0, 10)}.json`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    } catch(e) { console.warn('SJ export error', e); }
+                },
+
+                /** Read JSON from a File object and restore journal + bridge. */
+                import(file) {
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        try {
+                            const j = JSON.parse(e.target.result);
+                            if (!j || typeof j.switches !== 'object') throw new Error('bad structure');
+                            this.save(j);
+                            localStorage.setItem('ld_switch_bridge', JSON.stringify(j.switches));
+                            renderSwitchBridgeGrid();
+                            refreshLiveBridgePnL();
+                            // Flash confirmation in watchlist subtitle
+                            const sub = document.querySelector('#watchlistModal [style*="Auto-refreshes"]');
+                            if (sub) { const orig = sub.textContent; sub.textContent = '✅ Journal restored from file'; setTimeout(() => { sub.textContent = orig; }, 3000); }
+                        } catch(_) { alert('Could not read journal file — please check format.'); }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            window._SJ = _SJ;
+
+            // =============================================================================
+            // §LP · LIVE PORTFOLIO STATE  (decoupled from backtest AllocatorState)
+            // =============================================================================
+            // Architecture: two completely separate state objects.
+            //
+            //   AllocatorState  (ld_v3_last_alloc_top2)
+            //     Written by: runAssetAllocator() month-end backtest loop ONLY.
+            //     Purpose:    Pure historical backtest — drives M boxes, performance math.
+            //     NEVER touched by SWITCH NOW.
+            //
+            //   LivePortfolioState  (ld_live_portfolio)
+            //     Written by: user clicking SWITCH NOW / CONFIRM TRADE.
+            //     Purpose:    Tracks what is actually owned right now.
+            //     Read by:    renderTriggerMonitor() held1 / held2 — C3 comparisons.
+            //
+            // T+2 settlement flow
+            //   Day 0  → SWITCH NOW clicked  → status = 'pending_settlement'
+            //   Day 1–2 → C3 trigger suppressed for settling slot
+            //             tmHolding shows ⏳ banner
+            //   Day 3  → status auto-promoted to 'active' on next allocator open
+            // =============================================================================
+
+            /** Skip Saturday (6) and Sunday (0), advance n trading days. */
+            function _addTradingDays(date, n) {
+                const d = new Date(date);
+                let added = 0;
+                while (added < n) {
+                    d.setDate(d.getDate() + 1);
+                    const dow = d.getDay();
+                    if (dow !== 0 && dow !== 6) added++;
+                }
+                return d;
+            }
+
+            const _LP = {
+                KEY: 'ld_live_portfolio',
+
+                get() {
+                    try {
+                        const raw = localStorage.getItem(this.KEY);
+                        const lp  = raw ? JSON.parse(raw) : null;
+                        if (lp && typeof lp === 'object') return lp;
+                    } catch(_) {}
+                    return { slot1: null, slot2: null };
+                },
+
+                save(lp) {
+                    try { localStorage.setItem(this.KEY, JSON.stringify(lp)); } catch(_) {}
+                },
+
+                /**
+                 * Record a confirmed live switch for a slot.
+                 * @param {0|1} slot  — 0 = rank-1 position, 1 = rank-2 position
+                 * @param {object} fund — { code, name, r1m, wrsi, regime }
+                 */
+                confirmSwitch(slot, fund) {
+                    const lp         = this.get();
+                    const settleDate = _addTradingDays(new Date(), 2).toISOString().slice(0, 10);
+                    const key        = slot === 0 ? 'slot1' : 'slot2';
+                    lp[key] = {
+                        code       : fund.code,
+                        name       : fund.name       || fund.code,
+                        r1m        : fund.r1m        ?? null,
+                        wrsi       : fund.wrsi       ?? null,
+                        regime     : fund.regime     ?? null,
+                        status     : 'pending_settlement',
+                        entryDate  : new Date().toISOString().slice(0, 10),
+                        settleDate : settleDate,
+                        ts         : Date.now()
+                    };
+                    this.save(lp);
+                },
+
+                /**
+                 * Promote pending_settlement → active when settleDate ≤ today.
+                 * Called silently at the start of every renderTriggerMonitor run.
+                 */
+                tickleSettlement() {
+                    const lp    = this.get();
+                    const today = new Date().toISOString().slice(0, 10);
+                    let changed = false;
+                    for (const key of ['slot1', 'slot2']) {
+                        if (lp[key]?.status === 'pending_settlement' && lp[key].settleDate <= today) {
+                            lp[key].status = 'active';
+                            changed = true;
+                        }
+                    }
+                    if (changed) this.save(lp);
+                    return changed;
+                },
+
+                /**
+                 * Return [code1, code2] for C3 held-fund comparisons.
+                 * Uses LP slots when present; falls back to backtest codes (first run / LP empty).
+                 * During pending_settlement the NEW fund code is treated as held —
+                 * this suppresses duplicate C3 triggers for funds already being bought.
+                 */
+                getHeldCodes(fallbackCodes) {
+                    this.tickleSettlement();
+                    const lp = this.get();
+                    const s1 = lp.slot1;
+                    const s2 = lp.slot2;
+                    if (!s1 && !s2) return fallbackCodes;   // no LP yet → pure backtest fallback
+                    return [
+                        s1 && s1.status !== 'exited' ? s1.code : (fallbackCodes[0] ?? null),
+                        s2 && s2.status !== 'exited' ? s2.code : (fallbackCodes[1] ?? null)
+                    ].filter(Boolean);
+                },
+
+                /**
+                 * Return pending-settlement slot entries for banner display.
+                 */
+                getPendingInfo() {
+                    this.tickleSettlement();
+                    const lp = this.get();
+                    return ['slot1', 'slot2']
+                        .filter(k => lp[k]?.status === 'pending_settlement')
+                        .map(k => ({ ...lp[k], slotKey: k }));
+                },
+
+                /** Return [slot1Entry|null, slot2Entry|null] after tickling. */
+                getSlots() {
+                    this.tickleSettlement();
+                    const lp = this.get();
+                    return [lp.slot1 || null, lp.slot2 || null];
+                }
+            };
+            window._LP = _LP;
+
+            // =============================================================================
+            // §SJ2 · BRIDGE SIMULATION LAUNCHER
+            // =============================================================================
+            /**
+             * launchBridgeSimulation(code, switchDate)
+             * ─────────────────────────────────────────
+             * Called when user taps an Investment Switch Bridge box.
+             * Selects the fund, then launches a CUSTOM simulation from the
+             * switch date to the end of available history — so the user can
+             * replay the full position from entry to today.
+             * After render, positions the cursor at the last available bar
+             * and activates the 3M timeframe.
+             */
+            function launchBridgeSimulation(code, switchDate) {
+                // Close watchlist modal
+                document.getElementById('watchlistModal').style.display = 'none';
+
+                // Select correct AMC + fund
+                let amcMatch = 'HDFC';
+                for (const amc in window.amcFunds) {
+                    if ((window.amcFunds[amc] || []).some(f => f.code === code)) {
+                        amcMatch = amc; break;
+                    }
+                }
+                document.querySelectorAll('#fundGrid .fund-box').forEach(b => {
+                    if (b.textContent.trim() === amcMatch) selectAMC(amcMatch, b);
+                });
+                const sel = document.getElementById('fundSelect');
+                if (sel) { sel.value = code; saveFundSelection(); }
+
+                document.getElementById('setupScreen').style.display = 'flex';
+
+                // Launch custom simulation: start = switchDate (or fallback random), end = latest history bar
+                const start = switchDate && /^\d{4}-\d{2}-\d{2}$/.test(switchDate) ? switchDate : null;
+                (start ? initGame('custom', start, null) : initGame('random')).then(() => {
+                    // Position to last bar and set 3M view
+                    setTimeout(() => {
+                        if (typeof simEndIdx !== 'undefined' && simEndIdx > 0 &&
+                            typeof currentIdx !== 'undefined') {
+                            currentIdx = simEndIdx;
+                            if (typeof updateDisplay === 'function') updateDisplay();
+                        }
+                        const btn3M = document.querySelector('#simTfRow .tf-btn[onclick*="63"]');
+                        if (btn3M && typeof updateSimLookback === 'function') updateSimLookback(63, btn3M);
+                    }, 400);
+                });
+            }
+            window.launchBridgeSimulation = launchBridgeSimulation;
+
+            // =============================================================================
+            // §SJ3 · LIVE BRIDGE P&L  (ddVal — aggregate return across all 4 AMC positions)
+            // =============================================================================
+            let _bridgePnLCache = null;   // { pct: number, ts: number } — cached result
+            let _bridgePnLTimer = null;
+
+            async function refreshLiveBridgePnL() {
+                try {
+                    const j    = _SJ.get();
+                    const amcs = Object.keys(j.switches);
+                    const active = amcs.filter(a => j.switches[a]?.code && j.switches[a]?.status === 'ACTIVE' && j.switches[a]?.switchNav > 0);
+                    if (!active.length) { _bridgePnLCache = null; return; }
+
+                    let total = 0, count = 0;
+                    for (const amc of active) {
+                        const sw = j.switches[amc];
+                        try {
+                            const res  = await fetch(`https://api.mfapi.in/mf/${sw.code}/latest`);
+                            if (!res.ok) continue;
+                            const data = await res.json();
+                            const latestNav = parseFloat(data?.data?.[0]?.nav);
+                            if (!latestNav || !sw.switchNav) continue;
+                            const ret = (latestNav - sw.switchNav) / sw.switchNav * 100;
+                            total += ret;
+                            count++;
+                        } catch(_) {}
+                    }
+
+                    if (count > 0) {
+                        const avg = total / count;
+                        _bridgePnLCache = { pct: avg, ts: Date.now() };
+                        _updateBridgePnLDisplay(avg);
+                    }
+                } catch(_) {}
+            }
+
+            function _updateBridgePnLDisplay(pct) {
+                const el = document.getElementById('ddVal');
+                if (!el) return;
+                el.textContent = `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
+                el.style.color = pct >= 0 ? 'var(--accent)' : 'var(--red)';
+            }
+
+            // Refresh P&L every 5 min while app is open
+            function _startBridgePnLTimer() {
+                if (_bridgePnLTimer) clearInterval(_bridgePnLTimer);
+                _bridgePnLTimer = setInterval(refreshLiveBridgePnL, 5 * 60 * 1000);
+                refreshLiveBridgePnL(); // immediate first run
+            }
 
             // =============================================================================
             // §6 · MODAL CLEANUP & LOOKBACK CONTROL
@@ -8754,6 +9164,26 @@ ${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' 
                 banner.style.color = alertText ? '#000000' : 'var(--muted2)';
                 banner.className = alertText ? `${alertClass} banner-on` : '';
 
+                // §7: Persist latest simulator alert to Switch Journal for active fund
+                try {
+                    const activeCode = document.getElementById('fundSelect')?.value;
+                    if (activeCode && typeof _SJ !== 'undefined') {
+                        _SJ.alert(activeCode, alertText, alertClass);
+                    }
+                } catch(_) {}
+
+                // §4: Live Bridge P&L — show cached aggregate P&L in ddVal if available
+                if (_bridgePnLCache && (Date.now() - _bridgePnLCache.ts < 10 * 60 * 1000)) {
+                    _updateBridgePnLDisplay(_bridgePnLCache.pct);
+                } else {
+                    // fallback: show max drawdown
+                    const ddEl = document.getElementById('ddVal');
+                    if (ddEl && !_bridgePnLCache) {
+                        ddEl.textContent = `-${maxDrawdown.toFixed(1)}%`;
+                        ddEl.style.color = 'var(--red)';
+                    }
+                }
+
                 // ── Protocol Instructions (SOP) ──────────────────────────────────────────
                 let psyText = '';
                 if (snap.tsl.tslHit || snap.regime === 'C') {
@@ -10831,7 +11261,8 @@ This is exactly how the system is meant to be played.
                 document.getElementById('watchlistModal').style.display = 'flex';
                 renderWatchlistStubs();
                 refreshWatchlist();
-                renderSwitchBridgeGrid();
+                renderSwitchBridgeGrid();   // §SJ4: populate bridge from journal
+                refreshLiveBridgePnL();     // §SJ3: update aggregate P&L in Live Bridge box
                 _watchlistRefreshTimer = setInterval(refreshWatchlist, 60_000);
             }
 
@@ -10848,66 +11279,132 @@ This is exactly how the system is meant to be played.
             }
 
             /**
-             * renderSwitchBridgeGrid()  [§23B — Investment Switch Bridge]
+             * renderSwitchBridgeGrid()  [§SJ4 — Investment Switch Bridge]
              * ─────────────────────────
-             * Reads per-AMC Switch Now recommendations from localStorage key
-             * 'ld_switch_bridge' (written by renderTriggerMonitor each time the
-             * Asset Allocator runs) and renders 4 boxes: ABSL | Kotak (row 1),
-             * ICICI | HDFC (row 2).
+             * Reads per-AMC Switch Now recommendations from _SJ journal (and
+             * ld_switch_bridge fallback). Renders 4 boxes: ABSL | Kotak (row 1),
+             * ICICI | HDFC (row 2). Each box shows fund name, date, r1m, wRSI,
+             * latest simulator alert, and P&L since switch. Tapping launches
+             * a custom simulation from the switch date.
              */
             function renderSwitchBridgeGrid() {
                 const grid = document.getElementById('switchBridgeGrid');
                 if (!grid) return;
 
+                // Prefer journal data, fall back to ld_switch_bridge
                 let bridge = {};
-                try { bridge = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}'); } catch(_) {}
+                try {
+                    const j = _SJ.get();
+                    if (j.switches && Object.keys(j.switches).length) {
+                        bridge = j.switches;
+                    } else {
+                        bridge = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}');
+                    }
+                } catch(_) {
+                    try { bridge = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}'); } catch(_) {}
+                }
 
-                const amcOrder = [['ABSL','#00b4d8'], ['KOTAK','#f59e0b'], ['ICICI','#ef4444'], ['HDFC','#3b82f6']];
+                const amcOrder = [
+                    ['ABSL',  '#00b4d8'],
+                    ['KOTAK', '#f59e0b'],
+                    ['ICICI', '#ef4444'],
+                    ['HDFC',  '#3b82f6']
+                ];
                 grid.innerHTML = '';
 
                 amcOrder.forEach(([amc, accentCol]) => {
                     const entry = bridge[amc];
+                    const hasData = !!(entry?.code);
+
                     const box = document.createElement('div');
                     box.style.cssText = `
                         background:var(--surface2);
-                        border:1px solid ${entry ? accentCol : 'var(--border)'};
+                        border:1.5px solid ${hasData ? accentCol : 'var(--border)'};
                         border-radius:var(--radius-sm);
-                        padding:8px 7px;
+                        padding:9px 8px 8px;
                         display:flex;flex-direction:column;gap:3px;
-                        cursor:${entry ? 'pointer' : 'default'};
-                        transition:border-color 0.2s;
+                        cursor:${hasData ? 'pointer' : 'default'};
+                        min-height:110px;
+                        transition:border-color 0.2s,background 0.2s;
+                        position:relative;
                     `;
-                    if (entry) {
-                        box.onclick = () => {
-                            document.getElementById('watchlistModal').style.display = 'none';
-                            launchLiveFromAlert(entry.code);
-                        };
+                    if (hasData) {
+                        box.onmouseenter = () => { box.style.background = 'var(--surface3)'; };
+                        box.onmouseleave = () => { box.style.background = 'var(--surface2)'; };
+                        box.onclick = () => launchBridgeSimulation(entry.code, entry.switchDate || null);
                     }
 
+                    // ── AMC label ────────────────────────────────────────────────────
                     const amcLbl = document.createElement('div');
-                    amcLbl.style.cssText = `font-size:0.48rem;font-weight:700;color:${entry ? accentCol : 'var(--muted)'};letter-spacing:0.1em;text-transform:uppercase;`;
+                    amcLbl.style.cssText = `font-size:0.46rem;font-weight:700;color:${hasData ? accentCol : 'var(--muted)'};letter-spacing:0.12em;text-transform:uppercase;`;
                     amcLbl.textContent = amc;
                     box.appendChild(amcLbl);
 
-                    if (entry) {
+                    if (hasData) {
+                        // ── Fund name ────────────────────────────────────────────────
                         const nm = document.createElement('div');
-                        nm.style.cssText = 'font-size:0.56rem;font-weight:700;color:var(--text);line-height:1.3;';
-                        nm.textContent = (entry.name || '').replace(/ - Growth| - Direct/gi,'').replace(/Balanced Advantage/gi,'BAF').trim();
+                        nm.style.cssText = 'font-size:0.54rem;font-weight:700;color:var(--text);line-height:1.3;';
+                        nm.textContent = (entry.name || '')
+                            .replace(/ - Growth| - Direct/gi, '')
+                            .replace(/Balanced Advantage/gi, 'BAF')
+                            .replace(/Flexi Cap/gi, 'Flexi')
+                            .trim()
+                            .slice(0, 32);
                         box.appendChild(nm);
 
+                        // ── Switch date ──────────────────────────────────────────────
+                        if (entry.switchDate || entry.ts) {
+                            const dtEl = document.createElement('div');
+                            dtEl.style.cssText = 'font-size:0.44rem;color:var(--muted);';
+                            const dtStr = entry.switchDate
+                                ? new Date(entry.switchDate).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' })
+                                : new Date(entry.ts).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' });
+                            dtEl.textContent = `📅 Switched: ${dtStr}`;
+                            box.appendChild(dtEl);
+                        }
+
+                        // ── Stats row: 1M · wRSI ────────────────────────────────────
                         const stats = document.createElement('div');
-                        stats.style.cssText = 'font-size:0.5rem;color:var(--muted);margin-top:2px;display:flex;gap:5px;flex-wrap:wrap;';
-                        stats.innerHTML = `<span style="color:#00e8a2;">1M: <strong>${typeof entry.r1m==='number' ? entry.r1m.toFixed(1)+'%' : '--'}</strong></span>` +
-                            `<span>wRSI ${entry.wrsi ?? '--'}</span>`;
+                        stats.style.cssText = 'font-size:0.48rem;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;';
+                        const r1mVal = typeof entry.r1m === 'number' ? entry.r1m.toFixed(1) + '%' : '--';
+                        const r1mCol = (typeof entry.r1m === 'number') ? (entry.r1m >= 0 ? '#00e8a2' : 'var(--red)') : 'var(--muted)';
+                        stats.innerHTML =
+                            `<span>1M: <strong style="color:${r1mCol}">${r1mVal}</strong></span>` +
+                            `<span>wRSI: <strong>${entry.wrsi ?? '--'}</strong></span>` +
+                            `<span style="color:${entry.regime==='A'?'#00e8a2':entry.regime==='B'?'#f59e0b':'var(--red)'};">${entry.regime==='A'?'Hope':entry.regime==='B'?'Watch':entry.regime==='C'?'Fear':'—'}</span>`;
                         box.appendChild(stats);
 
-                        const ts = document.createElement('div');
-                        ts.style.cssText = 'font-size:0.44rem;color:var(--muted2);margin-top:2px;';
-                        ts.textContent = entry.ts ? `Updated: ${new Date(entry.ts).toLocaleDateString('en-IN',{day:'2-digit',month:'short'})}` : '';
-                        box.appendChild(ts);
+                        // ── Latest simulator alert ───────────────────────────────────
+                        if (entry.latestAlert) {
+                            const alertEl = document.createElement('div');
+                            const isRed   = (entry.latestAlertClass || '').includes('danger');
+                            const isGreen = (entry.latestAlertClass || '').includes('buy');
+                            const alertBg = isRed ? 'rgba(200,16,46,0.12)' : isGreen ? 'rgba(0,158,112,0.12)' : 'rgba(255,160,0,0.10)';
+                            const alertFg = isRed ? '#c8102e' : isGreen ? '#009e70' : '#c97a00';
+                            alertEl.style.cssText = `font-size:0.46rem;font-weight:700;color:${alertFg};background:${alertBg};border-radius:2px;padding:3px 5px;margin-top:2px;line-height:1.3;`;
+                            alertEl.textContent = entry.latestAlert.slice(0, 48);
+                            box.appendChild(alertEl);
+                        }
+
+                        // ── P&L since switch ─────────────────────────────────────────
+                        if (typeof entry.switchNav === 'number' && entry.switchNav > 0 && typeof entry.currentNav === 'number') {
+                            const pnl    = (entry.currentNav - entry.switchNav) / entry.switchNav * 100;
+                            const pnlEl  = document.createElement('div');
+                            pnlEl.style.cssText = `font-size:0.52rem;font-weight:700;color:${pnl>=0?'#00e8a2':'var(--red)'};margin-top:auto;padding-top:4px;`;
+                            pnlEl.textContent = `P&L: ${pnl >= 0 ? '+' : ''}${pnl.toFixed(1)}%`;
+                            box.appendChild(pnlEl);
+                        }
+
+                        // ── Tap hint ─────────────────────────────────────────────────
+                        const hint = document.createElement('div');
+                        hint.style.cssText = 'font-size:0.4rem;color:var(--muted2);text-align:right;margin-top:2px;';
+                        hint.textContent = '▶ Tap to simulate';
+                        box.appendChild(hint);
+
                     } else {
+                        // ── Empty state ──────────────────────────────────────────────
                         const none = document.createElement('div');
-                        none.style.cssText = 'font-size:0.52rem;color:var(--muted2);margin-top:3px;';
+                        none.style.cssText = 'font-size:0.5rem;color:var(--muted2);margin-top:6px;line-height:1.5;';
                         none.textContent = '— Run Allocator to populate';
                         box.appendChild(none);
                     }
@@ -14493,7 +14990,11 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 }
                 snapshot.sort((a, b) => b.r1m - a.r1m);
 
-                const heldCodes = lastAlloc.top2.map(f => f.code);
+                const _backtestCodes = lastAlloc.top2.map(f => f.code);
+
+                // §LP ARCH: C3 comparisons use LivePortfolioState, not backtest codes.
+                // This keeps M-box math pure while the Trigger Monitor reflects live reality.
+                const heldCodes = _LP.getHeldCodes(_backtestCodes);
                 const rank1Live = snapshot[0];
                 const rank2Live = snapshot[1];
                 const rank3Live = snapshot[2];
@@ -14538,10 +15039,34 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
 
                 const c3trigger    = c3aTrigger || c3bTrigger;
 
-                // ── Holding summary ───────────────────────────────────────────────────
-                document.getElementById('tmHolding').innerHTML = `Current Holdings: <strong>${_s(held1?.name ?? heldCodes[0])}</strong> (${lastAlloc.w1}%) &nbsp;+&nbsp; ` +
-                    `<strong>${_s(held2?.name ?? heldCodes[1])}</strong> (${lastAlloc.w2}%) ` + // FIX-Y6: _s() added (SEC-01 extension)
-                    `&nbsp;·&nbsp; Universe: ${snapshot.length} funds`;
+                // ── C3 display suppression for pending-settlement slots ─────────────────
+                // The underlying c3aTrigger / c3bTrigger values are kept as-is (used by
+                // §3e journal write). We create separate *display* flags that suppress the
+                // visible TRIGGER SWAP badge while a trade is in flight.
+                const _lpPendingCodes = new Set(_LP.getPendingInfo().map(p => p.code));
+                const c3aDisplay     = c3aTrigger && !_lpPendingCodes.has(bestUnowned?.code);
+                const c3bDisplay     = c3bTrigger && !_lpPendingCodes.has(secondUnowned?.code);
+                const c3triggerDisplay = c3aDisplay || c3bDisplay;
+
+                // ── Holding summary ───────────────────────────────────────────────────────
+                // Show LivePortfolioState names when available, backtest names as fallback.
+                const lpSlots      = _LP.getSlots();
+                const lpPending    = _LP.getPendingInfo();
+                const h1name = lpSlots[0]?.name ?? held1?.name ?? heldCodes[0] ?? '—';
+                const h2name = lpSlots[1]?.name ?? held2?.name ?? heldCodes[1] ?? '—';
+
+                let holdingHtml = `Live Portfolio: <strong>${_s(h1name)}</strong> &nbsp;+&nbsp; `
+                    + `<strong>${_s(h2name)}</strong> &nbsp;·&nbsp; Universe: ${snapshot.length} funds`;
+
+                // T+2 settlement banners
+                lpPending.forEach(p => {
+                    const brief = _s(p.name || p.code).replace(/ - Growth| - Direct/gi,'').trim().slice(0,24);
+                    holdingHtml += `<br><span style="font-size:0.52rem;color:#f59e0b;">`
+                        + `⏳ T+2 SETTLING: <strong>${brief}</strong> — clears ${p.settleDate}`
+                        + `</span>`;
+                });
+
+                document.getElementById('tmHolding').innerHTML = holdingHtml;
 
                 // ── LD244Y FIX 3b: Persist top2 codes so startup scanner can use them ─
                 try {
@@ -14549,9 +15074,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         JSON.stringify(lastAlloc.top2.map(f => f.code)));
                 } catch(_) {}
 
-                // ── LD244Y FIX 3b: Switch-Now prompt ─────────────────────────────────
-                // Show a green "SWITCH NOW" banner when the Allocator's rank-1 fund
-                // is NOT the currently loaded fund in the Live Cockpit dropdown.
+                // ── Switch-Now prompt ─────────────────────────────────────────────────
                 const switchPromptEl = document.getElementById('tmSwitchPrompt');
                 const switchMsgEl    = document.getElementById('tmSwitchMsg');
                 const switchBtnEl    = document.getElementById('tmSwitchBtn');
@@ -14559,31 +15082,103 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const newTopCode     = lastAlloc.top2[0]?.code;
                 const newTopName     = _s(lastAlloc.top2[0]?.name ?? newTopCode);
                 if (switchPromptEl && newTopCode && activeFundCode !== newTopCode) {
-                    switchMsgEl.innerHTML = `&#x26A1; Allocator recommends <strong>${newTopName}</strong> as rank-1. Your cockpit still shows the previous fund.`;
-                    switchBtnEl.onclick = () => launchLiveFromAlert(newTopCode);
+                    switchMsgEl.innerHTML = `&#x26A1; Allocator recommends <strong>${newTopName}</strong> as rank-1. Your cockpit shows a different fund.`;
+                    switchBtnEl.onclick = () => {
+                        // §LP ARCH: Write ONLY to LivePortfolioState (T+2 settlement).
+                        // AllocatorState (ld_v3_last_alloc_top2) is NOT touched —
+                        // it must stay a pure backtest record to keep M-box math clean.
+                        try {
+                            const amc   = (localStorage.getItem('ld_v3_amc') || 'HDFC').toUpperCase();
+                            const rank1 = lastAlloc.top2[0];
+                            const rank2 = lastAlloc.top2[1];
+                            const snap1 = snapshot.find(f => f.code === rank1?.code);
+                            const snap2 = rank2 ? snapshot.find(f => f.code === rank2?.code) : null;
+
+                            // Record T+2 settlement in LivePortfolioState (both slots)
+                            _LP.confirmSwitch(0, {
+                                code  : rank1?.code,
+                                name  : rank1?.name || snap1?.name || rank1?.code,
+                                r1m   : snap1?.r1m   ?? rank1?.r1m   ?? null,
+                                wrsi  : snap1?.wrsi  ?? rank1?.wrsi  ?? null,
+                                regime: snap1?.regime ?? rank1?.regime ?? null
+                            });
+                            if (rank2) {
+                                _LP.confirmSwitch(1, {
+                                    code  : rank2?.code,
+                                    name  : rank2?.name || snap2?.name || rank2?.code,
+                                    r1m   : snap2?.r1m   ?? rank2?.r1m   ?? null,
+                                    wrsi  : snap2?.wrsi  ?? rank2?.wrsi  ?? null,
+                                    regime: snap2?.regime ?? rank2?.regime ?? null
+                                });
+                            }
+
+                            // Record entry in Switch Journal for bridge + mobile backup
+                            _SJ.upsert(amc, {
+                                code       : rank1?.code,
+                                name       : rank1?.name || snap1?.name || rank1?.code,
+                                r1m        : snap1?.r1m   ?? rank1?.r1m   ?? null,
+                                wrsi       : snap1?.wrsi  ?? rank1?.wrsi  ?? null,
+                                regime     : snap1?.regime ?? rank1?.regime ?? null,
+                                switchDate : new Date().toISOString().slice(0, 10),
+                                switchNav  : null,      // patched async below
+                                status     : 'ACTIVE',
+                                c3Triggered: true,
+                                ts         : Date.now()
+                            });
+
+                            // Fetch entry NAV async and patch journal
+                            fetch(`https://api.mfapi.in/mf/${rank1?.code}/latest`)
+                                .then(r => r.json())
+                                .then(d => {
+                                    const nav = parseFloat(d?.data?.[0]?.nav);
+                                    if (nav > 0) {
+                                        _SJ.upsert(amc, { switchNav: nav, currentNav: nav });
+                                        refreshLiveBridgePnL();
+                                    }
+                                }).catch(() => {});
+
+                            // Refresh Trigger Monitor so T+2 settlement banner appears
+                            setTimeout(() => runAssetAllocator(), 150);
+                            switchPromptEl.style.display = 'none';
+
+                        } catch(e) { console.warn('LP confirmSwitch error', e); }
+                    };
                     switchPromptEl.style.display = 'block';
                 } else if (switchPromptEl) {
                     switchPromptEl.style.display = 'none';
                 }
 
-                // ── 3e: Persist rank-1 Switch Now fund per AMC to Live Bridge ─────────
-                // 'ld_switch_bridge' stores {HDFC:{code,name,r1m,wrsi,ts}, KOTAK:{...},...}
-                // Read current AMC from localStorage and upsert its entry.
+                // ── §3e: Persist correct Switch Now fund per AMC to Journal + Bridge ─────
+                // Rule: if C3a triggers → track bestUnowned (the swap target)
+                //        if C3b triggers only → track secondUnowned
+                //        otherwise → track lastAlloc.top2[0] (current active position)
                 try {
-                    const currentAmc = (localStorage.getItem('ld_v3_amc') || 'HDFC').toUpperCase();
-                    const rank1Fund  = lastAlloc.top2[0];
-                    if (rank1Fund) {
-                        const snap1 = snapshot.find(f => f.code === rank1Fund.code);
-                        let bridgeStore = {};
-                        try { bridgeStore = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}'); } catch(_) {}
-                        bridgeStore[currentAmc] = {
-                            code : rank1Fund.code,
-                            name : rank1Fund.name || snap1?.name || rank1Fund.code,
-                            r1m  : snap1?.r1m  ?? null,
-                            wrsi : snap1?.wrsi ?? null,
-                            ts   : Date.now()
-                        };
-                        localStorage.setItem('ld_switch_bridge', JSON.stringify(bridgeStore));
+                    const currentAmc  = (localStorage.getItem('ld_v3_amc') || 'HDFC').toUpperCase();
+                    const bridgeFund  = c3aTrigger ? bestUnowned
+                                     : c3bTrigger  ? secondUnowned
+                                     : lastAlloc.top2[0];
+
+                    if (bridgeFund) {
+                        const snap1 = snapshot.find(f => f.code === bridgeFund.code);
+
+                        // Determine if this is a NEW switch (code changed from existing entry)
+                        const prevEntry = _SJ.get().switches[currentAmc];
+                        const isNewSwitch = !prevEntry || prevEntry.code !== bridgeFund.code;
+
+                        const today = new Date().toISOString().slice(0, 10);
+
+                        _SJ.upsert(currentAmc, {
+                            code       : bridgeFund.code,
+                            name       : bridgeFund.name || snap1?.name || bridgeFund.code,
+                            r1m        : snap1?.r1m  ?? bridgeFund.r1m  ?? null,
+                            wrsi       : snap1?.wrsi ?? bridgeFund.wrsi ?? null,
+                            regime     : snap1?.regime ?? bridgeFund.regime ?? null,
+                            switchDate : isNewSwitch ? today : (prevEntry?.switchDate || today),
+                            switchNav  : isNewSwitch ? null : (prevEntry?.switchNav || null),
+                            status     : 'ACTIVE',
+                            c3Triggered: c3aTrigger || c3bTrigger,
+                            ts         : Date.now()
+                        });
                     }
                 } catch(_) {}
 
@@ -14634,36 +15229,51 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 document.getElementById('tmCond2').outerHTML = `<div id="tmCond2">${condHTML('🛡️', 'CONDITION 2 — BAF ALPHA GATE', c2detail, c2trigger, '⚠ RETREAT TO BAF', '✓ BEATING BAF')}</div>`;
 
                 // ── Condition 3: Momentum Swap ─────────────────────────────────────────
-                // LD244W: fund names highlighted bold+green when triggered, clickable to Live Cockpit
+                // §LP ARCH: _c3FundLink and condHTML use the *display* flags so that
+                // settling trades suppress the TRIGGER SWAP badge without corrupting the
+                // underlying journal write (§3e uses raw c3aTrigger/c3bTrigger).
                 const _c3FundLink = (fund, triggered) => {
                     if (!fund) return '—';
                     const style = triggered
                         ? `font-weight:700;color:#009e70;cursor:pointer;text-decoration:underline;`
                         : `color:var(--muted2);`;
-                    return `<span style="${style}" onclick="launchLiveFromAlert('${fund.code}')">${fund.name.replace(/ - Growth| - Direct/gi,'').trim()}</span>`;
+                    const onclick = triggered
+                        ? `launchBridgeSimulation('${fund.code}', null)`
+                        : `launchLiveFromAlert('${fund.code}')`;
+                    return `<span style="${style}" onclick="${onclick}">${fund.name.replace(/ - Growth| - Direct/gi,'').trim()}</span>`;
                 };
+
                 let c3detail = `<em style="font-size:0.5rem;color:var(--muted);">Only Regime Hope funds considered as swap candidates.</em><br>`;
+
+                // Settling note — shown inline when a C3 trigger is suppressed by T+2
+                const _settlingSuffix = (fund) => {
+                    if (fund && _lpPendingCodes.has(fund.code)) {
+                        return ` <span style="color:#f59e0b;font-size:0.5rem;">⏳ settling — badge suppressed</span>`;
+                    }
+                    return '';
+                };
+
                 if (c3aSpread !== null) {
-                    c3detail += `C3a — Best unowned: ${_c3FundLink(bestUnowned, c3aTrigger)}: 1M = ${bestUnowned?.r1m?.toFixed(1) ?? '--'}%<br>`;
-                    c3detail += `Held rank-1 (${held1?.name ?? '—'}): 1M = ${held1?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3aSpread.toFixed(1)}%</strong> ${c3aTrigger ? '⚠ >2%' : '✓ ≤2%'}<br>`;
+                    c3detail += `C3a — Best unowned: ${_c3FundLink(bestUnowned, c3aDisplay)}: 1M = ${bestUnowned?.r1m?.toFixed(1) ?? '--'}%${_settlingSuffix(bestUnowned)}<br>`;
+                    c3detail += `Held rank-1 (${held1?.name ?? '—'}): 1M = ${held1?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3aSpread.toFixed(1)}%</strong> ${c3aTrigger ? (c3aDisplay ? '⚠ >2%' : '⏳ >2% — settling') : '✓ ≤2%'}<br>`;
                 }
                 if (c3bSpread !== null) {
-                    c3detail += `C3b — 2nd unowned: ${_c3FundLink(secondUnowned, c3bTrigger)}: 1M = ${secondUnowned?.r1m?.toFixed(1) ?? '--'}%<br>`;
-                    c3detail += `Held rank-2 (${held2?.name ?? '—'}): 1M = ${held2?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3bSpread.toFixed(1)}%</strong> ${c3bTrigger ? '⚠ >2%' : '✓ ≤2%'}`;
+                    c3detail += `C3b — 2nd unowned: ${_c3FundLink(secondUnowned, c3bDisplay)}: 1M = ${secondUnowned?.r1m?.toFixed(1) ?? '--'}%${_settlingSuffix(secondUnowned)}<br>`;
+                    c3detail += `Held rank-2 (${held2?.name ?? '—'}): 1M = ${held2?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3bSpread.toFixed(1)}%</strong> ${c3bTrigger ? (c3bDisplay ? '⚠ >2%' : '⏳ >2% — settling') : '✓ ≤2%'}`;
                 }
                 if (c3aSpread === null && c3bSpread === null) c3detail += 'Insufficient Regime Hope candidates for comparison.';
 
-                // LD244W: count new C3 swap candidates and update badge on Asset Allocator home-screen button
-                const c3NewFunds = [c3aTrigger ? bestUnowned : null, c3bTrigger ? secondUnowned : null].filter(Boolean);
+                // Badge uses display flags (suppressed when settling)
+                const c3NewFunds = [c3aDisplay ? bestUnowned : null, c3bDisplay ? secondUnowned : null].filter(Boolean);
                 const c3Badge = document.getElementById('assetAllocC3Badge');
                 if (c3Badge) {
                     c3Badge.textContent = c3NewFunds.length > 0 ? `(${c3NewFunds.length})` : '';
                     c3Badge.style.display = c3NewFunds.length > 0 ? 'inline' : 'none';
                 }
-                // Persist for home-screen badge update
                 try { window._c3NewFundCount = c3NewFunds.length; } catch(_){}
 
-                document.getElementById('tmCond3').outerHTML = `<div id="tmCond3">${condHTML('🔄', 'CONDITION 3 — MOMENTUM SWAP (Regime Hope only)', c3detail, c3trigger, '⚠ TRIGGER SWAP', '✓ HOLD')}</div>`;
+                // condHTML badge uses c3triggerDisplay (suppressed during settlement)
+                document.getElementById('tmCond3').outerHTML = `<div id="tmCond3">${condHTML('🔄', 'CONDITION 3 — MOMENTUM SWAP (Regime Hope only)', c3detail, c3triggerDisplay, '⚠ TRIGGER SWAP', '✓ HOLD')}</div>`;
 
                 el.style.display = 'block';
             }

@@ -1,11 +1,64 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD244X
+  LIE DETECTOR  LD244Y
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
-  File       : LD244X.html
-  Version    : LD244X  (successor to LD244W)
+  File       : LD244Y.html
+  Version    : LD244Y  (successor to LD244X)
+
+  CHANGELOG (LD244X → LD244Y)
+  ─────────────────────────────────────────────────────────────────
+  BUG-Y1   window.userRsiLength sync — exposed mutable userRsiLength
+           to window on declaration (§3) and on initGame() so all
+           scanners and the Asset Allocator always read the live value.
+           Previously scanners could use a stale RSI period if the user
+           changed the input without re-running initGame.
+
+  BUG-Y2   Compare Modal — regime classification now correctly reads
+           userRsiLength instead of always defaulting to RSI-4.
+           regimeWr now picks the pre-built wRsi4/wRsi8/wRsi14 array
+           whose period is closest to the user-set length.
+
+  BUG-Y3   Trigger Monitor — Switch-Now prompt added.  When the
+           Allocator's rank-1 fund differs from the currently loaded
+           cockpit fund, a green banner with a one-tap SWITCH NOW
+           button appears inside the Trigger Monitor panel.
+           Top-2 codes persisted to localStorage so startup C3 badge
+           scanner excludes already-held funds correctly.
+
+  NAV-Y    NAV Filter Fix applied to startup C3 badge scanner and
+           RRG Scanner processFund(): NaN/zero rows filtered BEFORE
+           splitting into prices[]/dates[], keeping both arrays
+           index-aligned (matches BUG-09 fix already in regime scanner).
+
+  ABSL-Y   ABSL NPS scheme codes corrected:
+             SM010005 → Scheme E Tier II  (was SM010004 Scheme A Tier I)
+             SM010006 → Scheme C Tier II  (was SM010005 Scheme E Tier II)
+
+  AUDIT-Y  Code audit (LD244Y-2) — following fixes applied:
+    FIX-Y1  _fetchCmpFund(): added null guard on raw.data before .map()
+             to prevent TypeError crash when API returns unexpected shape.
+    FIX-Y2  runRRGScanner(): replaced local `const BATCH_SIZE = 6` with
+             global SCANNER_BATCH_SIZE constant (eliminates duplicate magic).
+    FIX-Y3  initGame(): replaced hardcoded tfBtns.children[6] with
+             querySelector('[data-days="250"]') — extends Q-03 fix to
+             the simulator TF button row (was only fixed in Live Cockpit).
+    FIX-Y4  openCompareModal(): removed redundant second rsiPills.forEach
+             loop (pills already cleared by the classList.toggle loop above).
+    FIX-Y5  runComparison(): nameA/nameB now sanitized with _s() before
+             innerHTML interpolation — closes XSS vector (SEC-01 extension).
+    FIX-Y6  renderTriggerMonitor(): held2?.name sanitized with _s() before
+             innerHTML interpolation (SEC-01 extension — was missed in P1-4).
+    FIX-Y7  ensureLiveData(): LOWESS cache not rebuilt on RSI-period-only
+             change — LOWESS is RSI-independent; avoids wasted computation.
+    FIX-Y8  Version strings unified to LD244Y across all 6 visible surfaces:
+             HTML header comment, SOP modal header, SOP footer note,
+             Setup Screen clickable badge, EOF comment.  SOP Part 10
+             retitled to reflect W+X+Y cumulative changes.
+
+  SOP-Y    SOP Part 10 retitled "LD244W/X PHASE 1+2 NEW FEATURES".
+           SOP Part 11 added documenting LD244Y audit fixes.
 
   CHANGELOG (LD244W → LD244X)  PHASE 2 — ENHANCED FUND COMPARISON
   ─────────────────────────────────────────────────────────────────
@@ -436,7 +489,7 @@
         <style>
             /*
              * ====================================================================
-             * STYLESHEET — LIE DETECTOR LD244W
+             * STYLESHEET — LIE DETECTOR LD244Y
              * ====================================================================
              * Organisation
              * ─────────────
@@ -3034,7 +3087,7 @@
             <!-- ── Header ────────────────────────────────────────────────────── -->
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD244W</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD244Y</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -3493,8 +3546,8 @@
                     </tbody>
                 </table>
 
-                <!-- ═══ PART 10 — LD244W PHASE 1 UPGRADES ════════════════════════════ -->
-                <div class="sop-part sop-part-green">PART 10 — LD244W PHASE 1 NEW FEATURES</div>
+                <!-- ═══ PART 10 — LD244W/X PHASE 1+2 NEW FEATURES ═══════════════════════ -->
+                <div class="sop-part sop-part-green">PART 10 — LD244W/X PHASE 1 + PHASE 2 NEW FEATURES</div>
 
                 <table class="sop-gap-table">
                     <thead>
@@ -3533,6 +3586,101 @@
                                 If no fund from an AMC qualifies, the box shows "— No qualifying fund". This section is intended as your final shortlist — verify Condition 1 (Regime), Condition 2 (BAF gate), and signal confirmation in Live Cockpit before executing.
                             </td>
                         </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#3b82f6;">AMC Filter Pills (Phase 2 · X-1)</td>
+                            <td>
+                                The Compare 2 Funds modal now has <strong>AMC filter pills</strong> (ALL / HDFC / ICICI / KOTAK / ABSL) above both fund dropdowns. Selecting an AMC instantly narrows both Fund A and Fund B dropdowns to that AMC's universe only — no scrolling through 58 funds.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#3b82f6;">Fund Type Filter C2 / C3 (Phase 2 · X-2)</td>
+                            <td>
+                                Three type pills in the Compare modal: <strong>ALL</strong> | <strong>C2 Asset Alloc</strong> (BAF / Balanced Advantage funds only) | <strong>C3 Momentum</strong> (equity / sectoral non-BAF, non-NPS — swap candidates). Selecting C2 with a specific AMC auto-loads that AMC's BAF as Fund A and its Flexicap as Fund B — one tap for an asset allocation comparison.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#3b82f6;">Weekly RSI Period Selector (Phase 2 · X-3)</td>
+                            <td>
+                                Three RSI-period pills in the Compare filter bar: <strong>4 / 8 / 14</strong> (default 4). The active period drives the D-RSI shown in the snapshot. All three weekly RSI values (4 / 8 / 14) are displayed simultaneously in a dedicated Go/No-Go row: <span style="color:#009e70;">●</span> filled green = W-RSI ≥ 50 (Go) · <span style="color:#c8102e;">○</span> hollow red = W-RSI &lt; 50 (No-Go).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#3b82f6;">Date Range Growth Section (Phase 2 · X-4)</td>
+                            <td>
+                                A second section below the snapshot table accepts a <strong>From / To date range</strong>. Clicking GO renders a table showing Start NAV, End NAV, and Growth % for each fund. The winner (higher growth) is highlighted in red. Dates are snapped to the nearest actual trading day. Running GO auto-triggers the date range calc if dates are filled.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#3b82f6;">NAV Data Cache — _cmpCache (Phase 2 · X-5)</td>
+                            <td>
+                                Fund NAV data is cached in <code>_cmpCache</code> after first fetch within the Compare modal session. Switching RSI periods, re-running date range, or re-running GO does not re-fetch from the API — zero extra network calls once the fund is loaded.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#3b82f6;">6M Return Row Added (Phase 2 · X-6)</td>
+                            <td>
+                                The snapshot comparison table now shows <strong>6M %</strong> in addition to 1D / 1W / 1M / 3M / 1Y, giving a more complete momentum picture between the 3M and 1Y timeframes.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- ═══ PART 11 — LD244Y AUDIT FIXES ════════════════════════════════════ -->
+                <div class="sop-part sop-part-amber">PART 11 — LD244Y CODE AUDIT FIXES</div>
+
+                <table class="sop-gap-table">
+                    <thead>
+                        <tr><th>FIX ID</th><th>WHAT WAS FIXED</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:700;color:var(--red);">FIX-Y1 · Crash Bug</td>
+                            <td>
+                                <strong>Compare Modal — _fetchCmpFund() null crash.</strong> If mfapi.in returned an error response without a <code>data</code> field (e.g. <code>{"status":"ERROR"}</code>), calling <code>.map()</code> on <code>raw.data</code> threw a TypeError and crashed the modal silently. Added null guard: <code>if (!raw?.data || !Array.isArray(raw.data)) throw new Error(…)</code> — consistent with all other fetch sites in the app.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent2);">FIX-Y2 · Code Quality</td>
+                            <td>
+                                <strong>BATCH_SIZE local shadow removed (2 scanner functions).</strong> Both <code>runRRGScanner()</code> and <code>runRegimeChangeScanner()</code> declared a local <code>const BATCH_SIZE = 6</code> that shadowed the global <code>SCANNER_BATCH_SIZE</code> constant (§3). Changing the global would have had no effect on these scanners. Both local declarations removed; all scanner loops now reference <code>SCANNER_BATCH_SIZE</code> directly.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent2);">FIX-Y3 · Robustness</td>
+                            <td>
+                                <strong>initGame() TF button — positional index replaced with text/data match.</strong> <code>tfBtns.children[6].classList.add('active')</code> was hard-coded to activate the 7th button as the 1Y default. This extends the Q-03 fix (already applied to <code>initLiveChart()</code> in LD244N) to the Simulator. Now uses <code>Array.from(tfBtns.children).find(b =&gt; b.dataset.days === '250' || b.textContent.trim() === '1Y')</code> with a positional fallback retained for safety.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent2);">FIX-Y4 · Code Quality</td>
+                            <td>
+                                <strong>openCompareModal() — redundant RSI pill reset loop removed.</strong> A second <code>rsiPills.forEach(b =&gt; b.classList.remove('cmp-pill-active'))</code> duplicated the remove that had already been executed by the loop immediately above it. Dead iteration removed.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--red);">FIX-Y5 · Security</td>
+                            <td>
+                                <strong>Compare Modal — fund names now sanitized with _s() before innerHTML.</strong> <code>nameA</code> and <code>nameB</code> were read from <code>options[selectedIndex].text</code> (which originates partly from <code>raw.meta?.fund_name</code> — an API string) and interpolated directly into <code>resEl.innerHTML</code> without escaping. Applied <code>_s()</code> wrapper at both call sites (snapshot table and date-range table) — consistent with SEC-01 applied throughout the app.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--red);">FIX-Y6 · Security</td>
+                            <td>
+                                <strong>Trigger Monitor — held2.name now sanitized with _s() before innerHTML.</strong> In <code>renderTriggerMonitor()</code>, <code>held1?.name</code> was correctly wrapped in <code>_s()</code> but <code>held2?.name</code> on the same line was not. Fixed — both held fund names are now sanitized consistently (SEC-01 extension).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">FIX-Y7 · Performance</td>
+                            <td>
+                                <strong>ensureLiveData() — LOWESS not rebuilt on RSI-period-only change.</strong> When the user changed the RSI length input without switching funds, <code>ensureLiveData()</code> was rebuilding <code>globalLowessCache</code> unnecessarily — LOWESS is computed purely from NAV prices and is completely independent of the RSI period. The <code>buildLowessGaussianFast()</code> call is now correctly placed only in the fresh-fetch path. This eliminates one full Gaussian kernel pass (~5000 iterations) on every RSI period switch.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">FIX-Y8 · Version Hygiene</td>
+                            <td>
+                                <strong>All 6 version string surfaces updated to LD244Y.</strong> Surfaces patched: HTML header comment, File/Version line, SOP modal header badge, SOP footer note, Setup Screen clickable badge, end-of-file HTML comment. Previously 4 surfaces still read LD244W and 2 read LD244X. SOP Part 10 retitled to reflect W+X cumulative phases. SOP Part 11 (this section) added.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
 
@@ -3544,7 +3692,7 @@
                 </div>
 
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD244W &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD244Y &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
 
@@ -3568,7 +3716,7 @@
             <!-- ── Logo / title strip (unchanged) ── -->
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244W 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244Y 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
             <!-- ── ROW 1 · Alert Summary + Regime Change Scanner ── -->
@@ -4714,7 +4862,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
         <script>
             'use strict';
             // =============================================================================
-            // JAVASCRIPT ENGINE — LIE DETECTOR LD244X
+            // JAVASCRIPT ENGINE — LIE DETECTOR LD244Y
             // =============================================================================
             //
             // ─────────────────────────────────────────────────────────────────────
@@ -4778,8 +4926,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             // YAHOO_TICKER_MAP  : NSE index name → Yahoo Finance ticker (used in §7
             //                    updateLiveEstimate to fetch live benchmark % change).
             const NSE_BENCHMARK_MAP = {
-                '118989': 'NIFTY 500',
-                '119062': 'NIFTY 500',
+                '118955': 'NIFTY 500',  /* LD244Y: was 118989 */
+                '148990': 'NIFTY 500',  /* LD244Y: was 119062 */
                 '120166': 'NIFTY 500',
                 '120517': 'NIFTY 500',
                 '152778': 'NIFTY 500',
@@ -4824,7 +4972,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 'SM008004': 'NIFTY 200',
                 'SM007004': 'NIFTY 200',
                 'SM005004': 'NIFTY 200',
-                'SM010004': 'NIFTY 200',
+                'SM010005': 'NIFTY 200',  /* LD244Y: was SM010004 */
                 'SM008002': 'BHARATBOND',
                 'SM007002': 'BHARATBOND',
                 'SM005002': 'BHARATBOND',
@@ -4832,7 +4980,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 'SM008005': 'BHARATBOND',
                 'SM007005': 'BHARATBOND',
                 'SM005005': 'BHARATBOND',
-                'SM010005': 'BHARATBOND',
+                'SM010006': 'BHARATBOND',  /* LD244Y: was SM010005 */
             };
 
             const YAHOO_TICKER_MAP = {
@@ -4840,10 +4988,10 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 'NIFTY 100': '^CNX100',
                 'NIFTY MIDCAP 150': 'MID150BEES.NS',
                 'NIFTY SMALLCAP 250': '^CRSLSML',
-                'NIFTY100 QUALITY 30': 'NIFTYQUALITY30.NS',
+                'NIFTY100 QUALITY 30': 'HDFCQUAL.NS',     /* LD244Y: was dead NIFTYQUALITY30.NS → HDFCQUAL.NS (HDFC ETF on Yahoo) */
                 'NIFTY200 MOMENTUM 30': 'MOMENTUM.NS',
-                'NIFTY200 VALUE 30': 'NIFTY200_VALUE_30.NS',
-                'NIFTY500 MOMENTUM 50': 'NIFTY500MOMENTM50.NS',
+                'NIFTY200 VALUE 30': 'VAL30IETF.NS',      /* LD244Y: was NIFTY200_VALUE_30.NS (underscore error) → VAL30IETF.NS */
+                'NIFTY500 MOMENTUM 50': 'MOM50.NS',        /* LD244Y: was dead NIFTY500MOMENTM50.NS → MOM50.NS (Motilal ETF) */
                 'BSE 500 MOMENTUM 50': 'MOME50.BO',
                 'NIFTY MIDCAP 150 MOMENTUM 50 INDEX': 'SBIMIDMOM.NS',
                 'NIFTY IT': '^CNXIT',
@@ -4858,7 +5006,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 'NIFTY INDIA DEFENCE': 'MODEFENCE.NS',
                 'NIFTY EV & NEW AGE AUTOMOTIVE': 'EVIETF.NS',
                 'NIFTY INFRASTRUCTURE': '^CNXINFRA',
-                'BSE INDIA INFRASTRUCTURE': 'INFRASTRUCTURE.BO',
+                'BSE INDIA INFRASTRUCTURE': '^BSEINFRA',   /* LD244Y: was dead INFRASTRUCTURE.BO → ^BSEINFRA (official BSE index) */
                 'NIFTY COMMODITIES': '^CNXCMDT',
                 'HDFC GOLD FOF': 'HDFCGOLD.NS',
                 'HDFC SILVER FOF': 'HDFCSILVER.NS',
@@ -4880,7 +5028,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             const amcFunds = {
                 HDFC: [{
                         name: 'HDFC Flexi Cap - Growth',
-                        code: '118989'
+                        code: '118955'  /* LD244Y: was 118989 (Mid-Cap Opp) → 118955 (Flexi Cap Direct) */
                     },
                     {
                         name: 'HDFC Balanced Advantage - Growth',
@@ -4937,7 +5085,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 ],
                 ICICI: [{
                         name: 'ICICI Flexicap - Growth',
-                        code: '119062'
+                        code: '148990'  /* LD244Y: was 119062 (HDFC Hybrid) → 148990 (ICICI Flexicap Direct) */
                     },
                     {
                         name: 'ICICI Balanced Advantage - Growth',
@@ -5108,11 +5256,11 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     },
                     {
                         name: '[NPS] ABSL Scheme E - Tier II',
-                        code: 'SM010004'
+                        code: 'SM010005'  /* LD244Y: was SM010004 (Scheme A Tier I) → SM010005 (Scheme E Tier II) */
                     },
                     {
                         name: '[NPS] ABSL Scheme C - Tier II',
-                        code: 'SM010005'
+                        code: 'SM010006'  /* LD244Y: was SM010005 (Scheme E Tier II) → SM010006 (Scheme C Tier II) */
                     },
                 ],
             };
@@ -5768,10 +5916,9 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const navs = globalLiveData.map(d => d.nav);
                         const dates = globalLiveData.map(d => d.date);
                         globalWeeklyRsiCache = window.buildWeeklyRsiFast ? window.buildWeeklyRsiFast(navs, userRsiLength, dates) : [];
-
                         globalDailyRsiCache = window.buildDailyRsiFast ? window.buildDailyRsiFast(navs, userRsiLength) : [];
-                        globalLowessCache = window.buildLowessGaussianFast(navs, 8, 10);
-
+                        // FIX-Y7: LOWESS is NAV-based, not RSI-period-dependent — skip rebuild here.
+                        // globalLowessCache was already built on the initial fund fetch below and is still valid.
                         _lastRsiLength = userRsiLength;
                     }
                     return true;
@@ -5788,9 +5935,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 const dates = globalLiveData.map(d => d.date);
 
                 globalWeeklyRsiCache = window.buildWeeklyRsiFast ? window.buildWeeklyRsiFast(navs, userRsiLength, dates) : [];
-
                 globalDailyRsiCache = window.buildDailyRsiFast ? window.buildDailyRsiFast(navs, userRsiLength) : [];
-                globalLowessCache = window.buildLowessGaussianFast(navs, 8, 10);
+                globalLowessCache = window.buildLowessGaussianFast(navs, 8, 10); // built once per fund fetch
 
                 _lastFetchedCode = code;
                 _lastRsiLength = userRsiLength;
@@ -7381,7 +7527,7 @@ ${c.text}</span>
 
             /** Close Live Analytics and return to Setup screen. */
             // =============================================================================
-            // §15 · FUND COMPARISON VIEW  (LD244X — Enhanced)
+            // §15 · FUND COMPARISON VIEW  (LD244Y — Enhanced)
             // =============================================================================
             // openCompareModal()       — populate dropdowns, show modal
             // setCmpAMC(amc, el)       — filter dropdowns by AMC pill
@@ -7410,9 +7556,9 @@ ${c.text}</span>
                 // Reset pill states
                 document.querySelectorAll('#cmpAmcPills .cmp-pill').forEach((b,i) => b.classList.toggle('cmp-pill-active', i===0));
                 document.querySelectorAll('#cmpTypePills .cmp-pill').forEach((b,i) => b.classList.toggle('cmp-pill-active', i===0));
-                document.querySelectorAll('#cmpRsiPills .cmp-pill').forEach((b,i) => b.classList.toggle('cmp-pill-active cmp-pill-rsi', false));
+                document.querySelectorAll('#cmpRsiPills .cmp-pill').forEach(b => { b.classList.remove('cmp-pill-active'); b.classList.remove('cmp-pill-rsi'); }); // LD244Y FIX: classList.toggle rejects space-separated tokens
                 const rsiPills = document.querySelectorAll('#cmpRsiPills .cmp-pill');
-                rsiPills.forEach((b,i) => { b.classList.remove('cmp-pill-active'); });
+                // FIX-Y4: removed redundant second forEach — cmp-pill-active already cleared above
                 if (rsiPills[0]) rsiPills[0].classList.add('cmp-pill-active');
 
                 // Set default dates: 1-year range
@@ -7520,10 +7666,13 @@ ${c.text}</span>
                     `https://api.mfapi.in/mf/${code}`;
                 const res = await fetch(url);
                 const raw = await res.json();
+                // FIX-Y1: null-guard raw.data — API may return {status:"ERROR"} without data field
+                if (!raw?.data || !Array.isArray(raw.data)) throw new Error(`No data for ${code}`);
                 const hist = raw.data
                     .map(d => ({ nav: parseFloat(d.nav), date: window.normalizeDate(d.date) }))
                     .filter(d => Number.isFinite(d.nav) && d.nav > 0)
                     .reverse();
+                if (!hist.length) throw new Error(`Empty NAV series for ${code}`);
                 const result = {
                     name: raw.meta?.fund_name || code,
                     navs: hist.map(d => d.nav),
@@ -7620,15 +7769,16 @@ border-bottom:1px solid var(--border);font-size:0.68rem;align-items:center;">
 
                     const selA = document.getElementById('cmpFundA');
                     const selB = document.getElementById('cmpFundB');
-                    const nameA = selA.options[selA.selectedIndex].text.trim().slice(0, 24);
-                    const nameB = selB.options[selB.selectedIndex].text.trim().slice(0, 24);
+                    // FIX-Y5: sanitize fund names via _s() before innerHTML interpolation (SEC-01 extension)
+                    const nameA = _s(selA.options[selA.selectedIndex].text.trim().slice(0, 30));  // LD244Y: 24→30 chars so name fits on one line
+                    const nameB = _s(selB.options[selB.selectedIndex].text.trim().slice(0, 30));
 
                     resEl.innerHTML = `
 <!-- Fund name headers -->
 <div style="display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:4px;padding:4px 0 6px;margin-bottom:2px;border-bottom:2px solid var(--border);">
-<div style="font-size:0.54rem;color:var(--border2);font-weight:700;line-height:1.4;">${nameA}</div>
+<div style="font-size:0.52rem;color:var(--border2);font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nameA}</div>
 <div style="text-align:center;font-size:0.5rem;color:var(--muted);">vs</div>
-<div style="font-size:0.54rem;color:var(--border2);font-weight:700;line-height:1.4;text-align:right;">${nameB}</div>
+<div style="font-size:0.52rem;color:var(--border2);font-weight:700;line-height:1.3;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nameB}</div>
 </div>
 
 <!-- RSI Go/No-Go row — all 3 periods -->
@@ -7751,8 +7901,9 @@ ${row('1Y %', a.r1y+'%', b.r1y+'%')}`;
 
                     const selA = document.getElementById('cmpFundA');
                     const selB = document.getElementById('cmpFundB');
-                    const nameA = selA.options[selA.selectedIndex].text.trim().slice(0, 20);
-                    const nameB = selB.options[selB.selectedIndex].text.trim().slice(0, 20);
+                    // FIX-Y5: sanitize fund names via _s() before innerHTML interpolation (SEC-01 extension)
+                    const nameA = _s(selA.options[selA.selectedIndex].text.trim().slice(0, 30));  // LD244Y: 20→30
+                    const nameB = _s(selB.options[selB.selectedIndex].text.trim().slice(0, 30));
 
                     const gColor = (v, wins) => {
                         if (wins) return '#c8102e';          // RED = higher growth (winner)
@@ -7811,8 +7962,12 @@ ${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' 
 </tr>
 </tbody>
 </table>
-<div style="margin-top:6px;font-size:0.48rem;color:var(--muted);text-align:center;padding-bottom:4px;">
-🔴 Red = Higher Growth (Winner) &nbsp;|&nbsp; Green = Positive &nbsp;|&nbsp; Dates snapped to nearest trading day
+<div style="margin-top:5px;font-size:0.47rem;color:var(--muted);text-align:center;padding-bottom:3px;white-space:nowrap;overflow:visible;display:flex;justify-content:center;gap:6px;flex-wrap:wrap;">
+  <span style="color:#c8102e;font-weight:700;">🔴 Red = Higher Growth Winner</span>
+  <span>·</span>
+  <span style="color:var(--accent);font-weight:700;">🟢 Green = Positive</span>
+  <span>·</span>
+  <span>Dates snapped to trading day</span>
 </div>`;
 
                 } catch (e) {
@@ -8483,7 +8638,12 @@ ${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' 
                 const tfBtns = document.getElementById('simTfRow');
                 if (tfBtns) {
                     Array.from(tfBtns.children).forEach(b => b.classList.remove('active'));
-                    tfBtns.children[6].classList.add('active'); // 1Y default (idx 6 of 8: 3D,1W,2W,1M,3M,6M,1Y,ALL)
+                    // FIX-Y3: Q-03 extension — use data attribute / text match instead of positional index
+                    // so this survives any future reordering of the TF button row
+                    const btn1Y = Array.from(tfBtns.children).find(
+                        b => b.dataset.days === '250' || b.textContent.trim() === '1Y'
+                    ) || tfBtns.children[6]; // positional fallback retained for safety
+                    if (btn1Y) btn1Y.classList.add('active');
                 }
 
                 document.getElementById('setupScreen').style.display = 'none';
@@ -12200,14 +12360,15 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                     }
                 };
 
-                const BATCH_SIZE = 6;
-                for (let i = 0; i < fundsToScan.length; i += BATCH_SIZE) {
+                // FIX-Y2: removed local `const BATCH_SIZE = 6` — shadows global SCANNER_BATCH_SIZE (§3).
+                // Changing the global now correctly affects this scanner too.
+                for (let i = 0; i < fundsToScan.length; i += SCANNER_BATCH_SIZE) {
                     if (currentToken !== _activeScannerToken) {
                         ovEl.style.display = 'none';
                         document.getElementById('setupScreen').style.display = 'flex';
                         return;
                     }
-                    const batch = fundsToScan.slice(i, i + BATCH_SIZE);
+                    const batch = fundsToScan.slice(i, i + SCANNER_BATCH_SIZE);
                     await Promise.all(batch.map(processFund));
                     completed += batch.length;
                     ovTxt.textContent = `SCANNING ${Math.min(completed, fundsToScan.length)}/${fundsToScan.length}...`;
@@ -12549,10 +12710,10 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                     }
                 };
 
-                const BATCH_SIZE = 6;
-                for (let i = 0; i < fundsToScan.length; i += BATCH_SIZE) {
+                // FIX-Y2: removed local `const BATCH_SIZE = 6` — shadows global SCANNER_BATCH_SIZE (§3).
+                for (let i = 0; i < fundsToScan.length; i += SCANNER_BATCH_SIZE) {
                     if (currentToken !== _activeScannerToken) return;
-                    const batch = fundsToScan.slice(i, i + BATCH_SIZE);
+                    const batch = fundsToScan.slice(i, i + SCANNER_BATCH_SIZE);
                     await Promise.all(batch.map(processFund));
                     completed += batch.length;
                     ovTxt.textContent = `FETCHING ${Math.min(completed, fundsToScan.length)}/${fundsToScan.length}...`;
@@ -14286,7 +14447,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
 
                 // ── Holding summary ───────────────────────────────────────────────────
                 document.getElementById('tmHolding').innerHTML = `Current Holdings: <strong>${_s(held1?.name ?? heldCodes[0])}</strong> (${lastAlloc.w1}%) &nbsp;+&nbsp; ` +
-                    `<strong>${held2?.name ?? heldCodes[1]}</strong> (${lastAlloc.w2}%) ` +
+                    `<strong>${_s(held2?.name ?? heldCodes[1])}</strong> (${lastAlloc.w2}%) ` + // FIX-Y6: _s() added (SEC-01 extension)
                     `&nbsp;·&nbsp; Universe: ${snapshot.length} funds`;
 
                 // ── LD244Y FIX 3b: Persist top2 codes so startup scanner can use them ─
@@ -15696,7 +15857,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD244X
+    END OF FILE — LD244Y
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js

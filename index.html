@@ -863,6 +863,38 @@
                 color: var(--text);
             }
 
+            /* ── Watchlist button — highlighted like Live/Sim ── */
+            .setup-btn-watchlist {
+                border-color: #a855f7;
+                border-width: 2px;
+                color: #a855f7;
+                font-weight: 700;
+                font-size: 0.72rem !important;
+                outline: 1px solid rgba(168, 85, 247, 0.30);
+                outline-offset: 3px;
+                letter-spacing: 0.02em;
+            }
+            .setup-btn-watchlist:hover {
+                background: rgba(168, 85, 247, 0.08);
+                outline-color: #a855f7;
+            }
+
+            /* ── Asset Allocator button — highlighted like Live/Sim ── */
+            .setup-btn-allocator {
+                border-color: var(--gold);
+                border-width: 2px;
+                color: var(--gold);
+                font-weight: 700;
+                font-size: 0.72rem !important;
+                outline: 1px solid rgba(255, 196, 0, 0.30);
+                outline-offset: 3px;
+                letter-spacing: 0.02em;
+            }
+            .setup-btn-allocator:hover {
+                background: rgba(255, 196, 0, 0.07);
+                outline-color: var(--gold);
+            }
+
             /* ────────────────────────────────────────────────────────────────────────── */
             /* APP HEADER                                                               */
             /* ────────────────────────────────────────────────────────────────────────── */
@@ -3036,8 +3068,8 @@
                 justify-content: space-between;
                 align-items: center;
                 font-family: var(--mono);
-                font-size: 0.65rem;
-                font-weight: 700;
+                font-size: 0.72rem;
+                font-weight: 400;
                 transition: background 0.15s;
             }
 
@@ -3060,7 +3092,8 @@
 
             .alert-item-name {
                 flex: 1;
-                font-size: 0.68rem;
+                font-size: 0.72rem;
+                font-weight: 400;
                 color: var(--text);
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -3069,6 +3102,7 @@
 
             .alert-item-val {
                 font-size: 0.62rem;
+                font-weight: 400;
                 color: var(--muted);
                 margin-left: 10px;
             }
@@ -3754,31 +3788,93 @@
         <!-- SETUP SCREEN  —  HOME / FUND PICKER                          z-index:  500 -->
         <!-- ────────────────────────────────────────────────────────────────────────── -->
         <div id="setupScreen">
-            <!-- ── Logo / title strip (unchanged) ── -->
+            <!-- ── Logo / title strip ── -->
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
             <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244Y 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
-            <!-- ── ROW 1 · Alert Summary + Regime Change Scanner ── -->
-            <div class="custom-inputs">
-                <button class="setup-btn" style="flex:1;border-color:var(--red);color:var(--red);font-size:0.65rem;padding:10px 4px;" onclick="openAlertSummary()">
-                    🚨 Alert Summary <span id="alertSummaryBadgeTop" class="alert-badge"></span>
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <!-- HERO ROW — 4 primary action boxes                              -->
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
+
+                <!-- 🚨 Alert Summary -->
+                <button onclick="openAlertSummary()" style="
+                    background:linear-gradient(145deg,rgba(200,16,46,0.13),rgba(200,16,46,0.05));
+                    border:2px solid var(--red);
+                    border-radius:var(--radius);
+                    padding:16px 10px 14px;
+                    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+                    cursor:pointer;
+                    outline:1px solid rgba(200,16,46,0.25);outline-offset:3px;
+                    transition:background 0.18s,outline-color 0.18s;
+                    min-height:78px;
+                " onmouseenter="this.style.background='rgba(200,16,46,0.17)'" onmouseleave="this.style.background='linear-gradient(145deg,rgba(200,16,46,0.13),rgba(200,16,46,0.05))'">
+                    <span style="font-size:1.4rem;line-height:1;">🚨</span>
+                    <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--red);letter-spacing:0.04em;">ALERTS</span>
+                    <span id="alertSummaryBadgeTop" class="alert-badge" style="margin-top:-2px;"></span>
                 </button>
+
+                <!-- 📌 Watchlist -->
+                <button onclick="openWatchlist()" class="setup-btn-watchlist" style="
+                    background:linear-gradient(145deg,rgba(168,85,247,0.13),rgba(168,85,247,0.05));
+                    border-radius:var(--radius);
+                    padding:16px 10px 14px;
+                    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+                    cursor:pointer;
+                    min-height:78px;
+                    font-family:var(--mono);
+                " onmouseenter="this.style.background='rgba(168,85,247,0.17)'" onmouseleave="this.style.background='linear-gradient(145deg,rgba(168,85,247,0.13),rgba(168,85,247,0.05))'">
+                    <span style="font-size:1.4rem;line-height:1;">📌</span>
+                    <span style="font-size:0.72rem;font-weight:700;letter-spacing:0.04em;">WATCHLIST</span>
+                </button>
+
+                <!-- 📈 Live Market -->
+                <button onclick="initLiveChart()" style="
+                    background:linear-gradient(145deg,rgba(112,144,176,0.13),rgba(112,144,176,0.05));
+                    border:2px solid var(--border2);
+                    border-radius:var(--radius);
+                    padding:16px 10px 14px;
+                    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+                    cursor:pointer;
+                    outline:1px solid rgba(112,144,176,0.25);outline-offset:3px;
+                    transition:background 0.18s;
+                    min-height:78px;
+                " onmouseenter="this.style.background='rgba(112,144,176,0.18)'" onmouseleave="this.style.background='linear-gradient(145deg,rgba(112,144,176,0.13),rgba(112,144,176,0.05))'">
+                    <span style="font-size:1.4rem;line-height:1;">📈</span>
+                    <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--border2);letter-spacing:0.04em;">LIVE MARKET</span>
+                </button>
+
+                <!-- 🎮 Random Simulation -->
+                <button onclick="initGame('random')" style="
+                    background:linear-gradient(145deg,rgba(0,158,112,0.13),rgba(0,158,112,0.05));
+                    border:2px solid var(--accent);
+                    border-radius:var(--radius);
+                    padding:16px 10px 14px;
+                    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+                    cursor:pointer;
+                    outline:1px solid rgba(0,158,112,0.25);outline-offset:3px;
+                    transition:background 0.18s;
+                    min-height:78px;
+                " onmouseenter="this.style.background='rgba(0,158,112,0.18)'" onmouseleave="this.style.background='linear-gradient(145deg,rgba(0,158,112,0.13),rgba(0,158,112,0.05))'">
+                    <span style="font-size:1.4rem;line-height:1;">🎮</span>
+                    <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--accent);letter-spacing:0.04em;">SIMULATION</span>
+                </button>
+            </div>
+
+            <!-- ── ROW · Regime Change Scanner + RRG ── -->
+            <div class="custom-inputs" style="margin-bottom:6px;">
                 <div class="c-input-box" style="cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;border-color:var(--accent);background:var(--accent-dim);flex:1;" onclick="runRegimeChangeScanner()">
                     <span class="c-label" style="color:var(--accent);margin-bottom:2px;">SCAN</span>
                     <span style="font-size:0.72rem;color:var(--text);">REGIME CHANGE</span>
                 </div>
+                <button class="setup-btn" style="flex:1;border-color:#00e8a2;color:#00796b;font-size:0.6rem;" onclick="runRRGScanner('LEADING')">RRG LEADING</button>
+                <button class="setup-btn" style="flex:1;border-color:#3b82f6;color:#1d4ed8;font-size:0.6rem;" onclick="runRRGScanner('IMPROVING')">RRG IMPROVING</button>
             </div>
 
-            <!-- ── ROW 2 · RRG Scanners ── -->
-            <div class="custom-inputs">
-                <button class="setup-btn" style="flex:1;border-color:#00e8a2;color:#00796b;font-size:0.63rem;" onclick="runRRGScanner('LEADING')">SCAN — RRG LEADING</button>
-                <button class="setup-btn" style="flex:1;border-color:#3b82f6;color:#1d4ed8;font-size:0.63rem;" onclick="runRRGScanner('IMPROVING')">SCAN — RRG IMPROVING</button>
-            </div>
-
-            <!-- ── ROW 3 · Regime Hope sub-zones ── -->
-            <div class="custom-inputs">
+            <!-- ── ROW · Regime Hope sub-zones ── -->
+            <div class="custom-inputs" style="margin-bottom:10px;">
                 <button class="setup-btn" style="flex:1;border-color:#00e8a2;color:#00796b;font-size:0.58rem;padding:8px 2px;" onclick="runRegimeAScanner('INVEST')">Regime Hope<br>INVEST</button>
                 <button class="setup-btn" style="flex:1;border-color:#f59e0b;color:#b45309;font-size:0.58rem;padding:8px 2px;" onclick="runRegimeAScanner('HOLD')">Regime Hope<br>HOLD</button>
                 <button class="setup-btn" style="flex:1;border-color:#c8102e;color:#c8102e;font-size:0.58rem;padding:8px 2px;" onclick="runRegimeAScanner('PROFIT')">Regime Hope<br>PROFIT</button>
@@ -3788,7 +3884,7 @@
             <div class="setup-group sg-fund">
                 <div class="setup-group-label">Fund Selection &amp; Analysis</div>
 
-                <!-- ROW 4 · AMC buttons -->
+                <!-- AMC buttons -->
                 <div class="fund-grid" id="fundGrid" style="max-width:100%;margin-bottom:6px;">
                     <div class="fund-box" onclick="selectAMC('HDFC', this)">HDFC</div>
                     <div class="fund-box active" onclick="selectAMC('ICICI', this)">ICICI</div>
@@ -3796,26 +3892,25 @@
                     <div class="fund-box" onclick="selectAMC('ABSL', this)">ABSL</div>
                 </div>
 
-                <!-- ROW 5 · Fund dropdown -->
+                <!-- Fund dropdown -->
                 <select id="fundSelect" class="dropdown" style="max-width:100%;margin-bottom:6px;" onchange="saveFundSelection()"></select>
 
-                <!-- ROW 6 · RSI Length + Live Market + Live Analytics -->
+                <!-- RSI Length + Live Analytics -->
                 <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
                     <div class="c-input-box" style="flex:0.8;">
                         <span class="c-label">RSI Length</span>
                         <input type="number" id="rsiLengthIn" class="c-num" style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelection()">
                     </div>
-                    <button class="setup-btn setup-btn-live" style="flex:1;padding:8px 4px;" onclick="initLiveChart()">Live Market</button>
                     <button class="setup-btn" style="flex:1;border-color:var(--gold);color:var(--gold);font-size:0.63rem;padding:8px 4px;" onclick="initLiveAnalytics()">Live Analytics</button>
                 </div>
 
-                <!-- ROW 7 · Watchlist + Asset Allocator -->
+                <!-- Watchlist + Asset Allocator -->
                 <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
-                    <button class="setup-btn" style="flex:1;border-color:#a855f7;color:#7c3aed;font-size:0.63rem;" onclick="openWatchlist()">📌 Watchlist</button>
-                    <button class="setup-btn" style="flex:1;border-color:var(--gold);color:var(--gold);font-size:0.63rem;" onclick="openAssetAllocator()">📊 Asset Allocator <span id="assetAllocC3Badge" style="display:none;font-size:0.58rem;font-weight:700;color:#009e70;"></span></button>
+                    <button class="setup-btn setup-btn-watchlist" style="flex:1;padding:10px 4px;" onclick="openWatchlist()">📌 Watchlist</button>
+                    <button class="setup-btn setup-btn-allocator" style="flex:1;padding:10px 4px;" onclick="openAssetAllocator()">📊 Asset Allocator <span id="assetAllocC3Badge" style="display:none;font-size:0.58rem;font-weight:700;color:#009e70;"></span></button>
                 </div>
 
-                <!-- ROW 8 · Compare 2 Funds + BAF NPS Switch -->
+                <!-- Compare + BAF NPS Switch -->
                 <div class="custom-inputs" style="max-width:100%;margin-bottom:4px;">
                     <button class="setup-btn" style="flex:1;border-color:var(--border2);color:var(--muted2);font-size:0.63rem;" onclick="openCompareModal()">⇄ Compare 2 Funds</button>
                     <button class="setup-btn" style="flex:1;border-color:var(--red);color:var(--red);font-size:0.63rem;" onclick="openBafNpsModal()">BAF NPS Switch</button>
@@ -3826,16 +3921,7 @@
             <div class="setup-group sg-sim">
                 <div class="setup-group-label">Simulation &amp; Training</div>
 
-                <!-- ROW 9 · Random Simulation + Blind Training -->
-                <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
-                    <button class="setup-btn setup-btn-sim" style="flex:2;padding:11px 4px;" onclick="initGame('random')">Random Simulation</button>
-                    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 8px;cursor:pointer;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--surface2);" onclick="toggleBlindMode()">
-                        <span class="c-label" style="margin-bottom:2px;">Training</span>
-                        <button id="blindToggle" style="pointer-events:none;font-family:var(--mono);font-size:0.6rem;background:transparent;border:none;color:var(--muted);">BLIND</button>
-                    </div>
-                </div>
-
-                <!-- ROW 10 · Stress Test dropdown + Stress Run + Regime Drill -->
+                <!-- Stress Test + Regime Drill row -->
                 <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
                     <select id="stressSelect" class="dropdown" style="margin-bottom:0;flex:2;padding:8px 8px;font-size:0.62rem;">
                         <option value="covid">Stress: COVID Crash ('20)</option>
@@ -3864,25 +3950,47 @@
                     </div>
                 </div>
 
-                <!-- ROW 11 · SIP Amount + SIP Mode + Day + ▶ SIP -->
-                <div class="custom-inputs" style="max-width:100%;margin-bottom:4px;">
-                    <div class="c-input-box" style="padding:4px 6px;flex:1.5;">
-                        <span class="c-label">SIP Amount (₹)</span>
-                        <input type="number" id="sipAmount" class="c-num" style="color:#000000;font-size:0.85rem;font-weight:400;" value="10000" min="1000" step="1000">
+                <!-- Blind Training toggle -->
+                <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
+                    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:8px;cursor:pointer;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--surface2);" onclick="toggleBlindMode()">
+                        <span class="c-label" style="margin-bottom:2px;">Training Mode</span>
+                        <button id="blindToggle" style="pointer-events:none;font-family:var(--mono);font-size:0.6rem;background:transparent;border:none;color:var(--muted);">BLIND</button>
                     </div>
-                    <div class="c-input-box" style="padding:4px 6px;flex:1.3;">
-                        <span class="c-label">SIP Mode</span>
-                        <select id="sipMode" class="c-num" style="font-size:0.58rem;background:transparent;border:none;outline:none;font-family:var(--mono);width:100%;color:var(--text);font-weight:400;">
-                            <option value="weekly">Weekly (day)</option>
-                            <option value="autobuy">AutoBuy Slingshot</option>
-                        </select>
-                    </div>
-                    <div class="c-input-box" style="padding:4px 6px;flex:0.7;" id="sipDayBox">
-                        <span class="c-label">Day</span>
-                        <input type="number" id="sipWeekDay" class="c-num" style="font-size:0.85rem;font-weight:400;" value="1" min="1" max="5">
-                    </div>
-                    <button class="setup-btn" style="flex:0.8;border-color:var(--accent);color:var(--accent);padding:8px 2px;" onclick="initGame('sip')">▶ SIP</button>
                 </div>
+
+                <!-- ── SIP Consolidated Box ── -->
+                <div style="
+                    background:var(--surface2);
+                    border:1.5px solid var(--accent);
+                    border-radius:var(--radius);
+                    padding:10px 12px;
+                    display:flex;flex-direction:column;gap:8px;
+                ">
+                    <div style="font-size:0.52rem;font-weight:700;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;font-family:var(--mono);">SIP Simulation</div>
+
+                    <!-- Mode selector + Amount on same row -->
+                    <div style="display:flex;gap:8px;align-items:stretch;">
+                        <div class="c-input-box" style="flex:1.4;padding:5px 8px;">
+                            <span class="c-label">Mode</span>
+                            <select id="sipMode" class="c-num" style="font-size:0.58rem;background:transparent;border:none;outline:none;font-family:var(--mono);width:100%;color:var(--text);">
+                                <option value="weekly">Weekly SIP</option>
+                                <option value="autobuy">AutoBuy Slingshot</option>
+                            </select>
+                        </div>
+                        <div class="c-input-box" style="flex:1.2;padding:5px 8px;" id="sipDayBox">
+                            <span class="c-label">Day (1–5)</span>
+                            <input type="number" id="sipWeekDay" class="c-num" style="font-size:0.82rem;" value="1" min="1" max="5">
+                        </div>
+                        <div class="c-input-box" style="flex:1.4;padding:5px 8px;">
+                            <span class="c-label">Amount (₹)</span>
+                            <input type="number" id="sipAmount" class="c-num" style="font-size:0.82rem;" value="10000" min="1000" step="1000">
+                        </div>
+                    </div>
+
+                    <!-- Launch button — full width -->
+                    <button class="setup-btn setup-btn-sim" style="width:100%;padding:11px 4px;" onclick="initGame('sip')">▶ START SIP SIMULATION</button>
+                </div>
+
             </div><!-- /sg-sim -->
 
         </div>
@@ -6073,6 +6181,17 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 // Close watchlist modal
                 document.getElementById('watchlistModal').style.display = 'none';
 
+                // ── Clean slate: explicitly wipe any previous session state ──────────
+                // This prevents Analytics showing rule violations from a prior session
+                // when the user navigates here from the Investment Switch Bridge.
+                try {
+                    if (typeof tradeLog !== 'undefined')         tradeLog         = [];
+                    if (typeof tranches !== 'undefined')         tranches         = [];
+                    if (typeof _infractionCount !== 'undefined') _infractionCount = 0;
+                    if (typeof totalTaxPaid !== 'undefined')     totalTaxPaid     = 0;
+                    if (typeof maxDrawdown !== 'undefined')      maxDrawdown      = 0;
+                } catch(_) {}
+
                 // Select correct AMC + fund
                 let amcMatch = 'HDFC';
                 for (const amc in window.amcFunds) {
@@ -6088,10 +6207,17 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
 
                 document.getElementById('setupScreen').style.display = 'flex';
 
-                // Launch custom simulation: start = switchDate (or fallback random), end = latest history bar
+                // Launch custom simulation from switchDate → latest available history bar
                 const start = switchDate && /^\d{4}-\d{2}-\d{2}$/.test(switchDate) ? switchDate : null;
                 (start ? initGame('custom', start, null) : initGame('random')).then(() => {
-                    // Position to last bar and set 3M view
+                    // Ensure clean state after initGame (belt + braces)
+                    try {
+                        if (typeof tradeLog !== 'undefined')         tradeLog         = [];
+                        if (typeof tranches !== 'undefined')         tranches         = [];
+                        if (typeof _infractionCount !== 'undefined') _infractionCount = 0;
+                    } catch(_) {}
+
+                    // Position cursor to last bar and activate 3M timeframe
                     setTimeout(() => {
                         if (typeof simEndIdx !== 'undefined' && simEndIdx > 0 &&
                             typeof currentIdx !== 'undefined') {
@@ -11336,14 +11462,14 @@ This is exactly how the system is meant to be played.
 
                     // ── AMC label ────────────────────────────────────────────────────
                     const amcLbl = document.createElement('div');
-                    amcLbl.style.cssText = `font-size:0.46rem;font-weight:700;color:${hasData ? accentCol : 'var(--muted)'};letter-spacing:0.12em;text-transform:uppercase;`;
+                    amcLbl.style.cssText = `font-size:0.46rem;font-weight:400;color:${hasData ? accentCol : 'var(--muted)'};letter-spacing:0.12em;text-transform:uppercase;font-family:var(--mono);`;
                     amcLbl.textContent = amc;
                     box.appendChild(amcLbl);
 
                     if (hasData) {
-                        // ── Fund name ────────────────────────────────────────────────
+                        // ── Fund name — larger, no bold ──────────────────────────────
                         const nm = document.createElement('div');
-                        nm.style.cssText = 'font-size:0.54rem;font-weight:700;color:var(--text);line-height:1.3;';
+                        nm.style.cssText = 'font-size:0.66rem;font-weight:400;color:var(--text);line-height:1.3;';
                         nm.textContent = (entry.name || '')
                             .replace(/ - Growth| - Direct/gi, '')
                             .replace(/Balanced Advantage/gi, 'BAF')
@@ -11355,7 +11481,7 @@ This is exactly how the system is meant to be played.
                         // ── Switch date ──────────────────────────────────────────────
                         if (entry.switchDate || entry.ts) {
                             const dtEl = document.createElement('div');
-                            dtEl.style.cssText = 'font-size:0.44rem;color:var(--muted);';
+                            dtEl.style.cssText = 'font-size:0.44rem;font-weight:400;color:var(--muted);';
                             const dtStr = entry.switchDate
                                 ? new Date(entry.switchDate).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' })
                                 : new Date(entry.ts).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' });
@@ -11363,48 +11489,48 @@ This is exactly how the system is meant to be played.
                             box.appendChild(dtEl);
                         }
 
-                        // ── Stats row: 1M · wRSI ────────────────────────────────────
+                        // ── Stats row — darker green, no bold ────────────────────────
                         const stats = document.createElement('div');
-                        stats.style.cssText = 'font-size:0.48rem;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;';
+                        stats.style.cssText = 'font-size:0.48rem;font-weight:400;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;';
                         const r1mVal = typeof entry.r1m === 'number' ? entry.r1m.toFixed(1) + '%' : '--';
-                        const r1mCol = (typeof entry.r1m === 'number') ? (entry.r1m >= 0 ? '#00e8a2' : 'var(--red)') : 'var(--muted)';
+                        const r1mCol = (typeof entry.r1m === 'number') ? (entry.r1m >= 0 ? '#00916e' : 'var(--red)') : 'var(--muted)';
                         stats.innerHTML =
-                            `<span>1M: <strong style="color:${r1mCol}">${r1mVal}</strong></span>` +
-                            `<span>wRSI: <strong>${entry.wrsi ?? '--'}</strong></span>` +
-                            `<span style="color:${entry.regime==='A'?'#00e8a2':entry.regime==='B'?'#f59e0b':'var(--red)'};">${entry.regime==='A'?'Hope':entry.regime==='B'?'Watch':entry.regime==='C'?'Fear':'—'}</span>`;
+                            `<span>1M: <span style="color:${r1mCol}">${r1mVal}</span></span>` +
+                            `<span>wRSI: ${entry.wrsi ?? '--'}</span>` +
+                            `<span style="color:${entry.regime==='A'?'#00916e':entry.regime==='B'?'#f59e0b':'var(--red)'};">${entry.regime==='A'?'Hope':entry.regime==='B'?'Watch':entry.regime==='C'?'Fear':'—'}</span>`;
                         box.appendChild(stats);
 
-                        // ── Latest simulator alert ───────────────────────────────────
+                        // ── Latest simulator alert — no bold ─────────────────────────
                         if (entry.latestAlert) {
                             const alertEl = document.createElement('div');
                             const isRed   = (entry.latestAlertClass || '').includes('danger');
                             const isGreen = (entry.latestAlertClass || '').includes('buy');
-                            const alertBg = isRed ? 'rgba(200,16,46,0.12)' : isGreen ? 'rgba(0,158,112,0.12)' : 'rgba(255,160,0,0.10)';
-                            const alertFg = isRed ? '#c8102e' : isGreen ? '#009e70' : '#c97a00';
-                            alertEl.style.cssText = `font-size:0.46rem;font-weight:700;color:${alertFg};background:${alertBg};border-radius:2px;padding:3px 5px;margin-top:2px;line-height:1.3;`;
+                            const alertBg = isRed ? 'rgba(200,16,46,0.12)' : isGreen ? 'rgba(0,145,110,0.12)' : 'rgba(255,160,0,0.10)';
+                            const alertFg = isRed ? '#c8102e' : isGreen ? '#00916e' : '#c97a00';
+                            alertEl.style.cssText = `font-size:0.46rem;font-weight:400;color:${alertFg};background:${alertBg};border-radius:2px;padding:3px 5px;margin-top:2px;line-height:1.3;`;
                             alertEl.textContent = entry.latestAlert.slice(0, 48);
                             box.appendChild(alertEl);
                         }
 
-                        // ── P&L since switch ─────────────────────────────────────────
+                        // ── P&L since switch — no bold ───────────────────────────────
                         if (typeof entry.switchNav === 'number' && entry.switchNav > 0 && typeof entry.currentNav === 'number') {
-                            const pnl    = (entry.currentNav - entry.switchNav) / entry.switchNav * 100;
-                            const pnlEl  = document.createElement('div');
-                            pnlEl.style.cssText = `font-size:0.52rem;font-weight:700;color:${pnl>=0?'#00e8a2':'var(--red)'};margin-top:auto;padding-top:4px;`;
+                            const pnl   = (entry.currentNav - entry.switchNav) / entry.switchNav * 100;
+                            const pnlEl = document.createElement('div');
+                            pnlEl.style.cssText = `font-size:0.52rem;font-weight:400;color:${pnl>=0?'#00916e':'var(--red)'};margin-top:auto;padding-top:4px;`;
                             pnlEl.textContent = `P&L: ${pnl >= 0 ? '+' : ''}${pnl.toFixed(1)}%`;
                             box.appendChild(pnlEl);
                         }
 
                         // ── Tap hint ─────────────────────────────────────────────────
                         const hint = document.createElement('div');
-                        hint.style.cssText = 'font-size:0.4rem;color:var(--muted2);text-align:right;margin-top:2px;';
+                        hint.style.cssText = 'font-size:0.4rem;font-weight:400;color:var(--muted2);text-align:right;margin-top:2px;';
                         hint.textContent = '▶ Tap to simulate';
                         box.appendChild(hint);
 
                     } else {
                         // ── Empty state ──────────────────────────────────────────────
                         const none = document.createElement('div');
-                        none.style.cssText = 'font-size:0.5rem;color:var(--muted2);margin-top:6px;line-height:1.5;';
+                        none.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--muted2);margin-top:6px;line-height:1.5;';
                         none.textContent = '— Run Allocator to populate';
                         box.appendChild(none);
                     }
@@ -15399,12 +15525,10 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
         <div id="alertSummaryModal" class="modal-overlay" style="z-index:900;">
             <div class="modal-close">
                 <div style="display:flex;flex-direction:column;text-align:left;">
-                    <span class="modal-title" style="color:var(--red);">ALERTS SUMMARY</span>
-                    <span id="alertSummarySub" style="font-size:0.55rem;color:var(--muted);margin-top:2px;">Scanning
-                        Universe...</span>
+                    <span class="modal-title" style="color:var(--red);font-weight:400;">ALERTS SUMMARY</span>
+                    <span id="alertSummarySub" style="font-size:0.55rem;font-weight:400;color:var(--muted);margin-top:2px;">Scanning Universe...</span>
                 </div>
-                <span class="modal-close-btn" onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';">
-                    [ CLOSE ] </span>
+                <span class="modal-close-btn" onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';">[ CLOSE ]</span>
             </div>
             <div id="alertSummaryContent" style="flex-grow:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;">
             </div>
@@ -15644,7 +15768,7 @@ categories.forEach(cat => {
                     content.appendChild(emptyMsg);
                 }
 
-                // ── LD244W: Shortlisted Investments — Buy as per SOP ────────────────────
+                // ── Shortlisted Investments section ─────────────────────────────────
                 const shortSection = document.createElement('div');
                 shortSection.style.cssText = `
                     margin-top:6px;
@@ -15652,18 +15776,25 @@ categories.forEach(cat => {
                     padding-top:8px;
                 `;
 
+                // 3b: Same font size as modal-title "ALERTS SUMMARY", no bold
                 const shortTitle = document.createElement('div');
                 shortTitle.style.cssText = `
-                    font-size:0.62rem;font-weight:700;letter-spacing:0.08em;
-                    color:var(--accent);text-align:center;margin-bottom:10px;
+                    font-size:0.72rem;
+                    font-weight:400;
+                    letter-spacing:0.06em;
+                    color:var(--accent);
+                    text-align:center;
+                    margin-bottom:8px;
                     text-transform:uppercase;
+                    font-family:var(--mono);
                 `;
                 shortTitle.innerHTML = '🏆 Shortlisted Investments — Buy as per SOP';
                 shortSection.appendChild(shortTitle);
 
+                // 3c: All on one line — shortened copy
                 const shortSub = document.createElement('div');
-                shortSub.style.cssText = 'font-size:0.52rem;color:var(--muted);text-align:center;margin-bottom:12px;';
-                shortSub.textContent = 'Regime Hope · 1M Return > BAF + 2% hurdle · Tap fund to open Live Cockpit';
+                shortSub.style.cssText = 'font-size:0.52rem;font-weight:400;color:var(--muted);text-align:center;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                shortSub.textContent = 'Regime Hope · 1M > BAF+2% hurdle · Tap to open Live Cockpit';
                 shortSection.appendChild(shortSub);
 
                 const shortGrid = document.createElement('div');
@@ -15680,53 +15811,55 @@ categories.forEach(cat => {
                         padding:10px 8px;
                         display:flex;flex-direction:column;gap:4px;
                         cursor:${entry ? 'pointer' : 'default'};
-                        position:relative;
-                        transition:border-color 0.2s;
+                        min-height:90px;
+                        transition:border-color 0.2s,background 0.2s;
                     `;
                     if (entry) {
+                        box.onmouseenter = () => { box.style.background = 'var(--surface2)'; };
+                        box.onmouseleave = () => { box.style.background = 'var(--surface)'; };
                         box.onclick = () => {
-                            // Close Alert Summary modal and launch Live Cockpit for this fund
                             const alertModal = document.getElementById('alertSummaryModal');
                             if (alertModal) alertModal.style.display = 'none';
                             launchLiveFromAlert(entry.fund.code);
                         };
                     }
 
+                    // AMC label — 3d: no bold
                     const amcLabel = document.createElement('div');
-                    amcLabel.style.cssText = 'font-size:0.5rem;font-weight:700;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;';
+                    amcLabel.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;font-family:var(--mono);';
                     amcLabel.textContent = amc;
                     box.appendChild(amcLabel);
 
                     if (entry) {
+                        // 3e: larger fund name, no bold
                         const fundName = document.createElement('div');
-                        fundName.style.cssText = 'font-size:0.58rem;font-weight:700;color:var(--accent);line-height:1.3;';
+                        fundName.style.cssText = 'font-size:0.66rem;font-weight:400;color:var(--accent);line-height:1.3;';
                         fundName.textContent = entry.fund.name.replace(/ - Growth| - Direct/gi,'').replace(/Balanced Advantage/gi,'BAF').trim();
                         box.appendChild(fundName);
 
+                        // 3f: darker green for 1M value
                         const statsRow = document.createElement('div');
-                        statsRow.style.cssText = 'font-size:0.52rem;color:var(--text);display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;';
+                        statsRow.style.cssText = 'font-size:0.52rem;font-weight:400;color:var(--text);display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;';
                         statsRow.innerHTML = `
-                            <span style="color:#00e8a2;">1M: <strong>${entry.fund.r1m.toFixed(1)}%</strong></span>
+                            <span style="color:#00916e;">1M: ${entry.fund.r1m.toFixed(1)}%</span>
                             <span style="color:var(--muted);">Hurdle: ${entry.hurdle}%</span>
                         `;
                         box.appendChild(statsRow);
 
                         const rsiBadge = document.createElement('div');
-                        rsiBadge.style.cssText = 'font-size:0.5rem;color:var(--muted);margin-top:2px;';
+                        rsiBadge.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--muted);margin-top:2px;';
                         rsiBadge.textContent = `wRSI ${entry.fund.wrsi} · dRSI ${entry.fund.drsi}`;
                         box.appendChild(rsiBadge);
 
                         if (entry.allQualifying.length > 1) {
                             const more = document.createElement('div');
-                            more.style.cssText = 'font-size:0.48rem;color:var(--gold);margin-top:3px;';
+                            more.style.cssText = 'font-size:0.48rem;font-weight:400;color:var(--gold);margin-top:3px;';
                             more.textContent = `+${entry.allQualifying.length - 1} more qualifying`;
                             box.appendChild(more);
                         }
-
-                        // 1c: "Open Live Cockpit" hint removed — boxes are self-explanatory taps
                     } else {
                         const none = document.createElement('div');
-                        none.style.cssText = 'font-size:0.55rem;color:var(--muted2);margin-top:4px;';
+                        none.style.cssText = 'font-size:0.55rem;font-weight:400;color:var(--muted2);margin-top:4px;';
                         none.textContent = '— No qualifying fund';
                         box.appendChild(none);
                     }

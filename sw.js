@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lie-detector-cache-v2.29';
+const CACHE_NAME = 'lie-detector-cache-v2.30';
 const urlsToCache = [
   './',
   './index.html',

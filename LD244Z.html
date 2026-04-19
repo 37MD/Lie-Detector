@@ -1,36 +1,183 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD244Y
+  LIE DETECTOR  LD244z
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
   File       : LD244Z.html
-  Version    : LD244Z  (successor to LD244Y)
-  Changes    : (1a/1b) Alert Summary — reduced blank space before Shortlisted section
-               (1c) Removed "Open Live Cockpit" hint from all 4 shortlisted boxes
-               (2a) C3a + C3b threshold reduced 3% → 2%
-               (3a) "Max DD" renamed to "Live Bridge" in simulator networth-header
-               (3b) Live Bridge tap opens Watchlist modal
-               (3c) "Investment Switch Bridge" heading added to Watchlist
-               (3d) 4 AMC boxes (ABSL/Kotak row, ICICI/HDFC row)
-               (3e) Allocator writes correct Switch Now fund per AMC to _SJ journal
-               (4)  Live Bridge ddVal shows aggregate P&L of all 4 AMC positions
-               (5)  SWITCH NOW writes to _LP LivePortfolioState with T+2 settlement
-               (6)  Bridge box tap launches custom simulation from switchDate
-               (7)  Simulator alerts persist to journal and appear in bridge boxes
-               (8)  Bridge boxes enlarged (min-height 110px) with full alert display
-               (SJ) _SJ journal API: export/import JSON for mobile backup
-               (LP) ARCH: Decoupled AllocatorState vs LivePortfolioState
-                    - AllocatorState (ld_v3_last_alloc_top2): pure backtest, M-box math
-                      never touched by SWITCH NOW — no more hindsight bias
-                    - LivePortfolioState (ld_live_portfolio): tracks live execution
-                      heldCodes for C3 reads from _LP, not backtest
-                    - T+2 settlement: pending_settlement → active after 2 trading days
-                      C3 badge suppressed during settlement, ⏳ banner shown
-                    - _addTradingDays() skips Saturday/Sunday correctly
+  Version    : LD244z  (successor to LD244Y)
+  Released   : April 2026
+  Author     : npsnav.in
+  Licence    : Proprietary — All rights reserved
+================================================================================
+
+  CHANGELOG (LD244Y → LD244z)
+  ─────────────────────────────────────────────────────────────────────────────
+
+  UI-Z1   HOME SCREEN REDESIGN
+          Four primary actions (Alerts, Watchlist, Live Market, Simulation)
+          promoted to a hero 2×2 grid at the top of Page 1. Each box carries
+          a large emoji, gradient tint, 2px branded border, and a hover glow.
+          Asset Allocator and Watchlist buttons retain highlighted styling
+          (setup-btn-allocator / setup-btn-watchlist CSS classes) inside the
+          Fund Selection group.
+
+  UI-Z2   PAGE 1 DECLUTTER
+          Removed from Fund Selection group: Live Analytics button, Watchlist
+          button (both now in the hero grid). Removed from Simulation & Training
+          group: Blind Training toggle box (still accessible inside the simulator
+          via the BLIND button in the game header). SIP row collapsed to a single
+          "📅 START SIP SIMULATION" button.
+
+  UI-Z3   SIP CONFIG MODAL
+          Tapping Start SIP opens a dedicated modal (sipConfigModal) that collects
+          Amount (₹), Mode (Weekly / AutoBuy Slingshot), and Day of Week (1–5).
+          AutoBuy mode hides the Day field automatically. The inputs are no longer
+          permanently visible on Page 1. All three fields (sipAmount, sipMode,
+          sipWeekDay) are still read by initGame('sip') — behaviour unchanged.
+
+  ARCH-Z4  DECOUPLED STATE ARCHITECTURE
+          Two completely separate state objects replace the previous single array.
+
+          AllocatorState  (localStorage key: ld_v3_last_alloc_top2)
+            Written by: runAssetAllocator() month-end backtest loop ONLY.
+            Purpose:    Maintains a pure, untainted historical backtest.
+                        Drives M-box rendering and performance arithmetic.
+            Rule:       NEVER written by SWITCH NOW — mid-month live actions
+                        no longer contaminate the backtest math.
+
+          LivePortfolioState  (localStorage key: ld_live_portfolio)
+            Written by: SWITCH NOW / CONFIRM TRADE button.
+            Purpose:    Tracks what is actually owned in the live portfolio.
+                        Feeds held1 / held2 in the Trigger Monitor C3 calc.
+            Structure:  { slot1: { code, name, status, settleDate, entryDate },
+                          slot2: { … } }
+
+  ARCH-Z5  T+2 SETTLEMENT FLOW
+          When the user clicks SWITCH NOW, the new fund is written to
+          LivePortfolioState with status = 'pending_settlement'. The settle
+          date is computed by _addTradingDays(today, 2), skipping Saturday and
+          Sunday. During settlement:
+            • C3 TRIGGER SWAP badge is suppressed for the settling slot.
+            • The Trigger Monitor Holding row shows:
+                ⏳ T+2 SETTLING: {Fund Name} — clears {date}
+            On the settle date, the next call to _LP.tickleSettlement()
+          (invoked silently at every renderTriggerMonitor run) auto-promotes
+          the slot to status = 'active'. No user action required.
+
+  BRIDGE-Z6  INVESTMENT SWITCH BRIDGE
+          The Watchlist modal now contains a dedicated "Investment Switch Bridge"
+          section below the pinned watchlist rows. It renders two rows of boxes:
+
+            Row 1: ABSL  |  Kotak
+            Row 2: ICICI |  HDFC
+            ── NPS Schemes ──
+            Row 3: NPS Tier 1  |  NPS Tier 2
+
+          Each box is populated by the _SJ Switch Journal (see §SJ below). When
+          the Asset Allocator runs, it writes the Switch Now fund for the current
+          AMC and account type (MF, NPS_T1, NPS_T2) to the journal. Tapping a
+          populated box launches a custom simulation from the switch date.
+
+  BRIDGE-Z7  LIVE BRIDGE METRIC
+          The "Max DD" box in the simulator's networth-header (nw-col) is renamed
+          to "Live Bridge". It is tappable (openLiveBridge → openWatchlist) and
+          displays the aggregate P&L percentage across all four active AMC positions
+          as tracked in the journal. Refreshes every 5 minutes automatically via
+          refreshLiveBridgePnL(). Falls back to Max DD display when no active
+          positions exist.
+
+  SJ-Z8   SWITCH JOURNAL API  (_SJ)
+          New persistent journal object stored under localStorage key
+          'ld_switch_journal'. Structure: { version, switches: { AMC: {…} }, ts }.
+          API surface:
+            _SJ.get()           → returns full journal object
+            _SJ.save(j)         → persists journal + updates lastUpdated
+            _SJ.upsert(key, e)  → merges entry for AMC/NPS key; syncs legacy
+                                   'ld_switch_bridge' for backward compat
+            _SJ.alert(code, t)  → stores latest simulator alert for a fund code
+            _SJ.export()        → downloads ld_switch_journal_YYYY-MM-DD.json
+            _SJ.import(file)    → reads JSON file; restores journal + bridge
+          Export / Import buttons appear in the Watchlist modal footer for
+          mobile backup and restore.
+
+  LP-Z9   LIVE PORTFOLIO STATE API  (_LP)
+          Companion to _SJ. Manages the two live position slots independently
+          of the backtest. API surface:
+            _LP.get()                  → full lp object { slot1, slot2 }
+            _LP.save(lp)               → persists to ld_live_portfolio
+            _LP.confirmSwitch(slot, f) → records new fund + T+2 settle date
+            _LP.tickleSettlement()     → promotes pending → active when due
+            _LP.getHeldCodes(fallback) → returns [code1, code2] for C3 math
+            _LP.getPendingInfo()       → returns settling slot entries
+            _LP.getSlots()             → returns [slot1, slot2] after tickle
+
+  NPS-Z10  NPS PFM RECOMMENDATION
+          Each NPS Tier 1 and Tier 2 box in the Investment Switch Bridge
+          includes a PFM Target section at the bottom. The recommendation is
+          derived from window.currentRegimeLog (synced at every updateDisplay
+          and live cockpit bar advance — no DOM scraping, no polling):
+            Regime Hope  (A) → HDFC Pension   (Aggressive Equity Capture)
+            Regime Watch (B) → Kotak Pension  (Tactical / Sideways Market)
+            Regime Fear  (C) → ICICI Pension  (Maximum Downside Protection)
+
+  BUGFIX-Z11  ANALYTICS CLEAN SLATE
+          Previously, opening a simulation via the Investment Switch Bridge
+          caused the Analytics / End & Review screen to show hundreds of
+          phantom "MISSED BUY SIGNAL" violations. Root cause: endAndReview()
+          iterates i = simStartIdx → currentIdx, flagging every day without a
+          buy in Regime Hope as a violation. The bridge launcher fast-forwards
+          to the last bar, so the loop ran across the full history.
+          Fix: window._resetSimState() is exposed inside the main script scope
+          (the only scope where simStartIdx is accessible). It is called AFTER
+          currentIdx = simEndIdx, setting simStartIdx = currentIdx. This collapses
+          the audit window to 0 days — endAndReview iterates zero times.
+
+  BUGFIX-Z12  THREE CODE AUDIT BUGS
+          Bug A — _getPfmRecommendation scope: function was defined outside
+                  DOMContentLoaded but read currentRegimeLog, which is a closure
+                  variable inside it. PFM always showed '—'. Fix: three-point sync
+                  via window.currentRegimeLog at declaration and both write sites.
+
+          Bug B — alertSummaryBadge ID mismatch: refreshAlertSummaryBadge()
+                  opened with getElementById('alertSummaryBadge') — an ID that
+                  does not exist in the HTML (real ID is 'alertSummaryBadgeTop').
+                  The guard made the function return immediately on every call.
+                  Fix: primary target is alertSummaryBadgeTop; legacy ID retained
+                  as a silent fallback.
+
+          Bug C — NPS_T1 / NPS_T2 journal keys never written: §3e and the
+                  SWITCH NOW handler both derived the journal key from ld_v3_amc
+                  (e.g. 'HDFC'), ignoring the assetAllocType dropdown. When the
+                  Allocator ran in NPS mode, the write went to the wrong key and
+                  the NPS bridge boxes were always empty.
+                  Fix: both write sites now read assetAllocType and map it:
+                  'NPS_T1' → 'NPS_T1', 'NPS_T2' → 'NPS_T2', otherwise AMC name.
+
+  BUGFIX-Z13  SYNTAX ERROR — ORPHANED JSDOC OPENER
+          When renderSwitchBridgeNpsGrid() was inserted using the opening /**
+          of addCurrentToWatchlist()'s JSDoc as the split boundary, the /** was
+          consumed into the replacement body. This left ' * ───────────' as a
+          bare statement — an Unexpected token '*' SyntaxError at runtime.
+          Fix: /** restored before the JSDoc comment.
+
+  BUGFIX-Z14  SERVICE WORKER 404
+          The app attempted to register ./sw.js as a PWA service worker. The file
+          was never created or deployed, generating a 404 console error on every
+          load. The registration block has been removed; no offline/PWA capability
+          was implemented that depended on it.
+
+  STYLE-Z15  TYPOGRAPHY STANDARDISATION
+          Across Alert Summary, Watchlist, and Investment Switch Bridge:
+            font-weight:700 → font-weight:400 throughout all boxes
+            Fund name size increased: 0.54–0.58rem → 0.66rem
+            1M return colour: #00e8a2 (bright mint) → #00916e (darker accessible green)
+            Section titles: weight 700 → 400, size unified to 0.72rem (modal-title match)
+            "Regime Hope · 1M return …" subtitle: compressed to single line
+          C3 threshold display labels updated: ">3%" → ">2%", "≤3%" → "≤2%"
 
   CHANGELOG (LD244X → LD244Y)
-  ─────────────────────────────────────────────────────────────────
+  ─────────────────────────────────────────────────────────────────────────────
   BUG-Y1   window.userRsiLength sync — exposed mutable userRsiLength
            to window on declaration (§3) and on initGame() so all
            scanners and the Asset Allocator always read the live value.
@@ -512,7 +659,7 @@
         <style>
             /*
              * ====================================================================
-             * STYLESHEET — LIE DETECTOR LD244Y
+             * STYLESHEET — LIE DETECTOR LD244z
              * ====================================================================
              * Organisation
              * ─────────────
@@ -3162,7 +3309,7 @@
             <!-- ── Header ────────────────────────────────────────────────────── -->
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD244Y</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD244z</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -3760,6 +3907,60 @@
                 </table>
 
                 <!-- ═══ THE ONE-LINE TRUTH ══════════════════════════════════════════ -->
+                <!-- ═══ PART 12 — LD244z NEW FEATURES & ARCHITECTURE ══════════════════ -->
+                <div class="sop-part sop-part-green">PART 12 — LD244z  NEW FEATURES &amp; ARCHITECTURE</div>
+
+                <table class="sop-gap-table">
+                    <thead><tr><th>FEATURE</th><th>WHAT IT DOES &amp; HOW TO USE IT</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Home Screen Hero Grid</td>
+                            <td>Four primary actions occupy the top of Page 1 in a 2×2 grid: 🚨 <strong>ALERTS</strong> · 📌 <strong>WATCHLIST</strong> · 📈 <strong>LIVE MARKET</strong> · 🎮 <strong>SIMULATION</strong>. Equal height and visual weight — these are the daily-use actions.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">SIP Config Modal</td>
+                            <td>Tapping <em>📅 START SIP SIMULATION</em> on Page 1 opens a setup modal: Amount (₹) · Mode (Weekly / AutoBuy Slingshot) · Day of Week (1–5, hidden in AutoBuy mode). AutoBuy purchases on every Slingshot signal (Δ &lt; −15); Weekly purchases a fixed amount on the chosen weekday.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#a855f7;">📌 Investment Switch Bridge</td>
+                            <td>
+                                New section at the bottom of the Watchlist modal. Six boxes in three rows:<br>
+                                <strong>Row 1:</strong> ABSL | Kotak &nbsp;&nbsp; <strong>Row 2:</strong> ICICI | HDFC &nbsp;&nbsp; <em>── NPS Schemes ──</em> &nbsp;&nbsp; <strong>Row 3:</strong> NPS Tier 1 | NPS Tier 2<br><br>
+                                Populated when you run the Asset Allocator for that AMC / account type. Each box shows fund name, switch date, 1M return, wRSI, regime, latest simulator alert, and P&amp;L since switch. <strong>Tapping a box</strong> launches a custom simulation from the recorded switch date, positioned at the latest bar in 3M view on a clean analytics slate.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#a855f7;">Live Bridge (was Max DD)</td>
+                            <td>The simulator header centre box is now <strong>Live Bridge</strong> (purple, tappable). Tap to open Watchlist / Switch Bridge. Value = aggregate P&amp;L % across all active AMC positions, refreshed every 5 minutes. Falls back to Max Drawdown display when no positions are active.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#00916e;">Switch Journal — Mobile Backup</td>
+                            <td>All switch entries, alerts, and P&amp;L data persist in <code>ld_switch_journal</code>. <strong>⬇ EXPORT JSON</strong> downloads a dated backup file. <strong>⬆ IMPORT JSON</strong> restores it — all six bridge boxes repopulate immediately. Use after clearing browser storage or switching devices.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--gold);">NPS PFM Recommendation</td>
+                            <td>Each NPS bridge box shows a <strong>PFM Target</strong> derived from the current live regime (no polling): <span style="color:#00916e;">Hope → HDFC Pension</span> · <span style="color:#b45309;">Watch → Kotak Pension</span> · <span style="color:#c8102e;">Fear → ICICI Pension</span>. Updates every time the Watchlist modal opens.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--gold);">Decoupled State Architecture</td>
+                            <td>
+                                <strong>AllocatorState</strong> (<code>ld_v3_last_alloc_top2</code>) is written only by the month-end backtest loop — never by SWITCH NOW. M-box performance history is a pure mechanical record, free of hindsight bias.<br><br>
+                                <strong>LivePortfolioState</strong> (<code>ld_live_portfolio</code>) is written by SWITCH NOW. The Trigger Monitor's C3 comparison uses this state — not the backtest — so C3 correctly measures whether an unowned fund outperforms what you actually hold today.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent2);">T+2 Settlement Cycle</td>
+                            <td>
+                                SWITCH NOW sets status = <code>pending_settlement</code>. Settle date = today + 2 trading days (Sat/Sun skipped). During settlement: C3 badge suppressed for that slot; Trigger Monitor shows <em>⏳ T+2 SETTLING: {Fund} — clears {date}</em>. On the settle date the app auto-promotes the slot to <code>active</code> — no manual action needed. Prevents immediate C3 re-trigger for a fund still in transit.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--red);">C3 Threshold 3% → 2%</td>
+                            <td>Conditions C3a and C3b now trigger when an unowned fund outperforms the held fund by more than <strong>2%</strong> on 1M return (reduced from 3%). This makes the Momentum Swap signal more responsive to early trend divergence.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
                 <div class="sop-oneliner">
                     "Buy Regime Hope dips in the strongest RRG fund.&nbsp; Hold until TSL or Regime Fear.&nbsp;
                     Rotate via Asset Allocator Trigger Monitor.&nbsp; Never buy in B or C.&nbsp;
@@ -3767,7 +3968,7 @@
                 </div>
 
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD244Y &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD244z &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
 
@@ -3791,7 +3992,7 @@
             <!-- ── Logo / title strip ── -->
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244Y 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD244z 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
             <!-- ════════════════════════════════════════════════════════════════ -->
@@ -3895,19 +4096,13 @@
                 <!-- Fund dropdown -->
                 <select id="fundSelect" class="dropdown" style="max-width:100%;margin-bottom:6px;" onchange="saveFundSelection()"></select>
 
-                <!-- RSI Length + Live Analytics -->
+                <!-- RSI Length + Asset Allocator (Live Analytics & Watchlist moved to hero row) -->
                 <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
                     <div class="c-input-box" style="flex:0.8;">
                         <span class="c-label">RSI Length</span>
                         <input type="number" id="rsiLengthIn" class="c-num" style="color:var(--accent2);" value="4" min="2" max="50" onchange="saveFundSelection()">
                     </div>
-                    <button class="setup-btn" style="flex:1;border-color:var(--gold);color:var(--gold);font-size:0.63rem;padding:8px 4px;" onclick="initLiveAnalytics()">Live Analytics</button>
-                </div>
-
-                <!-- Watchlist + Asset Allocator -->
-                <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
-                    <button class="setup-btn setup-btn-watchlist" style="flex:1;padding:10px 4px;" onclick="openWatchlist()">📌 Watchlist</button>
-                    <button class="setup-btn setup-btn-allocator" style="flex:1;padding:10px 4px;" onclick="openAssetAllocator()">📊 Asset Allocator <span id="assetAllocC3Badge" style="display:none;font-size:0.58rem;font-weight:700;color:#009e70;"></span></button>
+                    <button class="setup-btn setup-btn-allocator" style="flex:2;padding:10px 4px;" onclick="openAssetAllocator()">📊 Asset Allocator <span id="assetAllocC3Badge" style="display:none;font-size:0.58rem;font-weight:700;color:#009e70;"></span></button>
                 </div>
 
                 <!-- Compare + BAF NPS Switch -->
@@ -3950,49 +4145,56 @@
                     </div>
                 </div>
 
-                <!-- Blind Training toggle -->
-                <div class="custom-inputs" style="max-width:100%;margin-bottom:6px;">
-                    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:8px;cursor:pointer;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--surface2);" onclick="toggleBlindMode()">
-                        <span class="c-label" style="margin-bottom:2px;">Training Mode</span>
-                        <button id="blindToggle" style="pointer-events:none;font-family:var(--mono);font-size:0.6rem;background:transparent;border:none;color:var(--muted);">BLIND</button>
-                    </div>
-                </div>
+                <!-- Blind Training toggle is accessible via simulator header — removed from Page 1 -->
 
-                <!-- ── SIP Consolidated Box ── -->
-                <div style="
-                    background:var(--surface2);
-                    border:1.5px solid var(--accent);
-                    border-radius:var(--radius);
-                    padding:10px 12px;
-                    display:flex;flex-direction:column;gap:8px;
-                ">
-                    <div style="font-size:0.52rem;font-weight:700;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;font-family:var(--mono);">SIP Simulation</div>
-
-                    <!-- Mode selector + Amount on same row -->
-                    <div style="display:flex;gap:8px;align-items:stretch;">
-                        <div class="c-input-box" style="flex:1.4;padding:5px 8px;">
-                            <span class="c-label">Mode</span>
-                            <select id="sipMode" class="c-num" style="font-size:0.58rem;background:transparent;border:none;outline:none;font-family:var(--mono);width:100%;color:var(--text);">
-                                <option value="weekly">Weekly SIP</option>
-                                <option value="autobuy">AutoBuy Slingshot</option>
-                            </select>
-                        </div>
-                        <div class="c-input-box" style="flex:1.2;padding:5px 8px;" id="sipDayBox">
-                            <span class="c-label">Day (1–5)</span>
-                            <input type="number" id="sipWeekDay" class="c-num" style="font-size:0.82rem;" value="1" min="1" max="5">
-                        </div>
-                        <div class="c-input-box" style="flex:1.4;padding:5px 8px;">
-                            <span class="c-label">Amount (₹)</span>
-                            <input type="number" id="sipAmount" class="c-num" style="font-size:0.82rem;" value="10000" min="1000" step="1000">
-                        </div>
-                    </div>
-
-                    <!-- Launch button — full width -->
-                    <button class="setup-btn setup-btn-sim" style="width:100%;padding:11px 4px;" onclick="initGame('sip')">▶ START SIP SIMULATION</button>
-                </div>
+                <!-- ── SIP: single launch button → opens config modal ── -->
+                <button class="setup-btn setup-btn-sim" style="width:100%;padding:13px 4px;margin-top:2px;" onclick="openSipConfigModal()">📅 START SIP SIMULATION</button>
 
             </div><!-- /sg-sim -->
 
+        </div>
+
+        <!-- ══════════ SIP CONFIG MODAL ══════════ -->
+        <div id="sipConfigModal" style="
+            display:none;position:fixed;inset:0;z-index:650;
+            background:rgba(0,0,0,0.72);
+            align-items:center;justify-content:center;padding:20px;
+        ">
+            <div style="
+                background:var(--surface);border:1.5px solid var(--accent);
+                border-radius:var(--radius);padding:22px 20px 18px;
+                width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px;
+                box-shadow:0 8px 32px rgba(0,0,0,0.55);
+            ">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;">📅 SIP Simulation Setup</span>
+                    <span style="cursor:pointer;color:var(--muted);font-size:0.9rem;padding:2px 6px;" onclick="document.getElementById('sipConfigModal').style.display='none';">✕</span>
+                </div>
+
+                <!-- Amount -->
+                <div class="c-input-box" style="padding:8px 12px;">
+                    <span class="c-label">SIP Amount (₹)</span>
+                    <input type="number" id="sipAmount" class="c-num" style="font-size:1rem;color:var(--accent);" value="10000" min="1000" step="1000">
+                </div>
+
+                <!-- Mode -->
+                <div class="c-input-box" style="padding:8px 12px;">
+                    <span class="c-label">Mode</span>
+                    <select id="sipMode" class="c-num" style="font-size:0.68rem;background:transparent;border:none;outline:none;font-family:var(--mono);width:100%;color:var(--text);" onchange="_sipConfigModeChange()">
+                        <option value="weekly">Weekly SIP</option>
+                        <option value="autobuy">AutoBuy Slingshot</option>
+                    </select>
+                </div>
+
+                <!-- Day of week (only for weekly mode) -->
+                <div class="c-input-box" id="sipDayBox" style="padding:8px 12px;">
+                    <span class="c-label">Day of week (1 = Mon … 5 = Fri)</span>
+                    <input type="number" id="sipWeekDay" class="c-num" style="font-size:1rem;" value="1" min="1" max="5">
+                </div>
+
+                <!-- Launch -->
+                <button class="setup-btn setup-btn-sim" style="width:100%;padding:13px 4px;" onclick="_launchSipFromModal()">▶ START SIP SIMULATION</button>
+            </div>
         </div>
 
         <!-- ══════════ ASSET ALLOCATOR MODAL ══════════ -->
@@ -4078,7 +4280,17 @@
                     <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.09em;color:#a855f7;text-transform:uppercase;">🔀 Investment Switch Bridge</span>
                     <span style="font-size:0.46rem;color:var(--muted);">Run Allocator per AMC to populate ↓</span>
                 </div>
+                <!-- MF: 4 AMC boxes -->
                 <div id="switchBridgeGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+
+                <!-- Divider between MF and NPS -->
+                <div style="display:flex;align-items:center;gap:8px;margin:10px 0 8px;">
+                    <div style="flex:1;height:1px;background:var(--border);"></div>
+                    <span style="font-size:0.46rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;font-family:var(--mono);flex-shrink:0;">NPS Schemes</span>
+                    <div style="flex:1;height:1px;background:var(--border);"></div>
+                </div>
+                <!-- NPS: Tier 1 + Tier 2 boxes -->
+                <div id="switchBridgeNpsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
             </div>
 
             <!-- ── Journal Backup / Restore ─────────────────────────────────────── -->
@@ -5538,6 +5750,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
 
             let prevRegime = null;
             let currentRegimeLog = 'A';
+            window.currentRegimeLog = currentRegimeLog; // §PFM: exposed so _getPfmRecommendation (outside DCL) can read it
 
             let globalLiveData = [];
             let globalWeeklyRsiCache = [];
@@ -5563,6 +5776,35 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             let _blindModeOn = false; // hides price chart when true
             // SIP T+2 freeze (AutoBuy Slingshot mode)
             let _sipFreezeUntilDay = -1; // no-buy until this simulator day index
+
+            /**
+             * window._resetSimState  [§BRIDGE-CLEAN]
+             * ───────────────────────────────────────
+             * Called by launchBridgeSimulation() AFTER initGame() resolves.
+             * Clears all per-session trade/score state AND collapses the audit
+             * window (simStartIdx = currentIdx) so endAndReview() sees zero days
+             * of history — preventing phantom "MISSED BUY SIGNAL" violations that
+             * would appear because the sim was fast-forwarded to the end.
+             *
+             * Root cause: endAndReview() iterates i = simStartIdx → currentIdx,
+             * flagging every day without a buy in Regime Hope as a violation.
+             * Collapsing the window to 0 days eliminates this loop entirely.
+             */
+            window._resetSimState = function() {
+                tradeLog        = [];
+                tranches        = [];
+                _infractionCount = 0;
+                totalTaxPaid    = 0;
+                maxDrawdown     = 0;
+                cash            = DEFAULT_SIM_CASH;
+                peakNetWorth    = DEFAULT_SIM_CASH;
+                // Collapse audit window → endAndReview loop runs 0 iterations
+                simStartIdx     = currentIdx;
+                const badge = document.getElementById('infractionBadge');
+                if (badge) badge.style.display = 'none';
+                const pausedPanel = document.getElementById('pausedSipAlert');
+                if (pausedPanel) pausedPanel.style.display = 'none';
+            };
             // Watchlist (persisted to localStorage)
             // SEC-02 FIX: validate localStorage data before use — corrupt/injected values fall back safely
             let _watchlist = (() => {
@@ -5928,14 +6170,62 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             }); // end DOMContentLoaded
 
             // =============================================================================
-            // §SJ · SWITCH JOURNAL  —  localStorage + JSON backup/restore
+            // §SIP-MODAL · SIP Config Modal helpers
             // =============================================================================
-            // _SJ.get()           → full journal object
-            // _SJ.save(j)         → write to localStorage
-            // _SJ.upsert(amc,e)   → merge entry for one AMC, sync ld_switch_bridge
-            // _SJ.export()        → download ld_switch_journal_YYYY-MM-DD.json
-            // _SJ.import(file)    → read JSON from file, restore journal + bridge
-            // _SJ.alert(code,txt) → store latest simulator alert for a fund code
+            function openSipConfigModal() {
+                const m = document.getElementById('sipConfigModal');
+                if (m) { m.style.display = 'flex'; _sipConfigModeChange(); }
+            }
+            function _sipConfigModeChange() {
+                const mode  = document.getElementById('sipMode')?.value;
+                const dayBx = document.getElementById('sipDayBox');
+                if (dayBx) dayBx.style.display = mode === 'autobuy' ? 'none' : '';
+            }
+            function _launchSipFromModal() {
+                document.getElementById('sipConfigModal').style.display = 'none';
+                initGame('sip');
+            }
+
+            // =============================================================================
+            // §PFM · NPS PFM Recommendation (non-destructive, no DOM scraping)
+            // =============================================================================
+            /**
+             * _getPfmRecommendation()
+             * ────────────────────────
+             * Reads currentRegimeLog (A/B/C) from the live closed-over variable.
+             * Called only when Watchlist opens — no polling, zero performance cost.
+             *
+             * PFM Matrix:
+             *   Regime Hope  (A) → HDFC Pension   — Aggressive Equity Capture
+             *   Regime Watch (B) → Kotak Pension  — Tactical / Sideways
+             *   Regime Fear  (C) → ICICI Pension  — Maximum Downside Protection
+             */
+            function _getPfmRecommendation() {
+                try {
+                    const regime = typeof currentRegimeLog !== 'undefined' ? currentRegimeLog : 'B';
+                    if (regime === 'A') return { pfm: 'HDFC Pension',  color: '#00916e', regime: 'Hope',  rationale: 'Aggressive Equity Capture'     };
+                    if (regime === 'C') return { pfm: 'ICICI Pension', color: '#c8102e', regime: 'Fear',  rationale: 'Maximum Downside Protection'    };
+                    return              { pfm: 'Kotak Pension',        color: '#b45309', regime: 'Watch', rationale: 'Tactical / Sideways Market'     };
+                } catch(_) {
+                    return { pfm: '—', color: 'var(--muted)', regime: '—', rationale: 'Load a fund first' };
+                }
+            }
+            window._getPfmRecommendation = _getPfmRecommendation;
+
+            // =============================================================================
+            // §SJ · SWITCH JOURNAL  —  Persistent trade record + mobile backup
+            // =============================================================================
+            // Stores per-AMC / per-NPS-tier Switch Now fund entries. Persisted to
+            // localStorage key 'ld_switch_journal'. A secondary key 'ld_switch_bridge'
+            // is kept in sync for backward compatibility with renderSwitchBridgeGrid().
+            //
+            // API surface:
+            //   _SJ.get()           → { version, switches: { KEY: entry }, lastUpdated }
+            //   _SJ.save(j)         → writes to localStorage + stamps lastUpdated
+            //   _SJ.upsert(key, e)  → merges e into switches[key]; syncs bridge key
+            //   _SJ.alert(code, t)  → stamps latestAlert on matching fund entry
+            //   _SJ.export()        → downloads ld_switch_journal_YYYY-MM-DD.json
+            //   _SJ.import(file)    → reads JSON file; restores journal + bridge
             // =============================================================================
             const _SJ = {
                 KEY: 'ld_switch_journal',
@@ -6024,6 +6314,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             this.save(j);
                             localStorage.setItem('ld_switch_bridge', JSON.stringify(j.switches));
                             renderSwitchBridgeGrid();
+                            renderSwitchBridgeNpsGrid();
                             refreshLiveBridgePnL();
                             // Flash confirmation in watchlist subtitle
                             const sub = document.querySelector('#watchlistModal [style*="Auto-refreshes"]');
@@ -6036,25 +6327,30 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             window._SJ = _SJ;
 
             // =============================================================================
-            // §LP · LIVE PORTFOLIO STATE  (decoupled from backtest AllocatorState)
+            // §LP · LIVE PORTFOLIO STATE  —  Decoupled from backtest AllocatorState
             // =============================================================================
-            // Architecture: two completely separate state objects.
             //
-            //   AllocatorState  (ld_v3_last_alloc_top2)
-            //     Written by: runAssetAllocator() month-end backtest loop ONLY.
-            //     Purpose:    Pure historical backtest — drives M boxes, performance math.
-            //     NEVER touched by SWITCH NOW.
+            // Architecture — two entirely separate state objects:
             //
-            //   LivePortfolioState  (ld_live_portfolio)
-            //     Written by: user clicking SWITCH NOW / CONFIRM TRADE.
-            //     Purpose:    Tracks what is actually owned right now.
-            //     Read by:    renderTriggerMonitor() held1 / held2 — C3 comparisons.
+            //   AllocatorState  (localStorage: ld_v3_last_alloc_top2)
+            //     Written by:  runAssetAllocator() backtest loop ONLY (month-end).
+            //     Purpose:     Maintains a pure historical backtest; drives M-box
+            //                  rendering and performance arithmetic.
+            //     Invariant:   NEVER written by SWITCH NOW. Mid-month live actions
+            //                  do not contaminate backtest math (no hindsight bias).
             //
-            // T+2 settlement flow
-            //   Day 0  → SWITCH NOW clicked  → status = 'pending_settlement'
-            //   Day 1–2 → C3 trigger suppressed for settling slot
-            //             tmHolding shows ⏳ banner
-            //   Day 3  → status auto-promoted to 'active' on next allocator open
+            //   LivePortfolioState  (localStorage: ld_live_portfolio)
+            //     Written by:  _LP.confirmSwitch() — triggered by SWITCH NOW button.
+            //     Purpose:     Tracks what is actually owned in the live portfolio.
+            //                  Feeds held1 / held2 in renderTriggerMonitor() C3 calc.
+            //
+            // T+2 Settlement flow:
+            //   Day 0:   SWITCH NOW clicked → status = 'pending_settlement'
+            //            settleDate = _addTradingDays(today, 2), skipping Sat/Sun
+            //   Day 1–2: C3 TRIGGER SWAP badge suppressed for the settling slot.
+            //            Trigger Monitor Holding row shows ⏳ T+2 SETTLING banner.
+            //   Day 3:   _LP.tickleSettlement() (called on every TM render) promotes
+            //            status pending_settlement → active automatically.
             // =============================================================================
 
             /** Skip Saturday (6) and Sunday (0), advance n trading days. */
@@ -6178,19 +6474,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
              * and activates the 3M timeframe.
              */
             function launchBridgeSimulation(code, switchDate) {
-                // Close watchlist modal
                 document.getElementById('watchlistModal').style.display = 'none';
-
-                // ── Clean slate: explicitly wipe any previous session state ──────────
-                // This prevents Analytics showing rule violations from a prior session
-                // when the user navigates here from the Investment Switch Bridge.
-                try {
-                    if (typeof tradeLog !== 'undefined')         tradeLog         = [];
-                    if (typeof tranches !== 'undefined')         tranches         = [];
-                    if (typeof _infractionCount !== 'undefined') _infractionCount = 0;
-                    if (typeof totalTaxPaid !== 'undefined')     totalTaxPaid     = 0;
-                    if (typeof maxDrawdown !== 'undefined')      maxDrawdown      = 0;
-                } catch(_) {}
 
                 // Select correct AMC + fund
                 let amcMatch = 'HDFC';
@@ -6204,26 +6488,22 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 });
                 const sel = document.getElementById('fundSelect');
                 if (sel) { sel.value = code; saveFundSelection(); }
-
                 document.getElementById('setupScreen').style.display = 'flex';
 
-                // Launch custom simulation from switchDate → latest available history bar
                 const start = switchDate && /^\d{4}-\d{2}-\d{2}$/.test(switchDate) ? switchDate : null;
                 (start ? initGame('custom', start, null) : initGame('random')).then(() => {
-                    // Ensure clean state after initGame (belt + braces)
-                    try {
-                        if (typeof tradeLog !== 'undefined')         tradeLog         = [];
-                        if (typeof tranches !== 'undefined')         tranches         = [];
-                        if (typeof _infractionCount !== 'undefined') _infractionCount = 0;
-                    } catch(_) {}
-
-                    // Position cursor to last bar and activate 3M timeframe
                     setTimeout(() => {
-                        if (typeof simEndIdx !== 'undefined' && simEndIdx > 0 &&
-                            typeof currentIdx !== 'undefined') {
+                        // Jump to latest available bar
+                        if (typeof simEndIdx !== 'undefined' && simEndIdx > 0) {
                             currentIdx = simEndIdx;
                             if (typeof updateDisplay === 'function') updateDisplay();
                         }
+                        // ── §BRIDGE-CLEAN: collapse audit window AFTER positioning ──
+                        // Must run after currentIdx = simEndIdx so simStartIdx = simEndIdx
+                        // makes the endAndReview loop iterate 0 times → no phantom violations.
+                        if (typeof window._resetSimState === 'function') window._resetSimState();
+
+                        // Activate 3M timeframe
                         const btn3M = document.querySelector('#simTfRow .tf-btn[onclick*="63"]');
                         if (btn3M && typeof updateSimLookback === 'function') updateSimLookback(63, btn3M);
                     }, 400);
@@ -9223,10 +9503,7 @@ ${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' 
                 );
 
                 currentRegimeLog = snap.regime;
-                peakNetWorth = snap.portfolio.peakNetWorth;
-                maxDrawdown = snap.portfolio.currentDrawdown;
-
-                document.getElementById('simDay').textContent = `Day ${snap.dayNum}`;
+                window.currentRegimeLog = snap.regime; // §PFM sync
                 document.getElementById('simNav').textContent = `NAV: ₹${snap.nav.toFixed(2)}`;
 
                 // ── Indicator strip ──────────────────────────────────────────────────────
@@ -10347,6 +10624,7 @@ This is exactly how the system is meant to be played.
                     cash, tranches, peakNetWorth
                 );
                 currentRegimeLog = _freshSnap.regime; // keep global in sync
+                window.currentRegimeLog = _freshSnap.regime; // §PFM sync
                 const state = {
                     cash,
                     tranches,
@@ -11387,8 +11665,9 @@ This is exactly how the system is meant to be played.
                 document.getElementById('watchlistModal').style.display = 'flex';
                 renderWatchlistStubs();
                 refreshWatchlist();
-                renderSwitchBridgeGrid();   // §SJ4: populate bridge from journal
-                refreshLiveBridgePnL();     // §SJ3: update aggregate P&L in Live Bridge box
+                renderSwitchBridgeGrid();       // §SJ4: MF bridge from journal
+                renderSwitchBridgeNpsGrid();    // §SJ5: NPS Tier 1 + Tier 2
+                refreshLiveBridgePnL();         // §SJ3: aggregate P&L in Live Bridge box
                 _watchlistRefreshTimer = setInterval(refreshWatchlist, 60_000);
             }
 
@@ -11540,7 +11819,159 @@ This is exactly how the system is meant to be played.
             }
 
             /**
-             * addCurrentToWatchlist()  [§23 — Watchlist]
+             * renderSwitchBridgeNpsGrid()  [§SJ5 — NPS Tier 1 + Tier 2]
+             * ─────────────────────────────
+             * Renders 2 boxes below the MF bridge: NPS Tier 1 and NPS Tier 2.
+             * Reads from _SJ journal keys 'NPS_T1' and 'NPS_T2'.
+             * Same design language as the 4 AMC MF boxes.
+             * Tapping launches the NPS simulation for that tier.
+             */
+            function renderSwitchBridgeNpsGrid() {
+                const grid = document.getElementById('switchBridgeNpsGrid');
+                if (!grid) return;
+
+                let bridge = {};
+                try {
+                    const j = _SJ.get();
+                    bridge = (j.switches && Object.keys(j.switches).length) ? j.switches
+                           : JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}');
+                } catch(_) {}
+
+                const npsTiers = [
+                    { key: 'NPS_T1', label: 'NPS TIER 1', accent: '#7c3aed', icon: '🏛' },
+                    { key: 'NPS_T2', label: 'NPS TIER 2', accent: '#0ea5e9', icon: '🏦' }
+                ];
+
+                grid.innerHTML = '';
+
+                npsTiers.forEach(({ key, label, accent, icon }) => {
+                    const entry   = bridge[key];
+                    const hasData = !!(entry?.code);
+
+                    // PFM recommendation — read live regime state directly
+                    const pfmRec = typeof _getPfmRecommendation === 'function'
+                        ? _getPfmRecommendation()
+                        : { pfm: '—', color: 'var(--muted)', rationale: '' };
+
+                    const box = document.createElement('div');
+                    box.style.cssText = `
+                        background:var(--surface2);
+                        border:1.5px solid ${hasData ? accent : 'var(--border)'};
+                        border-radius:var(--radius-sm);
+                        padding:9px 8px 8px;
+                        display:flex;flex-direction:column;gap:3px;
+                        cursor:${hasData ? 'pointer' : 'default'};
+                        min-height:100px;
+                        transition:border-color 0.2s,background 0.2s;
+                    `;
+                    if (hasData) {
+                        box.onmouseenter = () => { box.style.background = 'var(--surface3)'; };
+                        box.onmouseleave = () => { box.style.background = 'var(--surface2)'; };
+                        box.onclick = () => launchBridgeSimulation(entry.code, entry.switchDate || null);
+                    }
+
+                    // Tier label
+                    const tierLbl = document.createElement('div');
+                    tierLbl.style.cssText = `font-size:0.46rem;font-weight:400;color:${hasData ? accent : 'var(--muted)'};letter-spacing:0.12em;text-transform:uppercase;font-family:var(--mono);`;
+                    tierLbl.textContent = `${icon} ${label}`;
+                    box.appendChild(tierLbl);
+
+                    if (hasData) {
+                        // Scheme name
+                        const nm = document.createElement('div');
+                        nm.style.cssText = 'font-size:0.64rem;font-weight:400;color:var(--text);line-height:1.3;';
+                        nm.textContent = (entry.name || '')
+                            .replace(/\[NPS\]\s*/gi, '')
+                            .replace(/Scheme\s+/gi, 'Sch ')
+                            .replace(/Tier\s+(I|II)/gi, '')
+                            .trim().slice(0, 28);
+                        box.appendChild(nm);
+
+                        // Switch date
+                        if (entry.switchDate || entry.ts) {
+                            const dtEl = document.createElement('div');
+                            dtEl.style.cssText = 'font-size:0.44rem;font-weight:400;color:var(--muted);';
+                            const dtStr = new Date(entry.switchDate || entry.ts).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' });
+                            dtEl.textContent = `📅 Switched: ${dtStr}`;
+                            box.appendChild(dtEl);
+                        }
+
+                        // Stats
+                        const stats = document.createElement('div');
+                        stats.style.cssText = 'font-size:0.48rem;font-weight:400;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;';
+                        const r1mVal = typeof entry.r1m === 'number' ? entry.r1m.toFixed(1) + '%' : '--';
+                        const r1mCol = typeof entry.r1m === 'number' ? (entry.r1m >= 0 ? '#00916e' : 'var(--red)') : 'var(--muted)';
+                        const regimeCol = entry.regime==='A'?'#00916e':entry.regime==='B'?'#f59e0b':'var(--red)';
+                        const regimeTxt = entry.regime==='A'?'Hope':entry.regime==='B'?'Watch':entry.regime==='C'?'Fear':'—';
+                        stats.innerHTML = `<span>1M: <span style="color:${r1mCol}">${r1mVal}</span></span>`
+                            + `<span>wRSI: ${entry.wrsi ?? '--'}</span>`
+                            + `<span style="color:${regimeCol};">${regimeTxt}</span>`;
+                        box.appendChild(stats);
+
+                        // Alert badge
+                        if (entry.latestAlert) {
+                            const isRed   = (entry.latestAlertClass || '').includes('danger');
+                            const isGreen = (entry.latestAlertClass || '').includes('buy');
+                            const alertBg = isRed ? 'rgba(200,16,46,0.12)' : isGreen ? 'rgba(0,145,110,0.12)' : 'rgba(255,160,0,0.10)';
+                            const alertFg = isRed ? '#c8102e' : isGreen ? '#00916e' : '#c97a00';
+                            const alertEl = document.createElement('div');
+                            alertEl.style.cssText = `font-size:0.44rem;font-weight:400;color:${alertFg};background:${alertBg};border-radius:2px;padding:3px 5px;margin-top:2px;line-height:1.3;`;
+                            alertEl.textContent = entry.latestAlert.slice(0, 46);
+                            box.appendChild(alertEl);
+                        }
+
+                        // P&L
+                        if (typeof entry.switchNav === 'number' && entry.switchNav > 0 && typeof entry.currentNav === 'number') {
+                            const pnl   = (entry.currentNav - entry.switchNav) / entry.switchNav * 100;
+                            const pnlEl = document.createElement('div');
+                            pnlEl.style.cssText = `font-size:0.52rem;font-weight:400;color:${pnl>=0?'#00916e':'var(--red)'};margin-top:auto;padding-top:3px;`;
+                            pnlEl.textContent = `P&L: ${pnl >= 0 ? '+' : ''}${pnl.toFixed(1)}%`;
+                            box.appendChild(pnlEl);
+                        }
+
+                        // Tap hint
+                        const hint = document.createElement('div');
+                        hint.style.cssText = 'font-size:0.4rem;font-weight:400;color:var(--muted2);text-align:right;margin-top:2px;';
+                        hint.textContent = '▶ Tap to simulate';
+                        box.appendChild(hint);
+
+                    } else {
+                        const none = document.createElement('div');
+                        none.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--muted2);margin-top:6px;line-height:1.5;';
+                        none.textContent = '— Run NPS Allocator to populate';
+                        box.appendChild(none);
+                    }
+
+                    // ── PFM recommendation (always shown at bottom of NPS box) ──────
+                    const pfmDivider = document.createElement('div');
+                    pfmDivider.style.cssText = 'height:1px;background:var(--border);margin:6px 0 5px;';
+                    box.appendChild(pfmDivider);
+
+                    const pfmRow = document.createElement('div');
+                    pfmRow.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
+
+                    const pfmLbl = document.createElement('div');
+                    pfmLbl.style.cssText = 'font-size:0.42rem;font-weight:400;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;font-family:var(--mono);';
+                    pfmLbl.textContent = 'PFM Target';
+                    pfmRow.appendChild(pfmLbl);
+
+                    const pfmVal = document.createElement('div');
+                    pfmVal.style.cssText = `font-size:0.62rem;font-weight:700;color:${pfmRec.color};`;
+                    pfmVal.textContent = pfmRec.pfm;
+                    pfmRow.appendChild(pfmVal);
+
+                    const pfmRationale = document.createElement('div');
+                    pfmRationale.style.cssText = 'font-size:0.42rem;font-weight:400;color:var(--muted);line-height:1.3;';
+                    pfmRationale.textContent = pfmRec.rationale;
+                    pfmRow.appendChild(pfmRationale);
+
+                    box.appendChild(pfmRow);
+                    grid.appendChild(box);
+                });
+            }
+
+            /**
+             * addCurrentToWatchlist()
              * ────────────────────────
              * Reads the currently selected fund code from #fundSelect and appends
              * it to the watchlist array persisted in localStorage (key: 'watchlist').
@@ -15214,7 +15645,11 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         // AllocatorState (ld_v3_last_alloc_top2) is NOT touched —
                         // it must stay a pure backtest record to keep M-box math clean.
                         try {
-                            const amc   = (localStorage.getItem('ld_v3_amc') || 'HDFC').toUpperCase();
+                            const _rawAmc2   = (localStorage.getItem('ld_v3_amc') || 'HDFC').toUpperCase();
+                            const _type2     = document.getElementById('assetAllocType')?.value || 'MF';
+                            const amc        = _type2 === 'NPS_T1' ? 'NPS_T1'
+                                             : _type2 === 'NPS_T2' ? 'NPS_T2'
+                                             : _rawAmc2;
                             const rank1 = lastAlloc.top2[0];
                             const rank2 = lastAlloc.top2[1];
                             const snap1 = snapshot.find(f => f.code === rank1?.code);
@@ -15278,8 +15713,14 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 // Rule: if C3a triggers → track bestUnowned (the swap target)
                 //        if C3b triggers only → track secondUnowned
                 //        otherwise → track lastAlloc.top2[0] (current active position)
+                // §BUG-C FIX: NPS Tier 1/2 must write to 'NPS_T1'/'NPS_T2' keys, not AMC name
                 try {
-                    const currentAmc  = (localStorage.getItem('ld_v3_amc') || 'HDFC').toUpperCase();
+                    const _rawAmc    = (localStorage.getItem('ld_v3_amc') || 'HDFC').toUpperCase();
+                    const _allocType = document.getElementById('assetAllocType')?.value || 'MF';
+                    const currentAmc = _allocType === 'NPS_T1' ? 'NPS_T1'
+                                     : _allocType === 'NPS_T2' ? 'NPS_T2'
+                                     : _rawAmc;
+
                     const bridgeFund  = c3aTrigger ? bestUnowned
                                      : c3bTrigger  ? secondUnowned
                                      : lastAlloc.top2[0];
@@ -15303,6 +15744,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                             switchNav  : isNewSwitch ? null : (prevEntry?.switchNav || null),
                             status     : 'ACTIVE',
                             c3Triggered: c3aTrigger || c3bTrigger,
+                            allocType  : _allocType,
                             ts         : Date.now()
                         });
                     }
@@ -15884,9 +16326,15 @@ categories.forEach(cat => {
              * @returns {Promise<void>}
              */
             async function refreshAlertSummaryBadge() {
-                const badge = document.getElementById('alertSummaryBadge');
-                if (!badge) return;
-                badge.textContent = '(...)';
+                // §BUG-B FIX: HTML id is "alertSummaryBadgeTop" — no plain "alertSummaryBadge" exists
+                const badge    = document.getElementById('alertSummaryBadgeTop');
+                const legacyBadge = document.getElementById('alertSummaryBadge'); // may be null
+                const _setBadge = (txt) => {
+                    if (badge) badge.textContent = txt;
+                    if (legacyBadge) legacyBadge.textContent = txt;
+                };
+                if (!badge && !legacyBadge) return;
+                _setBadge('(...)');
                 const allFunds = Object.values(window.amcFunds).flat();
                 let count = 0;
 
@@ -15924,16 +16372,12 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 
                         if (isActionable) {
                             count++;
-                            badge.textContent = `(${count})`;
-                            const topBadge = document.getElementById('alertSummaryBadgeTop');
-                            if (topBadge) topBadge.textContent = `(${count})`;
+                            _setBadge(`(${count})`);
                         }
                     } catch (e) {}
                     await new Promise(r => setTimeout(r, 10));
                 }
-                badge.textContent = `(${count})`;
-                const topBadge = document.getElementById('alertSummaryBadgeTop');
-                if (topBadge) topBadge.textContent = `(${count})`;
+                _setBadge(`(${count})`);
             }
 
             function launchLiveFromAlert(code) {
@@ -16351,15 +16795,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             setTimeout(refreshAlertSummaryBadge, 8000);
         </script>
 
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('Lie Detector PWA: Service Worker Registered!', reg))
-        .catch(err => console.log('Lie Detector PWA: Registration Failed:', err));
-    });
-  }
-</script>
+<!-- Service Worker registration removed — sw.js not deployed; registration was generating a 404 console error with no functional impact. -->
 
 <!--
     ════════════════════════════════════════════════════════════════════════════

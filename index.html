@@ -4294,12 +4294,32 @@
             </div>
 
             <!-- ── Journal Backup / Restore ─────────────────────────────────────── -->
-            <div style="padding:6px 8px 4px;border-top:1px solid var(--border);flex-shrink:0;">
-                <div style="font-size:0.48rem;color:var(--muted);margin-bottom:5px;text-align:center;letter-spacing:0.06em;">SWITCH JOURNAL BACKUP (JSON ← Mobile Storage)</div>
-                <div style="display:flex;gap:5px;">
-                    <button class="setup-btn" style="flex:1;font-size:0.52rem;border-color:#a855f7;color:#a855f7;" onclick="_SJ.export()">⬇ EXPORT JSON</button>
-                    <label class="setup-btn" style="flex:1;font-size:0.52rem;border-color:#00b4d8;color:#00b4d8;cursor:pointer;text-align:center;padding:5px 4px;">
-                        ⬆ IMPORT JSON
+            <div style="padding:8px 10px 6px;border-top:1px solid var(--border);flex-shrink:0;">
+                <div style="font-size:0.52rem;font-weight:400;color:var(--muted);margin-bottom:7px;text-align:center;letter-spacing:0.06em;font-family:var(--mono);">SWITCH JOURNAL — MOBILE BACKUP</div>
+                <div style="display:flex;gap:6px;">
+                    <button onclick="_SJ.export()" style="
+                        flex:1;min-height:44px;
+                        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+                        background:rgba(168,85,247,0.08);
+                        border:1.5px solid #a855f7;border-radius:var(--radius-sm);
+                        cursor:pointer;color:#a855f7;
+                        font-family:var(--mono);font-size:0.65rem;font-weight:400;letter-spacing:0.04em;
+                        transition:background 0.15s;
+                    " onmouseenter="this.style.background='rgba(168,85,247,0.16)'" onmouseleave="this.style.background='rgba(168,85,247,0.08)'">
+                        <span style="font-size:1rem;line-height:1;">⬇</span>
+                        EXPORT JSON
+                    </button>
+                    <label style="
+                        flex:1;min-height:44px;
+                        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+                        background:rgba(0,180,216,0.08);
+                        border:1.5px solid #00b4d8;border-radius:var(--radius-sm);
+                        cursor:pointer;color:#00b4d8;
+                        font-family:var(--mono);font-size:0.65rem;font-weight:400;letter-spacing:0.04em;
+                        transition:background 0.15s;
+                    " onmouseenter="this.style.background='rgba(0,180,216,0.16)'" onmouseleave="this.style.background='rgba(0,180,216,0.08)'">
+                        <span style="font-size:1rem;line-height:1;">⬆</span>
+                        IMPORT JSON
                         <input type="file" accept=".json" style="display:none;" onchange="_SJ.import(this.files[0]);this.value='';">
                     </label>
                 </div>
@@ -11877,14 +11897,14 @@ This is exactly how the system is meant to be played.
                     box.appendChild(tierLbl);
 
                     if (hasData) {
-                        // Scheme name
+                        // Scheme name — 0.66rem matching MF boxes
                         const nm = document.createElement('div');
-                        nm.style.cssText = 'font-size:0.64rem;font-weight:400;color:var(--text);line-height:1.3;';
+                        nm.style.cssText = 'font-size:0.66rem;font-weight:400;color:var(--text);line-height:1.3;';
                         nm.textContent = (entry.name || '')
                             .replace(/\[NPS\]\s*/gi, '')
                             .replace(/Scheme\s+/gi, 'Sch ')
                             .replace(/Tier\s+(I|II)/gi, '')
-                            .trim().slice(0, 28);
+                            .trim().slice(0, 32);
                         box.appendChild(nm);
 
                         // Switch date
@@ -11896,7 +11916,7 @@ This is exactly how the system is meant to be played.
                             box.appendChild(dtEl);
                         }
 
-                        // Stats
+                        // Stats — matching MF boxes
                         const stats = document.createElement('div');
                         stats.style.cssText = 'font-size:0.48rem;font-weight:400;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;';
                         const r1mVal = typeof entry.r1m === 'number' ? entry.r1m.toFixed(1) + '%' : '--';
@@ -11908,19 +11928,19 @@ This is exactly how the system is meant to be played.
                             + `<span style="color:${regimeCol};">${regimeTxt}</span>`;
                         box.appendChild(stats);
 
-                        // Alert badge
+                        // Alert badge — 0.46rem matching MF boxes
                         if (entry.latestAlert) {
                             const isRed   = (entry.latestAlertClass || '').includes('danger');
                             const isGreen = (entry.latestAlertClass || '').includes('buy');
                             const alertBg = isRed ? 'rgba(200,16,46,0.12)' : isGreen ? 'rgba(0,145,110,0.12)' : 'rgba(255,160,0,0.10)';
                             const alertFg = isRed ? '#c8102e' : isGreen ? '#00916e' : '#c97a00';
                             const alertEl = document.createElement('div');
-                            alertEl.style.cssText = `font-size:0.44rem;font-weight:400;color:${alertFg};background:${alertBg};border-radius:2px;padding:3px 5px;margin-top:2px;line-height:1.3;`;
-                            alertEl.textContent = entry.latestAlert.slice(0, 46);
+                            alertEl.style.cssText = `font-size:0.46rem;font-weight:400;color:${alertFg};background:${alertBg};border-radius:2px;padding:3px 5px;margin-top:2px;line-height:1.3;`;
+                            alertEl.textContent = entry.latestAlert.slice(0, 48);
                             box.appendChild(alertEl);
                         }
 
-                        // P&L
+                        // P&L since switch
                         if (typeof entry.switchNav === 'number' && entry.switchNav > 0 && typeof entry.currentNav === 'number') {
                             const pnl   = (entry.currentNav - entry.switchNav) / entry.switchNav * 100;
                             const pnlEl = document.createElement('div');
@@ -15517,13 +15537,18 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
 
                 ovEl.style.display = 'none';
                 renderAssetAllocatorBoxes(allocations);
-                // LD244W: pass MF BAF data separately so C2 gate works for NPS modes too
-                renderTriggerMonitor(fundsData, allocations, _bafDataForNps);
+                // Pass the current type explicitly so renderTriggerMonitor's §3e never reads
+                // a stale assetAllocType value (e.g. if DOM is updated before the call).
+                const _currentAllocType = type; // 'MF' | 'NPS_T1' | 'NPS_T2'
+                renderTriggerMonitor(fundsData, allocations, _bafDataForNps, _currentAllocType);
             }
 
-            function renderTriggerMonitor(fundsData, allocs, externalBaf) {
+            function renderTriggerMonitor(fundsData, allocs, externalBaf, allocType) {
                 const el = document.getElementById('triggerMonitor');
                 if (!el || allocs.length === 0) return;
+                // §4-FIX: use passed allocType (reliable) rather than reading DOM element
+                // which may have already changed by the time this function executes.
+                const _tmAllocType = allocType || document.getElementById('assetAllocType')?.value || 'MF';
 
                 const lastAlloc = allocs[allocs.length - 1];
                 if (!lastAlloc.top2 || lastAlloc.top2.length < 2) return;
@@ -15646,9 +15671,8 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         // it must stay a pure backtest record to keep M-box math clean.
                         try {
                             const _rawAmc2   = (localStorage.getItem('ld_v3_amc') || 'HDFC').toUpperCase();
-                            const _type2     = document.getElementById('assetAllocType')?.value || 'MF';
-                            const amc        = _type2 === 'NPS_T1' ? 'NPS_T1'
-                                             : _type2 === 'NPS_T2' ? 'NPS_T2'
+                            const amc        = _tmAllocType === 'NPS_T1' ? 'NPS_T1'
+                                             : _tmAllocType === 'NPS_T2' ? 'NPS_T2'
                                              : _rawAmc2;
                             const rank1 = lastAlloc.top2[0];
                             const rank2 = lastAlloc.top2[1];
@@ -15716,9 +15740,8 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 // §BUG-C FIX: NPS Tier 1/2 must write to 'NPS_T1'/'NPS_T2' keys, not AMC name
                 try {
                     const _rawAmc    = (localStorage.getItem('ld_v3_amc') || 'HDFC').toUpperCase();
-                    const _allocType = document.getElementById('assetAllocType')?.value || 'MF';
-                    const currentAmc = _allocType === 'NPS_T1' ? 'NPS_T1'
-                                     : _allocType === 'NPS_T2' ? 'NPS_T2'
+                    const currentAmc = _tmAllocType === 'NPS_T1' ? 'NPS_T1'
+                                     : _tmAllocType === 'NPS_T2' ? 'NPS_T2'
                                      : _rawAmc;
 
                     const bridgeFund  = c3aTrigger ? bestUnowned
@@ -16100,10 +16123,9 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
                     await new Promise(r => setTimeout(r, 10));
                 }
 
-                // LD244W: Populate SHORTLISTED — Regime Hope MF funds beating their AMC BAF hurdle
-                // Hurdle = BAF 1M return + 2% (Condition 3 standard). Max 1 best fund per AMC box.
-                const amcList = Object.keys(window.amcFunds).filter(a => !['NPS'].includes(a));
-                for (const amc of amcList) {
+                // ── Shortlisted Investments — MF funds (4 AMC boxes) ──────────────────
+                const mfAmcList = Object.keys(window.amcFunds).filter(a => !['NPS'].includes(a));
+                for (const amc of mfAmcList) {
                     const bafR = results._bafR1mByAmc[amc] ?? -999;
                     const hurdle = bafR + 2.0;
                     const mfFunds = Object.values(results).flat()
@@ -16117,9 +16139,30 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
                             fund: mfFunds[0],
                             hurdle: hurdle.toFixed(1),
                             bafR:   bafR.toFixed(1),
-                            allQualifying: mfFunds
+                            tier:   'MF'
                         });
                     }
+                }
+
+                // ── Shortlisted Investments — NPS Tier 1 and Tier 2 (SM funds) ──────
+                const _npsTiers = [
+                    { key: 'NPS_T1', label: 'NPS TIER 1', codeFilter: (c) => c.startsWith('SM') },
+                    { key: 'NPS_T2', label: 'NPS TIER 2', codeFilter: (c) => c.startsWith('SM') }
+                ];
+                // NPS funds are already scanned — pick best Regime Hope SM fund overall
+                // (we don't have T1/T2 split in scan results, so show top-2 SM funds)
+                const allNpsFunds = Object.values(results).flat()
+                    .filter(it => it && typeof it === 'object' && it.code?.startsWith('SM') && it.regime === 'A')
+                    .sort((a, b) => (b.r1m ?? 0) - (a.r1m ?? 0));
+                const npsT1Top = allNpsFunds.find(f => f.name?.toLowerCase().includes('tier i') || f.name?.toLowerCase().includes('tier 1') || f.name?.toLowerCase().includes('scheme e'));
+                const npsT2Top = allNpsFunds.find(f => f.name?.toLowerCase().includes('tier ii') || f.name?.toLowerCase().includes('tier 2'));
+                const npsTopFallback1 = allNpsFunds[0];
+                const npsTopFallback2 = allNpsFunds[1];
+                if (npsT1Top || npsTopFallback1) {
+                    results.SHORTLISTED.push({ amc: 'NPS_T1', fund: npsT1Top || npsTopFallback1, hurdle: '--', bafR: '--', tier: 'NPS_T1' });
+                }
+                if (npsT2Top || npsTopFallback2) {
+                    results.SHORTLISTED.push({ amc: 'NPS_T2', fund: npsT2Top || npsTopFallback2, hurdle: '--', bafR: '--', tier: 'NPS_T2' });
                 }
 
                 renderAlertSummaryUI(results);
@@ -16240,20 +16283,26 @@ categories.forEach(cat => {
                 shortSection.appendChild(shortSub);
 
                 const shortGrid = document.createElement('div');
-                shortGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+                shortGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:5px;';
 
-                const amcOrder = Object.keys(window.amcFunds).filter(a => !['NPS'].includes(a)).slice(0, 4);
-                amcOrder.forEach(amc => {
-                    const entry = (res.SHORTLISTED || []).find(e => e.amc === amc);
+                // All entries: first 4 MF AMC boxes, then NPS T1/T2 boxes
+                const mfEntries  = (res.SHORTLISTED || []).filter(e => e.tier === 'MF' || !e.tier);
+                const npsEntries = (res.SHORTLISTED || []).filter(e => e.tier === 'NPS_T1' || e.tier === 'NPS_T2');
+
+                const renderShortBox = (entry, isNps) => {
+                    const amcOrder = ['HDFC','ICICI','KOTAK','ABSL','NPS_T1','NPS_T2'];
+                    const accentMap = { HDFC:'#3b82f6', ICICI:'#ef4444', KOTAK:'#f59e0b', ABSL:'#00b4d8', NPS_T1:'#7c3aed', NPS_T2:'#0ea5e9' };
+                    const amc = entry ? entry.amc : '';
+                    const accent = accentMap[amc] || 'var(--accent)';
                     const box = document.createElement('div');
                     box.style.cssText = `
                         background:var(--surface);
-                        border:1px solid ${entry ? 'var(--accent)' : 'var(--border)'};
+                        border:1px solid ${entry ? accent : 'var(--border)'};
                         border-radius:var(--radius-sm);
-                        padding:10px 8px;
-                        display:flex;flex-direction:column;gap:4px;
+                        padding:8px 8px;
+                        display:flex;flex-direction:column;gap:3px;
                         cursor:${entry ? 'pointer' : 'default'};
-                        min-height:90px;
+                        min-height:80px;
                         transition:border-color 0.2s,background 0.2s;
                     `;
                     if (entry) {
@@ -16266,48 +16315,67 @@ categories.forEach(cat => {
                         };
                     }
 
-                    // AMC label — 3d: no bold
+                    // AMC / tier label
                     const amcLabel = document.createElement('div');
-                    amcLabel.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;font-family:var(--mono);';
-                    amcLabel.textContent = amc;
+                    const tierDisplay = amc === 'NPS_T1' ? 'NPS TIER 1' : amc === 'NPS_T2' ? 'NPS TIER 2' : amc;
+                    amcLabel.style.cssText = `font-size:0.46rem;font-weight:400;color:${entry ? accent : 'var(--muted)'};letter-spacing:0.1em;text-transform:uppercase;font-family:var(--mono);`;
+                    amcLabel.textContent = tierDisplay;
                     box.appendChild(amcLabel);
 
                     if (entry) {
-                        // 3e: larger fund name, no bold
                         const fundName = document.createElement('div');
                         fundName.style.cssText = 'font-size:0.66rem;font-weight:400;color:var(--accent);line-height:1.3;';
-                        fundName.textContent = entry.fund.name.replace(/ - Growth| - Direct/gi,'').replace(/Balanced Advantage/gi,'BAF').trim();
+                        fundName.textContent = (entry.fund.name || '')
+                            .replace(/ - Growth| - Direct/gi,'')
+                            .replace(/Balanced Advantage/gi,'BAF')
+                            .replace(/\[NPS\]\s*/gi,'')
+                            .replace(/Scheme\s+/gi,'Sch ')
+                            .trim();
                         box.appendChild(fundName);
 
-                        // 3f: darker green for 1M value
                         const statsRow = document.createElement('div');
                         statsRow.style.cssText = 'font-size:0.52rem;font-weight:400;color:var(--text);display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;';
-                        statsRow.innerHTML = `
-                            <span style="color:#00916e;">1M: ${entry.fund.r1m.toFixed(1)}%</span>
-                            <span style="color:var(--muted);">Hurdle: ${entry.hurdle}%</span>
-                        `;
+                        const r1mStr = typeof entry.fund.r1m === 'number' ? entry.fund.r1m.toFixed(1) + '%' : '--';
+                        statsRow.innerHTML = `<span style="color:#00916e;">1M: ${r1mStr}</span>`;
+                        if (entry.hurdle !== '--') statsRow.innerHTML += `<span style="color:var(--muted);">Hurdle: ${entry.hurdle}%</span>`;
                         box.appendChild(statsRow);
 
                         const rsiBadge = document.createElement('div');
-                        rsiBadge.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--muted);margin-top:2px;';
-                        rsiBadge.textContent = `wRSI ${entry.fund.wrsi} · dRSI ${entry.fund.drsi}`;
+                        rsiBadge.style.cssText = 'font-size:0.48rem;font-weight:400;color:var(--muted);margin-top:1px;';
+                        rsiBadge.textContent = `wRSI ${entry.fund.wrsi ?? '--'} · dRSI ${entry.fund.drsi ?? '--'}`;
                         box.appendChild(rsiBadge);
-
-                        if (entry.allQualifying.length > 1) {
-                            const more = document.createElement('div');
-                            more.style.cssText = 'font-size:0.48rem;font-weight:400;color:var(--gold);margin-top:3px;';
-                            more.textContent = `+${entry.allQualifying.length - 1} more qualifying`;
-                            box.appendChild(more);
-                        }
+                        // "more qualifying" line intentionally removed per UI-Z instruction
                     } else {
                         const none = document.createElement('div');
                         none.style.cssText = 'font-size:0.55rem;font-weight:400;color:var(--muted2);margin-top:4px;';
                         none.textContent = '— No qualifying fund';
                         box.appendChild(none);
                     }
+                    return box;
+                };
 
-                    shortGrid.appendChild(box);
+                // Render 4 MF AMC boxes
+                const mfAmcKeys = ['HDFC','ICICI','KOTAK','ABSL'];
+                mfAmcKeys.forEach(amc => {
+                    const entry = mfEntries.find(e => e.amc === amc) || null;
+                    shortGrid.appendChild(renderShortBox(entry, false));
                 });
+
+                // Divider between MF and NPS
+                if (npsEntries.length > 0) {
+                    const npsDivider = document.createElement('div');
+                    npsDivider.style.cssText = 'grid-column:1/-1;display:flex;align-items:center;gap:6px;margin:3px 0 2px;';
+                    npsDivider.innerHTML = '<div style="flex:1;height:1px;background:var(--border);"></div>'
+                        + '<span style="font-size:0.44rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;font-family:var(--mono);flex-shrink:0;">NPS Schemes</span>'
+                        + '<div style="flex:1;height:1px;background:var(--border);"></div>';
+                    shortGrid.appendChild(npsDivider);
+
+                    // Render NPS T1 + T2 boxes
+                    ['NPS_T1','NPS_T2'].forEach(tier => {
+                        const entry = npsEntries.find(e => e.amc === tier) || null;
+                        shortGrid.appendChild(renderShortBox(entry, true));
+                    });
+                }
 
                 shortSection.appendChild(shortGrid);
                 content.appendChild(shortSection);

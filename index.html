@@ -16253,7 +16253,7 @@ categories.forEach(cat => {
                     const pane = document.createElement('div');
                     pane.style.display = 'none';
                     pane.style.background = 'var(--surface)';
-                    pane.style.marginBottom = '8px';
+                    pane.style.marginBottom = '2px';
                     pane.style.borderRadius = 'var(--radius-sm)';
 
                     if (listLength > 0) {
@@ -16304,9 +16304,9 @@ categories.forEach(cat => {
                 // ── Shortlisted Investments section ─────────────────────────────────
                 const shortSection = document.createElement('div');
                 shortSection.style.cssText = `
-                    margin-top:6px;
+                    margin-top:4px;
                     border-top:1px solid var(--border);
-                    padding-top:8px;
+                    padding-top:6px;
                 `;
 
                 // 3b: Same font size as modal-title "ALERTS SUMMARY", no bold
@@ -16317,7 +16317,7 @@ categories.forEach(cat => {
                     letter-spacing:0.06em;
                     color:var(--accent);
                     text-align:center;
-                    margin-bottom:8px;
+                    margin-bottom:4px;
                     text-transform:uppercase;
                     font-family:var(--mono);
                 `;
@@ -16326,12 +16326,12 @@ categories.forEach(cat => {
 
                 // 3c: All on one line — shortened copy
                 const shortSub = document.createElement('div');
-                shortSub.style.cssText = 'font-size:0.52rem;font-weight:400;color:var(--muted);text-align:center;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                shortSub.style.cssText = 'font-size:0.52rem;font-weight:400;color:var(--muted);text-align:center;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
                 shortSub.textContent = 'Regime Hope · 1M > BAF+2% hurdle · Tap to open Live Cockpit';
                 shortSection.appendChild(shortSub);
 
                 const shortGrid = document.createElement('div');
-                shortGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+                shortGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:5px;';
 
                 const amcOrder = Object.keys(window.amcFunds).filter(a => !['NPS'].includes(a)).slice(0, 4);
                 amcOrder.forEach(amc => {
@@ -16341,10 +16341,10 @@ categories.forEach(cat => {
                         background:var(--surface);
                         border:1px solid ${entry ? 'var(--accent)' : 'var(--border)'};
                         border-radius:var(--radius-sm);
-                        padding:10px 8px;
-                        display:flex;flex-direction:column;gap:4px;
+                        padding:7px 8px;
+                        display:flex;flex-direction:column;gap:3px;
                         cursor:${entry ? 'pointer' : 'default'};
-                        min-height:90px;
+                        min-height:72px;
                         transition:border-color 0.2s,background 0.2s;
                     `;
                     if (entry) {
@@ -16384,12 +16384,6 @@ categories.forEach(cat => {
                         rsiBadge.textContent = `wRSI ${entry.fund.wrsi} · dRSI ${entry.fund.drsi}`;
                         box.appendChild(rsiBadge);
 
-                        if (entry.allQualifying.length > 1) {
-                            const more = document.createElement('div');
-                            more.style.cssText = 'font-size:0.48rem;font-weight:400;color:var(--gold);margin-top:3px;';
-                            more.textContent = `+${entry.allQualifying.length - 1} more qualifying`;
-                            box.appendChild(more);
-                        }
                     } else {
                         const none = document.createElement('div');
                         none.style.cssText = 'font-size:0.55rem;font-weight:400;color:var(--muted2);margin-top:4px;';
@@ -16404,7 +16398,7 @@ categories.forEach(cat => {
 
                 // ── LD245: NPS TIER 1 + TIER 2 Shortlisted boxes ───────────────────────
                 const npsDivider = document.createElement('div');
-                npsDivider.style.cssText = 'display:flex;align-items:center;gap:8px;margin:10px 0 8px;';
+                npsDivider.style.cssText = 'display:flex;align-items:center;gap:8px;margin:7px 0 6px;';
                 npsDivider.innerHTML = `
                     <div style="flex:1;height:1px;background:var(--border);"></div>
                     <span style="font-size:0.46rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;font-family:var(--mono);flex-shrink:0;">NPS Schemes</span>
@@ -16412,7 +16406,7 @@ categories.forEach(cat => {
                 shortSection.appendChild(npsDivider);
 
                 const npsGrid = document.createElement('div');
-                npsGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:6px;';
+                npsGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:5px;';
 
                 const npsTierDefs = [
                     { key: 'NPS_T1', label: 'NPS TIER 1', accent: '#7c3aed' },
@@ -16440,10 +16434,10 @@ categories.forEach(cat => {
                         background:var(--surface);
                         border:1px solid ${bestNps ? accent : 'var(--border)'};
                         border-radius:var(--radius-sm);
-                        padding:8px 8px;
+                        padding:7px 8px;
                         display:flex;flex-direction:column;gap:3px;
                         cursor:${bestNps ? 'pointer' : 'default'};
-                        min-height:80px;
+                        min-height:64px;
                         transition:border-color 0.2s,background 0.2s;
                     `;
                     if (bestNps) {
@@ -16469,12 +16463,6 @@ categories.forEach(cat => {
                         npsStats.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--text);display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;';
                         npsStats.innerHTML = `<span style="color:#00916e;">1M: ${bestNps.r1m.toFixed(1)}%</span><span style="color:var(--muted);">wRSI ${bestNps.wrsi}</span>`;
                         npsBox.appendChild(npsStats);
-                        if (tierFunds.length > 1) {
-                            const moreEl = document.createElement('div');
-                            moreEl.style.cssText = 'font-size:0.45rem;color:var(--gold);margin-top:2px;';
-                            moreEl.textContent = `+${tierFunds.length - 1} more qualifying`;
-                            npsBox.appendChild(moreEl);
-                        }
                     } else {
                         const npsNone = document.createElement('div');
                         npsNone.style.cssText = 'font-size:0.52rem;color:var(--muted2);margin-top:4px;';

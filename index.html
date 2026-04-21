@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD245
+  LIE DETECTOR  LD245A
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
-  File       : LD245.html
-  Version    : LD245  (successor to LD244z)
+  File       : LD245A.html
+  Version    : LD245A  (successor to LD245)
   Released   : April 2026
   Author     : npsnav.in
   Licence    : Proprietary — All rights reserved
@@ -690,7 +690,7 @@
         <style>
             /*
              * ====================================================================
-             * STYLESHEET — LIE DETECTOR LD245
+             * STYLESHEET — LIE DETECTOR LD245A
              * ====================================================================
              * Organisation
              * ─────────────
@@ -3340,7 +3340,7 @@
             <!-- ── Header ────────────────────────────────────────────────────── -->
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD245</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD245A</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -4036,7 +4036,7 @@
                 </div>
 
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD245 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD245A &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
 
@@ -4060,7 +4060,7 @@
             <!-- ── Logo / title strip ── -->
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD245 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD245A 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
 
             <!-- ════════════════════════════════════════════════════════════════ -->
@@ -4463,6 +4463,7 @@ border-bottom:1px solid var(--border);"></div>
                     <div class="ind-box" style="flex:1.4;">
                         <span class="label-sm">Regime</span>
                         <div id="liveRegimeBlock" class="ind-val">--</div>
+                        <div id="liveRegimeSince" style="font-size:0.44rem;color:var(--muted);margin-top:1px;font-family:var(--mono);letter-spacing:0.06em;">--</div>
                     </div>
                 </div>
 
@@ -5137,7 +5138,10 @@ font-size:0.58rem;padding:3px 5px;border-radius:4px;font-family:var(--mono);" />
         <!-- ────────────────────────────────────────────────────────────────────────── -->
         <div id="rrgScannerModal" class="modal-overlay">
             <div class="modal-close">
-                <span class="modal-title" id="rrgScanTitle" style="color:#00e8a2;">RRG LEADING SCANNER</span>
+                <div style="display:flex;flex-direction:column;gap:2px;">
+                    <span class="modal-title" id="rrgScanTitle" style="color:#00e8a2;">RRG LEADING SCANNER</span>
+                    <span id="rrgScanTimestamp" style="font-size:0.48rem;color:var(--muted);font-family:var(--mono);">Last scan: —</span>
+                </div>
                 <span class="modal-close-btn" onclick="document.getElementById('rrgScannerModal').style.display='none';
 _activeScannerToken++;
 document.getElementById('setupScreen').style.display='flex'">[ X ] CLOSE</span>
@@ -5176,8 +5180,10 @@ letter-spacing:0.1em;border-bottom:1px solid var(--border);">
         <!-- ────────────────────────────────────────────────────────────────────────── -->
         <div id="regimeA2ScannerModal" class="modal-overlay">
             <div class="modal-close">
-                <span class="modal-title" id="regimeA2Title" style="color:var(--accent);">REGIME HOPE SCANNER</span>
-
+                <div style="display:flex;flex-direction:column;gap:2px;">
+                    <span class="modal-title" id="regimeA2Title" style="color:var(--accent);">REGIME HOPE SCANNER</span>
+                    <span id="regimeA2Timestamp" style="font-size:0.48rem;color:var(--muted);font-family:var(--mono);">Last scan: —</span>
+                </div>
                 <span class="modal-close-btn" onclick="document.getElementById('regimeA2ScannerModal').style.display='none';
 _activeScannerToken++;
 document.getElementById('setupScreen').style.display='flex'">[ X ] CLOSE</span>
@@ -5324,7 +5330,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
         <script>
             'use strict';
             // =============================================================================
-            // JAVASCRIPT ENGINE — LIE DETECTOR LD245
+            // JAVASCRIPT ENGINE — LIE DETECTOR LD245A
             // =============================================================================
             //
             // ─────────────────────────────────────────────────────────────────────
@@ -5824,6 +5830,10 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             let currentRegimeLog = 'A';
             window.currentRegimeLog = currentRegimeLog; // §PFM: exposed so _getPfmRecommendation (outside DCL) can read it
 
+            // LD245A: track date of last regime change for "Since dd-MMM" display
+            let _liveRegimeSinceDate = '--';   // e.g. "15-Apr"
+            let _liveRegimeSinceTs   = 0;      // ms timestamp of last regime flip
+
             let globalLiveData = [];
             let globalWeeklyRsiCache = [];
 
@@ -6308,7 +6318,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD245', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD245A', switches: {}, lastUpdated: 0 };
                 },
 
                 save(j) {
@@ -7725,6 +7735,38 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 rEl.textContent = snap.regime==='A'?'Regime Hope':snap.regime==='B'?'Regime Watch':'Regime Fear';
                 rEl.className = 'ind-val ' +
                     (snap.regime === 'A' ? 'reg-A' : snap.regime === 'B' ? 'reg-B' : 'reg-C');
+
+                // ── LD245A: Regime-Since tracker ─────────────────────────────────────────
+                // Walk backwards through weekly RSI to find the most recent crossover date.
+                // Uses actual NAV dates so the "Since" label always reflects true data,
+                // not a stale Apr-15 value from a previous fund load.
+                (function updateRegimeSince() {
+                    try {
+                        const wr = globalWeeklyRsiCache;
+                        const ld = globalLiveData;
+                        if (!wr || !ld || wr.length < 2) return;
+                        const n = wr.length - 1;
+                        const nowR = snap.regime;
+                        // Scan backward for the bar where regime first became nowR
+                        let sinceIdx = n;
+                        for (let i = n - 1; i >= 0; i--) {
+                            const r = wr[i] >= 50 ? 'A' : wr[i] >= 40 ? 'B' : 'C';
+                            if (r !== nowR) { sinceIdx = i + 1; break; }
+                            if (i === 0) sinceIdx = 0;
+                        }
+                        const sinceRaw = ld[sinceIdx]?.date || '';
+                        if (sinceRaw) {
+                            // normalise YYYY-MM-DD → dd-MMM
+                            const parts = sinceRaw.includes('-') && sinceRaw.split('-')[0].length === 4
+                                ? sinceRaw.split('-') : sinceRaw.split('-').reverse();
+                            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                            const mIdx = parseInt(parts[1]) - 1;
+                            _liveRegimeSinceDate = `${parts[2]}-${months[mIdx] || parts[1]}`;
+                        }
+                    } catch(_) {}
+                    const sinceEl = document.getElementById('liveRegimeSince');
+                    if (sinceEl) sinceEl.textContent = `Since ${_liveRegimeSinceDate}`;
+                })();
 
                 // ── Alert banner ─────────────────────────────────────────────────────────
                 let alertText = '';
@@ -13463,6 +13505,17 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                     list.appendChild(el);
                 });
 
+                // LD245A: stamp last-scan time
+                (function stampHopeTime() {
+                    const tsEl = document.getElementById('regimeA2Timestamp');
+                    if (!tsEl) return;
+                    const now = new Date();
+                    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                    tsEl.textContent = `Last scan: ${now.getDate()}-${months[now.getMonth()]} ` +
+                        `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}` +
+                        `  ·  Zone: ${zone}  ·  ${results.length} fund${results.length !== 1 ? 's' : ''}`;
+                })();
+
                 modal.style.display = 'flex';
             }
 
@@ -13850,6 +13903,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                         });
 
                         if (cachedData && cachedData.funds?.length > 0) {
+                            window._rrgFromCache = true; // LD245A: tell timestamp stamper this came from cache
                             renderRRGScannerUI(
                                 cachedData.funds, targetQuadrant,
                                 cachedData.bench1m, cachedData.bench2m, cachedData.bench3m
@@ -14059,6 +14113,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                 }
 
                 ovEl.style.display = 'none';
+                window._rrgFromCache = false; // LD245A: live network fetch
                 renderRRGScannerUI(allFunds, targetQuadrant, bench1m, bench2m, bench3m);
             }
 
@@ -14174,6 +14229,18 @@ border-bottom:1px solid var(--border);padding-bottom:2px;`;
                     empty.textContent = `No funds currently qualify for ${targetQuadrant}.`;
                     listDiv.appendChild(empty);
                 }
+
+                // LD245A: stamp scan time + cache source
+                (function stampRrgTime(fromCache) {
+                    const tsEl = document.getElementById('rrgScanTimestamp');
+                    if (!tsEl) return;
+                    const now = new Date();
+                    const hh = String(now.getHours()).padStart(2,'0');
+                    const mm2 = String(now.getMinutes()).padStart(2,'0');
+                    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                    const label = `${now.getDate()}-${months[now.getMonth()]} ${hh}:${mm2}`;
+                    tsEl.textContent = `Last scan: ${label}  ·  Source: ${fromCache ? '⚡ IDB cache' : '🌐 live fetch'}`;
+                })(typeof _rrgFromCache !== 'undefined' ? _rrgFromCache : false);
 
                 document.getElementById('rrgScannerModal').style.display = 'flex';
             }
@@ -15716,6 +15783,29 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
 
                 document.getElementById('tmHolding').innerHTML = holdingHtml;
 
+                // LD245A: stamp last-run time per AMC+type in localStorage + display
+                (function stampTriggerTime() {
+                    try {
+                        const amc  = localStorage.getItem('ld_v3_amc') || 'HDFC';
+                        const type = document.getElementById('assetAllocType')?.value || 'MF';
+                        const tsKey = `ld_v3_alloc_ts_${amc}_${type}`;
+                        const now = Date.now();
+                        localStorage.setItem(tsKey, String(now));
+                        const d = new Date(now);
+                        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                        const label = `${d.getDate()}-${months[d.getMonth()]} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                        const tmEl = document.getElementById('triggerMonitor');
+                        let tsDiv = document.getElementById('tmLastRun');
+                        if (!tsDiv) {
+                            tsDiv = document.createElement('div');
+                            tsDiv.id = 'tmLastRun';
+                            tsDiv.style.cssText = 'font-size:0.48rem;color:var(--muted);font-family:var(--mono);margin-bottom:4px;letter-spacing:0.04em;';
+                            tmEl.insertBefore(tsDiv, tmEl.firstChild.nextSibling); // after title
+                        }
+                        tsDiv.textContent = `Last run: ${label}  ·  ${amc} / ${type}`;
+                    } catch(_) {}
+                })();
+
                 // ── LD244Y FIX 3b: Persist top2 codes so startup scanner can use them ─
                 try {
                     localStorage.setItem('ld_v3_last_alloc_top2',
@@ -16057,9 +16147,14 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
         <!-- ────────────────────────────────────────────────────────────────────────── -->
         <div id="alertSummaryModal" class="modal-overlay" style="z-index:900;">
             <div class="modal-close">
-                <div style="display:flex;flex-direction:column;text-align:left;">
+                <div style="display:flex;flex-direction:column;text-align:left;gap:2px;">
                     <span class="modal-title" style="color:var(--red);font-weight:400;">ALERTS SUMMARY</span>
-                    <span id="alertSummarySub" style="font-size:0.55rem;font-weight:400;color:var(--muted);margin-top:2px;">Scanning Universe...</span>
+                    <span id="alertSummarySub" style="font-size:0.55rem;font-weight:400;color:var(--muted);margin-top:1px;">Scanning Universe...</span>
+                    <!-- LD245A: CAMS validation hint -->
+                    <span id="alertSummaryCAMS" style="font-size:0.48rem;color:var(--muted2);font-family:var(--mono);">
+                        🔍 Validate NAV: <a href="https://www.camsonline.com/Investors/Statements/Consolidated-Account-Statement" target="_blank" style="color:var(--accent);text-decoration:none;">CAMS CAS</a>
+                        &nbsp;·&nbsp; Source: mfapi.in / npsnav.in
+                    </span>
                 </div>
                 <span class="modal-close-btn" onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';">[ CLOSE ]</span>
             </div>
@@ -16214,6 +16309,17 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
                 }
 
                 renderAlertSummaryUI(results);
+
+                // LD245A: stamp last-scanned time
+                (function stampAlertTime() {
+                    const sub = document.getElementById('alertSummarySub');
+                    if (!sub) return;
+                    const now = new Date();
+                    const hh = String(now.getHours()).padStart(2,'0');
+                    const mm = String(now.getMinutes()).padStart(2,'0');
+                    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                    sub.textContent = `Scanned ${now.getDate()}-${months[now.getMonth()]} ${hh}:${mm}  ·  ${Object.values(results).flat().filter(x=>x&&x.code).length} funds`;
+                })();
             }
 
             function renderAlertSummaryUI(res) {
@@ -17315,7 +17421,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD245
+    END OF FILE — LD245A
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js

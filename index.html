@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD245A
+  LIE DETECTOR  LD245B
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
-  File       : LD245A.html
-  Version    : LD245A  (successor to LD245)
+  File       : LD245B.html
+  Version    : LD245B  (successor to LD245A)
   Released   : April 2026
   Author     : npsnav.in
   Licence    : Proprietary — All rights reserved
@@ -690,7 +690,7 @@
         <style>
             /*
              * ====================================================================
-             * STYLESHEET — LIE DETECTOR LD245A
+             * STYLESHEET — LIE DETECTOR LD245B
              * ====================================================================
              * Organisation
              * ─────────────
@@ -3340,7 +3340,7 @@
             <!-- ── Header ────────────────────────────────────────────────────── -->
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD245A</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD245B</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -4036,7 +4036,7 @@
                 </div>
 
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD245A &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD245B &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
 
@@ -4060,8 +4060,11 @@
             <!-- ── Logo / title strip ── -->
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD245A 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD245B 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
+
+            <!-- LD245B: Morning scan status banner — shown while scanning and on completion -->
+            <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
 
             <!-- ════════════════════════════════════════════════════════════════ -->
             <!-- HERO ROW — 4 primary action boxes                              -->
@@ -5330,7 +5333,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
         <script>
             'use strict';
             // =============================================================================
-            // JAVASCRIPT ENGINE — LIE DETECTOR LD245A
+            // JAVASCRIPT ENGINE — LIE DETECTOR LD245B
             // =============================================================================
             //
             // ─────────────────────────────────────────────────────────────────────
@@ -6249,7 +6252,170 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     } catch(_) {}
                 }, 5500); // after IDB engine + C3 scan settle
 
+                // LD245B: Morning scan — fire once per calendar day, after a 3-sec settle
+                setTimeout(() => {
+                    const today = new Date().toISOString().slice(0, 10);
+                    const lastScan = localStorage.getItem('ld_v3_morning_scan_date') || '';
+                    if (lastScan !== today) {
+                        _runMorningScan();
+                    }
+                }, 3000);
+
             }); // end DOMContentLoaded
+
+            // =============================================================================
+            // §MORN · AUTO MORNING SCAN  (LD245B)
+            // =============================================================================
+            // Fires once per calendar day on first app open.
+            // Headlessly runs Asset Allocator Trigger Monitor for every combination of:
+            //   AMC  : HDFC, ICICI, KOTAK, ABSL  (4)
+            //   Type : MF, NPS_T1, NPS_T2         (3)
+            // = 12 scans total.
+            //
+            // For each scan:
+            //   1. Fetch NAV for each fund in the bucket
+            //   2. Compute regime (A/B/C) + 1M return for every fund
+            //   3. Identify rank-1 qualifying fund (Regime Hope + best 1M)
+            //   4. Save result to localStorage key ld_v3_morning_{AMC}_{type}
+            //   5. Auto-add rank-1 fund to watchlist if not already pinned
+            //   6. Flag watchlisted funds now in Regime Fear
+            //
+            // Results surface in:
+            //   - Home screen morning scan banner
+            //   - Alert Summary Shortlisted boxes (inWatchlist flag)
+            //   - Investment Switch Bridge (pre-populated recommendation)
+            // =============================================================================
+
+            async function _runMorningScan() {
+                const banner = document.getElementById('morningScanBanner');
+                const _setBanner = (html, color) => {
+                    if (!banner) return;
+                    banner.style.display = 'block';
+                    banner.style.borderColor = color || 'var(--border)';
+                    banner.style.color = color || 'var(--muted)';
+                    banner.innerHTML = html;
+                };
+
+                _setBanner('🌅 Morning scan starting — fetching data for all AMCs…', '#f59e0b');
+
+                const amcKeys  = Object.keys(window.amcFunds).filter(a => a !== 'NPS');
+                const types    = ['MF', 'NPS_T1', 'NPS_T2'];
+                const months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                const fmtTime  = () => { const n=new Date(); return `${n.getDate()}-${months[n.getMonth()]} ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; };
+
+                let totalScanned = 0, addedToWatchlist = 0, fearFlags = 0;
+                const scanResults = {}; // { 'HDFC_MF': { rank1: {code,name,r1m,regime,wrsi}, scanned: N }, … }
+
+                for (const amc of amcKeys) {
+                    const fundsList = window.amcFunds[amc] || [];
+
+                    for (const type of types) {
+                        let bucket = [];
+                        if (type === 'MF') {
+                            bucket = fundsList.filter(f => !f.code.startsWith('SM'));
+                        } else if (type === 'NPS_T1') {
+                            bucket = fundsList.filter(f => f.code.startsWith('SM') && f.name.includes('Tier I') && !f.name.includes('Tier II'));
+                        } else if (type === 'NPS_T2') {
+                            bucket = fundsList.filter(f => f.code.startsWith('SM') && f.name.includes('Tier II'));
+                        }
+                        if (bucket.length === 0) continue;
+
+                        const key = `${amc}_${type}`;
+                        const fundScores = [];
+
+                        for (const f of bucket) {
+                            try {
+                                await new Promise(r => setTimeout(r, 60)); // rate-limit guard
+                                const url = f.code.startsWith('SM')
+                                    ? `https://npsnav.in/api/historical/${f.code}`
+                                    : `https://api.mfapi.in/mf/${f.code}`;
+                                const res  = await fetch(url);
+                                if (!res.ok) continue;
+                                const data = await res.json();
+                                const raw  = (data.data || data);
+                                if (!Array.isArray(raw)) continue;
+                                const valid = [...raw].reverse().filter(d => Number.isFinite(parseFloat(d.nav)) && parseFloat(d.nav) > 0);
+                                if (valid.length < 30) continue;
+
+                                const prices  = valid.map(d => parseFloat(d.nav));
+                                const dates   = valid.map(d => window.normalizeDate(d.date));
+                                const wRsiArr = window.buildWeeklyRsiFast(prices, window.userRsiLength || 4, dates);
+                                const last    = prices.length - 1;
+                                const wrsi    = wRsiArr[last] || 50;
+                                const regime  = wrsi >= 50 ? 'A' : wrsi >= 40 ? 'B' : 'C';
+                                const r1m     = last >= 21 ? (prices[last] - prices[last-21]) / prices[last-21] * 100 : 0;
+
+                                fundScores.push({ code: f.code, name: f.name, r1m, regime, wrsi: Math.round(wrsi) });
+                                totalScanned++;
+                            } catch(_) { /* skip failed fund */ }
+                        }
+
+                        // Rank by 1M return, Hope funds first
+                        fundScores.sort((a, b) => {
+                            if (a.regime === 'A' && b.regime !== 'A') return -1;
+                            if (b.regime === 'A' && a.regime !== 'A') return  1;
+                            return b.r1m - a.r1m;
+                        });
+
+                        const rank1 = fundScores[0] || null;
+                        scanResults[key] = { rank1, scanned: fundScores.length, type, amc };
+
+                        // Persist to localStorage for offline reference
+                        try {
+                            localStorage.setItem(`ld_v3_morning_${key}`, JSON.stringify({
+                                rank1, scanned: fundScores.length, ts: Date.now()
+                            }));
+                        } catch(_) {}
+
+                        // ── Auto-update watchlist ──────────────────────────────────────────
+                        if (rank1 && rank1.regime === 'A') {
+                            // Add rank-1 Hope fund if not already pinned
+                            if (!_watchlist.find(w => w.code === rank1.code)) {
+                                _watchlist.push({ code: rank1.code, name: rank1.name, morningAdd: true });
+                                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+                                addedToWatchlist++;
+                            }
+                        }
+
+                        // Flag any watchlisted fund for this AMC/type that is now in Fear
+                        fundScores.filter(f => f.regime === 'C').forEach(fearFund => {
+                            const wIdx = _watchlist.findIndex(w => w.code === fearFund.code);
+                            if (wIdx !== -1) {
+                                _watchlist[wIdx].fearFlag = true;
+                                fearFlags++;
+                            }
+                        });
+                        localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+
+                        // Update banner progress
+                        _setBanner(`🌅 Morning scan in progress… ${amc} / ${type} ✓`, '#f59e0b');
+                    }
+                }
+
+                // ── Stamp scan date so it only runs once today ─────────────────────────
+                const today = new Date().toISOString().slice(0, 10);
+                localStorage.setItem('ld_v3_morning_scan_date', today);
+
+                // ── Refresh watchlist UI if open ───────────────────────────────────────
+                try { renderWatchlistStubs(); } catch(_) {}
+
+                // ── Build summary banner ───────────────────────────────────────────────
+                const hopeCount = Object.values(scanResults).filter(r => r.rank1?.regime === 'A').length;
+                const fearCount = Object.values(scanResults).filter(r => r.rank1?.regime === 'C').length;
+
+                let summaryLines = [
+                    `🌅 Morning scan complete · ${fmtTime()}`,
+                    `${totalScanned} funds · ${hopeCount} buckets in Hope · ${fearCount} in Fear`,
+                ];
+                if (addedToWatchlist > 0) summaryLines.push(`📌 ${addedToWatchlist} fund${addedToWatchlist>1?'s':''} auto-added to Watchlist`);
+                if (fearFlags > 0)        summaryLines.push(`⚠ ${fearFlags} watchlisted fund${fearFlags>1?'s':''} flagged Regime Fear`);
+
+                const bannerColor = fearFlags > 0 ? '#c8102e' : hopeCount > 0 ? '#00e8a2' : '#f59e0b';
+                _setBanner(summaryLines.join('<br>'), bannerColor);
+
+                // Auto-hide banner after 18 seconds
+                setTimeout(() => { if (banner) banner.style.display = 'none'; }, 18000);
+            }
 
             // =============================================================================
             // §SIP-MODAL · SIP Config Modal helpers
@@ -6318,7 +6484,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD245A', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD245B', switches: {}, lastUpdated: 0 };
                 },
 
                 save(j) {
@@ -12122,13 +12288,31 @@ This is exactly how the system is meant to be played.
                     setTimeout(() => { if (_ovEl) _ovEl.style.display = 'none'; }, 1500);
                     return;
                 }
-                _watchlist.push({
-                    code,
-                    name
-                });
+                _watchlist.push({ code, name });
                 localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
                 renderWatchlistStubs();
                 refreshWatchlist();
+            }
+
+            // LD245B: Add any fund by code directly (used by shortlisted ADD buttons)
+            function addCodeToWatchlist(code, name) {
+                if (!code) return;
+                if (_watchlist.find(w => w.code === code)) {
+                    const _ovEl = document.getElementById('ov'), _ovTxt = document.getElementById('ovTxt');
+                    if (_ovEl) _ovEl.style.display = 'flex';
+                    if (_ovTxt) { _ovTxt.textContent = 'ALREADY IN WATCHLIST'; _ovTxt.style.color = 'var(--accent2)'; }
+                    setTimeout(() => { if (_ovEl) _ovEl.style.display = 'none'; }, 1500);
+                    return;
+                }
+                _watchlist.push({ code, name: name || code });
+                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+                renderWatchlistStubs();
+                refreshWatchlist();
+                // Flash confirmation
+                const _ovEl = document.getElementById('ov'), _ovTxt = document.getElementById('ovTxt');
+                if (_ovEl) _ovEl.style.display = 'flex';
+                if (_ovTxt) { _ovTxt.textContent = '📌 ADDED TO WATCHLIST'; _ovTxt.style.color = 'var(--accent)'; }
+                setTimeout(() => { if (_ovEl) _ovEl.style.display = 'none'; }, 1800);
             }
 
             function clearWatchlist() {
@@ -16286,27 +16470,57 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
                     await new Promise(r => setTimeout(r, 10));
                 }
 
-                // LD244W: Populate SHORTLISTED — Regime Hope MF funds beating their AMC BAF hurdle
-                // Hurdle = BAF 1M return + 2% (Condition 3 standard). Max 1 best fund per AMC box.
+                // LD245B: Populate SHORTLISTED — prefer watchlisted funds per AMC that
+                // beat the BAF+2% hurdle. Fall back to best universe fund if none pinned.
+                // This ensures Alert Summary ALWAYS matches the Watchlist.
                 const amcList = Object.keys(window.amcFunds).filter(a => !['NPS'].includes(a));
                 for (const amc of amcList) {
-                    const bafR = results._bafR1mByAmc[amc] ?? -999;
+                    const bafR   = results._bafR1mByAmc[amc] ?? -999;
                     const hurdle = bafR + 2.0;
-                    const mfFunds = Object.values(results).flat()
+
+                    // All qualifying funds for this AMC from full universe
+                    const allQual = Object.values(results).flat()
                         .filter(it => it && typeof it === 'object' && it.amc === amc
-                                    && it.regime === 'A' && !it.code?.startsWith('SM')
-                                    && it.r1m > hurdle);
-                    mfFunds.sort((a, b) => b.r1m - a.r1m);
-                    if (mfFunds.length > 0) {
-                        results.SHORTLISTED.push({
-                            amc,
-                            fund: mfFunds[0],
-                            hurdle: hurdle.toFixed(1),
-                            bafR:   bafR.toFixed(1),
-                            allQualifying: mfFunds
-                        });
-                    }
+                                   && it.regime === 'A' && !it.code?.startsWith('SM')
+                                   && it.r1m > hurdle);
+                    allQual.sort((a, b) => b.r1m - a.r1m);
+
+                    if (allQual.length === 0) continue;
+
+                    // LD245B: prefer watchlisted fund that qualifies
+                    const watchCodes = new Set(_watchlist.map(w => w.code));
+                    const watchQual  = allQual.filter(f => watchCodes.has(f.code));
+                    const chosenFund = watchQual.length > 0 ? watchQual[0] : allQual[0];
+
+                    results.SHORTLISTED.push({
+                        amc,
+                        fund:         chosenFund,
+                        hurdle:       hurdle.toFixed(1),
+                        bafR:         bafR.toFixed(1),
+                        inWatchlist:  watchCodes.has(chosenFund.code),  // LD245B: badge flag
+                        allQualifying: allQual
+                    });
                 }
+
+                // LD245B: NPS shortlisted — Tier 1 and Tier 2 best qualifying fund
+                const npsAllItems = Object.values(results).flat()
+                    .filter(it => it && typeof it === 'object' && it.code?.startsWith('SM') && it.regime === 'A');
+
+                [
+                    { key: 'NPS_T1', test: it => /tier.?i(?!i)/i.test(it.name) || /t1/i.test(it.code) },
+                    { key: 'NPS_T2', test: it => /tier.?ii/i.test(it.name)      || /t2/i.test(it.code) }
+                ].forEach(({ key, test }) => {
+                    const tier = npsAllItems.filter(test).sort((a,b) => b.r1m - a.r1m);
+                    if (tier.length === 0) return;
+                    const watchCodes = new Set(_watchlist.map(w => w.code));
+                    const wMatch = tier.filter(f => watchCodes.has(f.code));
+                    const chosen = wMatch.length > 0 ? wMatch[0] : tier[0];
+                    results.SHORTLISTED.push({
+                        amc: key, fund: chosen, hurdle: '—', bafR: '—',
+                        inWatchlist: watchCodes.has(chosen.code),
+                        allQualifying: tier
+                    });
+                });
 
                 renderAlertSummaryUI(results);
 
@@ -16470,13 +16684,13 @@ categories.forEach(cat => {
                     box.appendChild(amcLabel);
 
                     if (entry) {
-                        // 3e: larger fund name, no bold
+                        // fund name
                         const fundName = document.createElement('div');
                         fundName.style.cssText = 'font-size:0.66rem;font-weight:400;color:var(--accent);line-height:1.3;';
                         fundName.textContent = entry.fund.name.replace(/ - Growth| - Direct/gi,'').replace(/Balanced Advantage/gi,'BAF').trim();
                         box.appendChild(fundName);
 
-                        // 3f: darker green for 1M value
+                        // stats row
                         const statsRow = document.createElement('div');
                         statsRow.style.cssText = 'font-size:0.52rem;font-weight:400;color:var(--text);display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;';
                         statsRow.innerHTML = `
@@ -16489,6 +16703,17 @@ categories.forEach(cat => {
                         rsiBadge.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--muted);margin-top:2px;';
                         rsiBadge.textContent = `wRSI ${entry.fund.wrsi} · dRSI ${entry.fund.drsi}`;
                         box.appendChild(rsiBadge);
+
+                        // LD245B: watchlist match badge or ADD button
+                        const wlRow = document.createElement('div');
+                        wlRow.style.cssText = 'display:flex;align-items:center;gap:4px;margin-top:3px;';
+                        if (entry.inWatchlist) {
+                            wlRow.innerHTML = `<span style="font-size:0.46rem;color:#a855f7;font-family:var(--mono);">📌 IN WATCHLIST</span>`;
+                        } else {
+                            wlRow.innerHTML = `<span style="font-size:0.46rem;color:var(--gold);font-family:var(--mono);">⚠ NOT IN WATCHLIST</span>
+                                <button onclick="event.stopPropagation();addCodeToWatchlist('${entry.fund.code}','${entry.fund.name.replace(/'/g,'').slice(0,30)}')" style="font-size:0.4rem;padding:1px 5px;border:1px solid var(--gold);border-radius:4px;background:transparent;color:var(--gold);cursor:pointer;font-family:var(--mono);">+ ADD</button>`;
+                        }
+                        box.appendChild(wlRow);
 
                     } else {
                         const none = document.createElement('div');
@@ -16520,55 +16745,55 @@ categories.forEach(cat => {
                 ];
 
                 npsTierDefs.forEach(({ key, label, accent }) => {
-                    // Find best qualifying NPS fund for this tier
-                    const allItems = Object.values(res).flat().filter(it => it && typeof it === 'object' && it.code);
-                    const tierFunds = allItems.filter(it => {
-                        if (!it.code || !it.code.startsWith('SM')) return false;
-                        if (it.regime !== 'A') return false;
-                        // Tier 1 = SM codes with Tier I in name; Tier 2 = Tier II
-                        const isTier1 = /tier.?i(?!i)/i.test(it.name) || /t1/i.test(it.code);
-                        const isTier2 = /tier.?ii/i.test(it.name) || /t2/i.test(it.code);
-                        if (key === 'NPS_T1' && !isTier1) return false;
-                        if (key === 'NPS_T2' && !isTier2) return false;
-                        return true;
-                    });
-                    tierFunds.sort((a, b) => b.r1m - a.r1m);
-                    const bestNps = tierFunds[0] || null;
+                    const entry = (res.SHORTLISTED || []).find(e => e.amc === key);
 
                     const npsBox = document.createElement('div');
                     npsBox.style.cssText = `
                         background:var(--surface);
-                        border:1px solid ${bestNps ? accent : 'var(--border)'};
+                        border:1px solid ${entry ? accent : 'var(--border)'};
                         border-radius:var(--radius-sm);
                         padding:7px 8px;
                         display:flex;flex-direction:column;gap:3px;
-                        cursor:${bestNps ? 'pointer' : 'default'};
+                        cursor:${entry ? 'pointer' : 'default'};
                         min-height:64px;
                         transition:border-color 0.2s,background 0.2s;
                     `;
-                    if (bestNps) {
+                    if (entry) {
                         npsBox.onmouseenter = () => { npsBox.style.background = 'var(--surface2)'; };
                         npsBox.onmouseleave = () => { npsBox.style.background = 'var(--surface)'; };
                         npsBox.onclick = () => {
                             const alertModal = document.getElementById('alertSummaryModal');
                             if (alertModal) alertModal.style.display = 'none';
-                            launchLiveFromAlert(bestNps.code);
+                            launchLiveFromAlert(entry.fund.code);
                         };
                     }
+
                     const npsLabel = document.createElement('div');
-                    npsLabel.style.cssText = `font-size:0.5rem;font-weight:400;color:${bestNps ? accent : 'var(--muted)'};letter-spacing:0.1em;text-transform:uppercase;font-family:var(--mono);`;
+                    npsLabel.style.cssText = `font-size:0.5rem;font-weight:400;color:${entry ? accent : 'var(--muted)'};letter-spacing:0.1em;text-transform:uppercase;font-family:var(--mono);`;
                     npsLabel.textContent = label;
                     npsBox.appendChild(npsLabel);
 
-                    if (bestNps) {
+                    if (entry) {
                         const npsName = document.createElement('div');
                         npsName.style.cssText = 'font-size:0.62rem;font-weight:400;color:var(--text);line-height:1.3;';
-                        npsName.textContent = bestNps.name.replace(/\[NPS\] /gi,'').replace(/ - Growth| - Direct/gi,'').trim().slice(0, 34);
+                        npsName.textContent = entry.fund.name.replace(/\[NPS\] /gi,'').replace(/ - Growth| - Direct/gi,'').trim().slice(0, 34);
                         npsBox.appendChild(npsName);
+
                         const npsStats = document.createElement('div');
                         npsStats.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--text);display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;';
-                        npsStats.innerHTML = `<span style="color:#00916e;">1M: ${bestNps.r1m.toFixed(1)}%</span><span style="color:var(--muted);">wRSI ${bestNps.wrsi}</span>`;
+                        npsStats.innerHTML = `<span style="color:#00916e;">1M: ${entry.fund.r1m.toFixed(1)}%</span><span style="color:var(--muted);">wRSI ${entry.fund.wrsi}</span>`;
                         npsBox.appendChild(npsStats);
+
+                        // LD245B: watchlist badge for NPS boxes
+                        const npsWlRow = document.createElement('div');
+                        npsWlRow.style.cssText = 'display:flex;align-items:center;gap:4px;margin-top:3px;';
+                        if (entry.inWatchlist) {
+                            npsWlRow.innerHTML = `<span style="font-size:0.46rem;color:#a855f7;font-family:var(--mono);">📌 IN WATCHLIST</span>`;
+                        } else {
+                            npsWlRow.innerHTML = `<span style="font-size:0.46rem;color:var(--gold);font-family:var(--mono);">⚠ NOT IN WATCHLIST</span>
+                                <button onclick="event.stopPropagation();addCodeToWatchlist('${entry.fund.code}','${entry.fund.name.replace(/'/g,'').slice(0,30)}')" style="font-size:0.4rem;padding:1px 5px;border:1px solid var(--gold);border-radius:4px;background:transparent;color:var(--gold);cursor:pointer;font-family:var(--mono);">+ ADD</button>`;
+                        }
+                        npsBox.appendChild(npsWlRow);
                     } else {
                         const npsNone = document.createElement('div');
                         npsNone.style.cssText = 'font-size:0.52rem;color:var(--muted2);margin-top:4px;';
@@ -17421,7 +17646,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD245A
+    END OF FILE — LD245B
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js

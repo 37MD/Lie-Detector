@@ -17639,7 +17639,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
     });
 
 </script>
- ════════════════════════════════════════════════════════════════════════════
+  ════════════════════════════════════════════════════════════════════════════
 <style>
   /* ── AI Toggle Button (Reduced 30% to 31px) ── */
   #ld-ai-toggle {
@@ -17701,13 +17701,13 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 
   <div class="ld-ai-chat-area" id="ld-ai-chat-area">
     <div class="ld-ai-message system">
-      System Brain active. T+2 Buy vs T+0 Exit settlement logic engaged. No-Hallucination protocol active.
+      System Brain active. I now read the Live UI directly to prevent "data missing" errors. Settlement logic and Macro Overlay protocols engaged.
     </div>
   </div>
   
   <div class="ld-ai-quick">
     <button>Holistic System Audit</button>
-    <button>Analyze Current Asset</button>
+    <button>Analyze Current Page</button>
     <button>Check Better Alternatives</button>
   </div>
   
@@ -17750,70 +17750,99 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
       chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    // THE DEEP BRAIN DATA CONTEXT
+    // THE DEEP BRAIN: Gathers internal variables + current visible UI data [LD245C UPGRADE]
     function gatherAppContext() {
       let context = "=== SYSTEM BRAIN DATA DUMP ===\n\n";
       
-      const fundSelect = document.getElementById('fundSelect');
-      const activeName = fundSelect && fundSelect.selectedIndex !== -1 ? fundSelect.options[fundSelect.selectedIndex].text : 'None';
-      context += `[TARGET] Active Chart: ${activeName}\n`;
-      context += `[REGIME] Global State: ${typeof window.currentRegimeLog !== 'undefined' ? (window.currentRegimeLog === 'A' ? 'Hope' : window.currentRegimeLog === 'B' ? 'Watch' : 'Fear') : 'N/A'}\n`;
-      context += `[CASH] Sim Balance: ₹${typeof window.cash !== 'undefined' ? Math.round(window.cash) : 'N/A'}\n\n`;
+      // 1. IDENTITY & VISIBILITY: Detect what the user is actually looking at [FIX FOR MISSING DATA]
+      const liveVisible = document.getElementById('liveChartModal').style.display === 'flex';
+      const simVisible = document.getElementById('gameUI').style.display === 'flex';
+      
+      let subjectFund = "Unknown";
+      if (liveVisible) subjectFund = document.getElementById('liveChartFundName').textContent;
+      else if (simVisible) subjectFund = document.getElementById('simFundName').textContent;
+      else {
+          const sel = document.getElementById('fundSelect');
+          if (sel && sel.selectedIndex !== -1) subjectFund = sel.options[sel.selectedIndex].text;
+      }
+      context += `[PRIMARY SUBJECT] ${subjectFund}\n`;
 
-      const liveNav = document.getElementById('liveNav');
-      if (liveNav && liveNav.textContent !== 'NAV: —') {
-        context += `[LIVE MARKET DATA]\n- ${liveNav.textContent}\n- D-RSI: ${document.getElementById('liveDRsi')?.textContent || 'N/A'}\n- W-RSI: ${document.getElementById('liveWRsi')?.textContent || 'N/A'}\n\n`;
+      // 2. LIVE DASHBOARD SCRAPE: Read exactly what the user sees on screen
+      if (liveVisible) {
+          const regText = document.getElementById('liveRegimeBlock').textContent;
+          const dRsi = document.getElementById('liveDRsi').textContent;
+          const wRsi = document.getElementById('liveWRsi').textContent;
+          const navText = document.getElementById('liveNav').textContent;
+          const banner = document.getElementById('liveChartAlertBanner').textContent;
+          context += `[VISIBLE LIVE METRICS]\n- UI Regime Box: ${regText}\n- ${navText}\n- D-RSI: ${dRsi}\n- W-RSI: ${wRsi}\n- Active UI Alert: ${banner}\n\n`;
       }
 
+      // 3. MACRO OVERLAY: Find Nifty 50 status
+      let macroStatus = "Not scanned. Verify externally.";
       try {
-        const wl = JSON.parse(localStorage.getItem('ld_v3_watchlist') || '[]');
-        if (wl.length > 0) {
-          context += `[WATCHLIST & MACRO SCAN]\n`;
-          wl.forEach(f => {
-             const macroTag = f.name.toLowerCase().includes('nifty 50') ? " (MACRO)" : "";
-             context += `- ${f.name}${macroTag} | Reg: ${f.regime || f.currentRegime || 'N/A'} | W: ${f.wRsi || 'N/A'} | D: ${f.dRsi || 'N/A'}\n`;
-          });
-        }
+          const wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+          const nifty = wl.find(f => f.name.toLowerCase().includes('nifty 50'));
+          if (nifty) macroStatus = `Nifty 50 found in Watchlist: Regime ${nifty.regime || 'Unknown'}`;
       } catch(e) {}
+      context += `[MACRO OVERLAY] ${macroStatus}\n\n`;
 
-      if (typeof window.BafNpsState !== 'undefined') {
-          context += `\n[NPS SWITCHES] Used: ${window.BafNpsState.npsSwitchesUsed}/${window.BafNpsState.maxSwitches}\n`;
+      // 4. SUBJECT TREND BRAIN: Last 15 days of math
+      if (typeof window.globalLiveData !== 'undefined' && window.globalLiveData.length > 0) {
+          context += `[SUBJECT TRAJECTORY - LAST 15 DAYS]\n`;
+          const history = window.globalLiveData.slice(-15);
+          const wrCache = window.globalWeeklyRsiCache || [];
+          const drCache = window.globalDailyRsiCache || [];
+          const tslCache = window.globalLowessCache || [];
+          
+          history.forEach((day, i) => {
+              const absIdx = window.globalLiveData.length - 15 + i;
+              const wr = Math.round(wrCache[absIdx] || 0);
+              const dr = Math.round(drCache[absIdx] || 0);
+              const tsl = (tslCache[absIdx] && tslCache[absIdx] > 0) ? tslCache[absIdx].toFixed(2) : "None";
+              context += `Date: ${day.date} | NAV: ${day.nav} | WRSI:${wr} | DRSI:${dr} | TSL Floor:${tsl}\n`;
+          });
+          context += "\n";
       }
 
+      // 5. UNIVERSE LANDSCAPE: RRG and Alternative Funds
       const rrgTable = document.getElementById('rrgScannerTable');
       if (rrgTable) {
-         context += `\n[RRG SCANNER TRENDS]\n`;
-         rrgTable.querySelectorAll('tbody tr').forEach(row => context += `> ${row.innerText.replace(/\n|\t/g, ', ')}\n`);
+          context += `[UNIVERSE SCAN - RRG RANKINGS]\n`;
+          rrgTable.querySelectorAll('tbody tr').forEach(row => {
+              context += `> ${row.innerText.replace(/\n|\t/g, ', ')}\n`;
+          });
       }
 
-      if (typeof window.fullHistory !== 'undefined' && window.fullHistory.length > 0) {
-          context += `\n[RECENT TSL TRAJECTORY]\n`;
-          window.fullHistory.slice(-5).forEach(day => context += `Date: ${day.date} | NAV: ${day.nav} | TSL: ${day.tsl || day.lowessTsl || "N/A"}\n`);
+      // 6. SIMULATION STATE
+      if (typeof window.cash !== 'undefined') {
+          context += `\n[PORTFOLIO STATE]\nCash: ₹${Math.round(window.cash)} | Tranches: ${window.tranches.length}\n`;
+          if (window.BafNpsState) context += `NPS Switches used: ${window.BafNpsState.npsSwitchesUsed}/4\n`;
       }
+
       return context;
     }
 
     const systemInstruction = `
-You are the "Quantitative Brain" of the Lie Detector App. You audit every trade request against the Sacred Rules.
+You are the "Quantitative Brain" of the Lie Detector App. You audit every subject against the Sacred Rules of the System.
 
-RULES:
-1. ZERO HALLUCINATION: If a specific data point (like Nifty 50 regime or a fund's TSL) is missing from the data dump, state: "Data not available. Verify on TradingView." NEVER LIE OR ASSUME.
-2. MACRO FILTER: Always check "Nifty 50" regime first. If Nifty 50 is in 'Fear', REJECT any new Buy/Switch requests.
-3. BUY/SWITCH (T+2 RISK): Entry NAV takes 48hrs. Only BUY if:
-   - Target is in 'Hope'.
-   - Daily RSI momentum is accelerating.
-   - NAV is safely above the TSL floor (buffer for 2-day volatility).
-4. EXIT (T+0): Advise immediate Sell if NAV breaches TSL or if General Trend collapses.
+CRITICAL RULES:
+1. NO HALLUCINATION: If the data dump does not explicitly list the regime or TSL for the fund asked about, say: "Data not available in local memory for this fund. Verify on the Chart."
+2. MACRO FILTER: If "Nifty 50" is listed in 'Fear', strongly reject BUY requests for all other funds.
+3. BUY/SWITCH (T+2 RISK): Only BUY if:
+   - Target is in 'Hope' (Green).
+   - Daily RSI is accelerating.
+   - NAV is safely above the TSL floor (buffer for 2-day settlement lag).
+4. EXIT (T+0): Advise immediate Sell if NAV breaches TSL or if Regime is 'Fear' (Red).
+5. THE BRAIN: You see things humans miss. Cross-reference the RRG Matrix and History to find better opportunities than the current page.
     `;
 
     async function submitPrompt(promptText) {
       if (!promptText || !apiKey) { appendMessage('system', 'Check API Key in Settings.'); return; }
-
       appendMessage('user', promptText);
       inputField.value = ''; submitBtn.disabled = true;
 
       const loadDiv = document.createElement('div');
-      loadDiv.className = 'ld-ai-message system'; loadDiv.textContent = 'Analyzing variables...';
+      loadDiv.className = 'ld-ai-message system'; loadDiv.textContent = 'Brain Auditing system variables...';
       chatArea.appendChild(loadDiv);
       chatArea.scrollTop = chatArea.scrollHeight;
 
@@ -17823,7 +17852,7 @@ RULES:
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             system_instruction: { parts: [{ text: systemInstruction }] },
-            contents: [{ role: 'user', parts: [{ text: `APP DATA:\n${gatherAppContext()}\n\nPROMPT:\n${promptText}` }] }],
+            contents: [{ role: 'user', parts: [{ text: `APP DATA DUMP:\n${gatherAppContext()}\n\nPROMPT:\n${promptText}` }] }],
             generationConfig: { temperature: 0.1 }
           })
         });
@@ -17835,7 +17864,7 @@ RULES:
         else if (data.candidates) appendMessage('system', data.candidates[0].content.parts[0].text);
       } catch (err) {
         loadDiv.remove();
-        appendMessage('system', 'Network Error.');
+        appendMessage('system', 'Network Error. Check connection.');
       } finally { submitBtn.disabled = false; }
     }
 
@@ -17846,7 +17875,8 @@ RULES:
   })();
 </script>
 
-════════════════════════════════════════════════════════════════════════════	
+
+   ════════════════════════════════════════════════════════════════════════════		
     </body>
 
 

@@ -17639,11 +17639,9 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
     });
 
 </script>
-
-
-		════════════════════════════════════════════════════════════════════════════
-
+    ════════════════════════════════════════════════════════════════════════════
 <style>
+  /* ── Draggable AI Toggle (31px) ── */
   #ld-ai-toggle {
     position: fixed; top: 15px; right: 15px; z-index: 10001; 
     background: var(--surface2, #e4eaf2); border: 1px solid var(--accent, #009e70);
@@ -17656,6 +17654,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
   #ld-ai-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 16px rgba(0,158,112,0.25); }
   #ld-ai-toggle:active { cursor: grabbing; }
 
+  /* ── AI Chat Panel ── */
   #ld-ai-panel {
     position: fixed; top: 60px; right: 15px; width: 380px; max-width: calc(100vw - 30px);
     background: var(--bg, #ffffff); border: 1px solid var(--border, #b0bece); border-radius: 12px;
@@ -17699,7 +17698,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
   </div>
   <div class="ld-ai-chat-area" id="ld-ai-chat-area">
     <div class="ld-ai-message system">
-      Quant Brain V6 Online. Direct access to internal data arrays enabled. I can now calculate momentum and macro trends directly from history.
+      Quant Brain V7 Online. Aggressive Nifty 50 hunt and Watchlist memory sync enabled. Direct array access active.
     </div>
   </div>
   <div class="ld-ai-quick">
@@ -17725,7 +17724,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
     let apiKey = localStorage.getItem('ld_gemini_api_key') || '';
     if (apiKey) apiKeyInput.value = apiKey;
 
-    /* ── DRAGGABLE LOGIC ── */
+    /* ── ROBUST DRAGGABLE ENGINE ── */
     let isDragging = false, dragHasMoved = false, shiftX = 0, shiftY = 0;
     function startDrag(clientX, clientY) {
         const rect = toggleBtn.getBoundingClientRect();
@@ -17762,87 +17761,99 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
       chatArea.appendChild(div); chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    // THE DEEP BRAIN: Calculates everything directly from history arrays to avoid "Missing Data"
+    // THE DEEP BRAIN: Scrapes UI and Memory simultaneously to ensure Nifty 50 visibility
     function gatherAppContext() {
-      let context = "=== SYSTEM BRAIN DATA DUMP (RAW ARRAY ANALYSIS) ===\n\n";
+      let context = "=== SYSTEM BRAIN DATA DUMP (INTERNAL MEMORY SYNC) ===\n\n";
       
       const fundSelect = document.getElementById('fundSelect');
-      const activeFund = fundSelect && fundSelect.selectedIndex !== -1 ? fundSelect.options[fundSelect.selectedIndex].text : 'None';
-      context += `[PRIMARY SUBJECT] ${activeFund}\n`;
-      context += `[GLOBAL REGIME] ${typeof window.currentRegimeLog !== 'undefined' ? (window.currentRegimeLog === 'A' ? 'Hope' : window.currentRegimeLog === 'B' ? 'Watch' : 'Fear') : 'N/A'}\n\n`;
+      const activeName = fundSelect && fundSelect.selectedIndex !== -1 ? fundSelect.options[fundSelect.selectedIndex].text : 'None';
+      context += `[CURRENT CHART] ${activeName}\n`;
+      context += `[SYSTEM REGIME] ${typeof window.currentRegimeLog !== 'undefined' ? (window.currentRegimeLog === 'A' ? 'Hope' : window.currentRegimeLog === 'B' ? 'Watch' : 'Fear') : 'N/A'}\n\n`;
 
-      // 1. MACRO OVERLAY (Hunt Nifty 50 in Watchlist Memory)
+      // 1. WATCHLIST MEMORY SCAN (Checking ld_watchlist)
       try {
           const wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
-          const nifty = wl.find(f => f.name.toLowerCase().includes('nifty 50'));
-          if (nifty) {
-              context += `[MACRO OVERLAY: NIFTY 50]\nRegime: ${nifty.regime} | W-RSI: ${nifty.wrsi} | D-RSI: ${nifty.drsi}\n\n`;
-          } else {
-              context += `[MACRO OVERLAY: NIFTY 50] Not found in watchlist memory.\n\n`;
+          if (wl.length > 0) {
+            context += `[WATCHLIST MEMORY]\n`;
+            wl.forEach(f => {
+               const isMacro = f.name.toLowerCase().includes('nifty 50');
+               context += `- ${f.name}${isMacro ? ' [MACRO OVERLAY]' : ''} | Reg: ${f.regime || 'N/A'} | W: ${f.wrsi || 'N/A'} | D: ${f.drsi || 'N/A'}\n`;
+            });
+            context += "\n";
           }
-          
-          context += "[WATCHLIST ARRAY]\n";
-          wl.forEach(f => {
-              context += `- ${f.name} | Reg: ${f.regime} | W: ${f.wrsi} | D: ${f.drsi}\n`;
-          });
       } catch(e) {}
 
-      // 2. RAW MOMENTUM CALCULATION (Last 10 Days from Arrays)
-      if (typeof window.globalLiveData !== 'undefined' && window.globalLiveData.length > 0) {
-          context += "\n[SUBJECT TRAJECTORY & VELOCITY - LAST 10 DAYS]\n";
-          const len = window.globalLiveData.length;
-          const start = Math.max(0, len - 10);
-          
-          for (let i = start; i < len; i++) {
-              const day = window.globalLiveData[i];
-              const wr = Math.round(window.globalWeeklyRsiCache[i] || 0);
-              const dr = Math.round(window.globalDailyRsiCache[i] || 0);
-              const tsl = window.globalLowessCache[i] ? window.globalLowessCache[i].toFixed(2) : "N/A";
-              context += `Date: ${day.date} | NAV: ${day.nav} | W-RSI:${wr} | D-RSI:${dr} | TSL Floor:${tsl}\n`;
-          }
+      // 2. VISIBLE UI TABLE SCRAPE (Backing up memory with what's on screen)
+      const wlTable = document.getElementById('watchlistBody');
+      if (wlTable) {
+          context += "[VISIBLE WATCHLIST ROWS]\n";
+          wlTable.querySelectorAll('tr').forEach(row => {
+              context += `> ${row.innerText.replace(/\n|\t/g, ' | ')}\n`;
+          });
+          context += "\n";
       }
 
-      // 3. RRG & ALPHA STATE
-      const rrgDetailVisible = document.getElementById('rrgDetailModal').style.display === 'flex';
-      if (rrgDetailVisible) {
-          context += "\n[RRG ALPHA DASHBOARD]\n";
-          context += `- Quadrant: ${document.getElementById('rrgStatusLabel')?.innerText}\n`;
-          context += `- Regime: ${document.getElementById('rrgRegimeLabel')?.innerText}\n`;
-          context += `- RS Trend: ${document.getElementById('rrgRSTrend')?.innerText}\n`;
-          context += `- Intensity (ADX): ${document.getElementById('rrgADX')?.innerText}\n`;
+      // 3. RRG SCANNER DATA (If active)
+      const rrgTable = document.getElementById('rrgScannerTable');
+      if (rrgTable && rrgTable.offsetParent !== null) {
+         context += `[VISIBLE RRG MATRIX]\n`;
+         rrgTable.querySelectorAll('tbody tr').forEach(row => context += `> ${row.innerText.replace(/\n|\t/g, ', ')}\n`);
+         context += "\n";
+      }
+
+      // 4. SUBJECT TRAJECTORY (Internal Arrays for Momentum calculation)
+      if (typeof window.globalLiveData !== 'undefined' && window.globalLiveData.length > 0) {
+          context += `[SUBJECT TRAJECTORY - LAST 10 DAYS]\n`;
+          const history = window.globalLiveData.slice(-10);
+          history.forEach((day, i) => {
+              const absIdx = window.globalLiveData.length - 10 + i;
+              const wr = Math.round(window.globalWeeklyRsiCache[absIdx] || 0);
+              const dr = Math.round(window.globalDailyRsiCache[absIdx] || 0);
+              const tsl = (window.globalLowessCache[absIdx] && window.globalLowessCache[absIdx] > 0) ? window.globalLowessCache[absIdx].toFixed(2) : "None";
+              context += `Date: ${day.date} | NAV: ${day.nav} | WRSI:${wr} | DRSI:${dr} | TSL Floor:${tsl}\n`;
+          });
+      }
+
+      // 5. SIM STATE
+      if (typeof window.cash !== 'undefined') {
+          context += `\n[PORTFOLIO STATE] Cash: ₹${Math.round(window.cash)} | NPS Switches: ${window.BafNpsState ? window.BafNpsState.npsSwitchesUsed : 'N/A'}/4\n`;
       }
 
       return context;
     }
 
     const systemInstruction = `
-You are the "Quantitative Brain" of the Lie Detector App. 
-You must analyze the raw arrays provided and give strict audit feedback.
+You are the "Quantitative Brain" of the Lie Detector App. Audit trades strictly:
 
-CRITICAL DIRECTIVES:
-1. BENCHMARK CHECK: Locate "Nifty 50" in the watchlist data. If its Regime is 'Fear' (Red), REJECT all Buy/Switch requests.
-2. ACCELERATION: Check the 10-day D-RSI trend. Is the gap between D-RSI and W-RSI closing (Acceleration) or widening (Deceleration)? Only BUY on Acceleration.
-3. BUY/SWITCH (T+2 RISK): Only BUY if the target is in 'Hope', Macro is positive, and NAV is >2% above the TSL floor to survive the 2-day settlement delay.
-4. EXIT (T+0): Advise immediate Sell if NAV breaches TSL or if Regime is 'Fear'.
-5. NO HALLUCINATION: If the data for Nifty 50 or the subject is not in the dump, say "Data not available in arrays."
+RULES:
+1. BENCHMARK HUNT: Nifty 50 is NOT in the pulldown. You MUST search the provided Watchlist Memory and UI Table Scrape for any row containing "Nifty 50". Use its Regime for the Macro Filter.
+2. ZERO HALLUCINATION: If Nifty 50 data is not in the dump, say "Macro Nifty 50 data not visible in system memory. Refresh Watchlist." Never guess.
+3. MACRO FILTER: If Nifty 50 is in 'Fear' (Red), REJECT all Buy/Switch requests.
+4. BUY/SWITCH (T+2 RISK): Entry NAV takes 48hrs. Only BUY if target is in 'Hope' (Green), Daily RSI is accelerating (closing gap with trend), and NAV is safely above the TSL floor.
+5. EXIT (T+0): Advise immediate Sell if NAV breaches TSL or if Regime is 'Fear'.
     `;
 
     async function submitPrompt(promptText) {
       if (!promptText || !apiKey) { appendMessage('system', 'Check API Key.'); return; }
-      appendMessage('user', promptText); inputField.value = ''; submitBtn.disabled = true;
-      const loadDiv = document.createElement('div'); loadDiv.className = 'ld-ai-message system'; loadDiv.textContent = 'Brain calculating trends...';
+      appendMessage('user', promptText);
+      inputField.value = ''; submitBtn.disabled = true;
+
+      const loadDiv = document.createElement('div');
+      loadDiv.className = 'ld-ai-message system'; loadDiv.textContent = 'Brain calculating trends...';
       chatArea.appendChild(loadDiv); chatArea.scrollTop = chatArea.scrollHeight;
 
       try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             system_instruction: { parts: [{ text: systemInstruction }] },
-            contents: [{ role: 'user', parts: [{ text: `DATA ARRAYS:\n${gatherAppContext()}\n\nUSER PROMPT:\n${promptText}` }] }],
+            contents: [{ role: 'user', parts: [{ text: `APP DATA:\n${gatherAppContext()}\n\nPROMPT:\n${promptText}` }] }],
             generationConfig: { temperature: 0.1 }
           })
         });
-        const data = await response.json(); loadDiv.remove();
+        const data = await response.json();
+        loadDiv.remove();
         if (data.candidates) appendMessage('system', data.candidates[0].content.parts[0].text);
       } catch (err) { loadDiv.remove(); appendMessage('system', 'Network Error.'); }
       finally { submitBtn.disabled = false; }
@@ -17855,7 +17866,8 @@ CRITICAL DIRECTIVES:
 </script>
 
 
-		════════════════════════════════════════════════════════════════════════════
+
+    ════════════════════════════════════════════════════════════════════════════		
     </body>
 
 

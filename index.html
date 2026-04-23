@@ -17640,18 +17640,17 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 
 </script>
 
-		 ════════════════════════════════════════════════════════════════════════════
-
-<style>
+		    ════════════════════════════════════════════════════════════════════════════
+   <style>
   /* ── Draggable AI Toggle (31px) ── */
   #ld-ai-toggle {
     position: fixed; top: 15px; right: 15px; z-index: 10001; 
     background: var(--surface2, #e4eaf2); border: 1px solid var(--accent, #009e70);
     border-radius: 50%; width: 31px; height: 31px; font-size: 14px; 
-    cursor: move; /* Indicates it can be moved */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    touch-action: none; /* Prevents scrolling while dragging on mobile */
+    cursor: grab; box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease; touch-action: none;
+    user-select: none;
   }
   #ld-ai-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 16px rgba(0,158,112,0.25); }
   #ld-ai-toggle:active { cursor: grabbing; }
@@ -17668,27 +17667,23 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
   
   .ld-ai-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--surface, #f2f5f9); border-bottom: 1px solid var(--border, #b0bece); border-radius: 12px 12px 0 0; font-size: 0.75rem; font-weight: 700; color: var(--accent, #009e70); text-transform: uppercase; letter-spacing: 0.08em; }
   .ld-ai-close { background: transparent; border: none; font-size: 16px; cursor: pointer; color: var(--muted, #404060); }
-  
   .ld-ai-settings { padding: 12px 16px; background: var(--surface2, #e4eaf2); border-bottom: 1px solid var(--border, #b0bece); display: none; flex-direction: column; gap: 8px; }
   .ld-ai-settings.open { display: flex; }
   .ld-ai-settings input { border: 1px solid var(--border, #b0bece); border-radius: 4px; padding: 8px 10px; font-family: var(--mono, monospace); font-size: 0.65rem; width: 100%; outline: none; }
-  
   .ld-ai-chat-area { padding: 16px; overflow-y: auto; flex: 1; font-size: 0.7rem; line-height: 1.5; background: var(--bg, #ffffff); }
   .ld-ai-message { margin-bottom: 12px; padding: 10px 14px; border-radius: 8px; background: var(--surface2, #e4eaf2); color: var(--text, #000000); word-wrap: break-word; }
   .ld-ai-message.user { background: var(--accent-dim, rgba(0,158,112,0.1)); border-left: 3px solid var(--accent, #009e70); }
   .ld-ai-message.system { color: var(--muted, #404060); font-style: italic; background: transparent; padding: 0; font-size: 0.65rem; }
   .ld-ai-message strong { font-weight: 700; color: var(--accent, #009e70); }
-  
   .ld-ai-quick { display: flex; gap: 8px; padding: 0 16px 12px; overflow-x: auto; white-space: nowrap; }
   .ld-ai-quick::-webkit-scrollbar { display: none; }
   .ld-ai-quick button { background: var(--surface2, #e4eaf2); border: 1px solid var(--border, #b0bece); padding: 6px 12px; border-radius: 20px; font-size: 0.6rem; font-family: var(--mono, monospace); cursor: pointer; }
-
   .ld-ai-input-area { display: flex; padding: 12px 16px; border-top: 1px solid var(--border, #b0bece); background: var(--surface, #f2f5f9); border-radius: 0 0 12px 12px; }
   .ld-ai-input-area input { flex: 1; border: 1px solid var(--border, #b0bece); border-radius: 4px; padding: 10px 12px; font-family: var(--mono, monospace); font-size: 0.65rem; outline: none; }
   .ld-ai-input-area button { background: var(--accent, #009e70); color: #fff; border: none; border-radius: 4px; padding: 0 16px; margin-left: 8px; cursor: pointer; font-weight: 700; }
 </style>
 
-<button id="ld-ai-toggle" title="Drag to move, click to chat">✨</button>
+<button id="ld-ai-toggle" title="Drag me anywhere">✨</button>
 
 <div id="ld-ai-panel">
   <div class="ld-ai-header">
@@ -17698,24 +17693,20 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
       <button id="ld-ai-close-btn" class="ld-ai-close">✕</button>
     </div>
   </div>
-  
   <div id="ld-ai-settings-panel" class="ld-ai-settings">
     <input type="password" id="ld-ai-api-key" placeholder="Enter Gemini API Key">
     <button id="ld-ai-save-key" style="background:var(--accent);color:#fff;border:none;padding:8px;border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:0.65rem;">SAVE KEY</button>
   </div>
-
   <div class="ld-ai-chat-area" id="ld-ai-chat-area">
     <div class="ld-ai-message system">
-      System Brain active. Drag the ✨ icon anywhere if it blocks your view. Auditor protocols engaged.
+      Brain active. You can now drag the ✨ icon smoothly to any position. System data sync corrected.
     </div>
   </div>
-  
   <div class="ld-ai-quick">
     <button>Holistic System Audit</button>
     <button>Analyze Current Page</button>
     <button>Check Better Alternatives</button>
   </div>
-  
   <div class="ld-ai-input-area">
     <input type="text" id="ld-ai-input" placeholder="Ask for recommendations...">
     <button id="ld-ai-submit">➤</button>
@@ -17734,61 +17725,62 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
     let apiKey = localStorage.getItem('ld_gemini_api_key') || '';
     if (apiKey) apiKeyInput.value = apiKey;
 
-    /* ── DRAGGABLE LOGIC ── */
+    /* ── ROBUST DRAGGABLE ENGINE ── */
     let isDragging = false;
-    let dragThreshold = 5; // Pixels moved before considering it a drag
-    let startX, startY;
+    let dragHasMoved = false;
+    let shiftX = 0;
+    let shiftY = 0;
 
-    toggleBtn.addEventListener('mousedown', (e) => {
-        isDragging = false;
-        startX = e.clientX;
-        startY = e.clientY;
-        const onMouseMove = (moveEvent) => {
-            if (Math.abs(moveEvent.clientX - startX) > dragThreshold || Math.abs(moveEvent.clientY - startY) > dragThreshold) {
-                isDragging = true;
-                toggleBtn.style.left = (moveEvent.clientX - 15) + 'px';
-                toggleBtn.style.top = (moveEvent.clientY - 15) + 'px';
-                toggleBtn.style.right = 'auto'; // Disable fixed right
-            }
-        };
-        const onMouseUp = () => {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-        };
+    function startDrag(clientX, clientY) {
+        const rect = toggleBtn.getBoundingClientRect();
+        shiftX = clientX - rect.left;
+        shiftY = clientY - rect.top;
+        isDragging = true;
+        dragHasMoved = false;
+        
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
-    });
-
-    // Mobile touch support
-    toggleBtn.addEventListener('touchstart', (e) => {
-        isDragging = false;
-        const touch = e.touches[0];
-        startX = touch.clientX;
-        startY = touch.clientY;
-        const onTouchMove = (tEvent) => {
-            const t = tEvent.touches[0];
-            if (Math.abs(t.clientX - startX) > dragThreshold || Math.abs(t.clientY - startY) > dragThreshold) {
-                isDragging = true;
-                toggleBtn.style.left = (t.clientX - 15) + 'px';
-                toggleBtn.style.top = (t.clientY - 15) + 'px';
-                toggleBtn.style.right = 'auto';
-            }
-        };
-        const onTouchEnd = () => {
-            document.removeEventListener('touchmove', onTouchMove);
-            document.removeEventListener('touchend', onTouchEnd);
-        };
-        document.addEventListener('touchmove', onTouchMove);
+        document.addEventListener('touchmove', onTouchMove, { passive: false });
         document.addEventListener('touchend', onTouchEnd);
-    });
+    }
+
+    function moveAt(clientX, clientY) {
+        dragHasMoved = true;
+        let newX = clientX - shiftX;
+        let newY = clientY - shiftY;
+        
+        // Keep within viewport bounds
+        newX = Math.max(0, Math.min(newX, window.innerWidth - toggleBtn.offsetWidth));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - toggleBtn.offsetHeight));
+        
+        toggleBtn.style.left = newX + 'px';
+        toggleBtn.style.top = newY + 'px';
+        toggleBtn.style.right = 'auto';
+        toggleBtn.style.bottom = 'auto';
+    }
+
+    function onMouseMove(e) { if (isDragging) moveAt(e.clientX, e.clientY); }
+    function onTouchMove(e) { if (isDragging) { e.preventDefault(); moveAt(e.touches[0].clientX, e.touches[0].clientY); } }
+
+    function stopDrag() {
+        isDragging = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
+    }
+
+    function onMouseUp() { stopDrag(); }
+    function onTouchEnd() { stopDrag(); }
+
+    toggleBtn.addEventListener('mousedown', (e) => startDrag(e.clientX, e.clientY));
+    toggleBtn.addEventListener('touchstart', (e) => startDrag(e.touches[0].clientX, e.touches[0].clientY));
 
     toggleBtn.addEventListener('click', (e) => {
-        if (!isDragging) {
-            aiPanel.classList.toggle('open');
-        }
+        if (!dragHasMoved) aiPanel.classList.toggle('open');
     });
 
-    /* ── CHAT LOGIC ── */
+    /* ── CHAT & DATA LOGIC ── */
     document.getElementById('ld-ai-close-btn').addEventListener('click', () => aiPanel.classList.remove('open'));
     document.getElementById('ld-ai-settings-btn').addEventListener('click', () => document.getElementById('ld-ai-settings-panel').classList.toggle('open'));
 
@@ -17797,7 +17789,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
       if (apiKey) {
         localStorage.setItem('ld_gemini_api_key', apiKey);
         document.getElementById('ld-ai-settings-panel').classList.remove('open');
-        appendMessage('system', 'Key Saved Successfully.');
+        appendMessage('system', 'Key Saved.');
       }
     });
 
@@ -17815,8 +17807,8 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
       const rrgDetailVisible = document.getElementById('rrgDetailModal').style.display === 'flex';
       
       let subjectFund = "Unknown";
-      if (rrgDetailVisible) subjectFund = document.getElementById('rrgDetailFundName').textContent;
-      else if (liveVisible) subjectFund = document.getElementById('liveChartFundName').textContent;
+      if (rrgDetailVisible) subjectFund = document.getElementById('rrgDetailFundName')?.textContent;
+      else if (liveVisible) subjectFund = document.getElementById('liveChartFundName')?.textContent;
       else {
           const sel = document.getElementById('fundSelect');
           if (sel && sel.selectedIndex !== -1) subjectFund = sel.options[sel.selectedIndex].text;
@@ -17824,7 +17816,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
       context += `[PRIMARY SUBJECT] ${subjectFund}\n`;
 
       if (rrgDetailVisible) {
-          context += `[RRG ALPHA DASHBOARD METRICS]\n- Quadrant: ${document.getElementById('rrgStatusLabel')?.textContent}\n- Regime: ${document.getElementById('rrgRegimeLabel')?.textContent}\n- RS Ratio Trend: ${document.getElementById('rrgRSTrend')?.textContent}\n- Intensity: ${document.getElementById('rrgADX')?.textContent}\n\n`;
+          context += `[RRG ALPHA DASHBOARD]\n- Quad: ${document.getElementById('rrgStatusLabel')?.textContent}\n- Regime: ${document.getElementById('rrgRegimeLabel')?.textContent}\n- RS Trend: ${document.getElementById('rrgRSTrend')?.textContent}\n- ADX Intensity: ${document.getElementById('rrgADX')?.textContent}\n\n`;
       }
 
       if (liveVisible) {
@@ -17897,7 +17889,8 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
   })();
 </script>
 
-		 ════════════════════════════════════════════════════════════════════════════
+
+		    ════════════════════════════════════════════════════════════════════════════
     </body>
 
 

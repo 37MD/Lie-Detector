@@ -17686,7 +17686,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         transform: translateY(-10px);
         transition: opacity 0.3s, transform 0.3s;
         max-height: 75vh;
-        overflow: hidden; /* FIX: Prevents text from spilling out of the box */
+        overflow: hidden; /* FIX: Prevents text from spilling out */
         z-index: 10000;
         font-family: var(--mono, monospace);
     }
@@ -17738,7 +17738,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         padding: 16px;
         overflow-y: auto;
         flex: 1;
-        min-height: 0; /* CRITICAL FIX: Forces the scrollbar to appear instead of infinitely expanding */
+        min-height: 0; /* CRITICAL FIX: Forces scrollbar for long analyses */
         font-size: 0.7rem;
         line-height: 1.5;
         background: var(--bg, #ffffff);
@@ -17839,17 +17839,16 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         window.addEventListener('pointermove', (e) => {
             if (!isDragging) return;
             
-            // Threshold: Only consider it a drag if moved more than 5 pixels
+            // Threshold: Moved more than 5 pixels
             let moveX = Math.abs(e.clientX - startPos.x);
             let moveY = Math.abs(e.clientY - startPos.y);
-            
             if (moveX > 5 || moveY > 5) dragMoved = true;
 
             if (dragMoved) {
                 let x = e.clientX - offset.x;
                 let y = e.clientY - offset.y;
                 
-                // Boundaries
+                // Keep on screen
                 x = Math.max(0, Math.min(x, window.innerWidth - el.offsetWidth));
                 y = Math.max(0, Math.min(y, window.innerHeight - el.offsetHeight));
                 
@@ -17869,16 +17868,14 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             if (!dragMoved) {
                 panel.classList.toggle('open');
                 
-                // Smart API Key Check
+                // Smart API Key Visibility Check
                 if (panel.classList.contains('open')) {
                     const inputArea = document.querySelector('.ld-ai-input-area');
                     if (!apiKey) {
-                        // No key: Show settings, hide chat
                         document.getElementById('ld-ai-settings-panel').classList.add('open');
                         chatArea.style.display = 'none';
                         if (inputArea) inputArea.style.display = 'none';
                     } else {
-                        // Key exists: Hide settings, show chat
                         document.getElementById('ld-ai-settings-panel').classList.remove('open');
                         chatArea.style.display = 'block'; 
                         if (inputArea) inputArea.style.display = 'flex';
@@ -17900,7 +17897,6 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             }
             localStorage.setItem('ld_gemini_api_key', apiKey);
             
-            // Hide settings and show chat immediately after saving
             document.getElementById('ld-ai-settings-panel').classList.remove('open');
             chatArea.style.display = 'block';
             const inputArea = document.querySelector('.ld-ai-input-area');
@@ -17913,22 +17909,20 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             const d = document.createElement('div');
             d.className = `ld-ai-message ${role}`;
             
-            // 1. Safely escape HTML symbols
+            // Fix 4: Safely escape HTML symbols so the browser doesn't cut off text at '<' or '>'
             let safeText = text
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
                 
-            // 2. Smart Markdown parsing that won't break on lists
             safeText = safeText
-                .replace(/(^|\n)\s*\*\s/g, '$1• ') // Convert markdown asterisks to clean bullet points
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Apply bolding
-                .replace(/\n/g, '<br>'); // Apply line breaks
+                .replace(/(^|\n)\s*\*\s/g, '$1• ')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
                 
             d.innerHTML = safeText;
             chatArea.appendChild(d);
             
-            // Ensure it auto-scrolls to the bottom of the long analysis
             requestAnimationFrame(() => {
                 chatArea.scrollTop = chatArea.scrollHeight;
             });
@@ -17939,7 +17933,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             ctx += `Timestamp: ${new Date().toISOString()}\n`;
 
             // ── BLOCK 1: ACTIVE UI SURFACE ──────────────────────────────────────
-            const activeModal = document.querySelector('.modal-overlay[style*="display: flex"]');
+            const activeModal = document.querySelector('.modal[style*="display: flex"]');
             ctx += `\n[UI SURFACE]\nVisible Screen: ${activeModal ? activeModal.id : 'Main Dashboard'}\n`;
 
             // ── BLOCK 2: FUND CORE DATA ─────────────────────────────────────────
@@ -17961,14 +17955,13 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             ctx += `\n[PRICE LEVELS]\nCurrent NAV: ${nav}\nAdaptive TSL Floor (Lowess): ${tsl}\n20-Day WMA: ${wma}\n`;
 
             // ── BLOCK 5: MULTI-PERIOD W-RSI GO / NO-GO ──────────────────────────
-            // wRsi4, wRsi8, wRsi14 arrays are pre-built; read last value from each
             ctx += "\n[MULTI-PERIOD W-RSI GO/NO-GO]\n";
             ['wRsi4Cache','wRsi8Cache','wRsi14Cache'].forEach((key, idx) => {
                 const period = [4, 8, 14][idx];
                 const arr = window[key];
                 if (arr && arr.length > 0) {
                     const val = Math.round(arr[arr.length - 1] || 0);
-                    const goNogo = val >= 50 ? '● GO (momentum positive — supports BUY)' : '○ NO-GO (momentum negative — avoid BUY)';
+                    const goNogo = val >= 50 ? '● GO (momentum positive)' : '○ NO-GO (momentum negative)';
                     ctx += `W-RSI-${period}: ${val} — ${goNogo}\n`;
                 } else {
                     ctx += `W-RSI-${period}: NOT AVAILABLE\n`;
@@ -17976,7 +17969,6 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             });
 
             // ── BLOCK 6: LIVE PORTFOLIO STATE (_LP) ──────────────────────────────
-            // Critical: pending_settlement slots must never receive a SELL recommendation
             try {
                 const lp = JSON.parse(localStorage.getItem('ld_live_portfolio') || '{}');
                 ctx += "\n[LIVE PORTFOLIO STATE — T+2 SETTLEMENT AWARE]\n";
@@ -17984,19 +17976,17 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
                     const s = lp[slot];
                     if (s && s.code) {
                         ctx += `${slot.toUpperCase()}: ${s.name} (${s.code})\n`;
-                        ctx += `   Status: ${s.status === 'pending_settlement' ? '⏳ PENDING SETTLEMENT — DO NOT SELL YET' : '✅ ACTIVE — eligible for BUY/SELL analysis'}\n`;
+                        ctx += `   Status: ${s.status === 'pending_settlement' ? '⏳ PENDING SETTLEMENT — DO NOT SELL YET' : '✅ ACTIVE'}\n`;
                         if (s.settleDate) ctx += `   Settle Date: ${s.settleDate}\n`;
-                        if (s.entryDate) ctx += `   Entry Date: ${s.entryDate}\n`;
                     } else {
                         ctx += `${slot.toUpperCase()}: EMPTY\n`;
                     }
                 });
             } catch(e) {
-                ctx += "\n[LIVE PORTFOLIO STATE]\nUnable to read (parse error).\n";
+                ctx += "\n[LIVE PORTFOLIO STATE]\nUnable to read.\n";
             }
 
             // ── BLOCK 7: SWITCH JOURNAL + LIVE BRIDGE P&L ────────────────────────
-            // Aggregate P&L across all AMC positions; negative + Fear = SELL signal
             try {
                 const sj = JSON.parse(localStorage.getItem('ld_switch_journal') || '{"switches":{}}');
                 const switches = sj.switches || {};
@@ -18012,9 +18002,8 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
                             ctx += `   Switch Date: ${e.switchDate || 'N/A'} | Entry NAV: ${e.entryNav || 'N/A'}\n`;
                             if (e.currentNav && e.entryNav) {
                                 const pnl = ((e.currentNav - e.entryNav) / e.entryNav * 100).toFixed(2);
-                                ctx += `   P&L: ${pnl}% ${parseFloat(pnl) >= 0 ? '(profit — HOLD / BUY more in Hope)' : '(loss — review exit if Regime Fear)'}\n`;
+                                ctx += `   P&L: ${pnl}%\n`;
                             }
-                            if (e.latestAlert) ctx += `   Latest Alert: ${e.latestAlert}\n`;
                         }
                     });
                 }
@@ -18023,70 +18012,112 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             }
 
             // ── BLOCK 8: ALLOCATOR STATE — TOP-2 BACKTEST RANKS ─────────────────
-            // Pure backtest; untainted by SWITCH NOW actions
             try {
                 const alloc = JSON.parse(localStorage.getItem('ld_v3_last_alloc_top2') || '[]');
                 if (alloc.length > 0) {
                     ctx += "\n[ALLOCATOR STATE — BACKTEST TOP-2 FUNDS]\n";
                     alloc.forEach((f, i) => {
-                        ctx += `Rank ${i+1}: ${f.name || f.code} | 1M Return: ${f.r1m != null ? f.r1m.toFixed(2)+'%' : 'N/A'} | W-RSI: ${f.wrsi || 'N/A'} | Regime: ${f.regime || 'N/A'}\n`;
+                        ctx += `Rank ${i+1}: ${f.name || f.code} | 1M Return: ${f.r1m != null ? f.r1m.toFixed(2)+'%' : 'N/A'} | W-RSI: ${f.wrsi || 'N/A'}\n`;
                     });
                 }
             } catch(e) {}
 
             // ── BLOCK 9: C3 MOMENTUM FILTER STATUS ───────────────────────────────
-            // C3 threshold: 1M return > 2% to qualify as BUY candidate
-            // Source: assetAllocType dropdown + current scan results if visible
             const allocTypeEl = document.getElementById('assetAllocType');
             const allocType = allocTypeEl ? allocTypeEl.value : 'N/A';
-            ctx += `\n[C3 MOMENTUM FILTER]\nAsset Alloc Type: ${allocType}\nC3 Qualification Threshold: 1M return > 2% (updated LD246A)\nNote: Funds with status=pending_settlement are excluded from C3 scoring.\n`;
+            ctx += `\n[C3 MOMENTUM FILTER]\nAsset Alloc Type: ${allocType}\nC3 Qualification Threshold: 1M return > 2%\n`;
 
-            // ── BLOCK 10: NPS PFM RECOMMENDATION ─────────────────────────────────
-            // Derived from currentRegimeLog — no DOM scraping
-            const pfmMap = {
-                A: 'HDFC Pension — Aggressive Equity (BUY / stay fully invested)',
-                B: 'Kotak Pension — Tactical/Sideways (HOLD / selective rebalance)',
-                C: 'ICICI Pension — Max Protection (Reduce equity / move to G-Sec)'
-            };
-            ctx += `\n[NPS PFM RECOMMENDATION]\nRegime ${regime} → ${pfmMap[regime] || 'Regime unknown — cannot recommend PFM'}\n`;
-
-            // ── BLOCK 11: WATCHLIST MEMORY ───────────────────────────────────────
+            // ── BLOCK 10: WATCHLIST MEMORY ───────────────────────────────────────
             try {
                 const wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
                 ctx += `\n[WATCHLIST (${wl.length} pinned funds)]\n`;
                 wl.forEach(f => {
-                    const regL = f.regime === 'A' ? 'Hope' : f.regime === 'B' ? 'Watch' : f.regime === 'C' ? 'Fear' : 'N/A';
-                    ctx += `- ${f.name} | Regime:${regL} | wRSI:${f.wrsi||'N/A'} | Alert:${f.alert||'Clean'}\n`;
+                    ctx += `- ${f.name} | Regime:${f.regime} | wRSI:${f.wrsi||'N/A'}\n`;
                 });
             } catch(e) {}
 
-            ctx += "\n=================================\n";
-            ctx += "SYSTEM PROMPT FOR AI:\n";
-            ctx += "You are the 'MF BAF Technical Auditor' for this portfolio. Your job is to analyze this exact data dump. Do not explain what RSI is. Do not be conversational. Analyze the raw data provided above and issue a direct, professional technical verdict based strictly on the Sacred RSI Regime rules (Buy/Hold/Sell/Trim). Keep it concise, brutal, and data-driven.\n";
-            
+            // ── BLOCK 11: RRG STATUS ──────────────────────────────────────────────
+            const rrgQuad = document.getElementById('lcRrgStatusLabel')?.textContent || 'N/A';
+            const rrgCross = document.getElementById('lcRrgCrossDate')?.textContent || 'N/A';
+            const rrgRsTrend = document.getElementById('lcRrgRSTrend')?.textContent || 'N/A';
+            const rrgAdx = document.getElementById('lcRrgADX')?.textContent || 'N/A';
+            ctx += `\n[RRG QUADRANT STATUS]\nQuadrant: ${rrgQuad}\nRS Trend: ${rrgRsTrend}\nADX Intensity: ${rrgAdx}\n${rrgCross}\n`;
+
+            // ── BLOCK 12: DEPLOYMENT METER ────────────────────────────────────────
+            const depPctEl = document.querySelector('.dep-pct');
+            if (depPctEl) {
+                ctx += `\n[PORTFOLIO DEPLOYMENT]\nCurrently Deployed: ${depPctEl.textContent}\n`;
+            }
+
+            // ── BLOCK 13: UI DOM VALUES ───────────────────────────────────────────
+            const navEl = document.getElementById('liveNav');
+            const drsiEl = document.getElementById('liveDRsi');
+            const wrsiEl = document.getElementById('liveWRsi');
+            const regEl = document.getElementById('liveRegimeBlock');
+            const alertEl = document.getElementById('alertSummaryBadgeTop');
+            ctx += "\n[CURRENT VISUAL UI STATE]\n";
+            if (navEl) ctx += `Current NAV: ${navEl.textContent}\n`;
+            if (drsiEl) ctx += `D-RSI (displayed): ${drsiEl.textContent}\n`;
+            if (wrsiEl) ctx += `W-RSI (displayed): ${wrsiEl.textContent}\n`;
+            if (regEl) ctx += `Regime (displayed): ${regEl.textContent}\n`;
+            if (alertEl) ctx += `Alert Badge: ${alertEl.textContent} active alerts\n`;
+
+            // ── BLOCK 14: SIP MODE ────────────────────────────────────────────────
+            const sipMode = document.getElementById('sipMode');
+            const sipAmount = document.getElementById('sipAmount');
+            if (sipMode && sipAmount && sipAmount.value) {
+                ctx += `\n[SIP STATE]\nMode: ${sipMode.value} | Amount: ₹${sipAmount.value}\n`;
+                ctx += sipMode.value === 'autobuy' ? 'AutoBuy Slingshot active — capital deploys automatically on signal.\n' : 'Weekly SIP active — day-of-week scheduled deployment.\n';
+            }
             return ctx;
         }
 
         async function submitAiPrompt(txt) {
-            if (!txt || !apiKey) {
-                appendMsg('system', 'Please enter a query and ensure API key is saved.');
-                return;
-            }
+            if (!txt || !apiKey) return appendMsg('system', 'Need API Key. Tap ⚙️ to enter Gemini API key.');
             appendMsg('user', txt);
             input.value = '';
             
             const load = document.createElement('div');
             load.className = 'ld-ai-message system';
-            load.textContent = 'Processing Technical Audit...';
+            load.innerText = 'Scanning all signals — BUY / SELL analysis in progress…';
             chatArea.appendChild(load);
             chatArea.scrollTop = chatArea.scrollHeight;
+
+            const SYSTEM_PROMPT = `You are the Quantitative Signal Brain of the Lie Detector (LD246A) mutual fund app — a precision trading assistant for Indian equity mutual funds and NPS schemes.
+HARD RULES (never violate):
+1. You NEVER hallucinate data. If a value is missing from the dump, state exactly what is missing and exclude it from your reasoning.
+2. Your final output for every analysis MUST include a structured verdict block formatted as:
+▶ SIGNAL: [BUY / SELL / HOLD / WAIT]
+▶ CONVICTION: [HIGH / MEDIUM / LOW]
+▶ REASON: [1-2 sentence plain-English summary]
+▶ NEXT ACTION: [Exact step the user should take]
+3. T+2 settlement applies to all BUY actions — only recommend BUY if W-RSI velocity and TSL distance support a 2-day wait without TSL breach.
+4. T+0 applies to all SELL actions — SELL ALL and TSL exits must be treated as immediate.
+5. Nifty 50 Macro Veto: if Nifty 50 is in Regime C (Fear / W-RSI < 40), ALL BUY signals are vetoed regardless of fund-level data.
+BUY SIGNAL HIERARCHY (apply in order, require Regime A unless stated):
+- OVERSOLD-BUY: Regime A + D-RSI < 40 → BUY TRANCHE (25–50% depending on severity)
+- SLINGSHOT-BUY: Regime A + Delta (D-RSI minus W-RSI) < −15 → BUY 10–25%
+- PC-BREAKOUT-BUY: Regime A + price breakout above 5-bar consolidation box → BUY 25%
+- REGIME-WATCH-BREAKOUT: W-RSI crosses from 40–49 up to ≥50 → BUY 25% (wait 1–2 bars confirmation)
+- C3-MOMENTUM: Fund 1M return > 2% AND beats own AMC BAF by >2% → SHORTLIST / BUY
+SELL SIGNAL HIERARCHY (apply in order, any regime):
+- TSL-BREACH: NAV drops below Lowess floor (TSL Distance < 0%) → SELL ALL immediately
+- REGIME-CRASH: Regime transitions to C (W-RSI drops below 40) → SELL ALL, move to 100% cash
+- WMA-BREACH in Hope: NAV drops below WMA20 while Regime A → SELL 20% trim only
+- NC-BREAKDOWN: Price breaks below consolidation box low → Cancel BUY orders, tighten TSL
+SETTLEMENT GATE: Any fund with status=pending_settlement is INELIGIBLE for SELL recommendation. Do not suggest selling a settling fund.
+NPS PFM LOGIC: Hope→HDFC Pension, Watch→Kotak Pension, Fear→ICICI Pension.
+W-RSI CONFLUENCE: If all three periods (4/8/14) are ≥50, conviction is HIGH for BUY. If all three are <50, conviction is HIGH for SELL/avoid. Mixed = MEDIUM conviction.
+RSI ACCELERATION: A rising W-RSI slope (positive acceleration) adds conviction to BUY. A falling slope (negative acceleration) adds conviction to SELL.
+Always cite the specific data points from the dump that drive your recommendation. Be concise and precise. Avoid generic disclaimers.`;
 
             try {
                 // Switched to gemini-2.0-flash for high stability and fewer overload errors
                 const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
+                        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
                         contents: [{ role: 'user', parts: [{ text: `SIGNAL DUMP:\n${gatherContext()}\n\nUSER QUERY:\n${txt}` }] }],
                         generationConfig: { temperature: 0.05, maxOutputTokens: 1024 }
                     })
@@ -18097,7 +18128,6 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
                 if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
                     appendMsg('system', data.candidates[0].content.parts[0].text);
                 } else if (data.error) {
-                    // If it still hits high demand, give a friendly retry instruction
                     if (data.error.message.includes("high demand") || data.error.code === 503) {
                         appendMsg('system', '⚠️ Google Servers are busy. Please wait 10 seconds and try again.');
                     } else {

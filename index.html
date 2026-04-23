@@ -17718,14 +17718,17 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
     let apiKey = localStorage.getItem('ld_gemini_api_key') || '';
     if (apiKey) apiKeyIn.value = apiKey;
 
-    /* ── ROBUST DRAG ENGINE ── */
+/* ── ROBUST DRAG ENGINE ── */
     let isDragging = false;
     let dragMoved = false;
+    let startPos = { x: 0, y: 0 }; 
     let offset = { x: 0, y: 0 };
 
     el.addEventListener('pointerdown', (e) => {
         isDragging = true;
         dragMoved = false;
+        startPos.x = e.clientX;
+        startPos.y = e.clientY;
         offset.x = e.clientX - el.offsetLeft;
         offset.y = e.clientY - el.offsetTop;
         el.setPointerCapture(e.pointerId);
@@ -17733,17 +17736,25 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 
     window.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
-        dragMoved = true;
-        let x = e.clientX - offset.x;
-        let y = e.clientY - offset.y;
         
-        // Boundaries
-        x = Math.max(0, Math.min(x, window.innerWidth - el.offsetWidth));
-        y = Math.max(0, Math.min(y, window.innerHeight - el.offsetHeight));
+        // Threshold: Only consider it a drag if moved more than 5 pixels
+        let moveX = Math.abs(e.clientX - startPos.x);
+        let moveY = Math.abs(e.clientY - startPos.y);
         
-        el.style.left = x + 'px';
-        el.style.top = y + 'px';
-        el.style.right = 'auto';
+        if (moveX > 5 || moveY > 5) dragMoved = true;
+
+        if (dragMoved) {
+            let x = e.clientX - offset.x;
+            let y = e.clientY - offset.y;
+            
+            // Boundaries
+            x = Math.max(0, Math.min(x, window.innerWidth - el.offsetWidth));
+            y = Math.max(0, Math.min(y, window.innerHeight - el.offsetHeight));
+            
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.right = 'auto'; 
+        }
     });
 
     window.addEventListener('pointerup', (e) => {
@@ -17753,18 +17764,50 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
     });
 
     el.addEventListener('click', () => {
-        if (!dragMoved) panel.classList.toggle('open');
+        if (!dragMoved) {
+            panel.classList.toggle('open');
+            
+            // Smart API Key Check
+            if (panel.classList.contains('open')) {
+                const inputArea = document.querySelector('.ld-ai-input-area');
+                if (!apiKey) {
+                    // No key: Show settings, hide chat
+                    document.getElementById('ld-ai-settings-panel').classList.add('open');
+                    chatArea.style.display = 'none';
+                    if (inputArea) inputArea.style.display = 'none';
+                } else {
+                    // Key exists: Hide settings, show chat
+                    document.getElementById('ld-ai-settings-panel').classList.remove('open');
+                    chatArea.style.display = 'block'; 
+                    if (inputArea) inputArea.style.display = 'flex';
+                }
+            }
+        }
     });
 
     /* ── DATA & BRAIN LOGIC ── */
     document.getElementById('ld-ai-close-btn').onclick = () => panel.classList.remove('open');
+    
     document.getElementById('ld-ai-settings-btn').onclick = () => document.getElementById('ld-ai-settings-panel').classList.toggle('open');
+
     document.getElementById('ld-ai-save-key').onclick = () => {
         apiKey = apiKeyIn.value.trim();
+        if (!apiKey) {
+             appendMsg('system', 'Please enter a valid key.');
+             return;
+        }
         localStorage.setItem('ld_gemini_api_key', apiKey);
+        
+        // Hide settings and show chat immediately after saving
         document.getElementById('ld-ai-settings-panel').classList.remove('open');
-        appendMsg('system', 'Key Saved.');
+        chatArea.style.display = 'block';
+        const inputArea = document.querySelector('.ld-ai-input-area');
+        if (inputArea) inputArea.style.display = 'flex';
+        
+        appendMsg('system', 'API Key Saved. System Ready.');
     };
+
+
 
     function appendMsg(role, text) {
         const d = document.createElement('div');

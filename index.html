@@ -17640,13 +17640,419 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 
 </script>
 
+<style>
+  /* ── Fully Draggable Toggle ── */
+  #ld-ai-toggle {
+    position: fixed; top: 20px; right: 20px; z-index: 10001; 
+    background: var(--surface2, #e4eaf2); border: 1px solid var(--accent, #009e70);
+    border-radius: 50%; width: 31px; height: 31px; font-size: 14px; 
+    cursor: move; box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    touch-action: none; user-select: none;
+  }
+  #ld-ai-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 16px rgba(0,158,112,0.25); }
+
+  /* ── AI Panel ── */
+  #ld-ai-panel {
+    position: fixed; top: 70px; right: 20px; width: 380px; max-width: calc(100vw - 40px);
+    background: var(--bg, #ffffff); border: 1px solid var(--border, #b0bece); border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25); display: flex; flex-direction: column;
+    opacity: 0; pointer-events: none; transform: translateY(-10px); 
+    transition: opacity 0.3s, transform 0.3s;
+    max-height: 75vh; z-index: 10000; font-family: var(--mono, monospace);
+  }
+  #ld-ai-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  
+  .ld-ai-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--surface, #f2f5f9); border-bottom: 1px solid var(--border, #b0bece); border-radius: 12px 12px 0 0; font-size: 0.7rem; font-weight: 700; color: var(--accent, #009e70); text-transform: uppercase; }
+  .ld-ai-close { background: transparent; border: none; font-size: 16px; cursor: pointer; color: var(--muted, #404060); }
+  .ld-ai-settings { padding: 12px 16px; background: var(--surface2, #e4eaf2); border-bottom: 1px solid var(--border, #b0bece); display: none; flex-direction: column; gap: 8px; }
+  .ld-ai-settings.open { display: flex; }
+  .ld-ai-settings input { border: 1px solid var(--border, #b0bece); border-radius: 4px; padding: 8px 10px; font-size: 0.65rem; width: 100%; outline: none; }
+  .ld-ai-chat-area { padding: 16px; overflow-y: auto; flex: 1; font-size: 0.7rem; line-height: 1.5; background: var(--bg, #ffffff); }
+  .ld-ai-message { margin-bottom: 12px; padding: 10px 14px; border-radius: 8px; background: var(--surface2, #e4eaf2); word-wrap: break-word; }
+  .ld-ai-message.user { background: var(--accent-dim, rgba(0,158,112,0.1)); border-left: 3px solid var(--accent, #009e70); }
+  .ld-ai-message strong { color: var(--accent, #009e70); }
+  .ld-ai-input-area { display: flex; padding: 12px 16px; border-top: 1px solid var(--border, #b0bece); background: var(--surface, #f2f5f9); border-radius: 0 0 12px 12px; }
+  .ld-ai-input-area input { flex: 1; border: 1px solid var(--border, #b0bece); border-radius: 4px; padding: 10px 12px; font-size: 0.65rem; outline: none; }
+  .ld-ai-input-area button { background: var(--accent, #009e70); color: #fff; border: none; border-radius: 4px; padding: 0 16px; margin-left: 8px; cursor: pointer; font-weight: 700; }
+</style>
+
+<div id="ld-ai-toggle" title="Drag me anywhere, Click to chat">✨</div>
+
+<div id="ld-ai-panel">
+  <div class="ld-ai-header">
+    <span>✨ System Brain Auditor</span>
+    <div>
+      <button id="ld-ai-settings-btn" class="ld-ai-close" style="font-size:12px; margin-right:8px;">⚙️</button>
+      <button id="ld-ai-close-btn" class="ld-ai-close">✕</button>
+    </div>
+  </div>
+  <div id="ld-ai-settings-panel" class="ld-ai-settings">
+    <input type="password" id="ld-ai-api-key" placeholder="Enter Gemini API Key">
+    <button id="ld-ai-save-key" style="background:var(--accent);color:#fff;border:none;padding:6px;border-radius:4px;cursor:pointer;font-size:0.6rem;">SAVE KEY</button>
+  </div>
+  <div class="ld-ai-chat-area" id="ld-ai-chat-area">
+    <div class="ld-ai-message system">
+      Auditor V9 Online. Draggable ✨ fix active. Deep-scanning Watchlist and History Arrays for Nifty 50 and RSI Acceleration.
+    </div>
+  </div>
+  <div class="ld-ai-input-area">
+    <input type="text" id="ld-ai-input" placeholder="Analyze market and answer queries...">
+    <button id="ld-ai-submit">➤</button>
+  </div>
+</div>
+
+<script>
+(function() {
+    const el = document.getElementById('ld-ai-toggle');
+    const panel = document.getElementById('ld-ai-panel');
+    const chatArea = document.getElementById('ld-ai-chat-area');
+    const input = document.getElementById('ld-ai-input');
+    const submit = document.getElementById('ld-ai-submit');
+    const apiKeyIn = document.getElementById('ld-ai-api-key');
+
+    let apiKey = localStorage.getItem('ld_gemini_api_key') || '';
+    if (apiKey) apiKeyIn.value = apiKey;
+
+    /* ── ROBUST DRAG ENGINE ── */
+    let isDragging = false;
+    let dragMoved = false;
+    let offset = { x: 0, y: 0 };
+
+    el.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        dragMoved = false;
+        offset.x = e.clientX - el.offsetLeft;
+        offset.y = e.clientY - el.offsetTop;
+        el.setPointerCapture(e.pointerId);
+    });
+
+    window.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        dragMoved = true;
+        let x = e.clientX - offset.x;
+        let y = e.clientY - offset.y;
+        
+        // Boundaries
+        x = Math.max(0, Math.min(x, window.innerWidth - el.offsetWidth));
+        y = Math.max(0, Math.min(y, window.innerHeight - el.offsetHeight));
+        
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.right = 'auto';
+    });
+
+    window.addEventListener('pointerup', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        el.releasePointerCapture(e.pointerId);
+    });
+
+    el.addEventListener('click', () => {
+        if (!dragMoved) panel.classList.toggle('open');
+    });
+
+    /* ── DATA & BRAIN LOGIC ── */
+    document.getElementById('ld-ai-close-btn').onclick = () => panel.classList.remove('open');
+    document.getElementById('ld-ai-settings-btn').onclick = () => document.getElementById('ld-ai-settings-panel').classList.toggle('open');
+    document.getElementById('ld-ai-save-key').onclick = () => {
+        apiKey = apiKeyIn.value.trim();
+        localStorage.setItem('ld_gemini_api_key', apiKey);
+        document.getElementById('ld-ai-settings-panel').classList.remove('open');
+        appendMsg('system', 'Key Saved.');
+    };
+
+    function appendMsg(role, text) {
+        const d = document.createElement('div');
+        d.className = `ld-ai-message ${role}`;
+        d.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+        chatArea.appendChild(d);
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function gatherContext() {
+        let ctx = "=== LD246A SIGNAL DEEP DUMP ===\n";
+        ctx += `Timestamp: ${new Date().toISOString()}\n`;
+
+        // ── BLOCK 1: ACTIVE UI SURFACE ──────────────────────────────────────
+        const activeModal = document.querySelector('.modal[style*="display: flex"]');
+        ctx += `\n[UI SURFACE]\nVisible Screen: ${activeModal ? activeModal.id : 'Main Dashboard'}\n`;
+
+        // ── BLOCK 2: REGIME STATE (Primary Signal Gate) ──────────────────────
+        // window.currentRegimeLog is synced at every updateDisplay + cockpit bar
+        const regime = window.currentRegimeLog || 'UNKNOWN';
+        const regimeLabel = regime === 'A' ? 'Hope (BUY zone — aggressive equity)' :
+                            regime === 'B' ? 'Watch (HOLD / tactical — sideways market)' :
+                            regime === 'C' ? 'Fear (SELL / protect — max downside shield)' : 'UNKNOWN';
+        ctx += `\n[REGIME STATE]\nCurrent Regime: ${regime} — ${regimeLabel}\n`;
+
+        // ── BLOCK 3: NIFTY 50 MACRO FILTER ───────────────────────────────────
+        // Regime C on Nifty = macro veto on ALL BUY signals
+        const allText = document.body.innerText;
+        if (allText.includes("Nifty 50")) {
+            ctx += "\n[NIFTY 50 MACRO FILTER — ON SCREEN]\n";
+            document.querySelectorAll('tr').forEach(r => {
+                if (r.innerText.includes("Nifty 50"))
+                    ctx += `Nifty 50 Row: ${r.innerText.replace(/\n/g, ' | ')}\n`;
+            });
+        } else {
+            ctx += "\n[NIFTY 50 MACRO FILTER]\nNifty 50 data not visible on current screen.\n";
+        }
+
+        // ── BLOCK 4: NAV HISTORY + RSI ARRAYS (Last 30 days) ────────────────
+        // Covers: RSI velocity, acceleration, TSL distance, momentum state
+        if (window.globalLiveData && window.globalLiveData.length > 0) {
+            const len    = window.globalLiveData.length;
+            const window30 = Math.min(30, len);
+            ctx += `\n[NAV + RSI HISTORY — LAST ${window30} DAYS]\n`;
+            ctx += `Columns: Day | Date | NAV | W-RSI(${window.userRsiLength||4}) | D-RSI | TSL(Lowess) | Delta(D-W) | Signal\n`;
+
+            for (let i = len - window30; i < len; i++) {
+                const day  = window.globalLiveData[i];
+                const wr   = Math.round(window.globalWeeklyRsiCache[i] || 0);
+                const dr   = Math.round(window.globalDailyRsiCache[i] || 0);
+                const tsl  = window.globalLowessCache[i] ? window.globalLowessCache[i].toFixed(2) : 'N/A';
+                const delta = dr - wr;
+                // Derive per-row signal hint for Gemini
+                let sig = 'NEUTRAL';
+                if (wr >= 50 && dr < 40)                         sig = 'OVERSOLD-BUY';
+                else if (wr >= 50 && delta < -15)                sig = 'SLINGSHOT-BUY';
+                else if (wr < 40)                                 sig = 'FEAR-NO-BUY';
+                else if (wr >= 50 && dr >= 50)                   sig = 'MOMENTUM-HOLD';
+                const relDay = i - (len - window30);
+                ctx += `D${relDay} | ${day.date||'?'} | NAV:${day.nav} | W-RSI:${wr} | D-RSI:${dr} | TSL:${tsl} | Delta:${delta} | ${sig}\n`;
+            }
+
+            // RSI Acceleration: compare last 3 W-RSI values
+            if (len >= 3) {
+                const wr0 = Math.round(window.globalWeeklyRsiCache[len-3] || 0);
+                const wr1 = Math.round(window.globalWeeklyRsiCache[len-2] || 0);
+                const wr2 = Math.round(window.globalWeeklyRsiCache[len-1] || 0);
+                const accel = (wr2 - wr1) - (wr1 - wr0);
+                ctx += `\nW-RSI Acceleration (last 3 bars): ${wr0} → ${wr1} → ${wr2} | Accel: ${accel > 0 ? '+' : ''}${accel} (${accel > 0 ? 'SPEEDING UP' : accel < 0 ? 'SLOWING DOWN' : 'FLAT'})\n`;
+            }
+
+            // TSL distance from current NAV
+            const lastNav = window.globalLiveData[len-1]?.nav;
+            const lastTSL = window.globalLowessCache[len-1];
+            if (lastNav && lastTSL) {
+                const tslDist = ((lastNav - lastTSL) / lastTSL * 100).toFixed(2);
+                ctx += `TSL Distance: NAV is ${tslDist}% ${parseFloat(tslDist) >= 0 ? 'ABOVE' : 'BELOW'} Lowess floor (${parseFloat(tslDist) < 0 ? '🚨 TSL BREACHED — SELL signal active' : 'floor intact'})\n`;
+            }
+        } else {
+            ctx += "\n[NAV + RSI HISTORY]\nNo live data loaded. Load a fund in the cockpit first.\n";
+        }
+
+        // ── BLOCK 5: MULTI-PERIOD W-RSI GO / NO-GO ──────────────────────────
+        // wRsi4, wRsi8, wRsi14 arrays are pre-built; read last value from each
+        ctx += "\n[MULTI-PERIOD W-RSI GO/NO-GO]\n";
+        ['wRsi4Cache','wRsi8Cache','wRsi14Cache'].forEach((key, idx) => {
+            const period = [4, 8, 14][idx];
+            const arr = window[key];
+            if (arr && arr.length > 0) {
+                const val = Math.round(arr[arr.length - 1] || 0);
+                const goNogo = val >= 50 ? '● GO (momentum positive — supports BUY)' : '○ NO-GO (momentum negative — avoid BUY)';
+                ctx += `W-RSI-${period}: ${val} — ${goNogo}\n`;
+            } else {
+                ctx += `W-RSI-${period}: NOT AVAILABLE\n`;
+            }
+        });
+
+        // ── BLOCK 6: LIVE PORTFOLIO STATE (_LP) ──────────────────────────────
+        // Critical: pending_settlement slots must never receive a SELL recommendation
+        try {
+            const lp = JSON.parse(localStorage.getItem('ld_live_portfolio') || '{}');
+            ctx += "\n[LIVE PORTFOLIO STATE — T+2 SETTLEMENT AWARE]\n";
+            ['slot1','slot2'].forEach(slot => {
+                const s = lp[slot];
+                if (s && s.code) {
+                    ctx += `${slot.toUpperCase()}: ${s.name} (${s.code})\n`;
+                    ctx += `  Status: ${s.status === 'pending_settlement' ? '⏳ PENDING SETTLEMENT — DO NOT SELL YET' : '✅ ACTIVE — eligible for BUY/SELL analysis'}\n`;
+                    if (s.settleDate) ctx += `  Settle Date: ${s.settleDate}\n`;
+                    if (s.entryDate)  ctx += `  Entry Date: ${s.entryDate}\n`;
+                } else {
+                    ctx += `${slot.toUpperCase()}: EMPTY\n`;
+                }
+            });
+        } catch(e) { ctx += "\n[LIVE PORTFOLIO STATE]\nUnable to read (parse error).\n"; }
+
+        // ── BLOCK 7: SWITCH JOURNAL + LIVE BRIDGE P&L ────────────────────────
+        // Aggregate P&L across all AMC positions; negative + Fear = SELL signal
+        try {
+            const sj = JSON.parse(localStorage.getItem('ld_switch_journal') || '{"switches":{}}');
+            const switches = sj.switches || {};
+            ctx += "\n[SWITCH JOURNAL — LIVE BRIDGE P&L]\n";
+            const keys = Object.keys(switches);
+            if (keys.length === 0) {
+                ctx += "No active switch positions recorded.\n";
+            } else {
+                keys.forEach(k => {
+                    const e = switches[k];
+                    if (e && e.code) {
+                        ctx += `AMC/Key: ${k} | Fund: ${e.name} (${e.code})\n`;
+                        ctx += `  Switch Date: ${e.switchDate || 'N/A'} | Entry NAV: ${e.entryNav || 'N/A'}\n`;
+                        if (e.currentNav && e.entryNav) {
+                            const pnl = ((e.currentNav - e.entryNav) / e.entryNav * 100).toFixed(2);
+                            ctx += `  P&L: ${pnl}% ${parseFloat(pnl) >= 0 ? '(profit — HOLD / BUY more in Hope)' : '(loss — review exit if Regime Fear)'}\n`;
+                        }
+                        if (e.latestAlert) ctx += `  Latest Alert: ${e.latestAlert}\n`;
+                    }
+                });
+            }
+        } catch(e) { ctx += "\n[SWITCH JOURNAL]\nUnable to read.\n"; }
+
+        // ── BLOCK 8: ALLOCATOR STATE — TOP-2 BACKTEST RANKS ─────────────────
+        // Pure backtest; untainted by SWITCH NOW actions
+        try {
+            const alloc = JSON.parse(localStorage.getItem('ld_v3_last_alloc_top2') || '[]');
+            if (alloc.length > 0) {
+                ctx += "\n[ALLOCATOR STATE — BACKTEST TOP-2 FUNDS]\n";
+                alloc.forEach((f, i) => {
+                    ctx += `Rank ${i+1}: ${f.name || f.code} | 1M Return: ${f.r1m != null ? f.r1m.toFixed(2)+'%' : 'N/A'} | W-RSI: ${f.wrsi || 'N/A'} | Regime: ${f.regime || 'N/A'}\n`;
+                });
+            }
+        } catch(e) {}
+
+        // ── BLOCK 9: C3 MOMENTUM FILTER STATUS ───────────────────────────────
+        // C3 threshold: 1M return > 2% to qualify as BUY candidate
+        // Source: assetAllocType dropdown + current scan results if visible
+        const allocTypeEl = document.getElementById('assetAllocType');
+        const allocType = allocTypeEl ? allocTypeEl.value : 'N/A';
+        ctx += `\n[C3 MOMENTUM FILTER]\nAsset Alloc Type: ${allocType}\nC3 Qualification Threshold: 1M return > 2% (updated LD246A)\nNote: Funds with status=pending_settlement are excluded from C3 scoring.\n`;
+
+        // ── BLOCK 10: NPS PFM RECOMMENDATION ─────────────────────────────────
+        // Derived from currentRegimeLog — no DOM scraping
+        const pfmMap = { A: 'HDFC Pension — Aggressive Equity (BUY / stay fully invested)',
+                         B: 'Kotak Pension — Tactical/Sideways (HOLD / selective rebalance)',
+                         C: 'ICICI Pension — Max Protection (Reduce equity / move to G-Sec)' };
+        ctx += `\n[NPS PFM RECOMMENDATION]\nRegime ${regime} → ${pfmMap[regime] || 'Regime unknown — cannot recommend PFM'}\n`;
+
+        // ── BLOCK 11: WATCHLIST MEMORY ───────────────────────────────────────
+        try {
+            const wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+            ctx += `\n[WATCHLIST (${wl.length} pinned funds)]\n`;
+            wl.forEach(f => {
+                const regL = f.regime === 'A' ? 'Hope' : f.regime === 'B' ? 'Watch' : f.regime === 'C' ? 'Fear' : 'N/A';
+                ctx += `- ${f.name} | Regime:${regL} | W-RSI:${f.wrsi||'N/A'} | D-RSI:${f.drsi||'N/A'} | 1M:${f.r1m!=null?f.r1m.toFixed(2)+'%':'N/A'}\n`;
+            });
+        } catch(e) {}
+
+        // ── BLOCK 12: RRG ALPHA DASHBOARD (if open) ──────────────────────────
+        const rrgPanel = document.getElementById('rrgDetailModal');
+        if (rrgPanel && rrgPanel.style.display === 'flex') {
+            ctx += `\n[RRG ALPHA DASHBOARD — OPEN]\n${rrgPanel.innerText.slice(0, 1500)}\n`;
+        }
+
+        // ── BLOCK 13: CURRENT COCKPIT SNAPSHOT SUMMARY ───────────────────────
+        // Pull live displayed values for instant cross-check
+        const navEl    = document.getElementById('liveNav');
+        const drsiEl   = document.getElementById('liveDRsi');
+        const wrsiEl   = document.getElementById('liveWRsi');
+        const regEl    = document.getElementById('liveRegime');
+        const alertEl  = document.getElementById('alertSummaryBadgeTop');
+        if (navEl || drsiEl) {
+            ctx += "\n[LIVE COCKPIT SNAPSHOT]\n";
+            if (navEl)   ctx += `Current NAV: ${navEl.textContent}\n`;
+            if (drsiEl)  ctx += `D-RSI (displayed): ${drsiEl.textContent}\n`;
+            if (wrsiEl)  ctx += `W-RSI (displayed): ${wrsiEl.textContent}\n`;
+            if (regEl)   ctx += `Regime (displayed): ${regEl.textContent}\n`;
+            if (alertEl) ctx += `Alert Badge: ${alertEl.textContent} active alerts\n`;
+        }
+
+        // ── BLOCK 14: SIP MODE ────────────────────────────────────────────────
+        const sipMode   = document.getElementById('sipMode');
+        const sipAmount = document.getElementById('sipAmount');
+        if (sipMode && sipAmount && sipAmount.value) {
+            ctx += `\n[SIP STATE]\nMode: ${sipMode.value} | Amount: ₹${sipAmount.value}\n`;
+            ctx += sipMode.value === 'autobuy'
+                ? 'AutoBuy Slingshot active — capital deploys automatically on signal.\n'
+                : 'Weekly SIP active — day-of-week scheduled deployment.\n';
+        }
+
+        return ctx;
+    }
+
+    async function submitAiPrompt(txt) {
+        if (!txt || !apiKey) return appendMsg('system', 'Need API Key. Tap ⚙️ to enter Gemini API key.');
+        appendMsg('user', txt);
+        input.value = '';
+        const load = document.createElement('div');
+        load.className = 'ld-ai-message system';
+        load.innerText = 'Scanning all signals — BUY / SELL analysis in progress…';
+        chatArea.appendChild(load);
+        chatArea.scrollTop = chatArea.scrollHeight;
+
+        const SYSTEM_PROMPT = `You are the Quantitative Signal Brain of the Lie Detector (LD246A) mutual fund app — a precision trading assistant for Indian equity mutual funds and NPS schemes.
+
+HARD RULES (never violate):
+1. You NEVER hallucinate data. If a value is missing from the dump, state exactly what is missing and exclude it from your reasoning.
+2. Your final output for every analysis MUST include a structured verdict block formatted as:
+   ▶ SIGNAL: [BUY / SELL / HOLD / WAIT]
+   ▶ CONVICTION: [HIGH / MEDIUM / LOW]
+   ▶ REASON: [1-2 sentence plain-English summary]
+   ▶ NEXT ACTION: [Exact step the user should take]
+3. T+2 settlement applies to all BUY actions — only recommend BUY if W-RSI velocity and TSL distance support a 2-day wait without TSL breach.
+4. T+0 applies to all SELL actions — SELL ALL and TSL exits must be treated as immediate.
+5. Nifty 50 Macro Veto: if Nifty 50 is in Regime C (Fear / W-RSI < 40), ALL BUY signals are vetoed regardless of fund-level data.
+
+BUY SIGNAL HIERARCHY (apply in order, require Regime A unless stated):
+- OVERSOLD-BUY: Regime A + D-RSI < 40 → BUY TRANCHE (25–50% depending on severity)
+- SLINGSHOT-BUY: Regime A + Delta (D-RSI minus W-RSI) < −15 → BUY 10–25%
+- PC-BREAKOUT-BUY: Regime A + price breakout above 5-bar consolidation box → BUY 25%
+- REGIME-WATCH-BREAKOUT: W-RSI crosses from 40–49 up to ≥50 → BUY 25% (wait 1–2 bars confirmation)
+- C3-MOMENTUM: Fund 1M return > 2% AND beats own AMC BAF by >2% → SHORTLIST / BUY
+
+SELL SIGNAL HIERARCHY (apply in order, any regime):
+- TSL-BREACH: NAV drops below Lowess floor (TSL Distance < 0%) → SELL ALL immediately
+- REGIME-CRASH: Regime transitions to C (W-RSI drops below 40) → SELL ALL, move to 100% cash
+- WMA-BREACH in Hope: NAV drops below WMA20 while Regime A → SELL 20% trim only
+- NC-BREAKDOWN: Price breaks below consolidation box low → Cancel BUY orders, tighten TSL
+
+SETTLEMENT GATE: Any fund with status=pending_settlement is INELIGIBLE for SELL recommendation. Do not suggest selling a settling fund.
+
+NPS PFM LOGIC: Hope→HDFC Pension, Watch→Kotak Pension, Fear→ICICI Pension.
+
+W-RSI CONFLUENCE: If all three periods (4/8/14) are ≥50, conviction is HIGH for BUY. If all three are <50, conviction is HIGH for SELL/avoid. Mixed = MEDIUM conviction.
+
+RSI ACCELERATION: A rising W-RSI slope (positive acceleration) adds conviction to BUY. A falling slope (negative acceleration) adds conviction to SELL.
+
+Always cite the specific data points from the dump that drive your recommendation. Be concise and precise. Avoid generic disclaimers.`;
+
+        try {
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+                    contents: [{ role: 'user', parts: [{ text: `SIGNAL DUMP:\n${gatherContext()}\n\nUSER QUERY:\n${txt}` }] }],
+                    generationConfig: { temperature: 0.05, maxOutputTokens: 1024 }
+                })
+            });
+            const data = await resp.json();
+            load.remove();
+            if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                appendMsg('system', data.candidates[0].content.parts[0].text);
+            } else if (data.error) {
+                appendMsg('system', `API Error: ${data.error.message || 'Unknown error from Gemini.'}`);
+            } else {
+                appendMsg('system', 'No response received. Check API key and try again.');
+            }
+        } catch(e) { load.remove(); appendMsg('system', 'Network Error: ' + e.message); }
+    }
+
+    submit.onclick = () => submitAiPrompt(input.value);
+    input.onkeydown = (e) => { if (e.key === 'Enter') submitAiPrompt(input.value); };
+})();
+</script>
+		
     </body>
 
 
 
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD245B
+    END OF FILE — LD246A AI PART INCLUDED
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js

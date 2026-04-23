@@ -17808,14 +17808,27 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
     };
 
 
-
-    function appendMsg(role, text) {
+function appendMsg(role, text) {
         const d = document.createElement('div');
         d.className = `ld-ai-message ${role}`;
-        d.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+        
+        // 1. Safely escape HTML symbols so the browser doesn't cut off text at '<' or '>'
+        let safeText = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+            
+        // 2. Apply bolding, italics, and line breaks
+        safeText = safeText
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/\n/g, '<br>');
+            
+        d.innerHTML = safeText;
         chatArea.appendChild(d);
         chatArea.scrollTop = chatArea.scrollHeight;
     }
+
 
     function gatherContext() {
         let ctx = "=== LD246A SIGNAL DEEP DUMP ===\n";
@@ -18111,7 +18124,7 @@ try {
 
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD246A AI PART INCLUDED
+    END OF FILE — LD246BAI - Modified2  AI PART INCLUDED and working
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js

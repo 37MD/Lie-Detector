@@ -17639,17 +17639,22 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
     });
 
 </script>
-  ════════════════════════════════════════════════════════════════════════════
+
+		 ════════════════════════════════════════════════════════════════════════════
+
 <style>
-  /* ── AI Toggle Button (Reduced 30% to 31px) ── */
+  /* ── Draggable AI Toggle (31px) ── */
   #ld-ai-toggle {
-    position: fixed; top: 15px; right: 15px; z-index: 9999; 
+    position: fixed; top: 15px; right: 15px; z-index: 10001; 
     background: var(--surface2, #e4eaf2); border: 1px solid var(--accent, #009e70);
-    border-radius: 50%; width: 31px; height: 31px; font-size: 14px; cursor: pointer;
+    border-radius: 50%; width: 31px; height: 31px; font-size: 14px; 
+    cursor: move; /* Indicates it can be moved */
     box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    touch-action: none; /* Prevents scrolling while dragging on mobile */
   }
   #ld-ai-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 16px rgba(0,158,112,0.25); }
+  #ld-ai-toggle:active { cursor: grabbing; }
 
   /* ── AI Chat Panel ── */
   #ld-ai-panel {
@@ -17683,7 +17688,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
   .ld-ai-input-area button { background: var(--accent, #009e70); color: #fff; border: none; border-radius: 4px; padding: 0 16px; margin-left: 8px; cursor: pointer; font-weight: 700; }
 </style>
 
-<button id="ld-ai-toggle" title="Open System Auditor">✨</button>
+<button id="ld-ai-toggle" title="Drag to move, click to chat">✨</button>
 
 <div id="ld-ai-panel">
   <div class="ld-ai-header">
@@ -17701,7 +17706,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 
   <div class="ld-ai-chat-area" id="ld-ai-chat-area">
     <div class="ld-ai-message system">
-      System Brain active. I now read the Live UI directly to prevent "data missing" errors. Settlement logic and Macro Overlay protocols engaged.
+      System Brain active. Drag the ✨ icon anywhere if it blocks your view. Auditor protocols engaged.
     </div>
   </div>
   
@@ -17712,7 +17717,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
   </div>
   
   <div class="ld-ai-input-area">
-    <input type="text" id="ld-ai-input" placeholder="Ask the brain for recommendations...">
+    <input type="text" id="ld-ai-input" placeholder="Ask for recommendations...">
     <button id="ld-ai-submit">➤</button>
   </div>
 </div>
@@ -17729,7 +17734,61 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
     let apiKey = localStorage.getItem('ld_gemini_api_key') || '';
     if (apiKey) apiKeyInput.value = apiKey;
 
-    toggleBtn.addEventListener('click', () => aiPanel.classList.toggle('open'));
+    /* ── DRAGGABLE LOGIC ── */
+    let isDragging = false;
+    let dragThreshold = 5; // Pixels moved before considering it a drag
+    let startX, startY;
+
+    toggleBtn.addEventListener('mousedown', (e) => {
+        isDragging = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        const onMouseMove = (moveEvent) => {
+            if (Math.abs(moveEvent.clientX - startX) > dragThreshold || Math.abs(moveEvent.clientY - startY) > dragThreshold) {
+                isDragging = true;
+                toggleBtn.style.left = (moveEvent.clientX - 15) + 'px';
+                toggleBtn.style.top = (moveEvent.clientY - 15) + 'px';
+                toggleBtn.style.right = 'auto'; // Disable fixed right
+            }
+        };
+        const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    });
+
+    // Mobile touch support
+    toggleBtn.addEventListener('touchstart', (e) => {
+        isDragging = false;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        const onTouchMove = (tEvent) => {
+            const t = tEvent.touches[0];
+            if (Math.abs(t.clientX - startX) > dragThreshold || Math.abs(t.clientY - startY) > dragThreshold) {
+                isDragging = true;
+                toggleBtn.style.left = (t.clientX - 15) + 'px';
+                toggleBtn.style.top = (t.clientY - 15) + 'px';
+                toggleBtn.style.right = 'auto';
+            }
+        };
+        const onTouchEnd = () => {
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
+        };
+        document.addEventListener('touchmove', onTouchMove);
+        document.addEventListener('touchend', onTouchEnd);
+    });
+
+    toggleBtn.addEventListener('click', (e) => {
+        if (!isDragging) {
+            aiPanel.classList.toggle('open');
+        }
+    });
+
+    /* ── CHAT LOGIC ── */
     document.getElementById('ld-ai-close-btn').addEventListener('click', () => aiPanel.classList.remove('open'));
     document.getElementById('ld-ai-settings-btn').addEventListener('click', () => document.getElementById('ld-ai-settings-panel').classList.toggle('open'));
 
@@ -17750,99 +17809,68 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
       chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    // THE DEEP BRAIN: Gathers internal variables + current visible UI data [LD245C UPGRADE]
     function gatherAppContext() {
       let context = "=== SYSTEM BRAIN DATA DUMP ===\n\n";
-      
-      // 1. IDENTITY & VISIBILITY: Detect what the user is actually looking at [FIX FOR MISSING DATA]
       const liveVisible = document.getElementById('liveChartModal').style.display === 'flex';
-      const simVisible = document.getElementById('gameUI').style.display === 'flex';
+      const rrgDetailVisible = document.getElementById('rrgDetailModal').style.display === 'flex';
       
       let subjectFund = "Unknown";
-      if (liveVisible) subjectFund = document.getElementById('liveChartFundName').textContent;
-      else if (simVisible) subjectFund = document.getElementById('simFundName').textContent;
+      if (rrgDetailVisible) subjectFund = document.getElementById('rrgDetailFundName').textContent;
+      else if (liveVisible) subjectFund = document.getElementById('liveChartFundName').textContent;
       else {
           const sel = document.getElementById('fundSelect');
           if (sel && sel.selectedIndex !== -1) subjectFund = sel.options[sel.selectedIndex].text;
       }
       context += `[PRIMARY SUBJECT] ${subjectFund}\n`;
 
-      // 2. LIVE DASHBOARD SCRAPE: Read exactly what the user sees on screen
-      if (liveVisible) {
-          const regText = document.getElementById('liveRegimeBlock').textContent;
-          const dRsi = document.getElementById('liveDRsi').textContent;
-          const wRsi = document.getElementById('liveWRsi').textContent;
-          const navText = document.getElementById('liveNav').textContent;
-          const banner = document.getElementById('liveChartAlertBanner').textContent;
-          context += `[VISIBLE LIVE METRICS]\n- UI Regime Box: ${regText}\n- ${navText}\n- D-RSI: ${dRsi}\n- W-RSI: ${wRsi}\n- Active UI Alert: ${banner}\n\n`;
+      if (rrgDetailVisible) {
+          context += `[RRG ALPHA DASHBOARD METRICS]\n- Quadrant: ${document.getElementById('rrgStatusLabel')?.textContent}\n- Regime: ${document.getElementById('rrgRegimeLabel')?.textContent}\n- RS Ratio Trend: ${document.getElementById('rrgRSTrend')?.textContent}\n- Intensity: ${document.getElementById('rrgADX')?.textContent}\n\n`;
       }
 
-      // 3. MACRO OVERLAY: Find Nifty 50 status
-      let macroStatus = "Not scanned. Verify externally.";
+      if (liveVisible) {
+          context += `[VISIBLE LIVE METRICS]\n- UI Regime: ${document.getElementById('liveRegimeBlock')?.textContent}\n- ${document.getElementById('liveNav')?.textContent}\n- D-RSI: ${document.getElementById('liveDRsi')?.textContent}\n- W-RSI: ${document.getElementById('liveWRsi')?.textContent}\n- UI Alert: ${document.getElementById('liveChartAlertBanner')?.textContent}\n\n`;
+      }
+
       try {
           const wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
-          const nifty = wl.find(f => f.name.toLowerCase().includes('nifty 50'));
-          if (nifty) macroStatus = `Nifty 50 found in Watchlist: Regime ${nifty.regime || 'Unknown'}`;
+          if (wl.length > 0) {
+            context += `[WATCHLIST MEMORY]\n`;
+            wl.forEach(f => {
+               const macroTag = f.name.toLowerCase().includes('nifty 50') ? " [MACRO INDEX]" : "";
+               context += `- ${f.name}${macroTag} | Reg: ${f.regime || 'N/A'} | W: ${f.wrsi || 'N/A'} | D: ${f.drsi || 'N/A'}\n`;
+            });
+          }
       } catch(e) {}
-      context += `[MACRO OVERLAY] ${macroStatus}\n\n`;
 
-      // 4. SUBJECT TREND BRAIN: Last 15 days of math
+      const rrgTable = document.getElementById('rrgScannerTable');
+      if (rrgTable && rrgTable.offsetParent !== null) {
+         context += `\n[UNIVERSE SCAN - RRG RANKINGS]\n`;
+         rrgTable.querySelectorAll('tbody tr').forEach(row => context += `> ${row.innerText.replace(/\n|\t/g, ', ')}\n`);
+      }
+
       if (typeof window.globalLiveData !== 'undefined' && window.globalLiveData.length > 0) {
-          context += `[SUBJECT TRAJECTORY - LAST 15 DAYS]\n`;
-          const history = window.globalLiveData.slice(-15);
-          const wrCache = window.globalWeeklyRsiCache || [];
-          const drCache = window.globalDailyRsiCache || [];
-          const tslCache = window.globalLowessCache || [];
-          
+          context += `\n[SUBJECT TRAJECTORY - LAST 10 DAYS]\n`;
+          const history = window.globalLiveData.slice(-10);
           history.forEach((day, i) => {
-              const absIdx = window.globalLiveData.length - 15 + i;
-              const wr = Math.round(wrCache[absIdx] || 0);
-              const dr = Math.round(drCache[absIdx] || 0);
-              const tsl = (tslCache[absIdx] && tslCache[absIdx] > 0) ? tslCache[absIdx].toFixed(2) : "None";
+              const absIdx = window.globalLiveData.length - 10 + i;
+              const wr = Math.round(window.globalWeeklyRsiCache[absIdx] || 0);
+              const dr = Math.round(window.globalDailyRsiCache[absIdx] || 0);
+              const tsl = (window.globalLowessCache[absIdx] && window.globalLowessCache[absIdx] > 0) ? window.globalLowessCache[absIdx].toFixed(2) : "None";
               context += `Date: ${day.date} | NAV: ${day.nav} | WRSI:${wr} | DRSI:${dr} | TSL Floor:${tsl}\n`;
           });
-          context += "\n";
       }
-
-      // 5. UNIVERSE LANDSCAPE: RRG and Alternative Funds
-      const rrgTable = document.getElementById('rrgScannerTable');
-      if (rrgTable) {
-          context += `[UNIVERSE SCAN - RRG RANKINGS]\n`;
-          rrgTable.querySelectorAll('tbody tr').forEach(row => {
-              context += `> ${row.innerText.replace(/\n|\t/g, ', ')}\n`;
-          });
-      }
-
-      // 6. SIMULATION STATE
-      if (typeof window.cash !== 'undefined') {
-          context += `\n[PORTFOLIO STATE]\nCash: ₹${Math.round(window.cash)} | Tranches: ${window.tranches.length}\n`;
-          if (window.BafNpsState) context += `NPS Switches used: ${window.BafNpsState.npsSwitchesUsed}/4\n`;
-      }
-
       return context;
     }
 
-    const systemInstruction = `
-You are the "Quantitative Brain" of the Lie Detector App. You audit every subject against the Sacred Rules of the System.
-
-CRITICAL RULES:
-1. NO HALLUCINATION: If the data dump does not explicitly list the regime or TSL for the fund asked about, say: "Data not available in local memory for this fund. Verify on the Chart."
-2. MACRO FILTER: If "Nifty 50" is listed in 'Fear', strongly reject BUY requests for all other funds.
-3. BUY/SWITCH (T+2 RISK): Only BUY if:
-   - Target is in 'Hope' (Green).
-   - Daily RSI is accelerating.
-   - NAV is safely above the TSL floor (buffer for 2-day settlement lag).
-4. EXIT (T+0): Advise immediate Sell if NAV breaches TSL or if Regime is 'Fear' (Red).
-5. THE BRAIN: You see things humans miss. Cross-reference the RRG Matrix and History to find better opportunities than the current page.
-    `;
+    const systemInstruction = "You are the 'Quantitative Brain' of the Lie Detector App. Audit trades strictly: Zero hallucinations. Nifty 50 must not be in 'Fear' for Buys. T+2 settlement risk requires accelerating momentum and a TSL buffer. Immediate T+0 Exit if TSL breached or Regime turns Fear.";
 
     async function submitPrompt(promptText) {
-      if (!promptText || !apiKey) { appendMessage('system', 'Check API Key in Settings.'); return; }
+      if (!promptText || !apiKey) { appendMessage('system', 'Check API Key.'); return; }
       appendMessage('user', promptText);
       inputField.value = ''; submitBtn.disabled = true;
 
       const loadDiv = document.createElement('div');
-      loadDiv.className = 'ld-ai-message system'; loadDiv.textContent = 'Brain Auditing system variables...';
+      loadDiv.className = 'ld-ai-message system'; loadDiv.textContent = 'Brain Auditing...';
       chatArea.appendChild(loadDiv);
       chatArea.scrollTop = chatArea.scrollHeight;
 
@@ -17852,31 +17880,24 @@ CRITICAL RULES:
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             system_instruction: { parts: [{ text: systemInstruction }] },
-            contents: [{ role: 'user', parts: [{ text: `APP DATA DUMP:\n${gatherAppContext()}\n\nPROMPT:\n${promptText}` }] }],
+            contents: [{ role: 'user', parts: [{ text: `APP DATA:\n${gatherAppContext()}\n\nPROMPT:\n${promptText}` }] }],
             generationConfig: { temperature: 0.1 }
           })
         });
-
         const data = await response.json();
         loadDiv.remove();
-
-        if (data.error) appendMessage('system', `Error: ${data.error.message}`);
-        else if (data.candidates) appendMessage('system', data.candidates[0].content.parts[0].text);
-      } catch (err) {
-        loadDiv.remove();
-        appendMessage('system', 'Network Error. Check connection.');
-      } finally { submitBtn.disabled = false; }
+        if (data.candidates) appendMessage('system', data.candidates[0].content.parts[0].text);
+      } catch (err) { loadDiv.remove(); appendMessage('system', 'Network Error.'); }
+      finally { submitBtn.disabled = false; }
     }
 
     submitBtn.addEventListener('click', () => submitPrompt(inputField.value.trim()));
     inputField.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPrompt(inputField.value.trim()); });
     document.querySelectorAll('.ld-ai-quick button').forEach(btn => btn.addEventListener('click', (e) => submitPrompt(e.target.textContent)));
-
   })();
 </script>
 
-
-   ════════════════════════════════════════════════════════════════════════════		
+		 ════════════════════════════════════════════════════════════════════════════
     </body>
 
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD245B AAI CODE BY CLAUDE
+  LIE DETECTOR  LD246BAI - Modified 2 - AI CODE BY GEMINI
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
   File       : LD245B.html
@@ -18125,17 +18125,21 @@ Always cite the specific data points from the dump that drive your recommendatio
                 const data = await resp.json();
                 load.remove();
                 
-                if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
                     appendMsg('system', data.candidates[0].content.parts[0].text);
                 } else if (data.error) {
-                    if (data.error.message.includes("high demand") || data.error.code === 503) {
-                        appendMsg('system', '⚠️ Google Servers are busy. Please wait 10 seconds and try again.');
+                    // NEW: Check specifically for Quota / 429 errors
+                    if (data.error.code === 429 || data.error.message.toLowerCase().includes("quota")) {
+                        appendMsg('system', '🚫 **API Quota Exceeded.** You have hit the Google Free Tier limit. Please wait a minute (or until tomorrow) before scanning again, or supply a new API Key in the ⚙️ settings.');
+                    } else if (data.error.message.includes("high demand") || data.error.code === 503) {
+                        appendMsg('system', '⚠️ **Servers Busy.** Google is experiencing high demand. Wait 10 seconds and try again.');
                     } else {
-                        appendMsg('system', `API Error: ${data.error.message}`);
+                        appendMsg('system', `**API Error:** ${data.error.message}`);
                     }
                 } else {
                     appendMsg('system', 'No response received. Check API key and try again.');
                 }
+
             } catch(e) { 
                 load.remove(); 
                 appendMsg('system', 'Network Error: Check your internet connection. ' + e.message); 

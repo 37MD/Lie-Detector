@@ -17752,7 +17752,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         word-wrap: break-word;
     }
     .ld-ai-message.user {
-        background: var(--accent-dim, rgba(0,158,112,0.1));
+        background: var(--accent-dim, rgba(0, 158, 112, 0.1));
         border-left: 3px solid var(--accent, #009e70);
     }
     .ld-ai-message strong {
@@ -17843,21 +17843,15 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 
         window.addEventListener('pointermove', (e) => {
             if (!isDragging) return;
-            
             let moveX = Math.abs(e.clientX - startPos.x);
             let moveY = Math.abs(e.clientY - startPos.y);
             if (moveX > 5 || moveY > 5) dragMoved = true;
-
             if (dragMoved) {
                 let x = e.clientX - offset.x;
                 let y = e.clientY - offset.y;
-                
                 x = Math.max(0, Math.min(x, window.innerWidth - el.offsetWidth));
                 y = Math.max(0, Math.min(y, window.innerHeight - el.offsetHeight));
-                
-                el.style.left = x + 'px';
-                el.style.top = y + 'px';
-                el.style.right = 'auto'; 
+                el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.right = 'auto'; 
             }
         });
 
@@ -17870,7 +17864,6 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         el.addEventListener('click', (e) => {
             if (!dragMoved) {
                 panel.classList.toggle('open');
-                
                 if (panel.classList.contains('open')) {
                     const inputArea = document.querySelector('.ld-ai-input-area');
                     const analyzeBtnWrap = document.getElementById('ld-ai-analyze-fund-btn')?.parentElement;
@@ -17891,16 +17884,15 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
 
         /* ── DATA & BRAIN LOGIC ── */
         document.getElementById('ld-ai-close-btn').onclick = (e) => { e.preventDefault(); panel.classList.remove('open'); };
-        
         document.getElementById('ld-ai-settings-btn').onclick = (e) => { e.preventDefault(); document.getElementById('ld-ai-settings-panel').classList.toggle('open'); };
 
         document.getElementById('ld-ai-save-key').onclick = (e) => {
             e.preventDefault();
-            apiKey = apiKeyIn.value.trim();
-            if (!apiKey) {
-                 appendMsg('system', 'Please enter a valid key.');
-                 return;
-            }
+            const newVal = apiKeyIn.value.trim();
+            if (!newVal) { appendMsg('system', 'Please enter a valid key.'); return; }
+            
+            // CRITICAL FIX: Update global memory AND storage
+            apiKey = newVal;
             localStorage.setItem('ld_gemini_api_key', apiKey);
             
             document.getElementById('ld-ai-settings-panel').classList.remove('open');
@@ -17910,29 +17902,18 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             if (inputArea) inputArea.style.display = 'flex';
             if (analyzeBtnWrap) analyzeBtnWrap.style.display = 'block';
             
-            appendMsg('system', 'API Key Saved. System Ready.');
+            const masked = apiKey.substring(0, 4) + "..." + apiKey.substring(apiKey.length - 4);
+            appendMsg('system', `✅ API Key Saved! (Using key ending in: ${masked})`);
         };
 
         function appendMsg(role, text) {
             const d = document.createElement('div');
             d.className = `ld-ai-message ${role}`;
-            
-            let safeText = text
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
-                
-            safeText = safeText
-                .replace(/(^|\n)\s*\*\s/g, '$1• ')
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
-                
+            let safeText = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            safeText = safeText.replace(/(^|\n)\s*\*\s/g, '$1• ').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
             d.innerHTML = safeText;
             chatArea.appendChild(d);
-            
-            requestAnimationFrame(() => {
-                chatArea.scrollTop = chatArea.scrollHeight;
-            });
+            requestAnimationFrame(() => { chatArea.scrollTop = chatArea.scrollHeight; });
         }
 
         function getFundInfo() {
@@ -17947,202 +17928,46 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             return { fundName, fundCode };
         }
 
-        // ── LEAN PAYLOAD FOR SURGICAL ANALYSIS ──
         function gatherLeanContext() {
             let ctx = "=== LD246A LEAN TARGET FUND DUMP ===\n";
             ctx += `Timestamp: ${new Date().toISOString()}\n`;
-
             const { fundName, fundCode } = getFundInfo();
-            const regime = document.getElementById('liveRegimeBlock')?.textContent || document.getElementById('regimeBlock')?.textContent || 'N/A';
-            const wRsi = document.getElementById('liveWRsi')?.textContent || document.getElementById('wRsi')?.textContent || 'N/A';
-            const dRsi = document.getElementById('liveDRsi')?.textContent || document.getElementById('dRsi')?.textContent || 'N/A';
+            const regime = document.getElementById('liveRegimeBlock')?.textContent || 'N/A';
+            const wRsi = document.getElementById('liveWRsi')?.textContent || 'N/A';
+            const dRsi = document.getElementById('liveDRsi')?.textContent || 'N/A';
             const delta = document.getElementById('laDelta')?.textContent || 'N/A';
             const tsl = document.getElementById('laTSL')?.textContent || 'N/A';
             const wma = document.getElementById('laWMA')?.textContent || 'N/A';
-            const nav = document.getElementById('liveNav')?.textContent || document.getElementById('laNav')?.textContent || 'N/A';
-
-            ctx += `\n[MACRO VETO REFERENCE]\nNIFTY 50 HISTORY: Ensure market macro is not in Regime C (W-RSI < 40). If Nifty 50 is weak, VETO all buys.\n`;
-            
-            ctx += `\n[TARGET FUND: RELEVANT DATA ONLY]\nName: ${fundName}\nCode: ${fundCode}\n`;
-            ctx += `Price Levels: NAV=${nav} | TSL=${tsl} | WMA20=${wma}\n`;
-            ctx += `Momentum Core: Regime=${regime} | W-RSI=${wRsi} | D-RSI=${dRsi} | Delta=${delta}\n`;
-
-            ctx += "\n[MULTI-PERIOD W-RSI ACCELERATION]\n";
-            ['wRsi4Cache','wRsi8Cache','wRsi14Cache'].forEach((key, idx) => {
-                const period = [4, 8, 14][idx];
-                const arr = window[key];
-                if (arr && arr.length > 0) {
-                    ctx += `W-RSI-${period}: ${Math.round(arr[arr.length - 1] || 0)}\n`;
-                }
-            });
-
+            const nav = document.getElementById('liveNav')?.textContent || 'N/A';
+            ctx += `\n[MACRO VETO REFERENCE]\nNIFTY 50 HISTORY: If Nifty 50 is weak (Regime C), VETO all buys.\n`;
+            ctx += `\n[TARGET FUND]\nName: ${fundName}\nCode: ${fundCode}\nLevels: NAV=${nav} | TSL=${tsl} | WMA20=${wma}\nMomentum: Regime=${regime} | W-RSI=${wRsi} | D-RSI=${dRsi} | Delta=${delta}\n`;
             return ctx;
         }
 
-        // ── ORIGINAL DEEP SCAN ──
         function gatherContext() {
             let ctx = "=== LD246A SIGNAL DEEP DUMP ===\n";
-            ctx += `Timestamp: ${new Date().toISOString()}\n`;
-
-            const activeModal = document.querySelector('.modal[style*="display: flex"]');
-            ctx += `\n[UI SURFACE]\nVisible Screen: ${activeModal ? activeModal.id : 'Main Dashboard'}\n`;
-
             const { fundName, fundCode } = getFundInfo();
-            ctx += `\n[SELECTED ASSET]\nName: ${fundName}\nCode: ${fundCode}\n`;
-
-            const regime = document.getElementById('liveRegimeBlock')?.textContent || document.getElementById('regimeBlock')?.textContent || 'N/A';
-            const wRsi = document.getElementById('liveWRsi')?.textContent || document.getElementById('wRsi')?.textContent || 'N/A';
-            const dRsi = document.getElementById('liveDRsi')?.textContent || document.getElementById('dRsi')?.textContent || 'N/A';
-            const delta = document.getElementById('laDelta')?.textContent || 'N/A';
-            ctx += `\n[MOMENTUM CORE]\nRegime Status: ${regime}\nWeekly RSI (Structural): ${wRsi}\nDaily RSI (Tactical): ${dRsi}\nDelta (D-RSI - W-RSI): ${delta}\n`;
-
-            const tsl = document.getElementById('laTSL')?.textContent || 'N/A';
-            const wma = document.getElementById('laWMA')?.textContent || 'N/A';
-            const nav = document.getElementById('liveNav')?.textContent || document.getElementById('laNav')?.textContent || 'N/A';
-            ctx += `\n[PRICE LEVELS]\nCurrent NAV: ${nav}\nAdaptive TSL Floor (Lowess): ${tsl}\n20-Day WMA: ${wma}\n`;
-
-            ctx += "\n[MULTI-PERIOD W-RSI GO/NO-GO]\n";
-            ['wRsi4Cache','wRsi8Cache','wRsi14Cache'].forEach((key, idx) => {
-                const period = [4, 8, 14][idx];
-                const arr = window[key];
-                if (arr && arr.length > 0) {
-                    const val = Math.round(arr[arr.length - 1] || 0);
-                    const goNogo = val >= 50 ? '● GO (momentum positive)' : '○ NO-GO (momentum negative)';
-                    ctx += `W-RSI-${period}: ${val} — ${goNogo}\n`;
-                } else {
-                    ctx += `W-RSI-${period}: NOT AVAILABLE\n`;
-                }
-            });
-
+            ctx += `[SELECTED ASSET] ${fundName} (${fundCode})\n`;
+            const regime = document.getElementById('liveRegimeBlock')?.textContent || 'N/A';
+            ctx += `Regime: ${regime} | W-RSI: ${document.getElementById('liveWRsi')?.textContent || 'N/A'}\n`;
             try {
                 const lp = JSON.parse(localStorage.getItem('ld_live_portfolio') || '{}');
-                ctx += "\n[LIVE PORTFOLIO STATE — T+2 SETTLEMENT AWARE]\n";
-                ['slot1','slot2'].forEach(slot => {
-                    const s = lp[slot];
-                    if (s && s.code) {
-                        ctx += `${slot.toUpperCase()}: ${s.name} (${s.code})\n`;
-                        ctx += `   Status: ${s.status === 'pending_settlement' ? '⏳ PENDING SETTLEMENT — DO NOT SELL YET' : '✅ ACTIVE'}\n`;
-                        if (s.settleDate) ctx += `   Settle Date: ${s.settleDate}\n`;
-                    } else {
-                        ctx += `${slot.toUpperCase()}: EMPTY\n`;
-                    }
-                });
-            } catch(e) {
-                ctx += "\n[LIVE PORTFOLIO STATE]\nUnable to read.\n";
-            }
-
-            try {
-                const sj = JSON.parse(localStorage.getItem('ld_switch_journal') || '{"switches":{}}');
-                const switches = sj.switches || {};
-                ctx += "\n[SWITCH JOURNAL — LIVE BRIDGE P&L]\n";
-                const keys = Object.keys(switches);
-                if (keys.length === 0) {
-                    ctx += "No active switch positions recorded.\n";
-                } else {
-                    keys.forEach(k => {
-                        const e = switches[k];
-                        if (e && e.code) {
-                            ctx += `AMC/Key: ${k} | Fund: ${e.name} (${e.code})\n`;
-                            ctx += `   Switch Date: ${e.switchDate || 'N/A'} | Entry NAV: ${e.entryNav || 'N/A'}\n`;
-                            if (e.currentNav && e.entryNav) {
-                                const pnl = ((e.currentNav - e.entryNav) / e.entryNav * 100).toFixed(2);
-                                ctx += `   P&L: ${pnl}%\n`;
-                            }
-                        }
-                    });
-                }
-            } catch(e) {
-                ctx += "\n[SWITCH JOURNAL]\nUnable to read.\n";
-            }
-
-            try {
-                const alloc = JSON.parse(localStorage.getItem('ld_v3_last_alloc_top2') || '[]');
-                if (alloc.length > 0) {
-                    ctx += "\n[ALLOCATOR STATE — BACKTEST TOP-2 FUNDS]\n";
-                    alloc.forEach((f, i) => {
-                        ctx += `Rank ${i+1}: ${f.name || f.code} | 1M Return: ${f.r1m != null ? f.r1m.toFixed(2)+'%' : 'N/A'} | W-RSI: ${f.wrsi || 'N/A'}\n`;
-                    });
-                }
+                ctx += `[PORTFOLIO] Slot1: ${lp.slot1?.name || 'Empty'} | Slot2: ${lp.slot2?.name || 'Empty'}\n`;
             } catch(e) {}
-
-            const allocTypeEl = document.getElementById('assetAllocType');
-            const allocType = allocTypeEl ? allocTypeEl.value : 'N/A';
-            ctx += `\n[C3 MOMENTUM FILTER]\nAsset Alloc Type: ${allocType}\nC3 Qualification Threshold: 1M return > 2%\n`;
-
-            try {
-                const wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
-                ctx += `\n[WATCHLIST (${wl.length} pinned funds)]\n`;
-                wl.forEach(f => {
-                    ctx += `- ${f.name} | Regime:${f.regime} | wRSI:${f.wrsi||'N/A'}\n`;
-                });
-            } catch(e) {}
-
-            const rrgQuad = document.getElementById('lcRrgStatusLabel')?.textContent || 'N/A';
-            const rrgCross = document.getElementById('lcRrgCrossDate')?.textContent || 'N/A';
-            const rrgRsTrend = document.getElementById('lcRrgRSTrend')?.textContent || 'N/A';
-            const rrgAdx = document.getElementById('lcRrgADX')?.textContent || 'N/A';
-            ctx += `\n[RRG QUADRANT STATUS]\nQuadrant: ${rrgQuad}\nRS Trend: ${rrgRsTrend}\nADX Intensity: ${rrgAdx}\n${rrgCross}\n`;
-
-            const depPctEl = document.querySelector('.dep-pct');
-            if (depPctEl) {
-                ctx += `\n[PORTFOLIO DEPLOYMENT]\nCurrently Deployed: ${depPctEl.textContent}\n`;
-            }
-
-            const navEl = document.getElementById('liveNav');
-            const drsiEl = document.getElementById('liveDRsi');
-            const wrsiEl = document.getElementById('liveWRsi');
-            const regEl = document.getElementById('liveRegimeBlock');
-            const alertEl = document.getElementById('alertSummaryBadgeTop');
-            ctx += "\n[CURRENT VISUAL UI STATE]\n";
-            if (navEl) ctx += `Current NAV: ${navEl.textContent}\n`;
-            if (drsiEl) ctx += `D-RSI (displayed): ${drsiEl.textContent}\n`;
-            if (wrsiEl) ctx += `W-RSI (displayed): ${wrsiEl.textContent}\n`;
-            if (regEl) ctx += `Regime (displayed): ${regEl.textContent}\n`;
-            if (alertEl) ctx += `Alert Badge: ${alertEl.textContent} active alerts\n`;
-
-            const sipMode = document.getElementById('sipMode');
-            const sipAmount = document.getElementById('sipAmount');
-            if (sipMode && sipAmount && sipAmount.value) {
-                ctx += `\n[SIP STATE]\nMode: ${sipMode.value} | Amount: ₹${sipAmount.value}\n`;
-                ctx += sipMode.value === 'autobuy' ? 'AutoBuy Slingshot active — capital deploys automatically on signal.\n' : 'Weekly SIP active — day-of-week scheduled deployment.\n';
-            }
             return ctx;
         }
 
         async function submitAiPrompt(txt, useLeanPayload = false) {
             if (!txt || !apiKey) return appendMsg('system', 'Need API Key. Tap ⚙️ to enter Gemini API key.');
-            
             if (!useLeanPayload) appendMsg('user', txt);
-            
             input.value = '';
-            
             const load = document.createElement('div');
             load.className = 'ld-ai-message system';
-            load.innerText = useLeanPayload ? 'Scanning target fund (Lean Mode)…' : 'Scanning all signals — BUY / SELL analysis in progress…';
+            load.innerText = useLeanPayload ? 'Scanning fund (Lean Mode)…' : 'Scanning all signals…';
             chatArea.appendChild(load);
             chatArea.scrollTop = chatArea.scrollHeight;
 
-            const SYSTEM_PROMPT = `You are the Quantitative Signal Brain of the Lie Detector (LD246A) mutual fund app — a precision trading assistant for Indian equity mutual funds and NPS schemes.
-HARD RULES (never violate):
-1. You NEVER hallucinate data. If a value is missing from the dump, state exactly what is missing and exclude it from your reasoning.
-2. Your final output for every analysis MUST include a structured verdict block formatted as:
-▶ SIGNAL: [BUY / SELL / HOLD / WAIT]
-▶ CONVICTION: [HIGH / MEDIUM / LOW]
-▶ REASON: [1-2 sentence plain-English summary]
-▶ NEXT ACTION: [Exact step the user should take]
-3. T+2 settlement applies to all BUY actions.
-4. T+0 applies to all SELL actions — SELL ALL and TSL exits must be treated as immediate.
-5. Nifty 50 Macro Veto: if Nifty 50 is in Regime C (Fear / W-RSI < 40), ALL BUY signals are vetoed regardless of fund-level data.
-BUY SIGNAL HIERARCHY:
-- OVERSOLD-BUY: Regime A + D-RSI < 40 → BUY TRANCHE
-- SLINGSHOT-BUY: Regime A + Delta (D-RSI minus W-RSI) < −15 → BUY 10–25%
-- REGIME-WATCH-BREAKOUT: W-RSI crosses from 40–49 up to ≥50 → BUY 25%
-SELL SIGNAL HIERARCHY:
-- TSL-BREACH: NAV drops below Lowess floor → SELL ALL immediately
-- REGIME-CRASH: Regime transitions to C (W-RSI drops below 40) → SELL ALL
-- WMA-BREACH in Hope: NAV drops below WMA20 while Regime A → SELL 20% trim
-Always cite the specific data points from the dump that drive your recommendation.`;
-
+            const SYSTEM_PROMPT = `Precision Technical Auditor for Indian Equity. Analyze the dump and provide verdict: SIGNAL, CONVICTION, REASON, NEXT ACTION. Check Nifty 50 Macro Veto rule.`;
             const activeDump = useLeanPayload ? gatherLeanContext() : gatherContext();
 
             try {
@@ -18157,43 +17982,32 @@ Always cite the specific data points from the dump that drive your recommendatio
                 });
                 const data = await resp.json();
                 load.remove();
-                
-                if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
                     appendMsg('system', data.candidates[0].content.parts[0].text);
                 } else if (data.error) {
-                    if (data.error.code === 429 || data.error.message.toLowerCase().includes("quota")) {
-                        appendMsg('system', '🚫 **API Quota Exceeded.** You have hit the Google Free Tier limit. Please wait a minute, or supply a new API Key in the ⚙️ settings.');
-                    } else if (data.error.message.includes("high demand") || data.error.code === 503) {
-                        appendMsg('system', '⚠️ **Servers Busy.** Google is experiencing high demand. Wait 10 seconds and try again.');
+                    if (data.error.code === 429) {
+                        appendMsg('system', `🚫 **QUOTA EXCEEDED (429).** This Google account has zero daily limit left. Use a different Gmail account for a fresh key.`);
                     } else {
-                        appendMsg('system', `**API Error:** ${data.error.message}`);
+                        appendMsg('system', `**API ERROR:** ${data.error.message}`);
                     }
-                } else {
-                    appendMsg('system', 'No response received. Check API key and try again.');
                 }
-            } catch(e) { 
-                load.remove(); 
-                appendMsg('system', 'Network Error: Check your internet connection. ' + e.message); 
-            }
+            } catch(e) { load.remove(); appendMsg('system', 'Network Error: ' + e.message); }
         }
 
-        // BIND NEW BUTTON TO LEAN LOGIC
         const analyzeBtn = document.getElementById('ld-ai-analyze-fund-btn');
         if(analyzeBtn) {
             analyzeBtn.onclick = (e) => {
                 e.preventDefault();
-                // This visually types "Analyze Current Fund" in the chat for the user
                 appendMsg('user', '📊 Analyze Current Fund');
-                submitAiPrompt("Analyze this specific target fund based on the lean data provided. Cross-reference with the Nifty 50 macro rule. Give a strict Buy/Hold/Sell/Trim verdict.", true);
+                submitAiPrompt("Analyze target fund technicals vs Nifty 50 macro. Provide strict verdict.", true);
             };
         }
-
         submit.onclick = (e) => { e.preventDefault(); submitAiPrompt(input.value, false); };
         input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); submitAiPrompt(input.value, false); } };
     })();
     </script>
-    
     ════════════════════════END OF AI CODE ══════════════════════════════════════════
+
     </body>
 
 

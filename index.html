@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 ================================================================================
-  LIE DETECTOR  LD246BAI - Modified 2 - AI CODE BY GEMINI
+  LIE DETECTOR  LD246BAI - Modified3  AI PART INCLUDED and Quota Exceeded Error
   Sacred RSI Regime System — Mutual Fund & NPS Trade Discipline Trainer
 ================================================================================
   File       : LD245B.html
@@ -17799,7 +17799,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         </div>
         <div class="ld-ai-chat-area" id="ld-ai-chat-area">
             <div class="ld-ai-message system">
-                Auditor V9 Online. Draggable ✨ fix active. Deep-scanning Watchlist and History Arrays for Nifty 50 and RSI Acceleration.
+                Auditor V9 Online. Default: Lean Mode (fast, low tokens). Type "deep" in any query for full signal scan.
             </div>
         </div>
         
@@ -17961,7 +17961,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             const wma = document.getElementById('laWMA')?.textContent || 'N/A';
             const nav = document.getElementById('liveNav')?.textContent || document.getElementById('laNav')?.textContent || 'N/A';
 
-            ctx += `\n[MACRO VETO REFERENCE]\nNIFTY 50 HISTORY: Ensure market macro is not in Regime C (W-RSI < 40). If Nifty 50 is weak, VETO all buys.\n`;
+            // Macro veto rule is in system prompt — no need to repeat per call.
             
             ctx += `\n[TARGET FUND: RELEVANT DATA ONLY]\nName: ${fundName}\nCode: ${fundCode}\n`;
             ctx += `Price Levels: NAV=${nav} | TSL=${tsl} | WMA20=${wma}\n`;
@@ -18109,20 +18109,8 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             return ctx;
         }
 
-        async function submitAiPrompt(txt, useLeanPayload = false) {
-            if (!txt || !apiKey) return appendMsg('system', 'Need API Key. Tap ⚙️ to enter Gemini API key.');
-            
-            if (!useLeanPayload) appendMsg('user', txt);
-            
-            input.value = '';
-            
-            const load = document.createElement('div');
-            load.className = 'ld-ai-message system';
-            load.innerText = useLeanPayload ? 'Scanning target fund (Lean Mode)…' : 'Scanning all signals — BUY / SELL analysis in progress…';
-            chatArea.appendChild(load);
-            chatArea.scrollTop = chatArea.scrollHeight;
-
-            const SYSTEM_PROMPT = `You are the Quantitative Signal Brain of the Lie Detector (LD246A) mutual fund app — a precision trading assistant for Indian equity mutual funds and NPS schemes.
+        // TOKEN-SAVE: defined once at module scope, not rebuilt per call.
+        const SYSTEM_PROMPT = `You are the Quantitative Signal Brain of the Lie Detector (LD246A) mutual fund app — a precision trading assistant for Indian equity mutual funds and NPS schemes.
 HARD RULES (never violate):
 1. You NEVER hallucinate data. If a value is missing from the dump, state exactly what is missing and exclude it from your reasoning.
 2. Your final output for every analysis MUST include a structured verdict block formatted as:
@@ -18143,6 +18131,20 @@ SELL SIGNAL HIERARCHY:
 - WMA-BREACH in Hope: NAV drops below WMA20 while Regime A → SELL 20% trim
 Always cite the specific data points from the dump that drive your recommendation.`;
 
+        async function submitAiPrompt(txt, useLeanPayload = true) {
+            if (!txt || !apiKey) return appendMsg('system', 'Need API Key. Tap ⚙️ to enter Gemini API key.');
+            
+            if (!useLeanPayload) appendMsg('user', txt);
+            
+            input.value = '';
+            
+            const load = document.createElement('div');
+            load.className = 'ld-ai-message system';
+            load.innerText = useLeanPayload ? 'Scanning target fund…' : '🔍 Deep scanning all signals…';
+            chatArea.appendChild(load);
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            // SYSTEM_PROMPT is now defined once at module scope above — no rebuild per call.
             const activeDump = useLeanPayload ? gatherLeanContext() : gatherContext();
 
             try {
@@ -18188,8 +18190,15 @@ Always cite the specific data points from the dump that drive your recommendatio
             };
         }
 
-        submit.onclick = (e) => { e.preventDefault(); submitAiPrompt(input.value, false); };
-        input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); submitAiPrompt(input.value, false); } };
+        // TOKEN-SAVE: default all free-text queries to lean payload.
+        // Deep scan only when user explicitly types "deep" or "full scan".
+        function routePrompt(txt) {
+            const lower = txt.toLowerCase();
+            const useDeep = lower.includes('deep') || lower.includes('full scan');
+            submitAiPrompt(txt, !useDeep);
+        }
+        submit.onclick = (e) => { e.preventDefault(); routePrompt(input.value); };
+        input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); routePrompt(input.value); } };
     })();
     </script>
     
@@ -18200,7 +18209,7 @@ Always cite the specific data points from the dump that drive your recommendatio
 
     <!--
     ════════════════════════════════════════════════════════════════════════════
-    END OF FILE — LD246BAI - Modified2  AI PART INCLUDED and working
+    END OF FILE — LD246BAI - Modified3  AI PART INCLUDED and Quota Exceeded Error
     Lie Detector · Sacred RSI Regime System
     Data: mfapi.in / npsnav.in  |  Charts: Canvas (DPR-aware)
     Storage: IndexedDB (offline-first, 12 h TTL)  |  PWA: sw.js

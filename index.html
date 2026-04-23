@@ -17639,232 +17639,80 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
     });
 
 </script>
-
+ ════════════════════════════════════════════════════════════════════════════
 <style>
-  /* ── AI Toggle Button (Double Star ✨) ── */
+  /* ── AI Toggle Button (Reduced 30% to 31px) ── */
   #ld-ai-toggle {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    z-index: 9999; 
-    background: var(--surface2, #e4eaf2);
-    border: 1px solid var(--accent, #009e70);
-    border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    font-size: 20px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: fixed; top: 15px; right: 15px; z-index: 9999; 
+    background: var(--surface2, #e4eaf2); border: 1px solid var(--accent, #009e70);
+    border-radius: 50%; width: 31px; height: 31px; font-size: 14px; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
-  #ld-ai-toggle:hover {
-    transform: scale(1.08);
-    box-shadow: 0 6px 16px rgba(0,158,112,0.25);
-  }
+  #ld-ai-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 16px rgba(0,158,112,0.25); }
 
   /* ── AI Chat Panel ── */
   #ld-ai-panel {
-    position: fixed;
-    top: 70px;
-    right: 15px;
-    width: 360px;
-    max-width: calc(100vw - 30px);
-    background: var(--bg, #ffffff);
-    border: 1px solid var(--border, #b0bece);
-    border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
-    display: flex;
-    flex-direction: column;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-15px);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    max-height: 75vh;
-    z-index: 10000;
-    font-family: var(--mono, 'Space Mono', monospace);
+    position: fixed; top: 60px; right: 15px; width: 380px; max-width: calc(100vw - 30px);
+    background: var(--bg, #ffffff); border: 1px solid var(--border, #b0bece); border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25); display: flex; flex-direction: column;
+    opacity: 0; pointer-events: none; transform: translateY(-15px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    max-height: 75vh; z-index: 10000; font-family: var(--mono, 'Space Mono', monospace);
   }
-  #ld-ai-panel.open {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
-  }
+  #ld-ai-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
   
-  /* ── AI Header ── */
-  .ld-ai-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background: var(--surface, #f2f5f9);
-    border-bottom: 1px solid var(--border, #b0bece);
-    border-radius: 12px 12px 0 0;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--accent, #009e70);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  .ld-ai-close {
-    background: transparent;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    color: var(--muted, #404060);
-    transition: color 0.15s;
-  }
-  .ld-ai-close:hover { color: var(--red, #c8102e); }
+  .ld-ai-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--surface, #f2f5f9); border-bottom: 1px solid var(--border, #b0bece); border-radius: 12px 12px 0 0; font-size: 0.75rem; font-weight: 700; color: var(--accent, #009e70); text-transform: uppercase; letter-spacing: 0.08em; }
+  .ld-ai-close { background: transparent; border: none; font-size: 16px; cursor: pointer; color: var(--muted, #404060); }
   
-  /* ── API Key Settings ── */
-  .ld-ai-settings {
-    padding: 12px 16px;
-    background: var(--surface2, #e4eaf2);
-    border-bottom: 1px solid var(--border, #b0bece);
-    display: none;
-    flex-direction: column;
-    gap: 8px;
-  }
+  .ld-ai-settings { padding: 12px 16px; background: var(--surface2, #e4eaf2); border-bottom: 1px solid var(--border, #b0bece); display: none; flex-direction: column; gap: 8px; }
   .ld-ai-settings.open { display: flex; }
-  .ld-ai-settings input {
-    border: 1px solid var(--border, #b0bece);
-    border-radius: 4px;
-    padding: 8px 10px;
-    font-family: var(--mono, monospace);
-    font-size: 0.65rem;
-    width: 100%;
-    outline: none;
-  }
-  .ld-ai-settings input:focus { border-color: var(--accent, #009e70); }
+  .ld-ai-settings input { border: 1px solid var(--border, #b0bece); border-radius: 4px; padding: 8px 10px; font-family: var(--mono, monospace); font-size: 0.65rem; width: 100%; outline: none; }
   
-  /* ── Chat Area ── */
-  .ld-ai-chat-area {
-    padding: 16px;
-    overflow-y: auto;
-    flex: 1;
-    font-size: 0.7rem;
-    line-height: 1.5;
-    background: var(--bg, #ffffff);
-  }
-  .ld-ai-message {
-    margin-bottom: 12px;
-    padding: 10px 14px;
-    border-radius: 8px;
-    background: var(--surface2, #e4eaf2);
-    color: var(--text, #000000);
-    word-wrap: break-word;
-  }
-  .ld-ai-message.user {
-    background: var(--accent-dim, rgba(0,158,112,0.1));
-    border-left: 3px solid var(--accent, #009e70);
-  }
-  .ld-ai-message.system {
-    color: var(--muted, #404060);
-    font-style: italic;
-    background: transparent;
-    padding: 0;
-    font-size: 0.65rem;
-  }
+  .ld-ai-chat-area { padding: 16px; overflow-y: auto; flex: 1; font-size: 0.7rem; line-height: 1.5; background: var(--bg, #ffffff); }
+  .ld-ai-message { margin-bottom: 12px; padding: 10px 14px; border-radius: 8px; background: var(--surface2, #e4eaf2); color: var(--text, #000000); word-wrap: break-word; }
+  .ld-ai-message.user { background: var(--accent-dim, rgba(0,158,112,0.1)); border-left: 3px solid var(--accent, #009e70); }
+  .ld-ai-message.system { color: var(--muted, #404060); font-style: italic; background: transparent; padding: 0; font-size: 0.65rem; }
   .ld-ai-message strong { font-weight: 700; color: var(--accent, #009e70); }
   
-  /* ── Quick Prompts ── */
-  .ld-ai-quick {
-    display: flex;
-    gap: 8px;
-    padding: 0 16px 12px;
-    overflow-x: auto;
-    white-space: nowrap;
-    background: var(--bg, #ffffff);
-  }
+  .ld-ai-quick { display: flex; gap: 8px; padding: 0 16px 12px; overflow-x: auto; white-space: nowrap; }
   .ld-ai-quick::-webkit-scrollbar { display: none; }
-  .ld-ai-quick button {
-    background: var(--surface2, #e4eaf2);
-    border: 1px solid var(--border, #b0bece);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.6rem;
-    font-family: var(--mono, monospace);
-    color: var(--muted2, #304058);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .ld-ai-quick button:hover {
-    background: var(--accent, #009e70);
-    color: #fff;
-    border-color: var(--accent, #009e70);
-  }
+  .ld-ai-quick button { background: var(--surface2, #e4eaf2); border: 1px solid var(--border, #b0bece); padding: 6px 12px; border-radius: 20px; font-size: 0.6rem; font-family: var(--mono, monospace); cursor: pointer; }
 
-  /* ── Input Area ── */
-  .ld-ai-input-area {
-    display: flex;
-    padding: 12px 16px;
-    border-top: 1px solid var(--border, #b0bece);
-    background: var(--surface, #f2f5f9);
-    border-radius: 0 0 12px 12px;
-  }
-  .ld-ai-input-area input {
-    flex: 1;
-    border: 1px solid var(--border, #b0bece);
-    border-radius: 4px;
-    padding: 10px 12px;
-    font-family: var(--mono, monospace);
-    font-size: 0.65rem;
-    outline: none;
-    background: var(--bg, #ffffff);
-    color: var(--text, #000000);
-  }
-  .ld-ai-input-area input:focus { border-color: var(--accent, #009e70); }
-  .ld-ai-input-area button {
-    background: var(--accent, #009e70);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 0 16px;
-    margin-left: 8px;
-    cursor: pointer;
-    font-weight: 700;
-    font-family: var(--mono, monospace);
-    transition: opacity 0.2s;
-  }
-  .ld-ai-input-area button:hover { opacity: 0.8; }
-  .ld-ai-input-area button:disabled {
-    background: var(--border, #b0bece);
-    cursor: not-allowed;
-  }
+  .ld-ai-input-area { display: flex; padding: 12px 16px; border-top: 1px solid var(--border, #b0bece); background: var(--surface, #f2f5f9); border-radius: 0 0 12px 12px; }
+  .ld-ai-input-area input { flex: 1; border: 1px solid var(--border, #b0bece); border-radius: 4px; padding: 10px 12px; font-family: var(--mono, monospace); font-size: 0.65rem; outline: none; }
+  .ld-ai-input-area button { background: var(--accent, #009e70); color: #fff; border: none; border-radius: 4px; padding: 0 16px; margin-left: 8px; cursor: pointer; font-weight: 700; }
 </style>
 
-<button id="ld-ai-toggle" title="Open AI Analysis">✨</button>
+<button id="ld-ai-toggle" title="Open System Auditor">✨</button>
 
 <div id="ld-ai-panel">
   <div class="ld-ai-header">
-    <span>✨ Gemini Analysis</span>
+    <span>✨ System Brain Audit</span>
     <div>
-      <button id="ld-ai-settings-btn" class="ld-ai-close" style="font-size:14px; margin-right:8px;" title="API Settings">⚙️</button>
-      <button id="ld-ai-close-btn" class="ld-ai-close" title="Close Panel">✕</button>
+      <button id="ld-ai-settings-btn" class="ld-ai-close" style="font-size:14px; margin-right:8px;">⚙️</button>
+      <button id="ld-ai-close-btn" class="ld-ai-close">✕</button>
     </div>
   </div>
   
   <div id="ld-ai-settings-panel" class="ld-ai-settings">
     <input type="password" id="ld-ai-api-key" placeholder="Enter Gemini API Key">
-    <button id="ld-ai-save-key" style="background:var(--accent);color:#fff;border:none;padding:8px;border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:0.65rem;font-weight:700;">SAVE KEY</button>
+    <button id="ld-ai-save-key" style="background:var(--accent);color:#fff;border:none;padding:8px;border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:0.65rem;">SAVE KEY</button>
   </div>
 
   <div class="ld-ai-chat-area" id="ld-ai-chat-area">
     <div class="ld-ai-message system">
-      System online. I am integrated into the Lie Detector. I can read the Live Cockpit, Watchlist, Sim State, and Fund Indicators. How can I assist your analysis?
+      System Brain active. T+2 Buy vs T+0 Exit settlement logic engaged. No-Hallucination protocol active.
     </div>
   </div>
   
   <div class="ld-ai-quick">
-    <button>Analyze Current Fund</button>
-    <button>Evaluate Watchlist</button>
-    <button>Check Regime Status</button>
-    <button>Review Sim State</button>
+    <button>Holistic System Audit</button>
+    <button>Analyze Current Asset</button>
+    <button>Check Better Alternatives</button>
   </div>
   
   <div class="ld-ai-input-area">
-    <input type="text" id="ld-ai-input" placeholder="Ask Gemini about the market...">
+    <input type="text" id="ld-ai-input" placeholder="Ask the brain for recommendations...">
     <button id="ld-ai-submit">➤</button>
   </div>
 </div>
@@ -17873,133 +17721,132 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
   (function() {
     const toggleBtn = document.getElementById('ld-ai-toggle');
     const aiPanel = document.getElementById('ld-ai-panel');
-    const closeBtn = document.getElementById('ld-ai-close-btn');
-    const settingsBtn = document.getElementById('ld-ai-settings-btn');
-    const settingsPanel = document.getElementById('ld-ai-settings-panel');
     const chatArea = document.getElementById('ld-ai-chat-area');
     const inputField = document.getElementById('ld-ai-input');
     const submitBtn = document.getElementById('ld-ai-submit');
     const apiKeyInput = document.getElementById('ld-ai-api-key');
-    const saveKeyBtn = document.getElementById('ld-ai-save-key');
-    const quickPrompts = document.querySelectorAll('.ld-ai-quick button');
 
     let apiKey = localStorage.getItem('ld_gemini_api_key') || '';
     if (apiKey) apiKeyInput.value = apiKey;
 
     toggleBtn.addEventListener('click', () => aiPanel.classList.toggle('open'));
-    closeBtn.addEventListener('click', () => aiPanel.classList.remove('open'));
-    settingsBtn.addEventListener('click', () => settingsPanel.classList.toggle('open'));
+    document.getElementById('ld-ai-close-btn').addEventListener('click', () => aiPanel.classList.remove('open'));
+    document.getElementById('ld-ai-settings-btn').addEventListener('click', () => document.getElementById('ld-ai-settings-panel').classList.toggle('open'));
 
-    saveKeyBtn.addEventListener('click', () => {
+    document.getElementById('ld-ai-save-key').addEventListener('click', () => {
       apiKey = apiKeyInput.value.trim();
       if (apiKey) {
         localStorage.setItem('ld_gemini_api_key', apiKey);
-        settingsPanel.classList.remove('open');
-        appendMessage('system', 'API Key saved securely to localStorage.');
+        document.getElementById('ld-ai-settings-panel').classList.remove('open');
+        appendMessage('system', 'Key Saved Successfully.');
       }
     });
 
     function appendMessage(role, text) {
       const div = document.createElement('div');
       div.className = `ld-ai-message ${role}`;
-      let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-      div.innerHTML = html;
+      div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
       chatArea.appendChild(div);
       chatArea.scrollTop = chatArea.scrollHeight;
     }
 
+    // THE DEEP BRAIN DATA CONTEXT
     function gatherAppContext() {
-      let context = "=== Lie Detector App Context ===\n";
+      let context = "=== SYSTEM BRAIN DATA DUMP ===\n\n";
       
       const fundSelect = document.getElementById('fundSelect');
-      const currentFund = fundSelect && fundSelect.options.length > 0 && fundSelect.selectedIndex !== -1 
-          ? fundSelect.options[fundSelect.selectedIndex].text : 'None';
-      context += `Current Target Fund: ${currentFund}\n`;
-      
-      if (typeof window.currentRegimeLog !== 'undefined') {
-        context += `Current Regime: ${window.currentRegimeLog === 'A' ? 'Hope' : window.currentRegimeLog === 'B' ? 'Watch' : 'Fear'}\n`;
-      }
-      
+      const activeName = fundSelect && fundSelect.selectedIndex !== -1 ? fundSelect.options[fundSelect.selectedIndex].text : 'None';
+      context += `[TARGET] Active Chart: ${activeName}\n`;
+      context += `[REGIME] Global State: ${typeof window.currentRegimeLog !== 'undefined' ? (window.currentRegimeLog === 'A' ? 'Hope' : window.currentRegimeLog === 'B' ? 'Watch' : 'Fear') : 'N/A'}\n`;
+      context += `[CASH] Sim Balance: ₹${typeof window.cash !== 'undefined' ? Math.round(window.cash) : 'N/A'}\n\n`;
+
       const liveNav = document.getElementById('liveNav');
       if (liveNav && liveNav.textContent !== 'NAV: —') {
-        context += `Live Cockpit Data:\n- ${liveNav.textContent}\n`;
-        context += `- Daily RSI: ${document.getElementById('liveDRsi')?.textContent || 'N/A'}\n`;
-        context += `- Weekly RSI: ${document.getElementById('liveWRsi')?.textContent || 'N/A'}\n`;
+        context += `[LIVE MARKET DATA]\n- ${liveNav.textContent}\n- D-RSI: ${document.getElementById('liveDRsi')?.textContent || 'N/A'}\n- W-RSI: ${document.getElementById('liveWRsi')?.textContent || 'N/A'}\n\n`;
       }
 
-      if (typeof window.cash !== 'undefined' && typeof window.tranches !== 'undefined') {
-        context += `Simulation State:\n- Available Cash: ₹${Math.round(window.cash)}\n`;
-        context += `- Open Tranches: ${window.tranches.length}\n`;
-      }
-      
       try {
         const wl = JSON.parse(localStorage.getItem('ld_v3_watchlist') || '[]');
-        if (wl.length > 0) context += `Watchlist (${wl.length} funds): ${wl.map(f => f.name).join(', ')}\n`;
+        if (wl.length > 0) {
+          context += `[WATCHLIST & MACRO SCAN]\n`;
+          wl.forEach(f => {
+             const macroTag = f.name.toLowerCase().includes('nifty 50') ? " (MACRO)" : "";
+             context += `- ${f.name}${macroTag} | Reg: ${f.regime || f.currentRegime || 'N/A'} | W: ${f.wRsi || 'N/A'} | D: ${f.dRsi || 'N/A'}\n`;
+          });
+        }
       } catch(e) {}
 
+      if (typeof window.BafNpsState !== 'undefined') {
+          context += `\n[NPS SWITCHES] Used: ${window.BafNpsState.npsSwitchesUsed}/${window.BafNpsState.maxSwitches}\n`;
+      }
+
+      const rrgTable = document.getElementById('rrgScannerTable');
+      if (rrgTable) {
+         context += `\n[RRG SCANNER TRENDS]\n`;
+         rrgTable.querySelectorAll('tbody tr').forEach(row => context += `> ${row.innerText.replace(/\n|\t/g, ', ')}\n`);
+      }
+
+      if (typeof window.fullHistory !== 'undefined' && window.fullHistory.length > 0) {
+          context += `\n[RECENT TSL TRAJECTORY]\n`;
+          window.fullHistory.slice(-5).forEach(day => context += `Date: ${day.date} | NAV: ${day.nav} | TSL: ${day.tsl || day.lowessTsl || "N/A"}\n`);
+      }
       return context;
     }
 
+    const systemInstruction = `
+You are the "Quantitative Brain" of the Lie Detector App. You audit every trade request against the Sacred Rules.
+
+RULES:
+1. ZERO HALLUCINATION: If a specific data point (like Nifty 50 regime or a fund's TSL) is missing from the data dump, state: "Data not available. Verify on TradingView." NEVER LIE OR ASSUME.
+2. MACRO FILTER: Always check "Nifty 50" regime first. If Nifty 50 is in 'Fear', REJECT any new Buy/Switch requests.
+3. BUY/SWITCH (T+2 RISK): Entry NAV takes 48hrs. Only BUY if:
+   - Target is in 'Hope'.
+   - Daily RSI momentum is accelerating.
+   - NAV is safely above the TSL floor (buffer for 2-day volatility).
+4. EXIT (T+0): Advise immediate Sell if NAV breaches TSL or if General Trend collapses.
+    `;
+
     async function submitPrompt(promptText) {
-      if (!promptText) return;
-      if (!apiKey) {
-        appendMessage('system', 'Please enter and save your Gemini API Key in the Settings (⚙️) menu first.');
-        settingsPanel.classList.add('open');
-        return;
-      }
+      if (!promptText || !apiKey) { appendMessage('system', 'Check API Key in Settings.'); return; }
 
       appendMessage('user', promptText);
-      inputField.value = '';
-      submitBtn.disabled = true;
-      inputField.disabled = true;
+      inputField.value = ''; submitBtn.disabled = true;
 
-      const loadingId = 'loading-' + Date.now();
-      const loadingDiv = document.createElement('div');
-      loadingDiv.id = loadingId;
-      loadingDiv.className = 'ld-ai-message system';
-      loadingDiv.textContent = 'Analyzing market data...';
-      chatArea.appendChild(loadingDiv);
+      const loadDiv = document.createElement('div');
+      loadDiv.className = 'ld-ai-message system'; loadDiv.textContent = 'Analyzing variables...';
+      chatArea.appendChild(loadDiv);
       chatArea.scrollTop = chatArea.scrollHeight;
 
       try {
-        const appContext = gatherAppContext();
-        const systemInstruction = "You are a professional financial quantitative analysis AI explicitly embedded in the 'Lie Detector' Mutual Fund app. Adhere strictly to the system's Sacred Rules: (Regime Hope/Watch/Fear), Weekly RSI, Daily RSI. Base your insights strictly on the provided DOM App Context string without hallucinating. Be concise and actionable.";
-        
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             system_instruction: { parts: [{ text: systemInstruction }] },
-            contents: [{ role: 'user', parts: [{ text: `APP CONTEXT DATA:\n${appContext}\n\nUSER PROMPT:\n${promptText}` }] }],
-            generationConfig: { temperature: 0.2 }
+            contents: [{ role: 'user', parts: [{ text: `APP DATA:\n${gatherAppContext()}\n\nPROMPT:\n${promptText}` }] }],
+            generationConfig: { temperature: 0.1 }
           })
         });
 
         const data = await response.json();
-        document.getElementById(loadingId).remove();
+        loadDiv.remove();
 
-        if (data.error) appendMessage('system', `API Error: ${data.error.message}`);
-        else if (data.candidates && data.candidates[0].content.parts[0].text) appendMessage('system', data.candidates[0].content.parts[0].text);
-        else appendMessage('system', 'No response generated.');
-
+        if (data.error) appendMessage('system', `Error: ${data.error.message}`);
+        else if (data.candidates) appendMessage('system', data.candidates[0].content.parts[0].text);
       } catch (err) {
-        document.getElementById(loadingId).remove();
-        appendMessage('system', `Network Error: Could not reach Gemini API. ${err.message}`);
-      } finally {
-        submitBtn.disabled = false;
-        inputField.disabled = false;
-        inputField.focus();
-      }
+        loadDiv.remove();
+        appendMessage('system', 'Network Error.');
+      } finally { submitBtn.disabled = false; }
     }
 
     submitBtn.addEventListener('click', () => submitPrompt(inputField.value.trim()));
     inputField.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPrompt(inputField.value.trim()); });
-    quickPrompts.forEach(btn => btn.addEventListener('click', () => submitPrompt(btn.textContent)));
+    document.querySelectorAll('.ld-ai-quick button').forEach(btn => btn.addEventListener('click', (e) => submitPrompt(e.target.textContent)));
 
   })();
 </script>
-		
-		
+
+════════════════════════════════════════════════════════════════════════════	
     </body>
 
 

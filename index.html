@@ -17797,15 +17797,19 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             <input type="password" id="ld-ai-api-key" placeholder="Enter Gemini API Key">
             <button id="ld-ai-save-key" style="background:var(--accent);color:#fff;border:none;padding:6px;border-radius:4px;cursor:pointer;font-size:0.6rem;">SAVE KEY</button>
         </div>
-        <div class="ld-ai-chat-area" id="ld-ai-chat-area">
+<div class="ld-ai-chat-area" id="ld-ai-chat-area">
             <div class="ld-ai-message system">
                 Auditor V9 Online. Draggable ✨ fix active. Deep-scanning Watchlist and History Arrays for Nifty 50 and RSI Acceleration.
             </div>
         </div>
-        <div class="ld-ai-input-area">
+        <div style="padding: 0 16px 8px; background: var(--surface, #f2f5f9); border-top: 1px solid var(--border, #b0bece);">
+            <button id="ld-ai-analyze-fund-btn" style="width: 100%; background: var(--accent, #009e70); color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.65rem; font-weight: bold; text-transform: uppercase;">📊 Analyze Current Fund (Saves Quota)</button>
+        </div>
+        <div class="ld-ai-input-area" style="border-top: none;">
             <input type="text" id="ld-ai-input" placeholder="Analyze market and answer queries...">
             <button id="ld-ai-submit">➤</button>
         </div>
+
     </div>
 
     <script>

@@ -17789,13 +17789,13 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         <div class="ld-ai-header">
             <span>✨ System Brain Auditor</span>
             <div>
-                <button id="ld-ai-settings-btn" class="ld-ai-close" style="font-size:12px; margin-right:8px;">⚙️</button>
-                <button id="ld-ai-close-btn" class="ld-ai-close">✕</button>
+                <button type="button" id="ld-ai-settings-btn" class="ld-ai-close" style="font-size:12px; margin-right:8px;">⚙️</button>
+                <button type="button" id="ld-ai-close-btn" class="ld-ai-close">✕</button>
             </div>
         </div>
         <div id="ld-ai-settings-panel" class="ld-ai-settings">
             <input type="password" id="ld-ai-api-key" placeholder="Enter Gemini API Key">
-            <button id="ld-ai-save-key" style="background:var(--accent);color:#fff;border:none;padding:6px;border-radius:4px;cursor:pointer;font-size:0.6rem;">SAVE KEY</button>
+            <button type="button" id="ld-ai-save-key" style="background:var(--accent);color:#fff;border:none;padding:6px;border-radius:4px;cursor:pointer;font-size:0.6rem;">SAVE KEY</button>
         </div>
         <div class="ld-ai-chat-area" id="ld-ai-chat-area">
             <div class="ld-ai-message system">
@@ -17804,12 +17804,12 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         </div>
         
         <div style="padding: 0 16px 8px; background: var(--surface, #f2f5f9); border-top: 1px solid var(--border, #b0bece);">
-            <button id="ld-ai-analyze-fund-btn" style="width: 100%; background: var(--accent, #009e70); color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.65rem; font-weight: bold; text-transform: uppercase;">📊 Analyze Current Fund (Saves Quota)</button>
+            <button type="button" id="ld-ai-analyze-fund-btn" style="width: 100%; background: var(--accent, #009e70); color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.65rem; font-weight: bold; text-transform: uppercase;">📊 Analyze Current Fund</button>
         </div>
         
         <div class="ld-ai-input-area">
             <input type="text" id="ld-ai-input" placeholder="Analyze market and answer queries...">
-            <button id="ld-ai-submit">➤</button>
+            <button type="button" id="ld-ai-submit">➤</button>
         </div>
     </div>
 
@@ -17867,13 +17867,13 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             el.releasePointerCapture(e.pointerId);
         });
 
-        el.addEventListener('click', () => {
+        el.addEventListener('click', (e) => {
             if (!dragMoved) {
                 panel.classList.toggle('open');
                 
                 if (panel.classList.contains('open')) {
                     const inputArea = document.querySelector('.ld-ai-input-area');
-                    const analyzeBtnWrap = document.getElementById('ld-ai-analyze-fund-btn').parentElement;
+                    const analyzeBtnWrap = document.getElementById('ld-ai-analyze-fund-btn')?.parentElement;
                     if (!apiKey) {
                         document.getElementById('ld-ai-settings-panel').classList.add('open');
                         chatArea.style.display = 'none';
@@ -17890,11 +17890,12 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         });
 
         /* ── DATA & BRAIN LOGIC ── */
-        document.getElementById('ld-ai-close-btn').onclick = () => panel.classList.remove('open');
+        document.getElementById('ld-ai-close-btn').onclick = (e) => { e.preventDefault(); panel.classList.remove('open'); };
         
-        document.getElementById('ld-ai-settings-btn').onclick = () => document.getElementById('ld-ai-settings-panel').classList.toggle('open');
+        document.getElementById('ld-ai-settings-btn').onclick = (e) => { e.preventDefault(); document.getElementById('ld-ai-settings-panel').classList.toggle('open'); };
 
-        document.getElementById('ld-ai-save-key').onclick = () => {
+        document.getElementById('ld-ai-save-key').onclick = (e) => {
+            e.preventDefault();
             apiKey = apiKeyIn.value.trim();
             if (!apiKey) {
                  appendMsg('system', 'Please enter a valid key.');
@@ -17905,7 +17906,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             document.getElementById('ld-ai-settings-panel').classList.remove('open');
             chatArea.style.display = 'block';
             const inputArea = document.querySelector('.ld-ai-input-area');
-            const analyzeBtnWrap = document.getElementById('ld-ai-analyze-fund-btn').parentElement;
+            const analyzeBtnWrap = document.getElementById('ld-ai-analyze-fund-btn')?.parentElement;
             if (inputArea) inputArea.style.display = 'flex';
             if (analyzeBtnWrap) analyzeBtnWrap.style.display = 'block';
             
@@ -17934,13 +17935,24 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             });
         }
 
-        // ── NEW: LEAN PAYLOAD FOR SURGICAL ANALYSIS (SAVES QUOTA) ──
+        function getFundInfo() {
+            let fundName = 'N/A', fundCode = 'N/A';
+            try {
+                const fs = document.getElementById('fundSelect');
+                if (fs && fs.options.length > 0 && fs.selectedIndex >= 0) {
+                    fundName = fs.options[fs.selectedIndex].text;
+                    fundCode = fs.value;
+                }
+            } catch(e) {}
+            return { fundName, fundCode };
+        }
+
+        // ── LEAN PAYLOAD FOR SURGICAL ANALYSIS ──
         function gatherLeanContext() {
             let ctx = "=== LD246A LEAN TARGET FUND DUMP ===\n";
             ctx += `Timestamp: ${new Date().toISOString()}\n`;
 
-            const fundName = document.getElementById('fundSelect')?.options[document.getElementById('fundSelect').selectedIndex]?.text || 'N/A';
-            const fundCode = document.getElementById('fundSelect')?.value || 'N/A';
+            const { fundName, fundCode } = getFundInfo();
             const regime = document.getElementById('liveRegimeBlock')?.textContent || document.getElementById('regimeBlock')?.textContent || 'N/A';
             const wRsi = document.getElementById('liveWRsi')?.textContent || document.getElementById('wRsi')?.textContent || 'N/A';
             const dRsi = document.getElementById('liveDRsi')?.textContent || document.getElementById('dRsi')?.textContent || 'N/A';
@@ -17967,7 +17979,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             return ctx;
         }
 
-        // ── ORIGINAL DEEP SCAN (Runs when you type a custom query) ──
+        // ── ORIGINAL DEEP SCAN ──
         function gatherContext() {
             let ctx = "=== LD246A SIGNAL DEEP DUMP ===\n";
             ctx += `Timestamp: ${new Date().toISOString()}\n`;
@@ -17975,8 +17987,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             const activeModal = document.querySelector('.modal[style*="display: flex"]');
             ctx += `\n[UI SURFACE]\nVisible Screen: ${activeModal ? activeModal.id : 'Main Dashboard'}\n`;
 
-            const fundName = document.getElementById('fundSelect')?.options[document.getElementById('fundSelect').selectedIndex]?.text || 'N/A';
-            const fundCode = document.getElementById('fundSelect')?.value || 'N/A';
+            const { fundName, fundCode } = getFundInfo();
             ctx += `\n[SELECTED ASSET]\nName: ${fundName}\nCode: ${fundCode}\n`;
 
             const regime = document.getElementById('liveRegimeBlock')?.textContent || document.getElementById('regimeBlock')?.textContent || 'N/A';
@@ -18101,7 +18112,6 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         async function submitAiPrompt(txt, useLeanPayload = false) {
             if (!txt || !apiKey) return appendMsg('system', 'Need API Key. Tap ⚙️ to enter Gemini API key.');
             
-            // Only show user text if they manually typed it
             if (!useLeanPayload) appendMsg('user', txt);
             
             input.value = '';
@@ -18133,7 +18143,6 @@ SELL SIGNAL HIERARCHY:
 - WMA-BREACH in Hope: NAV drops below WMA20 while Regime A → SELL 20% trim
 Always cite the specific data points from the dump that drive your recommendation.`;
 
-            // Choose context based on button vs text input
             const activeDump = useLeanPayload ? gatherLeanContext() : gatherContext();
 
             try {
@@ -18171,18 +18180,20 @@ Always cite the specific data points from the dump that drive your recommendatio
         // BIND NEW BUTTON TO LEAN LOGIC
         const analyzeBtn = document.getElementById('ld-ai-analyze-fund-btn');
         if(analyzeBtn) {
-            analyzeBtn.onclick = () => {
+            analyzeBtn.onclick = (e) => {
+                e.preventDefault();
+                // This visually types "Analyze Current Fund" in the chat for the user
                 appendMsg('user', '📊 Analyze Current Fund');
                 submitAiPrompt("Analyze this specific target fund based on the lean data provided. Cross-reference with the Nifty 50 macro rule. Give a strict Buy/Hold/Sell/Trim verdict.", true);
             };
         }
 
-        submit.onclick = () => submitAiPrompt(input.value, false);
-        input.onkeydown = (e) => { if (e.key === 'Enter') submitAiPrompt(input.value, false); };
+        submit.onclick = (e) => { e.preventDefault(); submitAiPrompt(input.value, false); };
+        input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); submitAiPrompt(input.value, false); } };
     })();
     </script>
     
-    ════════════════════════END OF AI CODE ══════════════════════════════════════════	
+    ════════════════════════END OF AI CODE ══════════════════════════════════════════
     </body>
 
 

@@ -18066,26 +18066,36 @@ RSI ACCELERATION: A rising W-RSI slope (positive acceleration) adds conviction t
 Always cite the specific data points from the dump that drive your recommendation. Be concise and precise. Avoid generic disclaimers.`;
 
         try {
-            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+
+try {
+            // Switched to gemini-2.0-flash for high stability and fewer overload errors
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
                     contents: [{ role: 'user', parts: [{ text: `SIGNAL DUMP:\n${gatherContext()}\n\nUSER QUERY:\n${txt}` }] }],
                     generationConfig: { temperature: 0.05, maxOutputTokens: 1024 }
                 })
             });
             const data = await resp.json();
             load.remove();
+            
             if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
                 appendMsg('system', data.candidates[0].content.parts[0].text);
             } else if (data.error) {
-                appendMsg('system', `API Error: ${data.error.message || 'Unknown error from Gemini.'}`);
+                // If it still hits high demand, give a friendly retry instruction
+                if (data.error.message.includes("high demand") || data.error.code === 503) {
+                    appendMsg('system', '⚠️ Google Servers are busy. Please wait 10 seconds and try again.');
+                } else {
+                    appendMsg('system', `API Error: ${data.error.message}`);
+                }
             } else {
                 appendMsg('system', 'No response received. Check API key and try again.');
             }
-        } catch(e) { load.remove(); appendMsg('system', 'Network Error: ' + e.message); }
-    }
+        } catch(e) { 
+            load.remove(); 
+            appendMsg('system', 'Network Error: Check your internet connection. ' + e.message); 
+        }
 
     submit.onclick = () => submitAiPrompt(input.value);
     input.onkeydown = (e) => { if (e.key === 'Enter') submitAiPrompt(input.value); };

@@ -5462,13 +5462,30 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     b.getAttribute('onclick') && b.getAttribute('onclick').includes('250')
                 ) || tfRow.children[Math.min(6, tfRow.children.length - 1)];
                 if (btn1Y) btn1Y.classList.add('active');
-                updateLiveChartOnly(250, btn1Y || null);
-                updateLiveEstimate();
-                updateFreshnessBadge();
+                // FIX-2: defer chart draw until browser has reflowed the modal
+                // (getBoundingClientRect returns 0 if called before first layout pass)
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    updateLiveChartOnly(250, btn1Y || null);
+                    updateLiveEstimate();
+                    updateFreshnessBadge();
+                }));
                 if (_liveEstInterval) clearInterval(_liveEstInterval);
                 _liveEstInterval = setInterval(updateLiveEstimate, 900_000);
-                _populateLiveCockpitRrgPanel().catch(e =>
-                    console.warn('[LiveCockpit RRG]', e.message));
+                // FIX-1: backfill Nifty W-RSI → LD_AUDITOR_STATE after async fetch completes
+                // collectAuditorState() runs synchronously (before this await), so niftyWrsi
+                // is always null at that point — we patch it in once the data arrives.
+                _populateLiveCockpitRrgPanel()
+                    .then(() => {
+                        if (window._niftyWrsi != null && window.LD_AUDITOR_STATE) {
+                            window.LD_AUDITOR_STATE.niftyWrsi = Math.round(window._niftyWrsi);
+                            window.LD_AUDITOR_STATE.macroVeto = window._niftyWrsi < 40;
+                            // Refresh debug panel if it is open
+                            if (document.getElementById('ld-debug-panel')?.style.display !== 'none') {
+                                window._ldRefreshDebug && window._ldRefreshDebug();
+                            }
+                        }
+                    })
+                    .catch(e => console.warn('[LiveCockpit RRG]', e.message));
             }
             function updateLiveChartOnly(days, btnEl) {
                 window.currentLiveLookback = days;
@@ -13866,6 +13883,10 @@ Return ONLY valid JSON, no markdown, no extra text:
                 reasons.push(`Nifty 50 W-RSI = ${niftyWrsi} — Fear regime. ALL BUY signals blocked.`);
                 nextAction = 'Wait for Nifty W-RSI > 40 before any BUY.';
             }
+            // macroVeto === null means Nifty data not yet loaded — warn but don't block
+            else if (macroVeto === null) {
+                reasons.push('⚠ Nifty 50 W-RSI not yet loaded — Macro Gate UNVERIFIED. Reload Live Cockpit or wait 10s for async fetch.');
+            }
             // STEP 2 — SELL CHECKS
             else if (tslHit) {
                 signal = 'SELL ALL'; tier = 'T1 — TSL BREACH';
@@ -13925,27 +13946,30 @@ Return ONLY valid JSON, no markdown, no extra text:
             const navDisp  = `₹${nav.toFixed(2)}`;
             const tslDisp  = tslVal > 0 ? `₹${tslVal.toFixed(2)}${tslHit ? ' 🚨BREACHED' : ''}` : 'N/A';
             const wmaDisp  = wma20 ? `₹${wma20.toFixed(2)}` : 'N/A';
-            const macroDisp = macroVeto === true ? `YES — Nifty W-RSI ${niftyWrsi}`
-                            : macroVeto === false ? `NO — Nifty W-RSI ${niftyWrsi}`
-                            : 'N/A (load Nifty data first)';
+            const macroDisp = macroVeto === true  ? `🚨 YES — Nifty W-RSI ${niftyWrsi} (FEAR ZONE)`
+                            : macroVeto === false ? `NO — Nifty W-RSI ${niftyWrsi} (safe)`
+                            : '⚠ N/A — Nifty data loading… tap again in 10s';
             const tsShort  = ts ? ts.slice(11,19) + ' UTC' : '—';
+            const regLine  = `${regime} | W-RSI 4W: ${w4 ?? '—'} | 8W: ${w8 ?? '—'} | 14W: ${w14 ?? '—'}`;
+            const crossDisp = crossover === 'BREAKOUT'  ? `${crossover} 🟢`
+                            : crossover === 'BREAKDOWN' ? `${crossover} 🚨` : crossover;
 
             let out = `${modeTag}\n`;
-            out += `Fund : ${fund} (${code})\n`;
-            out += `Snap : ${tsShort}\n`;
+            out += `Fund    : ${fund} (${code})\n`;
+            out += `Snap    : ${tsShort}\n`;
             out += `─────────────────────────────\n`;
-            out += `MACRO  : ${macroDisp}\n`;
-            out += `REGIME : ${regime} | W-RSI(4W): ${w4 ?? wrsi} | W-RSI(8W): ${w8 ?? '—'} | W-RSI(14W): ${w14 ?? '—'}\n`;
-            out += `D-RSI  : ${drsi} | Delta: ${delta} | Crossover: ${crossover}\n`;
-            out += `NAV    : ${navDisp} | TSL: ${tslDisp} | WMA20: ${wmaDisp}\n`;
-            out += `PC     : ${pcAlert ? 'YES 🟢' : 'NO'} | NC: ${ncAlert ? 'YES 🚨' : 'NO'}\n`;
+            out += `MACRO   : ${macroDisp}\n`;
+            out += `REGIME  : ${regLine}\n`;
+            out += `D-RSI   : ${drsi} | Delta: ${delta} | Crossover: ${crossDisp}\n`;
+            out += `NAV     : ${navDisp} | TSL: ${tslDisp} | WMA20: ${wmaDisp}\n`;
+            out += `PC Alert: ${pcAlert ? 'YES 🟢' : 'NO'} | NC Alert: ${ncAlert ? 'YES 🚨' : 'NO'}\n`;
             out += `CONVICTION (W-RSI 4/8/14): ${conviction}\n`;
             out += `─────────────────────────────\n`;
             out += reasons.map(r => `• ${r}`).join('\n') + '\n';
             out += `─────────────────────────────\n`;
-            out += `▶ SIGNAL    : ${signal}\n`;
-            out += `▶ TIER      : ${tier}\n`;
-            out += `▶ CONVICTION: ${finalConv}\n`;
+            out += `▶ SIGNAL     : ${signal}\n`;
+            out += `▶ TIER       : ${tier}\n`;
+            out += `▶ CONVICTION : ${finalConv}\n`;
             out += `▶ NEXT ACTION: ${nextAction}`;
             return out;
         }
@@ -14011,34 +14035,75 @@ Return ONLY valid JSON, no markdown, no extra text:
             }
             const row = (label, val, color) =>
                 `<span style="color:#888">${label.padEnd(18)}</span><span style="color:${color||'#e0e0e0'}">${val}</span>\n`;
-            const regColor = S.regime === 'A' ? '#00e8a2' : S.regime === 'B' ? '#f5a623' : '#f04060';
+            const regColor  = S.regime === 'A' ? '#00e8a2' : S.regime === 'B' ? '#f5a623' : '#f04060';
             const convColor = S.conviction?.startsWith('HIGH') ? '#00e8a2'
                             : S.conviction?.startsWith('MEDIUM') ? '#f5a623' : '#f04060';
             const drsiColor = S.drsi < 35 ? '#00e8a2' : S.drsi < 40 ? '#f5a623' : '#e0e0e0';
+
+            // ── Derive live signal from state (same logic as interpretSignalDump) ──
+            let liveSignal = 'HOLD', liveTier = '—', liveColor = '#f5a623';
+            try {
+                const { wrsi, drsi, delta, tslHit, ncAlert, pcAlert,
+                        crossover, wma20, nav, macroVeto, niftyWrsi } = S;
+                const regA = wrsi >= 50, regB = wrsi >= 40 && wrsi < 50, regC = wrsi < 40;
+                if (macroVeto === true) {
+                    liveSignal = 'WAIT'; liveTier = 'MACRO GATE'; liveColor = '#f04060';
+                } else if (tslHit) {
+                    liveSignal = 'SELL ALL'; liveTier = 'TSL BREACH'; liveColor = '#f04060';
+                } else if (ncAlert) {
+                    liveSignal = 'SELL ALERT'; liveTier = 'NC BREAKDOWN'; liveColor = '#f04060';
+                } else if (regC) {
+                    liveSignal = 'SELL ALL'; liveTier = 'REGIME C FEAR'; liveColor = '#f04060';
+                } else if (wma20 && nav < wma20 && regA) {
+                    liveSignal = 'TRIM 20%'; liveTier = 'WMA BREACH'; liveColor = '#f5a623';
+                } else if (regA && drsi < 40) {
+                    liveSignal = 'BUY'; liveTier = drsi < 35 ? 'DEEP OVERSOLD' : 'OVERSOLD'; liveColor = '#00e8a2';
+                } else if (regA && delta < -15) {
+                    liveSignal = 'BUY'; liveTier = 'SLINGSHOT'; liveColor = '#00e8a2';
+                } else if (regA && pcAlert) {
+                    liveSignal = 'BUY'; liveTier = 'PC BREAKOUT'; liveColor = '#00e8a2';
+                } else if (crossover === 'BREAKOUT') {
+                    liveSignal = 'BUY'; liveTier = 'REGIME BREAKOUT'; liveColor = '#00e8a2';
+                } else if (regB) {
+                    liveSignal = 'HOLD'; liveTier = 'REGIME WATCH'; liveColor = '#f5a623';
+                } else {
+                    liveSignal = 'HOLD'; liveTier = 'NO TRIGGER'; liveColor = '#f5a623';
+                }
+            } catch(_) {}
+
             el.innerHTML =
-                row('Fund',       S.fund || '—') +
-                row('Code',       S.code || '—') +
-                row('Snap time',  S.ts ? S.ts.slice(11,19)+' UTC' : '—') +
+                row('Fund',        S.fund || '—') +
+                row('Code',        S.code || '—') +
+                row('Snap time',   S.ts ? S.ts.slice(11,19)+' UTC' : '—') +
                 '─────────────────────\n' +
-                row('NAV',        S.nav != null ? `₹${S.nav.toFixed(2)}` : '—') +
-                row('TSL Floor',  S.tslVal > 0 ? `₹${S.tslVal.toFixed(2)}` : 'N/A', S.tslHit ? '#f04060' : '#e0e0e0') +
-                row('TSL Hit?',   S.tslHit ? '🚨 YES' : 'NO',           S.tslHit ? '#f04060' : '#00e8a2') +
-                row('WMA20',      S.wma20 != null ? `₹${S.wma20.toFixed(2)}` : 'N/A') +
+                row('NAV',         S.nav  != null ? `₹${S.nav.toFixed(2)}`  : '—') +
+                row('TSL Floor',   S.tslVal > 0 ? `₹${S.tslVal.toFixed(2)}` : 'N/A', S.tslHit ? '#f04060' : '#e0e0e0') +
+                row('TSL Hit?',    S.tslHit  ? '🚨 YES' : 'NO',  S.tslHit  ? '#f04060' : '#00e8a2') +
+                row('WMA20',       S.wma20  != null ? `₹${S.wma20.toFixed(2)}` : 'N/A') +
                 '─────────────────────\n' +
-                row('Regime',     S.regime || '—',                       regColor) +
-                row('W-RSI (4W)', S.w4 != null ? String(S.w4) : '—',    S.w4 >= 50 ? '#00e8a2' : S.w4 >= 40 ? '#f5a623' : '#f04060') +
-                row('W-RSI (8W)', S.w8 != null ? String(S.w8) : '—',    S.w8 >= 50 ? '#00e8a2' : S.w8 >= 40 ? '#f5a623' : '#f04060') +
-                row('W-RSI (14W)',S.w14!= null ? String(S.w14): '—',    S.w14>= 50 ? '#00e8a2' : S.w14>= 40 ? '#f5a623' : '#f04060') +
-                row('D-RSI',      S.drsi != null ? String(S.drsi) : '—', drsiColor) +
-                row('Delta',      S.delta != null ? String(S.delta) : '—', S.delta < -15 ? '#00e8a2' : S.delta < 0 ? '#f5a623' : '#e0e0e0') +
-                row('Crossover',  S.crossover || '—') +
+                row('Regime',      S.regime || '—',  regColor) +
+                row('W-RSI (4W)',  S.w4  != null ? String(S.w4)  : '—', S.w4  >= 50 ? '#00e8a2' : S.w4  >= 40 ? '#f5a623' : '#f04060') +
+                row('W-RSI (8W)',  S.w8  != null ? String(S.w8)  : '—', S.w8  >= 50 ? '#00e8a2' : S.w8  >= 40 ? '#f5a623' : '#f04060') +
+                row('W-RSI (14W)', S.w14 != null ? String(S.w14) : '—', S.w14 >= 50 ? '#00e8a2' : S.w14 >= 40 ? '#f5a623' : '#f04060') +
+                row('D-RSI',       S.drsi != null ? String(S.drsi) : '—', drsiColor) +
+                row('Delta',       S.delta != null ? String(S.delta) : '—', S.delta < -15 ? '#00e8a2' : S.delta < 0 ? '#f5a623' : '#e0e0e0') +
+                row('Crossover',   S.crossover || '—', S.crossover === 'BREAKOUT' ? '#00e8a2' : S.crossover === 'BREAKDOWN' ? '#f04060' : '#e0e0e0') +
                 '─────────────────────\n' +
-                row('Conviction', S.conviction || '—',                   convColor) +
-                row('PC Alert',   S.pcAlert ? '🟢 YES' : 'NO') +
-                row('NC Alert',   S.ncAlert ? '🚨 YES' : 'NO') +
+                row('Conviction',  S.conviction || '—', convColor) +
+                row('PC Alert',    S.pcAlert ? '🟢 YES' : 'NO', S.pcAlert ? '#00e8a2' : '#888') +
+                row('NC Alert',    S.ncAlert ? '🚨 YES' : 'NO', S.ncAlert ? '#f04060' : '#888') +
                 '─────────────────────\n' +
-                row('Nifty W-RSI',S.niftyWrsi != null ? String(S.niftyWrsi) : 'N/A', S.niftyWrsi >= 50 ? '#00e8a2' : S.niftyWrsi >= 40 ? '#f5a623' : '#f04060') +
-                row('Macro Veto', S.macroVeto === true ? '🚨 YES' : S.macroVeto === false ? 'NO' : 'N/A', S.macroVeto ? '#f04060' : '#00e8a2');
+                row('Nifty W-RSI', S.niftyWrsi != null ? String(S.niftyWrsi) : 'N/A (loading…)',
+                    S.niftyWrsi >= 50 ? '#00e8a2' : S.niftyWrsi >= 40 ? '#f5a623' : S.niftyWrsi != null ? '#f04060' : '#888') +
+                row('Macro Veto',  S.macroVeto === true ? '🚨 YES — BUY BLOCKED'
+                                 : S.macroVeto === false ? 'NO — BUY permitted'
+                                 : 'N/A (awaiting Nifty)',
+                    S.macroVeto === true ? '#f04060' : S.macroVeto === false ? '#00e8a2' : '#888') +
+                '─────────────────────\n' +
+                `<span style="color:#888">${'LIVE SIGNAL'.padEnd(18)}</span>` +
+                `<span style="color:${liveColor};font-weight:bold">${liveSignal}</span>` +
+                `<span style="color:#666"> [${liveTier}]</span>\n` +
+                `<span style="color:#555;font-size:0.72em">  ↑ mirrors ⚡ Lean Analysis output\n</span>`;
         };
     })();
     </script>

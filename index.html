@@ -5444,6 +5444,18 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('liveChartModal').style.display = 'flex';
+                // === Restore alert banner from stored state on modal open ===
+                try {
+                    if (window._lastLiveAlertText) {
+                        const b = document.getElementById('liveChartAlertBanner');
+                        if (b) {
+                            b.textContent = window._lastLiveAlertText;
+                            b.style.color = '#000000';
+                            b.className = window._lastLiveAlertClass
+                                ? `${window._lastLiveAlertClass} banner-on` : 'banner-on';
+                        }
+                    }
+                } catch(_) {}
                 const tfRow = document.getElementById('liveChartTfRow');
                 Array.from(tfRow.children).forEach(b => b.classList.remove('active'));
                 const btn1Y = Array.from(tfRow.children).find(b =>
@@ -5558,8 +5570,8 @@ if (snap.tsl.tslHit) {
                     bannerAnalytics.style.color = alertText ? '#000000' : 'var(--muted2)';
                     bannerAnalytics.className = alertText ? `${alertClass} banner-on` : '';
                 }
-                // Store last alert state globally so Analytics modal can re-apply on open
-                window._lastLiveAlertText  = alertText;
+                // Store last alert state globally so modals can re-apply on open
+                window._lastLiveAlertText = alertText;
                 window._lastLiveAlertClass = alertClass;
                 const tfRets = [
                     { l: '3D', d: 3 }, { l: '1W', d: 5 }, { l: '2W', d: 10 }, { l: '1M', d: 21 },
@@ -5793,7 +5805,18 @@ if (snap.tsl.tslHit) {
                 }
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('liveAnalyticsModal').style.display = 'flex';
-                if (_liveEstInterval) clearInterval(_liveEstInterval);
+                // === Restore alert banner from stored state on modal open ===
+                try {
+                    if (window._lastLiveAlertText) {
+                        const b = document.getElementById('liveAlertBanner');
+                        if (b) {
+                            b.textContent = window._lastLiveAlertText;
+                            b.style.color = '#000000';
+                            b.className = window._lastLiveAlertClass
+                                ? `${window._lastLiveAlertClass} banner-on` : 'banner-on';
+                        }
+                    }
+                } catch(_) {}
                 _liveEstInterval = setInterval(updateLiveEstimate, 900_000);
                 updateLiveChart(250);
                 updateLiveEstimate();
@@ -6038,7 +6061,7 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                     bannerChart.style.color = alertText ? '#000000' : 'var(--muted2)';
                     bannerChart.className = alertText ? `${alertClass} banner-on` : '';
                 }
-                window._lastLiveAlertText  = alertText;
+                window._lastLiveAlertText = alertText;
                 window._lastLiveAlertClass = alertClass;
                 const verdictBorderColor = alertClass ?
                     `var(--${alertClass.includes('danger') ? 'red'
@@ -13451,7 +13474,14 @@ Return ONLY valid JSON, no markdown, no extra text:
                 ctx += `PC-BREAKOUT ALERT: ${pcAlert ? 'YES — Consolidation breakout detected → TIER 3 BUY eligible' : 'NO — No consolidation breakout'}\n`;
             } catch(e) { ctx += "PC-BREAKOUT ALERT: UNAVAILABLE\n"; }
 
-            // === FIX 1D: Regime Breakout / Breakdown Event (crossover detection) ===
+            // === NC Breakdown alert read ===
+            ctx += "\n[NC BREAKDOWN ALERT]\n";
+            try {
+                const ncAlert = window._lastNcAlert || false;
+                ctx += `NC-BREAKDOWN ALERT: ${ncAlert
+                    ? 'YES — 🚨 Negative Consolidation Breakdown active → TIER 4 SELL OVERRIDE: cancel BUY orders, tighten TSL to consolidation box low'
+                    : 'NO — No NC breakdown detected'}\n`;
+            } catch(e) { ctx += "NC-BREAKDOWN ALERT: UNAVAILABLE\n"; }
             ctx += "\n[REGIME CROSSOVER EVENT (last 5 periods)]\n";
             try {
                 const w4arr = window.wRsi4Cache || [];

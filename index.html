@@ -12880,16 +12880,16 @@ Then provide a confirmation verdict specifically calibrated to the fund's own re
 Return ONLY valid JSON, no markdown, no extra text:
 {
   "stocks": [
-    {"ticker":"RELIANCE","weight":"~9.5%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"one brief sentence"},
-    {"ticker":"HDFCBANK","weight":"~8.5%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"one brief sentence"},
-    {"ticker":"ICICIBANK","weight":"~7.8%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"one brief sentence"},
-    {"ticker":"INFY","weight":"~6.2%","trend_14d":"NEGATIVE","vs_ma20":"BELOW","verdict":"BEAR","note":"one brief sentence"},
-    {"ticker":"TCS","weight":"~4.8%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"one brief sentence"}
+    {"ticker":"RELIANCE","weight":"~9.5%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"max 6 words"},
+    {"ticker":"HDFCBANK","weight":"~8.5%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"max 6 words"},
+    {"ticker":"ICICIBANK","weight":"~7.8%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"max 6 words"},
+    {"ticker":"INFY","weight":"~6.2%","trend_14d":"NEGATIVE","vs_ma20":"BELOW","verdict":"BEAR","note":"max 6 words"},
+    {"ticker":"TCS","weight":"~4.8%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"max 6 words"}
   ],
   "bull_count": 4,
   "confirmation": "CONFIRMED",
-  "sop_action": "one sentence SOP action calibrated to this fund's regime and the breadth reading",
-  "reasoning": "2-3 sentences of macro context relevant to this fund specifically"
+  "sop_action": "max 12 words, SOP action for this fund's regime",
+  "reasoning": "max 2 sentences of macro context for this fund"
 }`;
 
             try {
@@ -12900,14 +12900,34 @@ Return ONLY valid JSON, no markdown, no extra text:
                         headers:{'Content-Type':'application/json'},
                         body: JSON.stringify({
                             contents:[{ role:'user', parts:[{ text: prompt }] }],
-                            generationConfig:{ temperature:0.05, maxOutputTokens:900 }
+                            generationConfig:{ temperature:0.05, maxOutputTokens:1800 }
                         })
                     }
                 );
                 const data = await resp.json();
                 const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                const clean = rawText.replace(/```json|```/g,'').trim();
-                const parsed = JSON.parse(clean);
+                // Strip markdown fences, extract first { ... } block
+                let clean = rawText.replace(/```json|```/g,'').trim();
+                const jsonStart = clean.indexOf('{');
+                const jsonEnd   = clean.lastIndexOf('}');
+                if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+                    clean = clean.slice(jsonStart, jsonEnd + 1);
+                }
+                // Attempt parse; if truncated, try to repair by closing open structure
+                let parsed;
+                try {
+                    parsed = JSON.parse(clean);
+                } catch(parseErr) {
+                    // Close any unclosed array/object and retry once
+                    let repaired = clean.trimEnd();
+                    if (!repaired.endsWith('}')) {
+                        const opens = (repaired.match(/\{/g)||[]).length - (repaired.match(/\}/g)||[]).length;
+                        const arrOpens = (repaired.match(/\[/g)||[]).length - (repaired.match(/\]/g)||[]).length;
+                        for(let i=0;i<arrOpens;i++) repaired += ']';
+                        for(let i=0;i<opens;i++) repaired += '}';
+                    }
+                    parsed = JSON.parse(repaired);
+                }
                 _renderVerdict(parsed);
                 _renderStocks(parsed.stocks);
                 _renderReasoning(parsed.reasoning);

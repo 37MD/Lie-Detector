@@ -3082,7 +3082,7 @@
                 </div>
                 <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
                     <button class="reset-zoom" style="color:var(--accent);border-color:var(--accent);padding:3px 4px;font-size:0.55rem;letter-spacing:0.02em;" onclick="openLiveAnalyticsFromCockpit()">ANALYTICS</button>
-                    <button id="liveCockpitAIBreathBtn" class="reset-zoom" style="color:#7c3aed;border-color:#7c3aed;padding:3px 4px;font-size:0.55rem;letter-spacing:0.02em;" onclick="launchAIBreadthForCurrentFund()" title="AI Breadth Confirmation — Fund currently in view">✨ AI CHECK</button>
+                    <button id="liveCockpitAIBreathBtn" class="reset-zoom" style="color:#7c3aed;border-color:#7c3aed;padding:3px 4px;font-size:0.55rem;letter-spacing:0.02em;" onclick="launchAIBreadthForCurrentFund()" title="AI Breadth Confirmation — Fund currently in view">✨ AI Breadth Analysis</button>
                     <span class="modal-close-btn" style="letter-spacing:0.02em;" onclick="document.getElementById('liveChartModal').style.display='none';document.getElementById('setupScreen').style.display='flex';if(window.cleanupModalDOM)window.cleanupModalDOM('#liveChartModal .chart-split');if(typeof _liveEstInterval!=='undefined'&&_liveEstInterval){clearInterval(_liveEstInterval);_liveEstInterval=null;}">[ X ]</span>
                 </div>
             </div>
@@ -13228,7 +13228,7 @@ Return ONLY valid JSON, no markdown, no extra text:
     <div id="ld-ai-toggle" title="Drag me anywhere, Click to chat">✨</div>
     <div id="ld-ai-panel">
         <div class="ld-ai-header">
-            <span>✨ System Brain Auditor</span>
+            <span>📊 System Brain Auditor</span>
             <div>
                 <button type="button" id="ld-ai-settings-btn" class="ld-ai-close" style="font-size:12px; margin-right:8px;">⚙️</button>
                 <button type="button" id="ld-ai-close-btn" class="ld-ai-close">✕</button>
@@ -13240,12 +13240,13 @@ Return ONLY valid JSON, no markdown, no extra text:
         </div>
         <div class="ld-ai-chat-area" id="ld-ai-chat-area">
             <div class="ld-ai-message system">
-                Auditor V9 Online. Default: Lean Mode (fast, low tokens). Type "deep" in any query for full signal scan.
+                Lean mode ( Fast, No tokens) · Current Fund — local signal read. Deep mode for ALL FUNDS ANALYSIS (Slow, No tokens).
             </div>
         </div>
         <button id="ld-ai-scroll-btn" style="position:absolute;bottom:110px;right:28px;background:var(--accent,#009e70);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.2);z-index:10002;">↓</button>
-        <div style="padding: 0 16px 8px; background: var(--surface, #f2f5f9); border-top: 1px solid var(--border, #b0bece);">
-            <button type="button" id="ld-ai-analyze-fund-btn" style="width: 100%; background: var(--accent, #009e70); color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.65rem; font-weight: bold; text-transform: uppercase;">📊 Analyze Current Fund</button>
+        <div style="padding: 0 16px 8px; background: var(--surface, #f2f5f9); border-top: 1px solid var(--border, #b0bece); display: flex; gap: 6px;">
+            <button type="button" id="ld-ai-analyze-fund-btn" style="flex:1; background: var(--accent, #009e70); color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 0.58rem; font-weight: bold; text-transform: uppercase; line-height: 1.3;">📊 Current Fund<br>Lean Analysis</button>
+            <button type="button" id="ld-ai-deep-all-btn" style="flex:1; background: #7c3aed; color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 0.58rem; font-weight: bold; text-transform: uppercase; line-height: 1.3;">🔍 All Funds<br>Deep Analysis</button>
         </div>
         <div class="ld-ai-input-area">
             <input type="text" id="ld-ai-input" placeholder="Analyze market and answer queries...">
@@ -13314,17 +13315,11 @@ Return ONLY valid JSON, no markdown, no extra text:
                 if (panel.classList.contains('open')) {
                     const inputArea = document.querySelector('.ld-ai-input-area');
                     const analyzeBtnWrap = document.getElementById('ld-ai-analyze-fund-btn')?.parentElement;
-                    if (!apiKey) {
-                        document.getElementById('ld-ai-settings-panel').classList.add('open');
-                        chatArea.style.display = 'none';
-                        if (inputArea) inputArea.style.display = 'none';
-                        if (analyzeBtnWrap) analyzeBtnWrap.style.display = 'none';
-                    } else {
-                        document.getElementById('ld-ai-settings-panel').classList.remove('open');
-                        chatArea.style.display = 'block'; 
-                        if (inputArea) inputArea.style.display = 'flex';
-                        if (analyzeBtnWrap) analyzeBtnWrap.style.display = 'block';
-                    }
+                    // Always show chat — no API key required (local analysis)
+                    document.getElementById('ld-ai-settings-panel').classList.remove('open');
+                    chatArea.style.display = 'block';
+                    if (inputArea) inputArea.style.display = 'flex';
+                    if (analyzeBtnWrap) analyzeBtnWrap.style.display = 'flex';
                 }
             }
         });
@@ -13339,12 +13334,7 @@ Return ONLY valid JSON, no markdown, no extra text:
             }
             localStorage.setItem('ld_gemini_api_key', apiKey);
             document.getElementById('ld-ai-settings-panel').classList.remove('open');
-            chatArea.style.display = 'block';
-            const inputArea = document.querySelector('.ld-ai-input-area');
-            const analyzeBtnWrap = document.getElementById('ld-ai-analyze-fund-btn')?.parentElement;
-            if (inputArea) inputArea.style.display = 'flex';
-            if (analyzeBtnWrap) analyzeBtnWrap.style.display = 'block';
-            appendMsg('system', 'API Key Saved. System Ready.');
+            appendMsg('system', 'API Key saved — used for ✨ AI Breadth Analysis in Live Cockpit. Auditor runs locally (no key needed).');
         };
         function appendMsg(role, text) {
             const d = document.createElement('div');
@@ -13750,168 +13740,200 @@ Return ONLY valid JSON, no markdown, no extra text:
             }
             return ctx;
         }
-        const SYSTEM_PROMPT = `You are the Quantitative Signal Brain of the Lie Detector (LD246A) — a precision trading assistant for Indian equity mutual funds and NPS schemes.
+        // ── LOCAL ANALYSIS — no AI, no tokens ─────────────────────
+        function runLocalLean() {
+            appendMsg('user', '📊 Current Fund — Lean Analysis');
+            const dump = gatherLeanContext();
+            const verdict = interpretSignalDump(dump, false);
+            appendMsg('system', verdict);
+        }
 
-══════════════════════════════════════
-HARD RULES (never violate):
-══════════════════════════════════════
-1. NEVER hallucinate data. If a field says N/A or UNAVAILABLE, exclude it from reasoning entirely and state what is missing.
-2. Every analysis MUST end with this exact verdict block:
-   ▶ SIGNAL: [BUY / SELL / HOLD / WAIT]
-   ▶ TIER: [Which tier triggered, e.g. T2-SLINGSHOT or T1-TSL-BREACH]
-   ▶ CONVICTION: [HIGH / MEDIUM / LOW]
-   ▶ REASON: [1–2 sentences citing the specific data points from the dump]
-   ▶ NEXT ACTION: [Exact step — amount %, timing, condition to watch]
-3. T+2 settlement applies to all BUY actions.
-4. T+0 applies to SELL — TSL Breach and Regime Crash exits are immediate.
-5. Always cite the exact field values from the dump that trigger your recommendation.
-
-══════════════════════════════════════
-STEP 1 — MACRO GATE (Always first)
-══════════════════════════════════════
-Read: NIFTY 50 MACRO GATE → MACRO VETO field.
-- If MACRO VETO = YES → output SIGNAL: WAIT immediately. Do not evaluate any BUY tier. State: "Macro veto active — Nifty 50 in Fear regime. No BUY signals valid."
-- If MACRO VETO = NO or UNAVAILABLE → proceed to Step 2.
-
-══════════════════════════════════════
-STEP 2 — SELL CHECK (Higher priority than BUY)
-══════════════════════════════════════
-Evaluate in order. First match that is true triggers output — stop checking further.
-
-TIER 1 — TSL BREACH:
-  Condition: Current NAV < Adaptive TSL Floor (Lowess)
-  Action: SELL ALL immediately (T+0). Non-negotiable.
-
-TIER 2 — REGIME CRASH:
-  Condition: Fund Regime = C (W-RSI < 40) OR REGIME BREAKDOWN EVENT = YES
-  Action: SELL ALL (T+0).
-
-TIER 3 — WMA BREACH:
-  Condition: Current NAV < 20-Day WMA AND Fund Regime = A
-  Action: SELL 20% trim. Monitor for TSL breach.
-
-TIER 4 — RRG WEAKENING:
-  Condition: RRG ACTION SIGNAL contains WEAKENING
-  Action: SELL ALERT — reduce position by 25%. Set tighter TSL watch.
-
-If none trigger → proceed to Step 3.
-
-══════════════════════════════════════
-STEP 3 — BUY SIGNAL EVALUATION
-══════════════════════════════════════
-PREREQUISITE: Fund Regime must = A (W-RSI ≥ 50).
-If Regime = B (Watch) → output HOLD. Monitor for crossover.
-If Regime = C (Fear) → output WAIT. No BUY.
-If RRG ACTION SIGNAL contains LAGGING → BLOCK all BUY tiers regardless of RSI. Output AVOID.
-
-TIER 1 — OVERSOLD BUY (Strongest entry signal):
-  Condition: Regime A AND D-RSI < 40
-  Sub-signal: D-RSI < 35 = "Deep Oversold" — use larger tranche
-  Action: BUY 25–50% of available capital (T+2)
-
-TIER 2 — SLINGSHOT BUY (Momentum divergence entry):
-  Condition: Regime A AND Delta (D-RSI − W-RSI) < −15
-  Note: Delta is pre-calculated in dump as "Delta" field
-  Action: BUY 10–25% (T+2)
-
-TIER 3 — PC-BREAKOUT (Consolidation escape):
-  Condition: Regime A AND PC-BREAKOUT ALERT = YES
-  Action: BUY 15–25% (T+2)
-
-TIER 4 — REGIME BREAKOUT (Fresh structural momentum shift):
-  Condition: REGIME CROSSOVER EVENT STATUS = BREAKOUT (W-RSI just crossed 50 upward)
-  Note: Distinguish from a stable Regime A — this is a fresh crossover event
-  Action: BUY 25% (T+2)
-
-TIER 5 — C3 MOMENTUM (Confirmation layer — never standalone BUY):
-  Condition: C3 QUALIFICATION = YES (fund 1M return > 2%) AND BEATS BAF = YES
-  Use: Add to an existing position OR confirm any other active tier signal
-  Action: Add 10–15% to current allocation
-
-══════════════════════════════════════
-STEP 4 — CONVICTION GRADING
-══════════════════════════════════════
-Start with the tier's base conviction. Then apply modifiers:
-
-Base from W-RSI CONFLUENCE CONVICTION field:
-  HIGH   = all 3 periods (4/8/14) ≥ 50 → Full position sizing
-  MEDIUM = 2 of 3 periods ≥ 50 → Reduce size by 30%
-  LOW    = majority below 50 → Minimal tranche or wait
-
-Direction modifier (from W-RSI DIRECTION fields):
-  All 3 showing ▲ RISING  → Upgrade conviction by one grade (LOW→MED, MED→HIGH)
-  Mixed / FLAT            → No change
-  Any showing ▼ FALLING   → Downgrade conviction by one grade
-
-RRG modifier (from RRG ACTION SIGNAL):
-  LEADING   → Upgrade by one grade (max HIGH)
-  IMPROVING → No change to conviction, but note as supporting
-  WEAKENING → Triggers Tier 4 SELL — ignore BUY tiers
-  LAGGING   → Block all BUY — output AVOID
-
-C3 modifier: If TIER 5 ACTIVE, add "+Momentum confirmed" note to REASON.
-
-══════════════════════════════════════
-PORTFOLIO AWARENESS (Apply to all decisions)
-══════════════════════════════════════
-- Check LIVE PORTFOLIO STATE: if slot status = PENDING SETTLEMENT → no BUY on that slot yet.
-- Check SWITCH JOURNAL: cite open bridge P&L if relevant to decision.
-- Check PORTFOLIO DEPLOYMENT %: if >80% deployed → halve all position sizes in your NEXT ACTION.
-- Check WATCHLIST: if fund is pinned, flag it in your response.
-- NOTE — NC BREAKDOWN: The app's NC (Negative Consolidation) Breakdown alert is detected visually on the chart and shown as a 🚨 banner, but is NOT included in this data dump. If the user mentions an NC Breakdown banner is active, treat it as a hard SELL Tier 4 override: cancel all pending BUY orders and tighten TSL to the consolidation box low.`;
-
-        async function submitAiPrompt(txt, useLeanPayload = true) {
-            if (!txt || !apiKey) return appendMsg('system', 'Need API Key. Tap ⚙️ to enter Gemini API key.');
-            if (!useLeanPayload) appendMsg('user', txt);
-            input.value = '';
+        function runLocalDeep() {
+            appendMsg('user', '🔍 All Funds — Deep Analysis');
             const load = document.createElement('div');
             load.className = 'ld-ai-message system';
-            load.innerText = useLeanPayload ? 'Scanning target fund…' : '🔍 Deep scanning all signals…';
+            load.innerText = '🔍 Building full signal dump…';
             chatArea.appendChild(load);
             chatArea.scrollTop = chatArea.scrollHeight;
-            const activeDump = useLeanPayload ? gatherLeanContext() : gatherContext();
-            try {
-                const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-                        contents: [{ role: 'user', parts: [{ text: `SIGNAL DUMP:\n${activeDump}\n\nUSER QUERY:\n${txt}` }] }],
-                        generationConfig: { temperature: 0.05, maxOutputTokens: 1024 }
-                    })
-                });
-                const data = await resp.json();
+            setTimeout(() => {
                 load.remove();
-                if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-                    appendMsg('system', data.candidates[0].content.parts[0].text);
-                } else if (data.error) {
-                    if (data.error.code === 429 || data.error.message.toLowerCase().includes("quota")) {
-                        appendMsg('system', '🚫 **API Quota Exceeded.** You have hit the Google Free Tier limit. Please wait a minute, or supply a new API Key in the ⚙️ settings.');
-                    } else if (data.error.message.includes("high demand") || data.error.code === 503) {
-                        appendMsg('system', '⚠️ **Servers Busy.** Google is experiencing high demand. Wait 10 seconds and try again.');
-                    } else {
-                        appendMsg('system', `**API Error:** ${data.error.message}`);
-                    }
-                } else {
-                    appendMsg('system', 'No response received. Check API key and try again.');
-                }
-            } catch(e) { 
-                load.remove(); 
-                appendMsg('system', 'Network Error: Check your internet connection. ' + e.message); 
+                const dump = gatherContext();
+                const verdict = interpretSignalDump(dump, true);
+                appendMsg('system', verdict);
+            }, 80);
+        }
+
+        function interpretSignalDump(dump, isDeep) {
+            // ── Parse key values from the raw dump string ──
+            function extract(label) {
+                const m = dump.match(new RegExp(label + '[:\\s]+([^\\n]+)'));
+                return m ? m[1].trim() : 'N/A';
             }
+            const regime   = extract('Regime(?:\\sStatus)?');
+            const wRsi     = extract('Weekly RSI(?:[^:]*)?');
+            const dRsi     = extract('Daily RSI(?:[^:]*)?');
+            const delta    = extract('Delta(?:[^:]*)?');
+            const tsl      = extract('Adaptive TSL Floor(?:[^:]*)?');
+            const nav      = extract('Current NAV');
+            const wma      = extract('20-Day WMA');
+            const macro    = extract('MACRO VETO');
+            const rrg      = extract('RRG ACTION SIGNAL');
+            const pcBreak  = extract('PC-BREAKOUT ALERT');
+            const ncBreak  = extract('NC-BREAKDOWN ALERT');
+            const crossover= extract('REGIME CROSSOVER EVENT STATUS|STATUS');
+            const conv     = extract('W-RSI CONFLUENCE CONVICTION|Grade');
+            const fundName = extract('Name');
+            const fundCode = extract('Code');
+
+            const dRsiNum  = parseFloat(dRsi)  || 0;
+            const wRsiNum  = parseFloat(wRsi)  || 0;
+            const deltaNum = parseFloat(delta) || 0;
+            const navNum   = parseFloat(nav.replace(/[^\d.]/g,'')) || 0;
+            const tslNum   = parseFloat(tsl.replace(/[^\d.]/g,'')) || 0;
+            const wmaNum   = parseFloat(wma.replace(/[^\d.]/g,'')) || 0;
+
+            const regA = regime.includes('A') || regime.toUpperCase().includes('HOPE');
+            const regB = regime.includes('B') || regime.toUpperCase().includes('WATCH');
+            const regC = regime.includes('C') || regime.toUpperCase().includes('FEAR');
+            const macroVeto  = macro.toUpperCase().includes('YES');
+            const rrgLagging = rrg.toUpperCase().includes('LAGGING');
+            const rrgWeaken  = rrg.toUpperCase().includes('WEAKENING');
+            const rrgLeading = rrg.toUpperCase().includes('LEADING') || rrg.toUpperCase().includes('IMPROVING');
+            const ncActive   = ncBreak.toUpperCase().includes('YES');
+            const pcActive   = pcBreak.toUpperCase().includes('YES');
+
+            let signal = 'HOLD', tier = '—', conviction = 'LOW', reasons = [];
+            let nextAction = 'Monitor regime and RSI. No action required.';
+
+            // ── STEP 1: MACRO GATE ──
+            if (macroVeto) {
+                signal = 'WAIT'; tier = 'MACRO GATE';
+                reasons.push('Nifty 50 in Fear regime — macro veto active. No BUY signals valid.');
+                nextAction = 'Wait for Nifty W-RSI to recover above 40 before any BUY.';
+            }
+            // ── STEP 2: SELL CHECKS ──
+            else if (navNum > 0 && tslNum > 0 && navNum < tslNum) {
+                signal = 'SELL ALL'; tier = 'T1 — TSL BREACH';
+                reasons.push(`NAV (${nav}) is below Adaptive TSL Floor (${tsl}). Non-negotiable exit.`);
+                nextAction = 'SELL ALL immediately (T+0). No exceptions.';
+            }
+            else if (ncActive) {
+                signal = 'SELL ALERT'; tier = 'T4 — NC BREAKDOWN OVERRIDE';
+                reasons.push('NC Breakdown banner active — cancel BUY orders, tighten TSL to consolidation box low.');
+                nextAction = 'Cancel all pending BUY orders. Tighten TSL watch immediately.';
+            }
+            else if (regC) {
+                signal = 'SELL ALL'; tier = 'T2 — REGIME CRASH (Fear)';
+                reasons.push(`Fund Regime = C (Fear). W-RSI: ${wRsi}. Regime crash exit rule active.`);
+                nextAction = 'SELL ALL (T+0). Re-enter only on confirmed Regime A breakout.';
+            }
+            else if (rrgWeaken) {
+                signal = 'SELL ALERT'; tier = 'T4 — RRG WEAKENING';
+                reasons.push('RRG rotating out of leadership quadrant. Reduce position 25%.');
+                nextAction = 'Trim 25% of position. Set tighter TSL watch. Monitor for TSL breach.';
+            }
+            else if (navNum > 0 && wmaNum > 0 && navNum < wmaNum && regA) {
+                signal = 'TRIM 20%'; tier = 'T3 — WMA BREACH';
+                reasons.push(`NAV (${nav}) below 20-Day WMA (${wma}) in Regime A. Defensive trim.`);
+                nextAction = 'Sell 20% of position. Monitor for TSL breach. Hold remainder.';
+            }
+            // ── STEP 3: BUY CHECKS ──
+            else if (regA && rrgLagging) {
+                signal = 'AVOID'; tier = 'RRG LAGGING BLOCK';
+                reasons.push('Fund in Regime A but RRG quadrant = Lagging. All BUY tiers blocked.');
+                nextAction = 'No BUY until RRG improves to Improving or Leading quadrant.';
+            }
+            else if (regA && dRsiNum < 40) {
+                signal = 'BUY'; tier = dRsiNum < 35 ? 'T1 — DEEP OVERSOLD' : 'T1 — OVERSOLD';
+                conviction = dRsiNum < 35 ? 'HIGH' : 'MEDIUM';
+                reasons.push(`Regime A + D-RSI = ${dRsi} (< 40). Oversold entry signal.`);
+                if (dRsiNum < 35) reasons.push('Deep Oversold (< 35) — use larger tranche.');
+                nextAction = `BUY ${dRsiNum < 35 ? '25–50%' : '25%'} of available capital (T+2).`;
+            }
+            else if (regA && deltaNum < -15) {
+                signal = 'BUY'; tier = 'T2 — SLINGSHOT';
+                conviction = 'MEDIUM';
+                reasons.push(`Regime A + Delta (D-RSI − W-RSI) = ${delta} (< −15). Slingshot momentum divergence.`);
+                nextAction = 'BUY 10–25% of available capital (T+2).';
+            }
+            else if (regA && pcActive) {
+                signal = 'BUY'; tier = 'T3 — PC BREAKOUT';
+                conviction = 'MEDIUM';
+                reasons.push('Regime A + PC-Breakout alert active. Consolidation escape entry.');
+                nextAction = 'BUY 15–25% of available capital (T+2).';
+            }
+            else if (crossover && crossover.toUpperCase().includes('BREAKOUT')) {
+                signal = 'BUY'; tier = 'T4 — REGIME BREAKOUT';
+                conviction = 'MEDIUM';
+                reasons.push('W-RSI just crossed 50 upward — fresh structural momentum shift.');
+                nextAction = 'BUY 25% of available capital (T+2).';
+            }
+            else if (regB) {
+                signal = 'HOLD'; tier = '—';
+                reasons.push(`Regime B (Watch). W-RSI: ${wRsi}. Awaiting crossover above 50.`);
+                nextAction = 'No BUY. Monitor for W-RSI crossover above 50 for Regime A breakout.';
+            }
+            else if (regA) {
+                signal = 'HOLD'; tier = '—';
+                reasons.push(`Regime A but no active BUY tier triggered. D-RSI: ${dRsi}, Delta: ${delta}.`);
+                nextAction = 'Hold existing position. Wait for D-RSI < 40 or Delta < −15 entry.';
+                if (rrgLeading) { conviction = 'MEDIUM'; reasons.push('RRG Leading/Improving — supporting momentum.'); }
+            }
+
+            // ── Conviction from W-RSI confluence ──
+            if (signal === 'BUY') {
+                if (conv.includes('HIGH')) conviction = 'HIGH';
+                else if (conv.includes('MEDIUM') && conviction !== 'HIGH') conviction = 'MEDIUM';
+                else if (conv.includes('LOW') && conviction === 'HIGH') conviction = 'MEDIUM';
+            }
+
+            const modeTag = isDeep ? '🔍 DEEP SCAN — ALL SIGNALS' : '📊 LEAN SCAN — CURRENT FUND';
+            const fundTag = fundName !== 'N/A' ? `${fundName} (${fundCode})` : 'Current Fund';
+
+            let out = `${modeTag}\n`;
+            out += `Fund: ${fundTag}\n`;
+            out += `─────────────────────────────\n`;
+            out += `STEP 1 — MACRO GATE\n`;
+            out += `Nifty 50 Macro Veto: ${macro}\n\n`;
+            out += `STEP 2 — SELL CHECK\n`;
+            out += `TSL Floor: ${tsl} | NAV: ${nav} | WMA20: ${wma}\n`;
+            out += `Regime: ${regime} | NC Alert: ${ncBreak.split('—')[0].trim()}\n`;
+            out += `RRG Signal: ${rrg.split('—')[0].trim()}\n\n`;
+            out += `STEP 3 — BUY EVALUATION\n`;
+            out += `W-RSI: ${wRsi} | D-RSI: ${dRsi} | Delta: ${delta}\n`;
+            out += `PC-Breakout: ${pcBreak.split('—')[0].trim()} | Crossover: ${crossover}\n`;
+            out += `W-RSI Conviction: ${conv.split('.')[0].trim()}\n`;
+            out += `─────────────────────────────\n`;
+            out += reasons.map(r => `• ${r}`).join('\n') + '\n';
+            out += `─────────────────────────────\n`;
+            out += `▶ SIGNAL: ${signal}\n`;
+            out += `▶ TIER: ${tier}\n`;
+            out += `▶ CONVICTION: ${conviction}\n`;
+            out += `▶ REASON: ${reasons[0] || '—'}\n`;
+            out += `▶ NEXT ACTION: ${nextAction}`;
+            return out;
         }
+
+        // ── Button wiring ──────────────────────────────────────
         const analyzeBtn = document.getElementById('ld-ai-analyze-fund-btn');
-        if(analyzeBtn) {
-            analyzeBtn.onclick = (e) => {
-                e.preventDefault();
-                appendMsg('user', '📊 Analyze Current Fund');
-                submitAiPrompt("Analyze this specific target fund based on the lean data provided. Cross-reference with the Nifty 50 macro rule. Give a strict Buy/Hold/Sell/Trim verdict.", true);
-            };
+        if (analyzeBtn) {
+            analyzeBtn.onclick = (e) => { e.preventDefault(); runLocalLean(); };
         }
+        const deepBtn = document.getElementById('ld-ai-deep-all-btn');
+        if (deepBtn) {
+            deepBtn.onclick = (e) => { e.preventDefault(); runLocalDeep(); };
+        }
+
+        // ── Free-text input: parse locally too ────────────────
         function routePrompt(txt) {
+            if (!txt.trim()) return;
             const lower = txt.toLowerCase();
-            const useDeep = lower.includes('deep') || lower.includes('full scan');
-            submitAiPrompt(txt, !useDeep);
+            if (lower.includes('deep') || lower.includes('full scan') || lower.includes('all funds')) {
+                runLocalDeep();
+            } else {
+                runLocalLean();
+            }
+            input.value = '';
         }
         submit.onclick = (e) => { e.preventDefault(); routePrompt(input.value); };
         input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); routePrompt(input.value); } };

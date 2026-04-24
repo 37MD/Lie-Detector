@@ -2144,7 +2144,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD245B</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD246DAI</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2784,13 +2784,39 @@
                         </tr>
                     </tbody>
                 </table>
+                <div class="sop-part sop-part-green">PART 14 — LD246DAI: AI BREADTH CONFIRMATION</div>
+                <table class="sop-table">
+                    <thead><tr><th>Feature</th><th>What Changed / How to Use</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:700;color:#7c3aed;">✨ AI Breadth Button — Alert Summary (per fund)</td>
+                            <td>Each qualifying fund box in the <strong>Shortlisted Investments</strong> section (both AMC and NPS boxes) now has a one-tap <strong>✨ AI Breadth Check</strong> button. Tapping it opens the AI Breadth Confirmation panel pre-loaded with that fund's name, W-RSI, D-RSI, and regime — no manual entry required. The AI query is scoped exclusively to the selected fund.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#7c3aed;">✨ AI CHECK — Live Cockpit Header</td>
+                            <td>A <strong>✨ AI CHECK</strong> button now appears in the Live Cockpit header bar (next to ANALYTICS). It reads the fund currently loaded in the cockpit — name from the fund selector, W-RSI and D-RSI from the live indicator cells — and opens the AI Breadth panel pre-populated for that exact fund. No context switching required.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#7c3aed;">AI Breadth Modal — Fund-Scoped Analysis</td>
+                            <td>The bottom-sheet modal shows the fund's regime, W-RSI, and D-RSI at the top for quick gate-check verification. The AI assesses the <strong>top 5 Nifty 50 stocks by weightage</strong> (Reliance, HDFC Bank, ICICI Bank, Infosys, TCS) on 14-day price trend and MA20 position. Verdict: <strong>≥3/5 BULL = CONFIRMED</strong> · 2/5 = CAUTION (halve tranche) · ≤1/5 = WEAK (do not deploy). Individual stock cards show trend, MA20 status, and a one-line note. AI reasoning is calibrated to the specific fund's regime context.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#7c3aed;">Token Architecture — Zero Waste</td>
+                            <td>The AI is called <strong>once per tap</strong> with a compact, fund-specific prompt (~400 tokens). The app handles all gate analysis (W-RSI, TSL, NC, Concentration Guard, signal confirmation) before the AI is invoked. AI role is confirmation only — macro breadth as a final deployment filter. Uses the existing Gemini API key stored in the app — no new key required. A <strong>Run Again</strong> button allows a fresh call without reopening the modal.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246DAI</td>
+                            <td>All 4 version surfaces updated: SOP modal header badge, SOP footer note, Setup Screen clickable badge, switch journal version string. SOP Part 14 (this section) added.</td>
+                        </tr>
+                    </tbody>
+                </table>
                 <div class="sop-oneliner">
                     "Buy Regime Hope dips in the strongest RRG fund.&nbsp; Hold until TSL or Regime Fear.&nbsp;
                     Rotate via Asset Allocator Trigger Monitor.&nbsp; Never buy in B or C.&nbsp;
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD245B &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD246DAI &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2802,7 +2828,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD245B 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246DAI 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -3056,6 +3082,7 @@
                 </div>
                 <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
                     <button class="reset-zoom" style="color:var(--accent);border-color:var(--accent);padding:3px 4px;font-size:0.55rem;letter-spacing:0.02em;" onclick="openLiveAnalyticsFromCockpit()">ANALYTICS</button>
+                    <button id="liveCockpitAIBreathBtn" class="reset-zoom" style="color:#7c3aed;border-color:#7c3aed;padding:3px 4px;font-size:0.55rem;letter-spacing:0.02em;" onclick="launchAIBreadthForCurrentFund()" title="AI Breadth Confirmation — Fund currently in view">✨ AI CHECK</button>
                     <span class="modal-close-btn" style="letter-spacing:0.02em;" onclick="document.getElementById('liveChartModal').style.display='none';document.getElementById('setupScreen').style.display='flex';if(window.cleanupModalDOM)window.cleanupModalDOM('#liveChartModal .chart-split');if(typeof _liveEstInterval!=='undefined'&&_liveEstInterval){clearInterval(_liveEstInterval);_liveEstInterval=null;}">[ X ]</span>
                 </div>
             </div>
@@ -4656,7 +4683,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD245B', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD246DAI', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -5443,6 +5470,9 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     globalLiveData.length - 1, prices, 0,
                     globalDailyRsiCache, globalWeeklyRsiCache, globalLowessCache, 0, [], 0
                 );
+                // === FIX A: Export pcAlert + ncAlert to window so AI context can read them ===
+                window._lastPcAlert = snap.pcAlert || false;
+                window._lastNcAlert = snap.ncAlert || false;
                 const lastDate = globalLiveData[globalLiveData.length - 1].date;
                 const displayDate = (lastDate && lastDate.split('-').length === 3 && lastDate.split('-')[0].length === 4) ?
                     lastDate.split('-').reverse().join('-') :
@@ -5521,6 +5551,16 @@ if (snap.tsl.tslHit) {
                 banner.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
                 banner.style.color = alertText ? '#000000' : 'var(--muted2)';
                 banner.className = alertText ? `${alertClass} banner-on` : '';
+                // === FIX 1a: Sync liveAlertBanner (Analytics modal) to same alert state ===
+                const bannerAnalytics = document.getElementById('liveAlertBanner');
+                if (bannerAnalytics) {
+                    bannerAnalytics.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
+                    bannerAnalytics.style.color = alertText ? '#000000' : 'var(--muted2)';
+                    bannerAnalytics.className = alertText ? `${alertClass} banner-on` : '';
+                }
+                // Store last alert state globally so Analytics modal can re-apply on open
+                window._lastLiveAlertText  = alertText;
+                window._lastLiveAlertClass = alertClass;
                 const tfRets = [
                     { l: '3D', d: 3 }, { l: '1W', d: 5 }, { l: '2W', d: 10 }, { l: '1M', d: 21 },
                     { l: '3M', d: 63 }, { l: '6M', d: 125 }, { l: '1Y', d: 250 }, { l: 'ALL', d: 9999 }
@@ -5604,6 +5644,17 @@ if (snap.tsl.tslHit) {
                 }
                 const niftyPrices = Object.keys(niftyMap || {}).sort()
                     .map(d => niftyMap[d]).filter(v => v > 0);
+                // === FIX C: Compute Nifty 50 W-RSI and store globally for AI macro gate ===
+                try {
+                    if (niftyPrices.length >= 80 && window.buildWeeklyRsiFast) {
+                        const niftyDates = Object.keys(niftyMap || {}).sort()
+                            .filter(d => niftyMap[d] > 0);
+                        const niftyWrsiArr = window.buildWeeklyRsiFast(
+                            niftyPrices, window.userRsiLength || 4, niftyDates
+                        );
+                        window._niftyWrsi = niftyWrsiArr[niftyWrsiArr.length - 1] || 50;
+                    }
+                } catch(_) { window._niftyWrsi = null; }
                 const rsArray = prices.map((p, k) => {
                     const b = n50[k];
                     if (b && b > 0) return p / b;
@@ -5754,6 +5805,9 @@ if (snap.tsl.tslHit) {
                     globalLiveData.length - 1, prices, 0,
                     globalDailyRsiCache, globalWeeklyRsiCache, globalLowessCache, 0, [], 0
                 );
+                // === FIX A (refresh): Keep pcAlert + ncAlert current on every chart update ===
+                window._lastPcAlert = snap.pcAlert || false;
+                window._lastNcAlert = snap.ncAlert || false;
                 const {
                     nav: lastNav,
                     wma20: lastWma,
@@ -5977,6 +6031,15 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                 banner.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
                 banner.style.color = alertText ? '#000000' : 'var(--muted2)';
                 banner.className = alertText ? `${alertClass} banner-on` : '';
+                // === FIX 1a: Sync liveChartAlertBanner (Chart modal) to same alert state ===
+                const bannerChart = document.getElementById('liveChartAlertBanner');
+                if (bannerChart) {
+                    bannerChart.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
+                    bannerChart.style.color = alertText ? '#000000' : 'var(--muted2)';
+                    bannerChart.className = alertText ? `${alertClass} banner-on` : '';
+                }
+                window._lastLiveAlertText  = alertText;
+                window._lastLiveAlertClass = alertClass;
                 const verdictBorderColor = alertClass ?
                     `var(--${alertClass.includes('danger') ? 'red'
                     : alertClass.includes('buy') ? 'accent' : 'accent2'})` :
@@ -8561,8 +8624,26 @@ This is exactly how the system is meant to be played.
                     amcLbl.textContent = amc;
                     box.appendChild(amcLbl);
                     if (hasData) {
+                        // === FIX 1b: Alert badge — top-right red pill if alert exists ===
+                        if (entry.latestAlert) {
+                            const isRed   = (entry.latestAlertClass || '').includes('danger');
+                            const isGreen = (entry.latestAlertClass || '').includes('buy');
+                            const badgeBg = isRed ? '#c8102e' : isGreen ? '#00916e' : '#c97a00';
+                            const badge = document.createElement('div');
+                            badge.style.cssText = `
+                                position:absolute;top:6px;right:6px;
+                                background:${badgeBg};color:#fff;
+                                font-size:0.38rem;font-weight:700;
+                                padding:2px 5px;border-radius:3px;
+                                letter-spacing:0.06em;text-transform:uppercase;
+                                line-height:1.4;pointer-events:none;
+                            `;
+                            badge.textContent = isRed ? '🚨 Alert' : isGreen ? '🟢 Alert' : '⚠ Alert';
+                            box.appendChild(badge);
+                        }
+                        // === FIX 1c: Line 2 — fund name font +50% (0.66 → 0.99rem) ===
                         const nm = document.createElement('div');
-                        nm.style.cssText = 'font-size:0.66rem;font-weight:400;color:var(--text);line-height:1.3;';
+                        nm.style.cssText = 'font-size:0.99rem;font-weight:400;color:var(--text);line-height:1.3;';
                         nm.textContent = (entry.name || '')
                             .replace(/ - Growth| - Direct/gi, '')
                             .replace(/Balanced Advantage/gi, 'BAF')
@@ -8571,8 +8652,9 @@ This is exactly how the system is meant to be played.
                             .slice(0, 32);
                         box.appendChild(nm);
                         if (entry.switchDate || entry.ts) {
+                            // === FIX 1c: Line 3 — date font +50% (0.44 → 0.66rem) ===
                             const dtEl = document.createElement('div');
-                            dtEl.style.cssText = 'font-size:0.44rem;font-weight:400;color:var(--muted);';
+                            dtEl.style.cssText = 'font-size:0.66rem;font-weight:400;color:var(--muted);';
                             const dtStr = entry.switchDate
                                 ? new Date(entry.switchDate).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' })
                                 : new Date(entry.ts).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' });
@@ -8588,16 +8670,6 @@ This is exactly how the system is meant to be played.
                             `<span>wRSI: ${entry.wrsi ?? '--'}</span>` +
                             `<span style="color:${entry.regime==='A'?'#00916e':entry.regime==='B'?'#f59e0b':'var(--red)'};">${entry.regime==='A'?'Hope':entry.regime==='B'?'Watch':entry.regime==='C'?'Fear':'—'}</span>`;
                         box.appendChild(stats);
-                        if (entry.latestAlert) {
-                            const alertEl = document.createElement('div');
-                            const isRed   = (entry.latestAlertClass || '').includes('danger');
-                            const isGreen = (entry.latestAlertClass || '').includes('buy');
-                            const alertBg = isRed ? 'rgba(200,16,46,0.12)' : isGreen ? 'rgba(0,145,110,0.12)' : 'rgba(255,160,0,0.10)';
-                            const alertFg = isRed ? '#c8102e' : isGreen ? '#00916e' : '#c97a00';
-                            alertEl.style.cssText = `font-size:0.46rem;font-weight:400;color:${alertFg};background:${alertBg};border-radius:2px;padding:3px 5px;margin-top:2px;line-height:1.3;`;
-                            alertEl.textContent = entry.latestAlert.slice(0, 48);
-                            box.appendChild(alertEl);
-                        }
                         if (typeof entry.switchNav === 'number' && entry.switchNav > 0 && typeof entry.currentNav === 'number') {
                             const pnl   = (entry.currentNav - entry.switchNav) / entry.switchNav * 100;
                             const pnlEl = document.createElement('div');
@@ -8659,8 +8731,26 @@ This is exactly how the system is meant to be played.
                     tierLbl.textContent = `${icon} ${label}`;
                     box.appendChild(tierLbl);
                     if (hasData) {
+                        // === FIX 1b: Alert badge — top-right red pill if alert exists ===
+                        if (entry.latestAlert) {
+                            const isRed   = (entry.latestAlertClass || '').includes('danger');
+                            const isGreen = (entry.latestAlertClass || '').includes('buy');
+                            const badgeBg = isRed ? '#c8102e' : isGreen ? '#00916e' : '#c97a00';
+                            const badge = document.createElement('div');
+                            badge.style.cssText = `
+                                position:absolute;top:6px;right:6px;
+                                background:${badgeBg};color:#fff;
+                                font-size:0.38rem;font-weight:700;
+                                padding:2px 5px;border-radius:3px;
+                                letter-spacing:0.06em;text-transform:uppercase;
+                                line-height:1.4;pointer-events:none;
+                            `;
+                            badge.textContent = isRed ? '🚨 Alert' : isGreen ? '🟢 Alert' : '⚠ Alert';
+                            box.appendChild(badge);
+                        }
+                        // === FIX 1c: Line 2 — fund name font +50% (0.64 → 0.96rem) ===
                         const nm = document.createElement('div');
-                        nm.style.cssText = 'font-size:0.64rem;font-weight:400;color:var(--text);line-height:1.3;';
+                        nm.style.cssText = 'font-size:0.96rem;font-weight:400;color:var(--text);line-height:1.3;';
                         nm.textContent = (entry.name || '')
                             .replace(/\[NPS\]\s*/gi, '')
                             .replace(/Scheme\s+/gi, 'Sch ')
@@ -8668,8 +8758,9 @@ This is exactly how the system is meant to be played.
                             .trim().slice(0, 28);
                         box.appendChild(nm);
                         if (entry.switchDate || entry.ts) {
+                            // === FIX 1c: Line 3 — date font +50% (0.44 → 0.66rem) ===
                             const dtEl = document.createElement('div');
-                            dtEl.style.cssText = 'font-size:0.44rem;font-weight:400;color:var(--muted);';
+                            dtEl.style.cssText = 'font-size:0.66rem;font-weight:400;color:var(--muted);';
                             const dtStr = new Date(entry.switchDate || entry.ts).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' });
                             dtEl.textContent = `📅 Switched: ${dtStr}`;
                             box.appendChild(dtEl);
@@ -8684,16 +8775,6 @@ This is exactly how the system is meant to be played.
                             + `<span>wRSI: ${entry.wrsi ?? '--'}</span>`
                             + `<span style="color:${regimeCol};">${regimeTxt}</span>`;
                         box.appendChild(stats);
-                        if (entry.latestAlert) {
-                            const isRed   = (entry.latestAlertClass || '').includes('danger');
-                            const isGreen = (entry.latestAlertClass || '').includes('buy');
-                            const alertBg = isRed ? 'rgba(200,16,46,0.12)' : isGreen ? 'rgba(0,145,110,0.12)' : 'rgba(255,160,0,0.10)';
-                            const alertFg = isRed ? '#c8102e' : isGreen ? '#00916e' : '#c97a00';
-                            const alertEl = document.createElement('div');
-                            alertEl.style.cssText = `font-size:0.44rem;font-weight:400;color:${alertFg};background:${alertBg};border-radius:2px;padding:3px 5px;margin-top:2px;line-height:1.3;`;
-                            alertEl.textContent = entry.latestAlert.slice(0, 46);
-                            box.appendChild(alertEl);
-                        }
                         if (typeof entry.switchNav === 'number' && entry.switchNav > 0 && typeof entry.currentNav === 'number') {
                             const pnl   = (entry.currentNav - entry.switchNav) / entry.switchNav * 100;
                             const pnlEl = document.createElement('div');
@@ -10363,6 +10444,18 @@ ${d.tsl > 0
                         baf3m = bafData.mom3m;
                     }
                 }
+                // === FIX 2A: Store BAF comparison globally so AI context can access it ===
+                window._lastBafComparison = {
+                    fundCode: fundData.code,
+                    fundName: fundData.name,
+                    baf1m: baf1m,
+                    baf2m: baf2m,
+                    baf3m: baf3m,
+                    fund1m: fundData.mom1m || null,
+                    fund2m: fundData.mom2m || null,
+                    fund3m: fundData.mom3m || null,
+                    timestamp: Date.now()
+                };
                 document.getElementById('rrgScannerModal').style.display = 'none';
                 document.getElementById('rrgDetailFundName').textContent = fundData.name;
                 const ovEl = document.getElementById('ov');
@@ -10884,7 +10977,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                                         cachedData = {
                                             data: networkData.map(d => ({
                                                 ...d,
-                                                date: (d.date || '').replace(/\
+                                                date: (d.date || '').replace(/\//g, '-')
                                             }))
                                         };
                                     } else {
@@ -11870,6 +11963,15 @@ categories.forEach(cat => {
                                 <button onclick="event.stopPropagation();addCodeToWatchlist('${entry.fund.code}','${entry.fund.name.replace(/'/g,'').slice(0,30)}')" style="font-size:0.4rem;padding:1px 5px;border:1px solid var(--gold);border-radius:4px;background:transparent;color:var(--gold);cursor:pointer;font-family:var(--mono);">+ ADD</button>`;
                         }
                         box.appendChild(wlRow);
+                        const aiBreathBtn = document.createElement('button');
+                        aiBreathBtn.textContent = '✨ AI Breadth Check';
+                        aiBreathBtn.style.cssText = 'margin-top:4px;width:100%;font-size:0.44rem;padding:3px 0;border:1px solid #7c3aed;border-radius:4px;background:rgba(124,58,237,0.07);color:#7c3aed;cursor:pointer;font-family:var(--mono);font-weight:700;letter-spacing:0.04em;text-transform:uppercase;';
+                        aiBreathBtn.onclick = (ev) => {
+                            ev.stopPropagation();
+                            const fundForAI = { code: entry.fund.code, name: entry.fund.name, wrsi: entry.fund.wrsi, drsi: entry.fund.drsi, r1m: entry.fund.r1m };
+                            openAIBreadthModal(fundForAI);
+                        };
+                        box.appendChild(aiBreathBtn);
                     } else {
                         const none = document.createElement('div');
                         none.style.cssText = 'font-size:0.55rem;font-weight:400;color:var(--muted2);margin-top:4px;';
@@ -11936,6 +12038,15 @@ categories.forEach(cat => {
                                 <button onclick="event.stopPropagation();addCodeToWatchlist('${entry.fund.code}','${entry.fund.name.replace(/'/g,'').slice(0,30)}')" style="font-size:0.4rem;padding:1px 5px;border:1px solid var(--gold);border-radius:4px;background:transparent;color:var(--gold);cursor:pointer;font-family:var(--mono);">+ ADD</button>`;
                         }
                         npsBox.appendChild(npsWlRow);
+                        const npsAiBtn = document.createElement('button');
+                        npsAiBtn.textContent = '✨ AI Breadth Check';
+                        npsAiBtn.style.cssText = 'margin-top:4px;width:100%;font-size:0.44rem;padding:3px 0;border:1px solid #7c3aed;border-radius:4px;background:rgba(124,58,237,0.07);color:#7c3aed;cursor:pointer;font-family:var(--mono);font-weight:700;letter-spacing:0.04em;text-transform:uppercase;';
+                        npsAiBtn.onclick = (ev) => {
+                            ev.stopPropagation();
+                            const fundForAI = { code: entry.fund.code, name: entry.fund.name, wrsi: entry.fund.wrsi, drsi: entry.fund.drsi, r1m: entry.fund.r1m };
+                            openAIBreadthModal(fundForAI);
+                        };
+                        npsBox.appendChild(npsAiBtn);
                     } else {
                         const npsNone = document.createElement('div');
                         npsNone.style.cssText = 'font-size:0.52rem;color:var(--muted2);margin-top:4px;';
@@ -12481,6 +12592,403 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         }
     });
 </script>
+════════════════════════AI BREADTH CODE ══════════════════════════════════════════
+    <!-- LD246DAI: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
+    <style>
+    #aiBreadthOverlay {
+        position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,0.55);
+        display:none;align-items:flex-end;justify-content:center;
+    }
+    #aiBreadthOverlay.open { display:flex; }
+    #aiBreadthPanel {
+        background:var(--bg,#fff);
+        border-radius:14px 14px 0 0;
+        border:1px solid var(--border,#b0bece);
+        border-bottom:none;
+        width:100%;max-width:480px;
+        max-height:90vh;
+        display:flex;flex-direction:column;
+        overflow:hidden;
+        font-family:var(--mono,'Space Mono',monospace);
+        box-shadow:0 -8px 32px rgba(0,0,0,0.18);
+        animation: slideUp 0.28s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes slideUp { from { transform:translateY(60px);opacity:0; } to { transform:translateY(0);opacity:1; } }
+    #aiBreadthPanel .abp-header {
+        display:flex;align-items:center;justify-content:space-between;
+        padding:10px 14px 8px;
+        border-bottom:1px solid var(--border,#b0bece);
+        background:var(--surface,#f2f5f9);
+        flex-shrink:0;
+    }
+    #aiBreadthPanel .abp-title {
+        font-size:0.68rem;font-weight:700;color:#7c3aed;letter-spacing:0.06em;text-transform:uppercase;
+    }
+    #aiBreadthPanel .abp-fund-tag {
+        font-size:0.52rem;color:var(--muted,#404060);margin-top:2px;letter-spacing:0.02em;
+        max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    #aiBreadthPanel .abp-close {
+        background:transparent;border:none;font-size:18px;cursor:pointer;color:var(--muted,#404060);padding:2px 6px;
+    }
+    #aiBreadthPanel .abp-body {
+        overflow-y:auto;flex:1;padding:12px 14px;
+    }
+    .abp-fund-meta {
+        display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;
+    }
+    .abp-meta-cell {
+        background:var(--surface,#f2f5f9);border:1px solid var(--border,#b0bece);
+        border-radius:5px;padding:6px 8px;display:flex;flex-direction:column;gap:2px;
+    }
+    .abp-meta-label { font-size:0.42rem;color:var(--muted,#404060);letter-spacing:0.08em;text-transform:uppercase; }
+    .abp-meta-val { font-size:0.7rem;font-weight:700;color:var(--text,#000); }
+    .abp-meta-val.regime-a { color:#009e70; }
+    .abp-meta-val.regime-b { color:#c97a00; }
+    .abp-meta-val.regime-c { color:#c8102e; }
+    .abp-run-btn {
+        width:100%;padding:10px;background:#7c3aed;color:#fff;border:none;border-radius:7px;
+        font-family:var(--mono,'Space Mono',monospace);font-size:0.65rem;font-weight:700;
+        letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;gap:8px;
+        transition:background 0.15s;margin-bottom:10px;
+    }
+    .abp-run-btn:hover:not(:disabled) { background:#6d28d9; }
+    .abp-run-btn:disabled { background:var(--surface2,#e4eaf2);color:var(--muted,#404060);cursor:not-allowed; }
+    .abp-loading {
+        display:none;align-items:center;gap:8px;font-size:0.58rem;color:#7c3aed;
+        padding:8px 10px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.2);
+        border-radius:6px;margin-bottom:10px;
+    }
+    .abp-loading.visible { display:flex; }
+    .abp-spinner {
+        width:13px;height:13px;border:2px solid rgba(124,58,237,0.2);
+        border-top-color:#7c3aed;border-radius:50%;
+        animation:abp-spin 0.75s linear infinite;flex-shrink:0;
+    }
+    @keyframes abp-spin { to { transform:rotate(360deg); } }
+    .abp-verdict-box {
+        border-radius:7px;padding:12px 12px 10px;margin-bottom:10px;display:none;
+        flex-direction:column;gap:6px;
+    }
+    .abp-verdict-box.visible { display:flex; }
+    .abp-verdict-box.confirmed { background:rgba(0,158,112,0.07);border:1px solid rgba(0,158,112,0.35); }
+    .abp-verdict-box.caution   { background:rgba(201,122,0,0.07);border:1px solid rgba(201,122,0,0.35); }
+    .abp-verdict-box.weak      { background:rgba(200,16,46,0.07);border:1px solid rgba(200,16,46,0.30); }
+    .abp-verdict-headline { font-size:0.72rem;font-weight:700;letter-spacing:0.04em; }
+    .abp-verdict-headline.confirmed { color:#009e70; }
+    .abp-verdict-headline.caution   { color:#c97a00; }
+    .abp-verdict-headline.weak      { color:#c8102e; }
+    .abp-verdict-count { font-size:1.5rem;font-weight:700;line-height:1; }
+    .abp-verdict-count.confirmed { color:#009e70; }
+    .abp-verdict-count.caution   { color:#c97a00; }
+    .abp-verdict-count.weak      { color:#c8102e; }
+    .abp-verdict-sub  { font-size:0.56rem;color:var(--muted,#404060);line-height:1.5; }
+    .abp-verdict-action {
+        font-size:0.55rem;font-weight:700;padding:5px 9px;border-radius:4px;
+        letter-spacing:0.04em;width:fit-content;margin-top:2px;
+    }
+    .abp-verdict-action.confirmed { background:rgba(0,158,112,0.1);color:#009e70;border:1px solid rgba(0,158,112,0.3); }
+    .abp-verdict-action.caution   { background:rgba(201,122,0,0.1);color:#c97a00;border:1px solid rgba(201,122,0,0.3); }
+    .abp-verdict-action.weak      { background:rgba(200,16,46,0.08);color:#c8102e;border:1px solid rgba(200,16,46,0.25); }
+    .abp-stocks-grid {
+        display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;
+    }
+    .abp-stock-card {
+        background:var(--surface,#f2f5f9);border:1px solid var(--border,#b0bece);
+        border-radius:6px;padding:8px 9px;display:flex;flex-direction:column;gap:4px;
+        transition:border-color 0.2s;
+    }
+    .abp-stock-card.bull { border-color:rgba(0,158,112,0.4);background:rgba(0,158,112,0.04); }
+    .abp-stock-card.bear { border-color:rgba(200,16,46,0.3);background:rgba(200,16,46,0.03); }
+    .abp-stock-ticker {
+        display:flex;align-items:center;justify-content:space-between;
+        font-size:0.6rem;font-weight:700;color:var(--text,#000);
+    }
+    .abp-stock-weight {
+        font-size:0.44rem;background:var(--surface2,#e4eaf2);
+        border:1px solid var(--border,#b0bece);padding:1px 5px;border-radius:3px;color:var(--muted,#404060);
+    }
+    .abp-stock-row { display:flex;justify-content:space-between;font-size:0.5rem;color:var(--muted,#404060); }
+    .abp-stock-val-pos { color:#009e70;font-weight:700; }
+    .abp-stock-val-neg { color:#c8102e;font-weight:700; }
+    .abp-stock-note { font-size:0.44rem;color:var(--muted,#404060);line-height:1.4; }
+    .abp-badge-bull { font-size:0.46rem;font-weight:700;padding:2px 6px;border-radius:3px;width:fit-content;background:rgba(0,158,112,0.1);color:#009e70;border:1px solid rgba(0,158,112,0.3); }
+    .abp-badge-bear { font-size:0.46rem;font-weight:700;padding:2px 6px;border-radius:3px;width:fit-content;background:rgba(200,16,46,0.07);color:#c8102e;border:1px solid rgba(200,16,46,0.25); }
+    .abp-reasoning {
+        background:var(--surface,#f2f5f9);border:1px solid var(--border,#b0bece);
+        border-radius:6px;padding:10px 12px;font-size:0.56rem;line-height:1.65;
+        color:var(--text,#000);white-space:pre-wrap;display:none;
+    }
+    .abp-reasoning.visible { display:block; }
+    .abp-reasoning-label {
+        font-size:0.44rem;font-weight:700;color:#7c3aed;letter-spacing:0.08em;
+        text-transform:uppercase;margin-bottom:4px;
+    }
+    </style>
+
+    <div id="aiBreadthOverlay">
+      <div id="aiBreadthPanel">
+        <div class="abp-header">
+          <div>
+            <div class="abp-title">✨ AI Breadth Confirmation</div>
+            <div class="abp-fund-tag" id="abpFundTag">—</div>
+          </div>
+          <button class="abp-close" onclick="closeAIBreadthModal()">✕</button>
+        </div>
+        <div class="abp-body">
+          <!-- Fund meta row -->
+          <div class="abp-fund-meta" id="abpFundMeta"></div>
+          <!-- Run button -->
+          <button class="abp-run-btn" id="abpRunBtn" onclick="executeAIBreadthCheck()">
+            <span>✨</span><span id="abpRunBtnLabel">Run AI Breadth Check</span>
+          </button>
+          <!-- Loading -->
+          <div class="abp-loading" id="abpLoading">
+            <div class="abp-spinner"></div>
+            <span id="abpLoadingText">Querying AI — scanning Nifty top-5 stocks…</span>
+          </div>
+          <!-- Verdict -->
+          <div class="abp-verdict-box" id="abpVerdictBox">
+            <div class="abp-verdict-headline" id="abpVerdictHeadline"></div>
+            <div style="display:flex;align-items:baseline;gap:6px;">
+              <div class="abp-verdict-count" id="abpVerdictCount"></div>
+              <span style="font-size:0.5rem;color:var(--muted);">of 5 Nifty heavyweights positive</span>
+            </div>
+            <div class="abp-verdict-sub" id="abpVerdictSub"></div>
+            <div class="abp-verdict-action" id="abpVerdictAction"></div>
+          </div>
+          <!-- Stock grid -->
+          <div class="abp-stocks-grid" id="abpStocksGrid" style="display:none;"></div>
+          <!-- AI Reasoning -->
+          <div class="abp-reasoning" id="abpReasoning">
+            <div class="abp-reasoning-label">AI Macro Context</div>
+            <div id="abpReasoningText"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    (function(){
+        // ── State ──────────────────────────────────────────────
+        let _abpFund = null; // { code, name, wrsi, drsi, r1m }
+
+        // ── Public API ─────────────────────────────────────────
+        window.openAIBreadthModal = function(fund) {
+            _abpFund = fund;
+            _resetPanel();
+            _populateFundMeta(fund);
+            document.getElementById('abpFundTag').textContent = fund.name || fund.code;
+            document.getElementById('aiBreadthOverlay').classList.add('open');
+        };
+
+        window.closeAIBreadthModal = function() {
+            document.getElementById('aiBreadthOverlay').classList.remove('open');
+        };
+
+        // Called from Live Cockpit ✨ AI CHECK button
+        window.launchAIBreadthForCurrentFund = function() {
+            const fs = document.getElementById('fundSelect');
+            if (!fs) return;
+            const code = fs.value;
+            const name = fs.options[fs.selectedIndex]?.text || code;
+            const wrsi = document.getElementById('liveWRsi')?.textContent?.replace(/[^\d.]/g,'') || '—';
+            const drsi = document.getElementById('liveDRsi')?.textContent?.replace(/[^\d.]/g,'') || '—';
+            const r1mEl = document.querySelector('#cockpitReturns [data-period="1M"]');
+            const r1m   = r1mEl ? parseFloat(r1mEl.textContent) : null;
+            window.openAIBreadthModal({ code, name, wrsi, drsi, r1m });
+        };
+
+        // ── Reset ──────────────────────────────────────────────
+        function _resetPanel() {
+            document.getElementById('abpRunBtn').disabled = false;
+            document.getElementById('abpRunBtnLabel').textContent = 'Run AI Breadth Check';
+            document.getElementById('abpLoading').classList.remove('visible');
+            const vb = document.getElementById('abpVerdictBox');
+            vb.className = 'abp-verdict-box';
+            document.getElementById('abpStocksGrid').style.display = 'none';
+            document.getElementById('abpReasoning').classList.remove('visible');
+            document.getElementById('abpFundMeta').innerHTML = '';
+        }
+
+        // ── Fund Meta ──────────────────────────────────────────
+        function _populateFundMeta(fund) {
+            const regime = parseFloat(fund.wrsi) >= 50 ? 'A — HOPE'
+                         : parseFloat(fund.wrsi) >= 40 ? 'B — WATCH' : 'C — FEAR';
+            const regimeClass = parseFloat(fund.wrsi) >= 50 ? 'regime-a'
+                              : parseFloat(fund.wrsi) >= 40 ? 'regime-b' : 'regime-c';
+            const cells = [
+                { label: 'Regime', val: regime, cls: regimeClass },
+                { label: 'W-RSI', val: fund.wrsi ?? '—', cls: '' },
+                { label: 'D-RSI', val: fund.drsi ?? '—', cls: '' },
+            ];
+            const meta = document.getElementById('abpFundMeta');
+            meta.innerHTML = cells.map(c => `
+                <div class="abp-meta-cell">
+                  <span class="abp-meta-label">${c.label}</span>
+                  <span class="abp-meta-val ${c.cls}">${c.val}</span>
+                </div>`).join('');
+        }
+
+        // ── Execute AI Call ────────────────────────────────────
+        window.executeAIBreadthCheck = async function() {
+            if (!_abpFund) return;
+            const apiKey = localStorage.getItem('ld_gemini_api_key') || '';
+            if (!apiKey) {
+                alert('No API key found. Open the ✨ AI Auditor panel (top-right button), tap ⚙️ and save your Gemini API key first.');
+                return;
+            }
+            document.getElementById('abpRunBtn').disabled = true;
+            document.getElementById('abpRunBtnLabel').textContent = 'Running…';
+            document.getElementById('abpLoading').classList.add('visible');
+            document.getElementById('abpVerdictBox').className = 'abp-verdict-box';
+            document.getElementById('abpStocksGrid').style.display = 'none';
+            document.getElementById('abpReasoning').classList.remove('visible');
+
+            const fundName  = _abpFund.name || _abpFund.code;
+            const fundWrsi  = _abpFund.wrsi ?? '—';
+            const fundDrsi  = _abpFund.drsi ?? '—';
+            const fundR1m   = _abpFund.r1m != null ? `${Number(_abpFund.r1m).toFixed(2)}%` : '—';
+            const fundRegime = parseFloat(fundWrsi) >= 50 ? 'A (Hope)' : parseFloat(fundWrsi) >= 40 ? 'B (Watch)' : 'C (Fear)';
+
+            const prompt = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System (LD246DAI).
+
+TASK: Provide index breadth confirmation for this SPECIFIC FUND.
+
+FUND BEING ANALYSED:
+Name: ${fundName}
+Regime: ${fundRegime}
+W-RSI: ${fundWrsi}
+D-RSI: ${fundDrsi}
+1M Return: ${fundR1m}
+
+Assess the current price trend and momentum of the TOP 5 Nifty 50 stocks by index weightage based on recent (last 2 weeks) market conditions:
+1. RELIANCE INDUSTRIES (~9.5% weight)
+2. HDFC BANK (~8.5% weight)
+3. ICICI BANK (~7.8% weight)
+4. INFOSYS (~6.2% weight)
+5. TCS (~4.8% weight)
+
+For each stock determine:
+- 14-day price trend: POSITIVE or NEGATIVE
+- Position vs 20-day MA: ABOVE or BELOW
+- Verdict: BULL (positive trend AND above MA20) or BEAR
+
+Then provide a confirmation verdict specifically calibrated to the fund's own regime status above.
+
+Return ONLY valid JSON, no markdown, no extra text:
+{
+  "stocks": [
+    {"ticker":"RELIANCE","weight":"~9.5%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"one brief sentence"},
+    {"ticker":"HDFCBANK","weight":"~8.5%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"one brief sentence"},
+    {"ticker":"ICICIBANK","weight":"~7.8%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"one brief sentence"},
+    {"ticker":"INFY","weight":"~6.2%","trend_14d":"NEGATIVE","vs_ma20":"BELOW","verdict":"BEAR","note":"one brief sentence"},
+    {"ticker":"TCS","weight":"~4.8%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"one brief sentence"}
+  ],
+  "bull_count": 4,
+  "confirmation": "CONFIRMED",
+  "sop_action": "one sentence SOP action calibrated to this fund's regime and the breadth reading",
+  "reasoning": "2-3 sentences of macro context relevant to this fund specifically"
+}`;
+
+            try {
+                const resp = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+                    {
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        body: JSON.stringify({
+                            contents:[{ role:'user', parts:[{ text: prompt }] }],
+                            generationConfig:{ temperature:0.05, maxOutputTokens:900 }
+                        })
+                    }
+                );
+                const data = await resp.json();
+                const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                const clean = rawText.replace(/```json|```/g,'').trim();
+                const parsed = JSON.parse(clean);
+                _renderVerdict(parsed);
+                _renderStocks(parsed.stocks);
+                _renderReasoning(parsed.reasoning);
+            } catch(err) {
+                document.getElementById('abpReasoningText').textContent = 'Error: ' + err.message + '\n\nPlease retry.';
+                document.getElementById('abpReasoning').classList.add('visible');
+            }
+            document.getElementById('abpLoading').classList.remove('visible');
+            document.getElementById('abpRunBtn').disabled = false;
+            document.getElementById('abpRunBtnLabel').textContent = 'Run Again';
+        };
+
+        function _renderVerdict(parsed) {
+            const bc = parsed.bull_count ?? 0;
+            let type, hl, sub, action;
+            if (bc >= 3) {
+                type='confirmed';
+                hl='✅ INDEX BREADTH CONFIRMED';
+                sub=`${bc}/5 Nifty heavyweights positive. Macro structure supports deployment per SOP.`;
+                action='▶ PROCEED — Execute per SOP. ' + (parsed.sop_action||'');
+            } else if (bc === 2) {
+                type='caution';
+                hl='⚠ BREADTH MARGINAL';
+                sub=`Only ${bc}/5 positive. Consider reducing tranche size or waiting one session.`;
+                action='⚠ REDUCE SIZE — Halve planned tranche. Monitor 1 session.';
+            } else {
+                type='weak';
+                hl='🚨 BREADTH WEAK — HOLD';
+                sub=`Only ${bc}/5 positive. Broad market structure does not support deployment.`;
+                action='✗ DO NOT DEPLOY — Wait for breadth ≥ 3/5.';
+            }
+            const vb = document.getElementById('abpVerdictBox');
+            vb.className = `abp-verdict-box visible ${type}`;
+            document.getElementById('abpVerdictHeadline').className = `abp-verdict-headline ${type}`;
+            document.getElementById('abpVerdictHeadline').textContent = hl;
+            document.getElementById('abpVerdictCount').className = `abp-verdict-count ${type}`;
+            document.getElementById('abpVerdictCount').textContent = bc;
+            document.getElementById('abpVerdictSub').textContent = sub;
+            const act = document.getElementById('abpVerdictAction');
+            act.className = `abp-verdict-action ${type}`;
+            act.textContent = action;
+        }
+
+        function _renderStocks(stocks) {
+            if (!stocks || !stocks.length) return;
+            const grid = document.getElementById('abpStocksGrid');
+            grid.style.display = 'grid';
+            grid.innerHTML = stocks.map(s => {
+                const bull = s.verdict === 'BULL';
+                return `<div class="abp-stock-card ${bull?'bull':'bear'}">
+                    <div class="abp-stock-ticker">
+                        <span>${s.ticker}</span>
+                        <span class="abp-stock-weight">${s.weight}</span>
+                    </div>
+                    <div class="abp-stock-row">
+                        <span>14d Trend</span>
+                        <span class="${s.trend_14d==='POSITIVE'?'abp-stock-val-pos':'abp-stock-val-neg'}">${s.trend_14d}</span>
+                    </div>
+                    <div class="abp-stock-row">
+                        <span>vs MA20</span>
+                        <span class="${s.vs_ma20==='ABOVE'?'abp-stock-val-pos':'abp-stock-val-neg'}">${s.vs_ma20}</span>
+                    </div>
+                    <div class="abp-stock-note">${s.note||''}</div>
+                    <div class="${bull?'abp-badge-bull':'abp-badge-bear'}">${bull?'▲ BULL':'▼ BEAR'}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function _renderReasoning(text) {
+            if (!text) return;
+            document.getElementById('abpReasoningText').textContent = text;
+            document.getElementById('abpReasoning').classList.add('visible');
+        }
+
+        // Close on overlay tap
+        document.getElementById('aiBreadthOverlay').addEventListener('click', function(e){
+            if (e.target === this) window.closeAIBreadthModal();
+        });
+    })();
+    </script>
+    ════════════════════════END AI BREADTH CODE ══════════════════════════════════════════
 ════════════════════════AI CODE ══════════════════════════════════════════
     <style>
     #ld-ai-toggle {
@@ -12509,10 +13017,10 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
     }
     #ld-ai-panel {
         position: fixed;
-        top: 70px;
+        top: 60px;
         right: 20px;
-        width: 380px;
-        max-width: calc(100vw - 40px);
+        width: 440px;
+        max-width: calc(100vw - 24px);
         background: var(--bg, #ffffff);
         border: 1px solid var(--border, #b0bece);
         border-radius: 12px;
@@ -12523,8 +13031,9 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         pointer-events: none;
         transform: translateY(-10px);
         transition: opacity 0.3s, transform 0.3s;
-        max-height: 75vh;
-        overflow: hidden; 
+        height: 82vh;
+        max-height: 82vh;
+        overflow: hidden;
         z-index: 10000;
         font-family: var(--mono, monospace);
     }
@@ -12573,27 +13082,80 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         outline: none;
     }
     .ld-ai-chat-area {
-        padding: 16px;
+        padding: 12px 14px;
         overflow-y: auto;
         flex: 1;
-        min-height: 0; 
-        font-size: 0.7rem;
-        line-height: 1.5;
+        min-height: 0;
+        font-size: 0.68rem;
+        line-height: 1.6;
         background: var(--bg, #ffffff);
+        scroll-behavior: smooth;
+        overscroll-behavior: contain;
     }
     .ld-ai-message {
-        margin-bottom: 12px;
-        padding: 10px 14px;
+        margin-bottom: 10px;
+        padding: 10px 13px;
         border-radius: 8px;
         background: var(--surface2, #e4eaf2);
         word-wrap: break-word;
+        white-space: pre-wrap;
     }
     .ld-ai-message.user {
         background: var(--accent-dim, rgba(0,158,112,0.1));
         border-left: 3px solid var(--accent, #009e70);
     }
+    .ld-ai-message.system {
+        background: var(--surface2, #e4eaf2);
+        border-left: 3px solid var(--border, #b0bece);
+    }
+    .ld-ai-message .ai-verdict {
+        margin-top: 10px;
+        padding: 8px 10px;
+        background: rgba(0,158,112,0.08);
+        border: 1px solid var(--accent, #009e70);
+        border-radius: 6px;
+        font-weight: 600;
+        line-height: 1.8;
+    }
+    .ld-ai-message .ai-step-header {
+        color: var(--accent, #009e70);
+        font-weight: 700;
+        margin-top: 8px;
+        margin-bottom: 2px;
+        letter-spacing: 0.03em;
+    }
+    .ld-ai-message .ai-sell {
+        color: #c8102e;
+        font-weight: 700;
+    }
+    .ld-ai-message .ai-buy {
+        color: var(--accent, #009e70);
+        font-weight: 700;
+    }
+    .ld-ai-message .ai-warn {
+        color: #c97a00;
+        font-weight: 700;
+    }
     .ld-ai-message strong {
         color: var(--accent, #009e70);
+    }
+    .ld-ai-scroll-btn {
+        position: absolute;
+        bottom: 110px;
+        right: 28px;
+        background: var(--accent, #009e70);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        z-index: 10002;
     }
     .ld-ai-input-area {
         display: flex;
@@ -12638,6 +13200,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
                 Auditor V9 Online. Default: Lean Mode (fast, low tokens). Type "deep" in any query for full signal scan.
             </div>
         </div>
+        <button id="ld-ai-scroll-btn" style="position:absolute;bottom:110px;right:28px;background:var(--accent,#009e70);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.2);z-index:10002;">↓</button>
         <div style="padding: 0 16px 8px; background: var(--surface, #f2f5f9); border-top: 1px solid var(--border, #b0bece);">
             <button type="button" id="ld-ai-analyze-fund-btn" style="width: 100%; background: var(--accent, #009e70); color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.65rem; font-weight: bold; text-transform: uppercase;">📊 Analyze Current Fund</button>
         </div>
@@ -12656,6 +13219,19 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         const apiKeyIn = document.getElementById('ld-ai-api-key');
         let apiKey = localStorage.getItem('ld_gemini_api_key') || '';
         if (apiKey) apiKeyIn.value = apiKey;
+
+        // === Scroll-to-bottom button wiring ===
+        const scrollBtn = document.getElementById('ld-ai-scroll-btn');
+        if (scrollBtn) {
+            scrollBtn.addEventListener('click', () => {
+                chatArea.scrollTop = chatArea.scrollHeight;
+                scrollBtn.style.display = 'none';
+            });
+            chatArea.addEventListener('scroll', () => {
+                const distFromBottom = chatArea.scrollHeight - chatArea.scrollTop - chatArea.clientHeight;
+                scrollBtn.style.display = distFromBottom > 120 ? 'flex' : 'none';
+            });
+        }
         let isDragging = false;
         let dragMoved = false;
         let startPos = { x: 0, y: 0 }; 
@@ -12730,18 +13306,58 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
         function appendMsg(role, text) {
             const d = document.createElement('div');
             d.className = `ld-ai-message ${role}`;
-            let safeText = text
+
+            if (role === 'user') {
+                d.textContent = text;
+                chatArea.appendChild(d);
+                requestAnimationFrame(() => { chatArea.scrollTop = chatArea.scrollHeight; });
+                return;
+            }
+
+            // Escape HTML
+            let safe = text
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
-            safeText = safeText
-                .replace(/(^|\n)\s*\*\s/g, '$1• ')
+
+            // Split into verdict block and body
+            const verdictStart = safe.search(/▶\s*SIGNAL:/);
+            let bodyText = verdictStart >= 0 ? safe.slice(0, verdictStart) : safe;
+            let verdictText = verdictStart >= 0 ? safe.slice(verdictStart) : '';
+
+            // Format body — step headers, bold, line breaks
+            bodyText = bodyText
+                .replace(/(STEP \d[^\n]*)/g, '<span class="ai-step-header">$1</span>')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/(SELL ALL|SELL ALERT|SELL \d+%)/g, '<span class="ai-sell">$1</span>')
+                .replace(/(BUY \d+%|BUY ALL|BUY TRANCHE|BUY CONFIRMED)/g, '<span class="ai-buy">$1</span>')
+                .replace(/(MACRO VETO: YES[^\n]*)/g, '<span class="ai-sell">$1</span>')
+                .replace(/(MACRO VETO: NO[^\n]*)/g, '<span class="ai-buy">$1</span>')
                 .replace(/\n/g, '<br>');
-            d.innerHTML = safeText;
+
+            // Format verdict block
+            if (verdictText) {
+                verdictText = verdictText
+                    .replace(/(▶\s*SIGNAL:\s*)([A-Z\/\s]+)/g, (_, prefix, val) => {
+                        const cls = val.includes('BUY') ? 'ai-buy' : val.includes('SELL') ? 'ai-sell' : 'ai-warn';
+                        return `${prefix}<span class="${cls}">${val}</span>`;
+                    })
+                    .replace(/(▶\s*CONVICTION:\s*)(HIGH)/g, '$1<span class="ai-buy">$2</span>')
+                    .replace(/(▶\s*CONVICTION:\s*)(MEDIUM)/g, '$1<span class="ai-warn">$2</span>')
+                    .replace(/(▶\s*CONVICTION:\s*)(LOW)/g, '$1<span class="ai-sell">$2</span>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>');
+                verdictText = `<div class="ai-verdict">${verdictText}</div>`;
+            }
+
+            d.innerHTML = bodyText + verdictText;
             chatArea.appendChild(d);
+
+            // Scroll to bottom + show scroll button if user scrolled up
             requestAnimationFrame(() => {
                 chatArea.scrollTop = chatArea.scrollHeight;
+                const scrollBtn = document.getElementById('ld-ai-scroll-btn');
+                if (scrollBtn) scrollBtn.style.display = 'none';
             });
         }
         function getFundInfo() {
@@ -12777,6 +13393,100 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
                     ctx += `W-RSI-${period}: ${Math.round(arr[arr.length - 1] || 0)}\n`;
                 }
             });
+
+            // === FIX 1A: W-RSI Slope Direction (acceleration) ===
+            ctx += "\n[W-RSI DIRECTION (3-BAR SLOPE)]\n";
+            try {
+                ['wRsi4Cache','wRsi8Cache','wRsi14Cache'].forEach((key, idx) => {
+                    const period = [4, 8, 14][idx];
+                    const arr = window[key];
+                    if (arr && arr.length >= 3) {
+                        const latest = arr[arr.length - 1];
+                        const prev   = arr[arr.length - 3];
+                        const slope  = latest - prev;
+                        const dir    = slope > 1 ? '▲ RISING' : slope < -1 ? '▼ FALLING' : '→ FLAT';
+                        ctx += `W-RSI-${period} Direction: ${dir} (slope: ${slope.toFixed(1)})\n`;
+                    }
+                });
+            } catch(e) { ctx += "W-RSI Direction: UNAVAILABLE\n"; }
+
+            // === FIX 1B: W-RSI Confluence Conviction Grade ===
+            ctx += "\n[W-RSI CONFLUENCE CONVICTION]\n";
+            try {
+                const w4  = window.wRsi4Cache?.[window.wRsi4Cache.length - 1]  || 0;
+                const w8  = window.wRsi8Cache?.[window.wRsi8Cache.length - 1]  || 0;
+                const w14 = window.wRsi14Cache?.[window.wRsi14Cache.length - 1] || 0;
+                const above50Count = [w4, w8, w14].filter(v => v >= 50).length;
+                const conviction = above50Count === 3 ? 'HIGH — all 3 periods (4/8/14) aligned ≥50. Full position sizing.'
+                                 : above50Count === 2 ? 'MEDIUM — 2 of 3 periods ≥50. Reduce size by 30%.'
+                                 : 'LOW — majority below 50. Wait or minimal tranche only.';
+                ctx += `Grade: ${conviction}\n`;
+                ctx += `W-RSI values: 4W=${Math.round(w4)} | 8W=${Math.round(w8)} | 14W=${Math.round(w14)}\n`;
+            } catch(e) { ctx += "Conviction: UNAVAILABLE\n"; }
+
+            // === FIX 1C: PC-Breakout Flag ===
+            ctx += "\n[PC-BREAKOUT SIGNAL]\n";
+            try {
+                const pcAlert = window._lastPcAlert || false;
+                ctx += `PC-BREAKOUT ALERT: ${pcAlert ? 'YES — Consolidation breakout detected → TIER 3 BUY eligible' : 'NO — No consolidation breakout'}\n`;
+            } catch(e) { ctx += "PC-BREAKOUT ALERT: UNAVAILABLE\n"; }
+
+            // === FIX 1D: Regime Breakout / Breakdown Event (crossover detection) ===
+            ctx += "\n[REGIME CROSSOVER EVENT (last 5 periods)]\n";
+            try {
+                const w4arr = window.wRsi4Cache || [];
+                if (w4arr.length >= 6) {
+                    const recent = w4arr.slice(-6);
+                    const crossedUp   = recent.some((v, i) => i > 0 && recent[i-1] < 50 && v >= 50);
+                    const crossedDown = recent.some((v, i) => i > 0 && recent[i-1] >= 50 && v < 50);
+                    if (crossedUp)   ctx += `REGIME BREAKOUT EVENT: YES — W-RSI crossed 50 upward → TIER 4 BUY SIGNAL ACTIVE\n`;
+                    else if (crossedDown) ctx += `REGIME BREAKDOWN EVENT: YES — W-RSI crossed below 50 → SELL ALERT\n`;
+                    else ctx += `REGIME CROSSOVER: NONE — W-RSI stable in current zone\n`;
+                } else {
+                    ctx += `REGIME CROSSOVER: INSUFFICIENT DATA\n`;
+                }
+            } catch(e) { ctx += "REGIME CROSSOVER: UNAVAILABLE\n"; }
+
+            // === FIX 1E: Nifty 50 Macro Veto (explicit data field) ===
+            ctx += "\n[NIFTY 50 MACRO GATE]\n";
+            try {
+                const niftyWrsi = window._niftyWrsi;
+                let niftyRegime, macroVeto;
+                if (typeof niftyWrsi === 'number') {
+                    niftyRegime = niftyWrsi >= 50 ? `A — Hope (W-RSI: ${Math.round(niftyWrsi)})`
+                                : niftyWrsi >= 40 ? `B — Watch (W-RSI: ${Math.round(niftyWrsi)})`
+                                : `C — Fear (W-RSI: ${Math.round(niftyWrsi)})`;
+                    macroVeto = niftyWrsi < 40;
+                } else {
+                    const niftyEl = document.getElementById('lcNiftyRegime') || document.getElementById('niftyRegimeLabel');
+                    niftyRegime = niftyEl?.textContent || 'N/A — not yet loaded';
+                    macroVeto = String(niftyRegime).includes('C') || String(niftyRegime).toLowerCase().includes('fear');
+                }
+                ctx += `Nifty 50 Regime: ${niftyRegime}\n`;
+                ctx += `MACRO VETO: ${macroVeto ? 'YES — ALL BUY SIGNALS BLOCKED. Output WAIT only.' : 'NO — BUY signals permitted.'}\n`;
+            } catch(e) { ctx += "Nifty 50 Macro: UNAVAILABLE — treat as CAUTION\n"; }
+
+            // === FIX 1F: RRG Quadrant with action signal ===
+            ctx += "\n[RRG QUADRANT — ROTATION SIGNAL]\n";
+            try {
+                const rrgQuad    = document.getElementById('lcRrgStatusLabel')?.textContent
+                                || document.getElementById('rrgStatusLabel')?.textContent || 'N/A';
+                const rrgRsTrend = document.getElementById('lcRrgRSTrend')?.textContent || 'N/A';
+                const rrgAdx     = document.getElementById('lcRrgADX')?.textContent || 'N/A';
+                const rrgCross   = document.getElementById('lcRrgCrossDate')?.textContent || '';
+                ctx += `Quadrant: ${rrgQuad}\n`;
+                ctx += `RS Trend vs Benchmark: ${rrgRsTrend}\n`;
+                ctx += `ADX Strength: ${rrgAdx}\n`;
+                if (rrgCross) ctx += `${rrgCross}\n`;
+                const q = rrgQuad.toUpperCase();
+                const rrgSignal = q.includes('LEADING')   ? 'BUY CONFIRMED — fund outperforming universe. Adds +1 conviction grade.'
+                                : q.includes('IMPROVING') ? 'EARLY BUY WATCH — momentum recovering. Lower position size.'
+                                : q.includes('WEAKENING') ? 'SELL ALERT — rotation out of leadership. Triggers Tier 4 SELL review.'
+                                : q.includes('LAGGING')   ? 'AVOID / BLOCK BUY — underperforming universe. Override all BUY tiers.'
+                                : 'UNKNOWN — RRG not loaded. Proceed without rotation confirmation.';
+                ctx += `RRG ACTION SIGNAL: ${rrgSignal}\n`;
+            } catch(e) { ctx += "RRG Quadrant: UNAVAILABLE\n"; }
+
             return ctx;
         }
         function gatherContext() {
@@ -12869,7 +13579,104 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             const rrgCross = document.getElementById('lcRrgCrossDate')?.textContent || 'N/A';
             const rrgRsTrend = document.getElementById('lcRrgRSTrend')?.textContent || 'N/A';
             const rrgAdx = document.getElementById('lcRrgADX')?.textContent || 'N/A';
-            ctx += `\n[RRG QUADRANT STATUS]\nQuadrant: ${rrgQuad}\nRS Trend: ${rrgRsTrend}\nADX Intensity: ${rrgAdx}\n${rrgCross}\n`;
+            const rrgQ = rrgQuad.toUpperCase();
+            const rrgDeepSignal = rrgQ.includes('LEADING')   ? 'BUY CONFIRMED — outperforming universe (+1 conviction)'
+                                : rrgQ.includes('IMPROVING') ? 'EARLY BUY WATCH — momentum recovering (lower size)'
+                                : rrgQ.includes('WEAKENING') ? 'SELL ALERT — exiting leadership quadrant (Tier 4 SELL)'
+                                : rrgQ.includes('LAGGING')   ? 'BLOCK BUY — underperforming universe (override all tiers)'
+                                : 'UNKNOWN — proceed without rotation context';
+            ctx += `\n[RRG QUADRANT STATUS]\nQuadrant: ${rrgQuad}\nRS Trend: ${rrgRsTrend}\nADX Intensity: ${rrgAdx}\n${rrgCross}\nRRG ACTION SIGNAL: ${rrgDeepSignal}\n`;
+
+            // === FIX 2B: C3 Momentum vs BAF Comparison (deep context only) ===
+            try {
+                const baf = window._lastBafComparison;
+                const staleMs = 30 * 60 * 1000; // 30 min
+                if (baf && baf.baf1m != null && (Date.now() - baf.timestamp) < staleMs) {
+                    const fund1m = baf.fund1m != null ? baf.fund1m : null;
+                    ctx += `\n[C3 MOMENTUM vs BAF COMPARISON]\n`;
+                    ctx += `Comparison Fund: ${baf.fundName} (${baf.fundCode})\n`;
+                    if (fund1m != null) {
+                        ctx += `Fund 1M Return:  ${fund1m.toFixed(2)}%\n`;
+                        ctx += `BAF  1M Return:  ${baf.baf1m.toFixed(2)}%\n`;
+                        if (baf.baf2m != null) ctx += `BAF  2M Return:  ${baf.baf2m.toFixed(2)}%\n`;
+                        if (baf.baf3m != null) ctx += `BAF  3M Return:  ${baf.baf3m.toFixed(2)}%\n`;
+                        const c3Qual  = fund1m > 2;
+                        const beatsBaf = fund1m > baf.baf1m;
+                        ctx += `C3 QUALIFICATION (>2%): ${c3Qual  ? 'YES' : 'NO'}\n`;
+                        ctx += `BEATS BAF (1M):         ${beatsBaf ? 'YES — C3 Momentum CONFIRMED' : 'NO — C3 Momentum UNCONFIRMED'}\n`;
+                        const c3Signal = (c3Qual && beatsBaf)
+                            ? 'TIER 5 ACTIVE — add to position or confirm other tier signal'
+                            : 'TIER 5 INACTIVE — do not use C3 as standalone BUY reason';
+                        ctx += `C3 SIGNAL: ${c3Signal}\n`;
+                    } else {
+                        ctx += `Fund momentum data: not available from last RRG scan\n`;
+                    }
+                } else if (baf && (Date.now() - baf.timestamp) >= staleMs) {
+                    ctx += `\n[C3 MOMENTUM vs BAF]\nBAF data stale (>30 min) — open RRG Detail to refresh.\n`;
+                } else {
+                    ctx += `\n[C3 MOMENTUM vs BAF]\nNo BAF data — open RRG Detail view first to load comparison.\n`;
+                }
+            } catch(e) {
+                ctx += `\n[C3 MOMENTUM vs BAF]\nUnable to read BAF comparison data.\n`;
+            }
+
+            // === FIX 2B continued: W-RSI Direction + Conviction in deep mode ===
+            ctx += "\n[W-RSI DIRECTION + CONVICTION (DEEP)]\n";
+            try {
+                const grades = [];
+                ['wRsi4Cache','wRsi8Cache','wRsi14Cache'].forEach((key, idx) => {
+                    const period = [4, 8, 14][idx];
+                    const arr = window[key];
+                    if (arr && arr.length >= 3) {
+                        const latest = arr[arr.length - 1];
+                        const prev   = arr[arr.length - 3];
+                        const slope  = latest - prev;
+                        const dir    = slope > 1 ? '▲ RISING' : slope < -1 ? '▼ FALLING' : '→ FLAT';
+                        const goNogo = latest >= 50 ? '● GO' : '○ NO-GO';
+                        ctx += `W-RSI-${period}: ${Math.round(latest)} — ${goNogo} — ${dir} (slope ${slope.toFixed(1)})\n`;
+                        grades.push(latest >= 50 ? 1 : 0);
+                    }
+                });
+                if (grades.length === 3) {
+                    const aligned = grades.reduce((a,b) => a+b, 0);
+                    const conv = aligned === 3 ? 'HIGH' : aligned === 2 ? 'MEDIUM' : 'LOW';
+                    ctx += `W-RSI CONFLUENCE CONVICTION: ${conv} (${aligned}/3 periods ≥50)\n`;
+                }
+            } catch(e) { ctx += "W-RSI Direction: UNAVAILABLE\n"; }
+
+            // === Nifty 50 Macro Gate (deep mode explicit) ===
+            ctx += "\n[NIFTY 50 MACRO GATE]\n";
+            try {
+                const niftyWrsi = window._niftyWrsi;
+                let niftyRegime, macroVeto;
+                if (typeof niftyWrsi === 'number') {
+                    niftyRegime = niftyWrsi >= 50 ? `A — Hope (W-RSI: ${Math.round(niftyWrsi)})`
+                                : niftyWrsi >= 40 ? `B — Watch (W-RSI: ${Math.round(niftyWrsi)})`
+                                : `C — Fear (W-RSI: ${Math.round(niftyWrsi)})`;
+                    macroVeto = niftyWrsi < 40;
+                } else {
+                    niftyRegime = 'N/A — not loaded';
+                    macroVeto = false;
+                }
+                ctx += `Nifty 50 Regime: ${niftyRegime}\n`;
+                ctx += `MACRO VETO: ${macroVeto ? 'YES — ALL BUY SIGNALS BLOCKED' : 'NO — BUY signals permitted'}\n`;
+            } catch(e) { ctx += "Nifty 50 Regime: UNAVAILABLE\n"; }
+
+            // === Regime Crossover Event (deep mode) ===
+            ctx += "\n[REGIME CROSSOVER EVENT]\n";
+            try {
+                const w4arr = window.wRsi4Cache || [];
+                if (w4arr.length >= 6) {
+                    const recent = w4arr.slice(-6);
+                    const crossedUp   = recent.some((v, i) => i > 0 && recent[i-1] < 50 && v >= 50);
+                    const crossedDown = recent.some((v, i) => i > 0 && recent[i-1] >= 50 && v < 50);
+                    if (crossedUp)   ctx += `STATUS: BREAKOUT — W-RSI crossed 50 upward in last 5 periods → TIER 4 BUY SIGNAL\n`;
+                    else if (crossedDown) ctx += `STATUS: BREAKDOWN — W-RSI crossed below 50 → SELL ALERT\n`;
+                    else ctx += `STATUS: STABLE — no regime crossover in last 5 periods\n`;
+                } else {
+                    ctx += `STATUS: INSUFFICIENT DATA\n`;
+                }
+            } catch(e) { ctx += "Regime Crossover: UNAVAILABLE\n"; }
             const depPctEl = document.querySelector('.dep-pct');
             if (depPctEl) {
                 ctx += `\n[PORTFOLIO DEPLOYMENT]\nCurrently Deployed: ${depPctEl.textContent}\n`;
@@ -12893,26 +13700,116 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             }
             return ctx;
         }
-        const SYSTEM_PROMPT = `You are the Quantitative Signal Brain of the Lie Detector (LD246A) mutual fund app — a precision trading assistant for Indian equity mutual funds and NPS schemes.
+        const SYSTEM_PROMPT = `You are the Quantitative Signal Brain of the Lie Detector (LD246A) — a precision trading assistant for Indian equity mutual funds and NPS schemes.
+
+══════════════════════════════════════
 HARD RULES (never violate):
-1. You NEVER hallucinate data. If a value is missing from the dump, state exactly what is missing and exclude it from your reasoning.
-2. Your final output for every analysis MUST include a structured verdict block formatted as:
-▶ SIGNAL: [BUY / SELL / HOLD / WAIT]
-▶ CONVICTION: [HIGH / MEDIUM / LOW]
-▶ REASON: [1-2 sentence plain-English summary]
-▶ NEXT ACTION: [Exact step the user should take]
+══════════════════════════════════════
+1. NEVER hallucinate data. If a field says N/A or UNAVAILABLE, exclude it from reasoning entirely and state what is missing.
+2. Every analysis MUST end with this exact verdict block:
+   ▶ SIGNAL: [BUY / SELL / HOLD / WAIT]
+   ▶ TIER: [Which tier triggered, e.g. T2-SLINGSHOT or T1-TSL-BREACH]
+   ▶ CONVICTION: [HIGH / MEDIUM / LOW]
+   ▶ REASON: [1–2 sentences citing the specific data points from the dump]
+   ▶ NEXT ACTION: [Exact step — amount %, timing, condition to watch]
 3. T+2 settlement applies to all BUY actions.
-4. T+0 applies to all SELL actions — SELL ALL and TSL exits must be treated as immediate.
-5. Nifty 50 Macro Veto: if Nifty 50 is in Regime C (Fear / W-RSI < 40), ALL BUY signals are vetoed regardless of fund-level data.
-BUY SIGNAL HIERARCHY:
-- OVERSOLD-BUY: Regime A + D-RSI < 40 → BUY TRANCHE
-- SLINGSHOT-BUY: Regime A + Delta (D-RSI minus W-RSI) < −15 → BUY 10–25%
-- REGIME-WATCH-BREAKOUT: W-RSI crosses from 40–49 up to ≥50 → BUY 25%
-SELL SIGNAL HIERARCHY:
-- TSL-BREACH: NAV drops below Lowess floor → SELL ALL immediately
-- REGIME-CRASH: Regime transitions to C (W-RSI drops below 40) → SELL ALL
-- WMA-BREACH in Hope: NAV drops below WMA20 while Regime A → SELL 20% trim
-Always cite the specific data points from the dump that drive your recommendation.`;
+4. T+0 applies to SELL — TSL Breach and Regime Crash exits are immediate.
+5. Always cite the exact field values from the dump that trigger your recommendation.
+
+══════════════════════════════════════
+STEP 1 — MACRO GATE (Always first)
+══════════════════════════════════════
+Read: NIFTY 50 MACRO GATE → MACRO VETO field.
+- If MACRO VETO = YES → output SIGNAL: WAIT immediately. Do not evaluate any BUY tier. State: "Macro veto active — Nifty 50 in Fear regime. No BUY signals valid."
+- If MACRO VETO = NO or UNAVAILABLE → proceed to Step 2.
+
+══════════════════════════════════════
+STEP 2 — SELL CHECK (Higher priority than BUY)
+══════════════════════════════════════
+Evaluate in order. First match that is true triggers output — stop checking further.
+
+TIER 1 — TSL BREACH:
+  Condition: Current NAV < Adaptive TSL Floor (Lowess)
+  Action: SELL ALL immediately (T+0). Non-negotiable.
+
+TIER 2 — REGIME CRASH:
+  Condition: Fund Regime = C (W-RSI < 40) OR REGIME BREAKDOWN EVENT = YES
+  Action: SELL ALL (T+0).
+
+TIER 3 — WMA BREACH:
+  Condition: Current NAV < 20-Day WMA AND Fund Regime = A
+  Action: SELL 20% trim. Monitor for TSL breach.
+
+TIER 4 — RRG WEAKENING:
+  Condition: RRG ACTION SIGNAL contains WEAKENING
+  Action: SELL ALERT — reduce position by 25%. Set tighter TSL watch.
+
+If none trigger → proceed to Step 3.
+
+══════════════════════════════════════
+STEP 3 — BUY SIGNAL EVALUATION
+══════════════════════════════════════
+PREREQUISITE: Fund Regime must = A (W-RSI ≥ 50).
+If Regime = B (Watch) → output HOLD. Monitor for crossover.
+If Regime = C (Fear) → output WAIT. No BUY.
+If RRG ACTION SIGNAL contains LAGGING → BLOCK all BUY tiers regardless of RSI. Output AVOID.
+
+TIER 1 — OVERSOLD BUY (Strongest entry signal):
+  Condition: Regime A AND D-RSI < 40
+  Sub-signal: D-RSI < 35 = "Deep Oversold" — use larger tranche
+  Action: BUY 25–50% of available capital (T+2)
+
+TIER 2 — SLINGSHOT BUY (Momentum divergence entry):
+  Condition: Regime A AND Delta (D-RSI − W-RSI) < −15
+  Note: Delta is pre-calculated in dump as "Delta" field
+  Action: BUY 10–25% (T+2)
+
+TIER 3 — PC-BREAKOUT (Consolidation escape):
+  Condition: Regime A AND PC-BREAKOUT ALERT = YES
+  Action: BUY 15–25% (T+2)
+
+TIER 4 — REGIME BREAKOUT (Fresh structural momentum shift):
+  Condition: REGIME CROSSOVER EVENT STATUS = BREAKOUT (W-RSI just crossed 50 upward)
+  Note: Distinguish from a stable Regime A — this is a fresh crossover event
+  Action: BUY 25% (T+2)
+
+TIER 5 — C3 MOMENTUM (Confirmation layer — never standalone BUY):
+  Condition: C3 QUALIFICATION = YES (fund 1M return > 2%) AND BEATS BAF = YES
+  Use: Add to an existing position OR confirm any other active tier signal
+  Action: Add 10–15% to current allocation
+
+══════════════════════════════════════
+STEP 4 — CONVICTION GRADING
+══════════════════════════════════════
+Start with the tier's base conviction. Then apply modifiers:
+
+Base from W-RSI CONFLUENCE CONVICTION field:
+  HIGH   = all 3 periods (4/8/14) ≥ 50 → Full position sizing
+  MEDIUM = 2 of 3 periods ≥ 50 → Reduce size by 30%
+  LOW    = majority below 50 → Minimal tranche or wait
+
+Direction modifier (from W-RSI DIRECTION fields):
+  All 3 showing ▲ RISING  → Upgrade conviction by one grade (LOW→MED, MED→HIGH)
+  Mixed / FLAT            → No change
+  Any showing ▼ FALLING   → Downgrade conviction by one grade
+
+RRG modifier (from RRG ACTION SIGNAL):
+  LEADING   → Upgrade by one grade (max HIGH)
+  IMPROVING → No change to conviction, but note as supporting
+  WEAKENING → Triggers Tier 4 SELL — ignore BUY tiers
+  LAGGING   → Block all BUY — output AVOID
+
+C3 modifier: If TIER 5 ACTIVE, add "+Momentum confirmed" note to REASON.
+
+══════════════════════════════════════
+PORTFOLIO AWARENESS (Apply to all decisions)
+══════════════════════════════════════
+- Check LIVE PORTFOLIO STATE: if slot status = PENDING SETTLEMENT → no BUY on that slot yet.
+- Check SWITCH JOURNAL: cite open bridge P&L if relevant to decision.
+- Check PORTFOLIO DEPLOYMENT %: if >80% deployed → halve all position sizes in your NEXT ACTION.
+- Check WATCHLIST: if fund is pinned, flag it in your response.
+- NOTE — NC BREAKDOWN: The app's NC (Negative Consolidation) Breakdown alert is detected visually on the chart and shown as a 🚨 banner, but is NOT included in this data dump. If the user mentions an NC Breakdown banner is active, treat it as a hard SELL Tier 4 override: cancel all pending BUY orders and tighten TSL to the consolidation box low.`;
+
         async function submitAiPrompt(txt, useLeanPayload = true) {
             if (!txt || !apiKey) return appendMsg('system', 'Need API Key. Tap ⚙️ to enter Gemini API key.');
             if (!useLeanPayload) appendMsg('user', txt);

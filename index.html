@@ -5482,10 +5482,97 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     globalLiveData.length - 1, prices, 0,
                     globalDailyRsiCache, globalWeeklyRsiCache, globalLowessCache, 0, [], 0
                 );
+                // === LD AUDITOR STATE COLLECTOR — runs every live cockpit render ===
+                (function collectAuditorState() {
+                    try {
+                        const _navs  = globalLiveData.map(d => d.nav);
+                        const _dates = globalLiveData.map(d => d.date);
+                        const _last  = _navs.length - 1;
+
+                        // W-RSI for 3 periods — build fresh (cheap, <5ms)
+                        const _w4arr  = window.buildWeeklyRsiFast ? window.buildWeeklyRsiFast(_navs, 4,  _dates) : globalWeeklyRsiCache;
+                        const _w8arr  = window.buildWeeklyRsiFast ? window.buildWeeklyRsiFast(_navs, 8,  _dates) : [];
+                        const _w14arr = window.buildWeeklyRsiFast ? window.buildWeeklyRsiFast(_navs, 14, _dates) : [];
+                        const w4  = _w4arr.length  ? Math.round(_w4arr[_last])  : null;
+                        const w8  = _w8arr.length  ? Math.round(_w8arr[_last])  : null;
+                        const w14 = _w14arr.length ? Math.round(_w14arr[_last]) : null;
+
+                        // Conviction
+                        const aligned = [w4, w8, w14].filter(v => v !== null && v >= 50).length;
+                        const conviction = (w4 === null) ? 'N/A'
+                            : aligned === 3 ? 'HIGH — all 3 periods ≥50'
+                            : aligned === 2 ? 'MEDIUM — 2 of 3 ≥50'
+                            : 'LOW — majority <50';
+
+                        // Crossover (last 6 bars of w4)
+                        let crossover = 'STABLE';
+                        if (_w4arr.length >= 6) {
+                            const rec = _w4arr.slice(-6);
+                            if (rec.some((v,i) => i > 0 && rec[i-1] < 50 && v >= 50)) crossover = 'BREAKOUT';
+                            else if (rec.some((v,i) => i > 0 && rec[i-1] >= 50 && v < 50)) crossover = 'BREAKDOWN';
+                        }
+
+                        // TSL
+                        const tslVal  = snap.tsl?.tslVal ?? 0;
+                        const tslHit  = snap.tsl?.tslHit ?? false;
+
+                        // WMA20 — last value from cache
+                        const _wma20arr = _navs.map((_, i) => {
+                            if (i < 19) return null;
+                            let s = 0, w = 0;
+                            for (let j = 0; j < 20; j++) { s += _navs[i-j] * (20-j); w += (20-j); }
+                            return s / w;
+                        });
+                        const wma20 = _wma20arr[_last] ?? null;
+
+                        // Macro veto
+                        const nWrsi = window._niftyWrsi;
+                        const macroVeto = typeof nWrsi === 'number' ? nWrsi < 40 : null;
+
+                        // Fund info
+                        const fs = document.getElementById('fundSelect');
+                        const fundName = fs?.options[fs.selectedIndex]?.text || 'N/A';
+                        const fundCode = fs?.value || 'N/A';
+
+                        // Store
+                        window.LD_AUDITOR_STATE = {
+                            ts: new Date().toISOString(),
+                            fund: fundName,
+                            code: fundCode,
+                            nav:  snap.nav,
+                            drsi: Math.round(snap.drsi),
+                            wrsi: Math.round(snap.wrsi),
+                            regime: snap.regime,
+                            delta: parseFloat(snap.delta.toFixed(1)),
+                            tslVal, tslHit,
+                            wma20: wma20 ? parseFloat(wma20.toFixed(2)) : null,
+                            w4, w8, w14,
+                            conviction,
+                            crossover,
+                            pcAlert: snap.pcAlert || false,
+                            ncAlert: snap.ncAlert || false,
+                            macroVeto,
+                            niftyWrsi: typeof nWrsi === 'number' ? Math.round(nWrsi) : null,
+                        };
+
+                        // Also keep legacy window vars for any other code
+                        window.wRsi4Cache  = _w4arr;
+                        window.wRsi8Cache  = _w8arr;
+                        window.wRsi14Cache = _w14arr;
+                        window._lastDelta  = snap.delta;
+                        window._lastTslVal = tslVal;
+                        window._lastWmaVal = wma20;
+                        window._lastNav    = snap.nav;
+
+                        // Refresh debug panel if open
+                        if (document.getElementById('ld-debug-panel')?.style.display !== 'none') {
+                            window._ldRefreshDebug && window._ldRefreshDebug();
+                        }
+                    } catch(_e) { console.warn('Auditor collector error:', _e); }
+                })();
                 // === FIX A: Export pcAlert + ncAlert to window so AI context can read them ===
                 window._lastPcAlert = snap.pcAlert || false;
                 window._lastNcAlert = snap.ncAlert || false;
-                const lastDate = globalLiveData[globalLiveData.length - 1].date;
                 const displayDate = (lastDate && lastDate.split('-').length === 3 && lastDate.split('-')[0].length === 4) ?
                     lastDate.split('-').reverse().join('-') :
                     lastDate;
@@ -13748,222 +13835,120 @@ Return ONLY valid JSON, no markdown, no extra text:
         }
 
         function interpretSignalDump(dump, isDeep) {
-            // ── Read directly from live DOM + window caches (reliable across all screens) ──
-            function domText(...ids) {
-                for (const id of ids) {
-                    const el = document.getElementById(id);
-                    const t = el?.textContent?.trim();
-                    if (t && t !== '--' && t !== '') return t;
-                }
-                return 'N/A';
-            }
-            // Fund name from selector
-            const fs = document.getElementById('fundSelect');
-            const fundName = (fs && fs.selectedIndex >= 0) ? fs.options[fs.selectedIndex]?.text : 'N/A';
-            const fundCode = fs ? fs.value : 'N/A';
+            // ── Read from LD_AUDITOR_STATE (written by live cockpit on every render) ──
+            const S = window.LD_AUDITOR_STATE;
 
-            // Core signals — try live cockpit IDs first, then simulator IDs
-            const regime  = domText('liveRegimeBlock', 'regimeBlock');
-            const wRsiDom = domText('liveWRsi', 'wRsi');
-            const dRsi    = domText('liveDRsi', 'dRsi');
-            const nav     = domText('liveNav', 'laNav');
-
-            // W-RSI cache arrays (written to window by live cockpit on every render)
-            const w4arr  = window.wRsi4Cache  || [];
-            const w8arr  = window.wRsi8Cache  || [];
-            const w14arr = window.wRsi14Cache || [];
-            const w4val  = w4arr.length  ? Math.round(w4arr[w4arr.length - 1])  : null;
-            const w8val  = w8arr.length  ? Math.round(w8arr[w8arr.length - 1])  : null;
-            const w14val = w14arr.length ? Math.round(w14arr[w14arr.length - 1]): null;
-
-            // W-RSI: prefer clean numeric from cache, fall back to DOM text
-            const wRsi = w4val !== null ? String(w4val) : wRsiDom;
-
-            // Delta, TSL, WMA — from window cache (written by live cockpit), fall back to DOM
-            const deltaRaw = (window._lastDelta  !== undefined && window._lastDelta  !== null) ? window._lastDelta  : (parseFloat(domText('laDelta'))  || null);
-            const tslRaw   = (window._lastTslVal !== undefined && window._lastTslVal !== null) ? window._lastTslVal : (parseFloat((domText('laTSL')||'').replace(/[^\d.-]/g,'')) || null);
-            const wmaRaw   = (window._lastWmaVal !== undefined && window._lastWmaVal !== null) ? window._lastWmaVal : (parseFloat((domText('laWMA')||'').replace(/[^\d.-]/g,'')) || null);
-            const navRaw   = (window._lastNav    !== undefined && window._lastNav    !== null) ? window._lastNav    : (parseFloat((nav||'').replace(/[^\d.-]/g,''))               || null);
-
-            const delta = deltaRaw !== null ? Number(deltaRaw).toFixed(1) : 'N/A';
-            const tsl   = tslRaw   !== null ? `₹${Number(tslRaw).toFixed(2)}`  : 'N/A';
-            const wma   = wmaRaw   !== null ? `₹${Number(wmaRaw).toFixed(2)}`  : 'N/A';
-
-            // Macro veto from window cache
-            const niftyWrsi = window._niftyWrsi;
-            const macroVeto = (typeof niftyWrsi === 'number') ? niftyWrsi < 40 : false;
-            const macro = macroVeto ? 'YES — Nifty Fear regime' : (typeof niftyWrsi === 'number' ? 'NO' : 'N/A (not loaded)');
-
-            // RRG from live cockpit panel
-            const rrgQuad = domText('lcRrgStatusLabel');
-            const rrgUC   = rrgQuad.toUpperCase();
-            const rrg     = rrgUC.includes('LEADING')   ? 'BUY CONFIRMED'
-                          : rrgUC.includes('IMPROVING') ? 'EARLY BUY WATCH'
-                          : rrgUC.includes('WEAKENING') ? 'SELL ALERT'
-                          : rrgUC.includes('LAGGING')   ? 'AVOID / BLOCK BUY'
-                          : rrgQuad;
-
-            // PC / NC alerts from window flags
-            const pcBreak = (window._lastPcAlert ? 'YES' : 'NO');
-            const ncBreak = (window._lastNcAlert ? 'YES' : 'NO');
-
-            // Regime crossover from w4 cache
-            let crossover = 'N/A';
-            if (w4arr.length >= 6) {
-                const rec = w4arr.slice(-6);
-                if (rec.some((v,i) => i > 0 && rec[i-1] < 50 && v >= 50)) crossover = 'BREAKOUT YES';
-                else if (rec.some((v,i) => i > 0 && rec[i-1] >= 50 && v < 50)) crossover = 'BREAKDOWN YES';
-                else crossover = 'STABLE';
+            if (!S || !S.fund || S.fund === 'N/A') {
+                return '⚠ NO DATA\n\nOpen Live Cockpit for the target fund first.\nThe auditor collects data automatically on every Live Cockpit load.\nThen tap the analysis button again.';
             }
 
-            // W-RSI conviction
-            const above50 = [w4val, w8val, w14val].filter(v => v !== null && v >= 50).length;
-            const conv = w4val === null ? 'N/A' : above50 === 3 ? 'HIGH' : above50 === 2 ? 'MEDIUM' : 'LOW';
+            const { fund, code, nav, drsi, wrsi, regime, delta, tslVal, tslHit, wma20,
+                    w4, w8, w14, conviction, crossover, pcAlert, ncAlert,
+                    macroVeto, niftyWrsi, ts } = S;
 
-            // ── Numeric parsing — use raw floats already extracted ──
-            const dRsiNum  = parseFloat(dRsi)  || 0;
-            const wRsiNum  = parseFloat(wRsi)  || 0;
-            const deltaNum = deltaRaw !== null ? deltaRaw : 0;
-            const navNum   = navRaw   !== null ? navRaw   : parseFloat((nav||'').replace(/[^\d.-]/g,'')) || 0;
-            const tslNum   = tslRaw   !== null ? tslRaw   : 0;
-            const wmaNum   = wmaRaw   !== null ? wmaRaw   : 0;
+            // ── Regime flags (numeric — authoritative) ──
+            const regA = wrsi >= 50;
+            const regB = wrsi >= 40 && wrsi < 50;
+            const regC = wrsi < 40;
 
-            // ── Regime flags — text match + numeric W-RSI fallback ──
-            const regimeUC = (regime || '').toUpperCase();
-            const regA = regimeUC.includes('A') || regimeUC.includes('HOPE') || (w4val !== null && w4val >= 50);
-            const regB = !regA && (regimeUC.includes('B') || regimeUC.includes('WATCH') || (w4val !== null && w4val >= 40 && w4val < 50));
-            const regC = !regA && !regB && (regimeUC.includes('C') || regimeUC.includes('FEAR') || (w4val !== null && w4val < 40));
+            // ── Conviction ──
+            // conviction string already computed; extract grade word
+            const convGrade = conviction.startsWith('HIGH') ? 'HIGH'
+                            : conviction.startsWith('MEDIUM') ? 'MEDIUM' : 'LOW';
 
-            // rrgUC and macroVeto already declared above from live DOM reads
-            const rrgLagging = rrgUC.includes('LAGGING') || rrgUC.includes('AVOID') || rrgUC.includes('BLOCK');
-            const rrgWeaken  = rrgUC.includes('WEAKENING') || rrgUC.includes('SELL ALERT');
-            const rrgLeading = rrgUC.includes('LEADING') || rrgUC.includes('IMPROVING') || rrgUC.includes('BUY CONFIRMED') || rrgUC.includes('EARLY BUY');
-            const ncActive   = ncBreak === 'YES';
-            const pcActive   = pcBreak === 'YES';
-            const crossUC    = crossover.toUpperCase();
-
-            // ── Data availability ──
-            const hasData = regime !== 'N/A' || (w4val !== null) || dRsiNum > 0;
-
-            let signal = 'HOLD', tier = '—', conviction = 'LOW', reasons = [];
+            // ── Signal logic ──
+            let signal = 'HOLD', tier = '—', finalConv = convGrade, reasons = [];
             let nextAction = 'Monitor regime and RSI. No action required.';
 
-            if (!hasData) {
-                signal = '⚠ NO DATA';
-                reasons.push('No fund data loaded. Open Live Cockpit for the target fund first, then re-run.');
-                nextAction = 'Load a fund in Live Cockpit, then tap the analysis button again.';
-            }
-            // ── STEP 1: MACRO GATE ──
-            else if (macroVeto) {
+            // STEP 1 — MACRO GATE
+            if (macroVeto === true) {
                 signal = 'WAIT'; tier = 'MACRO GATE';
-                reasons.push('Nifty 50 in Fear regime — macro veto active. No BUY signals valid.');
-                nextAction = 'Wait for Nifty W-RSI to recover above 40 before any BUY.';
+                reasons.push(`Nifty 50 W-RSI = ${niftyWrsi} — Fear regime. ALL BUY signals blocked.`);
+                nextAction = 'Wait for Nifty W-RSI > 40 before any BUY.';
             }
-            // ── STEP 2: SELL CHECKS ──
-            else if (navNum > 0 && tslNum > 0 && navNum < tslNum) {
+            // STEP 2 — SELL CHECKS
+            else if (tslHit) {
                 signal = 'SELL ALL'; tier = 'T1 — TSL BREACH';
-                reasons.push(`NAV (${nav}) is below Adaptive TSL Floor (${tsl}). Non-negotiable exit.`);
+                reasons.push(`NAV ₹${nav.toFixed(2)} < TSL Floor ₹${tslVal.toFixed(2)}. Non-negotiable exit.`);
                 nextAction = 'SELL ALL immediately (T+0). No exceptions.';
             }
-            else if (ncActive) {
-                signal = 'SELL ALERT'; tier = 'T4 — NC BREAKDOWN OVERRIDE';
-                reasons.push('NC Breakdown banner active — cancel BUY orders, tighten TSL to consolidation box low.');
+            else if (ncAlert) {
+                signal = 'SELL ALERT'; tier = 'T4 — NC BREAKDOWN';
+                reasons.push('NC Breakdown active — cancel BUY orders, tighten TSL to box low.');
                 nextAction = 'Cancel all pending BUY orders. Tighten TSL watch immediately.';
             }
             else if (regC) {
-                signal = 'SELL ALL'; tier = 'T2 — REGIME CRASH (Fear)';
-                reasons.push(`Fund Regime = C (Fear). W-RSI: ${wRsi}. Regime crash exit rule active.`);
+                signal = 'SELL ALL'; tier = 'T2 — REGIME FEAR';
+                reasons.push(`Fund W-RSI = ${wrsi} — Regime C (Fear). Crash exit rule active.`);
                 nextAction = 'SELL ALL (T+0). Re-enter only on confirmed Regime A breakout.';
             }
-            else if (rrgWeaken) {
-                signal = 'SELL ALERT'; tier = 'T4 — RRG WEAKENING';
-                reasons.push('RRG rotating out of leadership quadrant. Reduce position 25%.');
-                nextAction = 'Trim 25% of position. Set tighter TSL watch. Monitor for TSL breach.';
-            }
-            else if (navNum > 0 && wmaNum > 0 && navNum < wmaNum && regA) {
+            else if (wma20 && nav < wma20 && regA) {
                 signal = 'TRIM 20%'; tier = 'T3 — WMA BREACH';
-                reasons.push(`NAV (${nav}) below 20-Day WMA (${wma}) in Regime A. Defensive trim.`);
+                reasons.push(`NAV ₹${nav.toFixed(2)} < WMA20 ₹${wma20.toFixed(2)} in Regime A.`);
                 nextAction = 'Sell 20% of position. Monitor for TSL breach. Hold remainder.';
             }
-            // ── STEP 3: BUY CHECKS ──
-            else if (regA && rrgLagging) {
-                signal = 'AVOID'; tier = 'RRG LAGGING BLOCK';
-                reasons.push('Fund in Regime A but RRG quadrant = Lagging. All BUY tiers blocked.');
-                nextAction = 'No BUY until RRG improves to Improving or Leading quadrant.';
+            // STEP 3 — BUY CHECKS
+            else if (regA && drsi < 40) {
+                signal = 'BUY'; tier = drsi < 35 ? 'T1 — DEEP OVERSOLD' : 'T1 — OVERSOLD';
+                finalConv = drsi < 35 ? 'HIGH' : convGrade;
+                reasons.push(`Regime A + D-RSI = ${drsi} (< 40). Oversold entry signal.`);
+                if (drsi < 35) reasons.push('Deep Oversold (<35) — use larger tranche.');
+                nextAction = `BUY ${drsi < 35 ? '25–50%' : '25%'} of available capital (T+2).`;
             }
-            else if (regA && dRsiNum > 0 && dRsiNum < 40) {
-                signal = 'BUY'; tier = dRsiNum < 35 ? 'T1 — DEEP OVERSOLD' : 'T1 — OVERSOLD';
-                conviction = dRsiNum < 35 ? 'HIGH' : 'MEDIUM';
-                reasons.push(`Regime A + D-RSI = ${dRsi} (< 40). Oversold entry signal.`);
-                if (dRsiNum < 35) reasons.push('Deep Oversold (< 35) — use larger tranche.');
-                nextAction = `BUY ${dRsiNum < 35 ? '25–50%' : '25%'} of available capital (T+2).`;
-            }
-            else if (regA && deltaNum !== 0 && deltaNum < -15) {
+            else if (regA && delta < -15) {
                 signal = 'BUY'; tier = 'T2 — SLINGSHOT';
-                conviction = 'MEDIUM';
-                reasons.push(`Regime A + Delta (D-RSI − W-RSI) = ${delta} (< −15). Slingshot momentum divergence.`);
+                reasons.push(`Regime A + Delta = ${delta} (< −15). Momentum divergence.`);
                 nextAction = 'BUY 10–25% of available capital (T+2).';
             }
-            else if (regA && pcActive) {
+            else if (regA && pcAlert) {
                 signal = 'BUY'; tier = 'T3 — PC BREAKOUT';
-                conviction = 'MEDIUM';
-                reasons.push('Regime A + PC-Breakout alert active. Consolidation escape entry.');
+                reasons.push('Regime A + PC-Breakout detected. Consolidation escape entry.');
                 nextAction = 'BUY 15–25% of available capital (T+2).';
             }
-            else if (crossUC.includes('BREAKOUT')) {
+            else if (crossover === 'BREAKOUT') {
                 signal = 'BUY'; tier = 'T4 — REGIME BREAKOUT';
-                conviction = 'MEDIUM';
-                reasons.push('W-RSI just crossed 50 upward — fresh structural momentum shift.');
+                reasons.push('W-RSI(4) just crossed 50 upward — fresh regime breakout.');
                 nextAction = 'BUY 25% of available capital (T+2).';
             }
             else if (regB) {
                 signal = 'HOLD'; tier = '—';
-                reasons.push(`Regime B (Watch). W-RSI: ${w4val ?? wRsi}. Awaiting crossover above 50.`);
-                nextAction = 'No BUY. Monitor for W-RSI crossover above 50 for Regime A breakout.';
+                reasons.push(`Regime B (Watch). W-RSI = ${wrsi}. Waiting for crossover above 50.`);
+                nextAction = 'No BUY. Monitor for W-RSI > 50 crossover.';
             }
-            else if (regA) {
+            else {
                 signal = 'HOLD'; tier = '—';
-                reasons.push(`Regime A — no BUY tier triggered. D-RSI: ${dRsi}, Delta: ${delta}.`);
-                nextAction = 'Hold existing position. Wait for D-RSI < 40 or Delta < −15 entry.';
-                if (rrgLeading) { conviction = 'MEDIUM'; reasons.push('RRG Leading/Improving — supporting momentum.'); }
-            } else {
-                signal = 'HOLD'; tier = '—';
-                reasons.push(`Regime: ${regime || 'unknown'}. W-RSI: ${w4val ?? wRsi}, D-RSI: ${dRsi}.`);
-                nextAction = 'Verify regime in Live Cockpit before acting.';
+                reasons.push(`Regime A — no BUY tier triggered. D-RSI: ${drsi}, Delta: ${delta}.`);
+                nextAction = 'Hold existing position. Wait for D-RSI <40 or Delta <−15.';
             }
 
-            // ── Conviction upgrade on BUY ──
-            if (signal === 'BUY' && conv !== 'N/A') {
-                if (conv === 'HIGH') conviction = 'HIGH';
-                else if (conv === 'MEDIUM' && conviction !== 'HIGH') conviction = 'MEDIUM';
-            }
-
-            // ── Output ──
             const modeTag = isDeep ? '🔍 DEEP SCAN — ALL SIGNALS' : '⚡ LEAN SCAN — CURRENT FUND';
-            const fundTag = (fundName && fundName !== 'N/A') ? fundName : 'Current Fund';
-            const w4disp  = w4val  !== null ? w4val  : '—';
-            const w8disp  = w8val  !== null ? w8val  : '—';
-            const w14disp = w14val !== null ? w14val : '—';
+            const navDisp  = `₹${nav.toFixed(2)}`;
+            const tslDisp  = tslVal > 0 ? `₹${tslVal.toFixed(2)}${tslHit ? ' 🚨BREACHED' : ''}` : 'N/A';
+            const wmaDisp  = wma20 ? `₹${wma20.toFixed(2)}` : 'N/A';
+            const macroDisp = macroVeto === true ? `YES — Nifty W-RSI ${niftyWrsi}`
+                            : macroVeto === false ? `NO — Nifty W-RSI ${niftyWrsi}`
+                            : 'N/A (load Nifty data first)';
+            const tsShort  = ts ? ts.slice(11,19) + ' UTC' : '—';
 
             let out = `${modeTag}\n`;
-            out += `Fund: ${fundTag}\n`;
+            out += `Fund : ${fund} (${code})\n`;
+            out += `Snap : ${tsShort}\n`;
             out += `─────────────────────────────\n`;
-            out += `MACRO GATE: ${macro}\n`;
-            out += `REGIME: ${regime} | W-RSI(4W): ${w4disp} | D-RSI: ${dRsi} | Delta: ${delta}\n`;
-            out += `W-RSI(8W): ${w8disp} | W-RSI(14W): ${w14disp} | Conviction: ${conv}\n`;
-            out += `NAV: ${nav} | TSL: ${tsl} | WMA20: ${wma}\n`;
-            out += `RRG: ${rrg} | PC: ${pcBreak} | NC: ${ncBreak}\n`;
-            out += `Crossover: ${crossover}\n`;
+            out += `MACRO  : ${macroDisp}\n`;
+            out += `REGIME : ${regime} | W-RSI(4W): ${w4 ?? wrsi} | W-RSI(8W): ${w8 ?? '—'} | W-RSI(14W): ${w14 ?? '—'}\n`;
+            out += `D-RSI  : ${drsi} | Delta: ${delta} | Crossover: ${crossover}\n`;
+            out += `NAV    : ${navDisp} | TSL: ${tslDisp} | WMA20: ${wmaDisp}\n`;
+            out += `PC     : ${pcAlert ? 'YES 🟢' : 'NO'} | NC: ${ncAlert ? 'YES 🚨' : 'NO'}\n`;
+            out += `CONVICTION (W-RSI 4/8/14): ${conviction}\n`;
             out += `─────────────────────────────\n`;
             out += reasons.map(r => `• ${r}`).join('\n') + '\n';
             out += `─────────────────────────────\n`;
-            out += `▶ SIGNAL: ${signal}\n`;
-            out += `▶ TIER: ${tier}\n`;
-            out += `▶ CONVICTION: ${conviction}\n`;
+            out += `▶ SIGNAL    : ${signal}\n`;
+            out += `▶ TIER      : ${tier}\n`;
+            out += `▶ CONVICTION: ${finalConv}\n`;
             out += `▶ NEXT ACTION: ${nextAction}`;
             return out;
         }
-
         // ── Button wiring ──────────────────────────────────────
         const analyzeBtn = document.getElementById('ld-ai-analyze-fund-btn');
         if (analyzeBtn) {
@@ -13990,5 +13975,73 @@ Return ONLY valid JSON, no markdown, no extra text:
     })();
     </script>
     ════════════════════════END OF AI CODE ══════════════════════════════════════════
+    <!-- ═══════════════ LD AUDITOR DEBUG PANEL (ADD-ON) ═══════════════ -->
+    <div id="ld-debug-btn" onclick="window._ldToggleDebug()" title="Auditor State Debug" style="
+        position:fixed;bottom:72px;left:8px;z-index:19999;
+        background:#1a1a2e;color:#00e8a2;border:1px solid #00e8a2;
+        border-radius:6px;padding:4px 8px;font-size:0.55rem;font-weight:700;
+        cursor:pointer;letter-spacing:0.05em;opacity:0.85;user-select:none;">🔬 DEBUG</div>
+    <div id="ld-debug-panel" style="
+        display:none;position:fixed;bottom:100px;left:8px;z-index:19998;
+        width:320px;max-height:70vh;overflow-y:auto;
+        background:#0d0d1a;border:1px solid #00e8a2;border-radius:8px;
+        font-family:monospace;font-size:0.6rem;color:#e0e0e0;padding:10px 12px;
+        box-shadow:0 4px 24px rgba(0,232,162,0.15);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="color:#00e8a2;font-weight:700;font-size:0.65rem;">🔬 LD AUDITOR STATE</span>
+            <span onclick="window._ldToggleDebug()" style="cursor:pointer;color:#888;font-size:0.7rem;">✕</span>
+        </div>
+        <div id="ld-debug-content" style="line-height:1.8;white-space:pre-wrap;"></div>
+    </div>
+    <script>
+    (function() {
+        window._ldToggleDebug = function() {
+            const p = document.getElementById('ld-debug-panel');
+            const showing = p.style.display !== 'none';
+            p.style.display = showing ? 'none' : 'block';
+            if (!showing) window._ldRefreshDebug();
+        };
+        window._ldRefreshDebug = function() {
+            const el = document.getElementById('ld-debug-content');
+            if (!el) return;
+            const S = window.LD_AUDITOR_STATE;
+            if (!S) {
+                el.innerHTML = '<span style="color:#f04060">⚠ No state yet.\nOpen Live Cockpit first.</span>';
+                return;
+            }
+            const row = (label, val, color) =>
+                `<span style="color:#888">${label.padEnd(18)}</span><span style="color:${color||'#e0e0e0'}">${val}</span>\n`;
+            const regColor = S.regime === 'A' ? '#00e8a2' : S.regime === 'B' ? '#f5a623' : '#f04060';
+            const convColor = S.conviction?.startsWith('HIGH') ? '#00e8a2'
+                            : S.conviction?.startsWith('MEDIUM') ? '#f5a623' : '#f04060';
+            const drsiColor = S.drsi < 35 ? '#00e8a2' : S.drsi < 40 ? '#f5a623' : '#e0e0e0';
+            el.innerHTML =
+                row('Fund',       S.fund || '—') +
+                row('Code',       S.code || '—') +
+                row('Snap time',  S.ts ? S.ts.slice(11,19)+' UTC' : '—') +
+                '─────────────────────\n' +
+                row('NAV',        S.nav != null ? `₹${S.nav.toFixed(2)}` : '—') +
+                row('TSL Floor',  S.tslVal > 0 ? `₹${S.tslVal.toFixed(2)}` : 'N/A', S.tslHit ? '#f04060' : '#e0e0e0') +
+                row('TSL Hit?',   S.tslHit ? '🚨 YES' : 'NO',           S.tslHit ? '#f04060' : '#00e8a2') +
+                row('WMA20',      S.wma20 != null ? `₹${S.wma20.toFixed(2)}` : 'N/A') +
+                '─────────────────────\n' +
+                row('Regime',     S.regime || '—',                       regColor) +
+                row('W-RSI (4W)', S.w4 != null ? String(S.w4) : '—',    S.w4 >= 50 ? '#00e8a2' : S.w4 >= 40 ? '#f5a623' : '#f04060') +
+                row('W-RSI (8W)', S.w8 != null ? String(S.w8) : '—',    S.w8 >= 50 ? '#00e8a2' : S.w8 >= 40 ? '#f5a623' : '#f04060') +
+                row('W-RSI (14W)',S.w14!= null ? String(S.w14): '—',    S.w14>= 50 ? '#00e8a2' : S.w14>= 40 ? '#f5a623' : '#f04060') +
+                row('D-RSI',      S.drsi != null ? String(S.drsi) : '—', drsiColor) +
+                row('Delta',      S.delta != null ? String(S.delta) : '—', S.delta < -15 ? '#00e8a2' : S.delta < 0 ? '#f5a623' : '#e0e0e0') +
+                row('Crossover',  S.crossover || '—') +
+                '─────────────────────\n' +
+                row('Conviction', S.conviction || '—',                   convColor) +
+                row('PC Alert',   S.pcAlert ? '🟢 YES' : 'NO') +
+                row('NC Alert',   S.ncAlert ? '🚨 YES' : 'NO') +
+                '─────────────────────\n' +
+                row('Nifty W-RSI',S.niftyWrsi != null ? String(S.niftyWrsi) : 'N/A', S.niftyWrsi >= 50 ? '#00e8a2' : S.niftyWrsi >= 40 ? '#f5a623' : '#f04060') +
+                row('Macro Veto', S.macroVeto === true ? '🚨 YES' : S.macroVeto === false ? 'NO' : 'N/A', S.macroVeto ? '#f04060' : '#00e8a2');
+        };
+    })();
+    </script>
+    <!-- ═══════════════ END DEBUG PANEL ═══════════════ -->
     </body>
 </html>

@@ -5894,6 +5894,18 @@ if (snap.tsl.tslHit) {
                     wmaDist > 0 ? 'var(--accent)' : 'var(--red)';
                 document.getElementById('laWMADesc').textContent = wmaDist === null ? '--' :
                     `${wmaDist > 0 ? '+' : ''}${wmaDist.toFixed(1)}% ${wmaDist > 0 ? 'above WMA' : 'below WMA'}`;
+                // ── Auditor cache: write computed values to window so System Brain Auditor can read them without Analytics panel being open ──
+                window._lastDelta  = lastDelta;
+                window._lastTslVal = tslVal;
+                window._lastWmaVal = lastWma;
+                window._lastNav    = lastNav;
+                try {
+                    const _auditNavs  = globalLiveData.map(d => d.nav);
+                    const _auditDates = globalLiveData.map(d => d.date);
+                    window.wRsi4Cache  = window.buildWeeklyRsiFast(_auditNavs, 4,  _auditDates);
+                    window.wRsi8Cache  = window.buildWeeklyRsiFast(_auditNavs, 8,  _auditDates);
+                    window.wRsi14Cache = window.buildWeeklyRsiFast(_auditNavs, 14, _auditDates);
+                } catch(_e) {}
                 const smaDist = lastSma ? (lastNav - lastSma) / lastSma * 100 : null;
                 document.getElementById('laSMA').textContent = lastSma ? `₹${lastSma.toFixed(2)}` : '--';
                 document.getElementById('laSMA').style.color = smaDist === null ? 'var(--muted)' :
@@ -13751,23 +13763,31 @@ Return ONLY valid JSON, no markdown, no extra text:
             const fundCode = fs ? fs.value : 'N/A';
 
             // Core signals — try live cockpit IDs first, then simulator IDs
-            const regime = domText('liveRegimeBlock', 'regimeBlock');
-            const wRsi   = domText('liveWRsi', 'wRsi');
-            const dRsi   = domText('liveDRsi', 'dRsi');
-            const nav    = domText('liveNav', 'laNav');
+            const regime  = domText('liveRegimeBlock', 'regimeBlock');
+            const wRsiDom = domText('liveWRsi', 'wRsi');
+            const dRsi    = domText('liveDRsi', 'dRsi');
+            const nav     = domText('liveNav', 'laNav');
 
-            // Delta, TSL, WMA — analytics modal elements; fall back to window cache
-            const delta  = domText('laDelta');
-            const tsl    = domText('laTSL');
-            const wma    = domText('laWMA');
-
-            // W-RSI cache values (always available once fund is loaded)
+            // W-RSI cache arrays (written to window by live cockpit on every render)
             const w4arr  = window.wRsi4Cache  || [];
             const w8arr  = window.wRsi8Cache  || [];
             const w14arr = window.wRsi14Cache || [];
-            const w4val  = w4arr.length  ? Math.round(w4arr[w4arr.length-1])   : null;
-            const w8val  = w8arr.length  ? Math.round(w8arr[w8arr.length-1])   : null;
-            const w14val = w14arr.length ? Math.round(w14arr[w14arr.length-1]) : null;
+            const w4val  = w4arr.length  ? Math.round(w4arr[w4arr.length - 1])  : null;
+            const w8val  = w8arr.length  ? Math.round(w8arr[w8arr.length - 1])  : null;
+            const w14val = w14arr.length ? Math.round(w14arr[w14arr.length - 1]): null;
+
+            // W-RSI: prefer clean numeric from cache, fall back to DOM text
+            const wRsi = w4val !== null ? String(w4val) : wRsiDom;
+
+            // Delta, TSL, WMA — from window cache (written by live cockpit), fall back to DOM
+            const deltaRaw = (window._lastDelta  !== undefined && window._lastDelta  !== null) ? window._lastDelta  : (parseFloat(domText('laDelta'))  || null);
+            const tslRaw   = (window._lastTslVal !== undefined && window._lastTslVal !== null) ? window._lastTslVal : (parseFloat((domText('laTSL')||'').replace(/[^\d.-]/g,'')) || null);
+            const wmaRaw   = (window._lastWmaVal !== undefined && window._lastWmaVal !== null) ? window._lastWmaVal : (parseFloat((domText('laWMA')||'').replace(/[^\d.-]/g,'')) || null);
+            const navRaw   = (window._lastNav    !== undefined && window._lastNav    !== null) ? window._lastNav    : (parseFloat((nav||'').replace(/[^\d.-]/g,''))               || null);
+
+            const delta = deltaRaw !== null ? Number(deltaRaw).toFixed(1) : 'N/A';
+            const tsl   = tslRaw   !== null ? `₹${Number(tslRaw).toFixed(2)}`  : 'N/A';
+            const wma   = wmaRaw   !== null ? `₹${Number(wmaRaw).toFixed(2)}`  : 'N/A';
 
             // Macro veto from window cache
             const niftyWrsi = window._niftyWrsi;
@@ -13800,19 +13820,19 @@ Return ONLY valid JSON, no markdown, no extra text:
             const above50 = [w4val, w8val, w14val].filter(v => v !== null && v >= 50).length;
             const conv = w4val === null ? 'N/A' : above50 === 3 ? 'HIGH' : above50 === 2 ? 'MEDIUM' : 'LOW';
 
-            // ── Numeric parsing ──
+            // ── Numeric parsing — use raw floats already extracted ──
             const dRsiNum  = parseFloat(dRsi)  || 0;
             const wRsiNum  = parseFloat(wRsi)  || 0;
-            const deltaNum = parseFloat(delta) || 0;
-            const navNum   = parseFloat((nav  || '').replace(/[^\d.-]/g,'')) || 0;
-            const tslNum   = parseFloat((tsl  || '').replace(/[^\d.-]/g,'')) || 0;
-            const wmaNum   = parseFloat((wma  || '').replace(/[^\d.-]/g,'')) || 0;
+            const deltaNum = deltaRaw !== null ? deltaRaw : 0;
+            const navNum   = navRaw   !== null ? navRaw   : parseFloat((nav||'').replace(/[^\d.-]/g,'')) || 0;
+            const tslNum   = tslRaw   !== null ? tslRaw   : 0;
+            const wmaNum   = wmaRaw   !== null ? wmaRaw   : 0;
 
-            // ── Regime flags ──
-            const regimeUC   = (regime || '').toUpperCase();
-            const regA = regimeUC.includes('A —') || regimeUC.startsWith('A') || regimeUC.includes('HOPE');
-            const regB = regimeUC.includes('B —') || regimeUC.startsWith('B') || regimeUC.includes('WATCH');
-            const regC = regimeUC.includes('C —') || regimeUC.startsWith('C') || regimeUC.includes('FEAR');
+            // ── Regime flags — text match + numeric W-RSI fallback ──
+            const regimeUC = (regime || '').toUpperCase();
+            const regA = regimeUC.includes('A') || regimeUC.includes('HOPE') || (w4val !== null && w4val >= 50);
+            const regB = !regA && (regimeUC.includes('B') || regimeUC.includes('WATCH') || (w4val !== null && w4val >= 40 && w4val < 50));
+            const regC = !regA && !regB && (regimeUC.includes('C') || regimeUC.includes('FEAR') || (w4val !== null && w4val < 40));
 
             // rrgUC and macroVeto already declared above from live DOM reads
             const rrgLagging = rrgUC.includes('LAGGING') || rrgUC.includes('AVOID') || rrgUC.includes('BLOCK');

@@ -2144,7 +2144,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD246DAI</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD246HAI</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2784,7 +2784,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="sop-part sop-part-green">PART 14 — LD246DAI: AI BREADTH CONFIRMATION</div>
+                <div class="sop-part sop-part-green">PART 14 — LD246HAI: AI BREADTH CONFIRMATION</div>
                 <table class="sop-table">
                     <thead><tr><th>Feature</th><th>What Changed / How to Use</th></tr></thead>
                     <tbody>
@@ -2805,7 +2805,7 @@
                             <td>The AI is called <strong>once per tap</strong> with a compact, fund-specific prompt (~400 tokens). The app handles all gate analysis (W-RSI, TSL, NC, Concentration Guard, signal confirmation) before the AI is invoked. AI role is confirmation only — macro breadth as a final deployment filter. Uses the existing Gemini API key stored in the app — no new key required. A <strong>Run Again</strong> button allows a fresh call without reopening the modal.</td>
                         </tr>
                         <tr>
-                            <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246DAI</td>
+                            <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246HAI</td>
                             <td>All 4 version surfaces updated: SOP modal header badge, SOP footer note, Setup Screen clickable badge, switch journal version string. SOP Part 14 (this section) added.</td>
                         </tr>
                     </tbody>
@@ -2816,7 +2816,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD246DAI &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD246HAI &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2828,7 +2828,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246DAI 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246HAI 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -4683,7 +4683,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD246DAI', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD246HAI', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -12616,7 +12616,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
     });
 </script>
 ════════════════════════AI BREADTH CODE ══════════════════════════════════════════
-    <!-- LD246DAI: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
+    <!-- LD246HAI: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
     <style>
     #aiBreadthOverlay {
         position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,0.55);
@@ -12875,7 +12875,7 @@ const validData = [...rawData].reverse().filter(d => Number.isFinite(parseFloat(
             const fundR1m   = _abpFund.r1m != null ? `${Number(_abpFund.r1m).toFixed(2)}%` : '—';
             const fundRegime = parseFloat(fundWrsi) >= 50 ? 'A (Hope)' : parseFloat(fundWrsi) >= 40 ? 'B (Watch)' : 'C (Fear)';
 
-            const prompt = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System (LD246DAI).
+            const prompt = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System (LD246HAI).
 
 TASK: Provide index breadth confirmation for this SPECIFIC FUND.
 
@@ -13736,71 +13736,101 @@ Return ONLY valid JSON, no markdown, no extra text:
         }
 
         function interpretSignalDump(dump, isDeep) {
-            // ── Dual-format extractor ──
-            // Lean format:  "Momentum Core: Regime=A — Hope | W-RSI=58 | D-RSI=42 | Delta=-16"
-            // Deep format:  "Regime Status: A — Hope\n"  /  "Weekly RSI (Structural): 58\n"
-            function extractInline(key) {
-                // Matches KEY=value up to the next | or end-of-line
-                const m = dump.match(new RegExp(key + '=([^|\\n]+)'));
-                return m ? m[1].trim() : null;
+            // ── Read directly from live DOM + window caches (reliable across all screens) ──
+            function domText(...ids) {
+                for (const id of ids) {
+                    const el = document.getElementById(id);
+                    const t = el?.textContent?.trim();
+                    if (t && t !== '--' && t !== '') return t;
+                }
+                return 'N/A';
             }
-            function extractLabelled(label) {
-                // Matches "Label: value" on its own
-                const m = dump.match(new RegExp(label + '[:\\s]+([^\\n]+)'));
-                return m ? m[1].trim() : null;
-            }
-            function get(inlineKey, ...labelledAlts) {
-                return extractInline(inlineKey)
-                    || labelledAlts.map(l => extractLabelled(l)).find(v => v != null)
-                    || 'N/A';
+            // Fund name from selector
+            const fs = document.getElementById('fundSelect');
+            const fundName = (fs && fs.selectedIndex >= 0) ? fs.options[fs.selectedIndex]?.text : 'N/A';
+            const fundCode = fs ? fs.value : 'N/A';
+
+            // Core signals — try live cockpit IDs first, then simulator IDs
+            const regime = domText('liveRegimeBlock', 'regimeBlock');
+            const wRsi   = domText('liveWRsi', 'wRsi');
+            const dRsi   = domText('liveDRsi', 'dRsi');
+            const nav    = domText('liveNav', 'laNav');
+
+            // Delta, TSL, WMA — analytics modal elements; fall back to window cache
+            const delta  = domText('laDelta');
+            const tsl    = domText('laTSL');
+            const wma    = domText('laWMA');
+
+            // W-RSI cache values (always available once fund is loaded)
+            const w4arr  = window.wRsi4Cache  || [];
+            const w8arr  = window.wRsi8Cache  || [];
+            const w14arr = window.wRsi14Cache || [];
+            const w4val  = w4arr.length  ? Math.round(w4arr[w4arr.length-1])   : null;
+            const w8val  = w8arr.length  ? Math.round(w8arr[w8arr.length-1])   : null;
+            const w14val = w14arr.length ? Math.round(w14arr[w14arr.length-1]) : null;
+
+            // Macro veto from window cache
+            const niftyWrsi = window._niftyWrsi;
+            const macroVeto = (typeof niftyWrsi === 'number') ? niftyWrsi < 40 : false;
+            const macro = macroVeto ? 'YES — Nifty Fear regime' : (typeof niftyWrsi === 'number' ? 'NO' : 'N/A (not loaded)');
+
+            // RRG from live cockpit panel
+            const rrgQuad = domText('lcRrgStatusLabel');
+            const rrgUC   = rrgQuad.toUpperCase();
+            const rrg     = rrgUC.includes('LEADING')   ? 'BUY CONFIRMED'
+                          : rrgUC.includes('IMPROVING') ? 'EARLY BUY WATCH'
+                          : rrgUC.includes('WEAKENING') ? 'SELL ALERT'
+                          : rrgUC.includes('LAGGING')   ? 'AVOID / BLOCK BUY'
+                          : rrgQuad;
+
+            // PC / NC alerts from window flags
+            const pcBreak = (window._lastPcAlert ? 'YES' : 'NO');
+            const ncBreak = (window._lastNcAlert ? 'YES' : 'NO');
+
+            // Regime crossover from w4 cache
+            let crossover = 'N/A';
+            if (w4arr.length >= 6) {
+                const rec = w4arr.slice(-6);
+                if (rec.some((v,i) => i > 0 && rec[i-1] < 50 && v >= 50)) crossover = 'BREAKOUT YES';
+                else if (rec.some((v,i) => i > 0 && rec[i-1] >= 50 && v < 50)) crossover = 'BREAKDOWN YES';
+                else crossover = 'STABLE';
             }
 
-            // Read from both lean (inline) and deep (labelled) formats
-            const regime   = get('Regime',   'Regime Status', 'Regime');
-            const wRsi     = get('W-RSI',    'Weekly RSI.*', 'W-RSI');
-            const dRsi     = get('D-RSI',    'Daily RSI.*',  'D-RSI');
-            const delta    = get('Delta',    'Delta.*');
-            const nav      = get('NAV',      'Current NAV');
-            const tsl      = get('TSL',      'Adaptive TSL Floor.*');
-            const wma      = get('WMA20',    '20-Day WMA');
-            const macro    = extractLabelled('MACRO VETO') || 'N/A';
-            const rrg      = extractLabelled('RRG ACTION SIGNAL') || 'N/A';
-            const pcBreak  = extractLabelled('PC-BREAKOUT ALERT') || 'N/A';
-            const ncBreak  = extractLabelled('NC-BREAKDOWN ALERT') || 'N/A';
-            const crossover= extractLabelled('REGIME BREAKOUT EVENT') || extractLabelled('REGIME BREAKDOWN EVENT') || extractLabelled('REGIME CROSSOVER') || 'N/A';
-            const conv     = extractLabelled('Grade') || extractLabelled('W-RSI CONFLUENCE CONVICTION') || 'N/A';
-            const fundName = extractLabelled('Name') || 'N/A';
-            const fundCode = extractLabelled('Code') || 'N/A';
+            // W-RSI conviction
+            const above50 = [w4val, w8val, w14val].filter(v => v !== null && v >= 50).length;
+            const conv = w4val === null ? 'N/A' : above50 === 3 ? 'HIGH' : above50 === 2 ? 'MEDIUM' : 'LOW';
 
+            // ── Numeric parsing ──
             const dRsiNum  = parseFloat(dRsi)  || 0;
             const wRsiNum  = parseFloat(wRsi)  || 0;
             const deltaNum = parseFloat(delta) || 0;
-            const navNum   = parseFloat(nav.replace(/[^\d.]/g,''))  || 0;
-            const tslNum   = parseFloat(tsl.replace(/[^\d.]/g,''))  || 0;
-            const wmaNum   = parseFloat(wma.replace(/[^\d.]/g,''))  || 0;
+            const navNum   = parseFloat((nav  || '').replace(/[^\d.-]/g,'')) || 0;
+            const tslNum   = parseFloat((tsl  || '').replace(/[^\d.-]/g,'')) || 0;
+            const wmaNum   = parseFloat((wma  || '').replace(/[^\d.-]/g,'')) || 0;
 
-            const regimeUC   = regime.toUpperCase();
-            const regA = regimeUC.includes(' A') || regimeUC.startsWith('A') || regimeUC.includes('HOPE');
-            const regB = regimeUC.includes(' B') || regimeUC.startsWith('B') || regimeUC.includes('WATCH');
-            const regC = regimeUC.includes(' C') || regimeUC.startsWith('C') || regimeUC.includes('FEAR');
-            const macroVeto  = macro.toUpperCase().includes('YES');
-            const rrgUC      = rrg.toUpperCase();
-            const rrgLagging = rrgUC.includes('LAGGING') || rrgUC.includes('AVOID');
+            // ── Regime flags ──
+            const regimeUC   = (regime || '').toUpperCase();
+            const regA = regimeUC.includes('A —') || regimeUC.startsWith('A') || regimeUC.includes('HOPE');
+            const regB = regimeUC.includes('B —') || regimeUC.startsWith('B') || regimeUC.includes('WATCH');
+            const regC = regimeUC.includes('C —') || regimeUC.startsWith('C') || regimeUC.includes('FEAR');
+
+            // rrgUC and macroVeto already declared above from live DOM reads
+            const rrgLagging = rrgUC.includes('LAGGING') || rrgUC.includes('AVOID') || rrgUC.includes('BLOCK');
             const rrgWeaken  = rrgUC.includes('WEAKENING') || rrgUC.includes('SELL ALERT');
-            const rrgLeading = rrgUC.includes('LEADING') || rrgUC.includes('IMPROVING');
-            const ncActive   = ncBreak.toUpperCase().includes('YES');
-            const pcActive   = pcBreak.toUpperCase().includes('YES');
+            const rrgLeading = rrgUC.includes('LEADING') || rrgUC.includes('IMPROVING') || rrgUC.includes('BUY CONFIRMED') || rrgUC.includes('EARLY BUY');
+            const ncActive   = ncBreak === 'YES';
+            const pcActive   = pcBreak === 'YES';
             const crossUC    = crossover.toUpperCase();
 
-            // Data availability check
-            const hasData = regime !== 'N/A' || wRsi !== 'N/A' || dRsi !== 'N/A';
+            // ── Data availability ──
+            const hasData = regime !== 'N/A' || (w4val !== null) || dRsiNum > 0;
 
             let signal = 'HOLD', tier = '—', conviction = 'LOW', reasons = [];
             let nextAction = 'Monitor regime and RSI. No action required.';
 
             if (!hasData) {
                 signal = '⚠ NO DATA';
-                reasons.push('No fund data loaded. Open Live Cockpit or Analytics for the target fund first, then re-run.');
+                reasons.push('No fund data loaded. Open Live Cockpit for the target fund first, then re-run.');
                 nextAction = 'Load a fund in Live Cockpit, then tap the analysis button again.';
             }
             // ── STEP 1: MACRO GATE ──
@@ -13860,7 +13890,7 @@ Return ONLY valid JSON, no markdown, no extra text:
                 reasons.push('Regime A + PC-Breakout alert active. Consolidation escape entry.');
                 nextAction = 'BUY 15–25% of available capital (T+2).';
             }
-            else if (crossUC.includes('BREAKOUT') && crossUC.includes('YES')) {
+            else if (crossUC.includes('BREAKOUT')) {
                 signal = 'BUY'; tier = 'T4 — REGIME BREAKOUT';
                 conviction = 'MEDIUM';
                 reasons.push('W-RSI just crossed 50 upward — fresh structural momentum shift.');
@@ -13868,7 +13898,7 @@ Return ONLY valid JSON, no markdown, no extra text:
             }
             else if (regB) {
                 signal = 'HOLD'; tier = '—';
-                reasons.push(`Regime B (Watch). W-RSI: ${wRsi}. Awaiting crossover above 50.`);
+                reasons.push(`Regime B (Watch). W-RSI: ${w4val ?? wRsi}. Awaiting crossover above 50.`);
                 nextAction = 'No BUY. Monitor for W-RSI crossover above 50 for Regime A breakout.';
             }
             else if (regA) {
@@ -13878,28 +13908,32 @@ Return ONLY valid JSON, no markdown, no extra text:
                 if (rrgLeading) { conviction = 'MEDIUM'; reasons.push('RRG Leading/Improving — supporting momentum.'); }
             } else {
                 signal = 'HOLD'; tier = '—';
-                reasons.push(`Regime unclear (${regime}). W-RSI: ${wRsi}, D-RSI: ${dRsi}.`);
+                reasons.push(`Regime: ${regime || 'unknown'}. W-RSI: ${w4val ?? wRsi}, D-RSI: ${dRsi}.`);
                 nextAction = 'Verify regime in Live Cockpit before acting.';
             }
 
-            // Conviction from W-RSI confluence (only upgrade on BUY)
-            if (signal === 'BUY') {
-                if (conv.includes('HIGH')) conviction = 'HIGH';
-                else if (conv.includes('MEDIUM') && conviction !== 'HIGH') conviction = 'MEDIUM';
+            // ── Conviction upgrade on BUY ──
+            if (signal === 'BUY' && conv !== 'N/A') {
+                if (conv === 'HIGH') conviction = 'HIGH';
+                else if (conv === 'MEDIUM' && conviction !== 'HIGH') conviction = 'MEDIUM';
             }
 
+            // ── Output ──
             const modeTag = isDeep ? '🔍 DEEP SCAN — ALL SIGNALS' : '⚡ LEAN SCAN — CURRENT FUND';
-            const fundTag = (fundName !== 'N/A' && fundName !== 'undefined') ? `${fundName}` : 'Current Fund';
+            const fundTag = (fundName && fundName !== 'N/A') ? fundName : 'Current Fund';
+            const w4disp  = w4val  !== null ? w4val  : '—';
+            const w8disp  = w8val  !== null ? w8val  : '—';
+            const w14disp = w14val !== null ? w14val : '—';
 
             let out = `${modeTag}\n`;
             out += `Fund: ${fundTag}\n`;
             out += `─────────────────────────────\n`;
             out += `MACRO GATE: ${macro}\n`;
-            out += `REGIME: ${regime} | W-RSI: ${wRsi} | D-RSI: ${dRsi} | Delta: ${delta}\n`;
+            out += `REGIME: ${regime} | W-RSI(4W): ${w4disp} | D-RSI: ${dRsi} | Delta: ${delta}\n`;
+            out += `W-RSI(8W): ${w8disp} | W-RSI(14W): ${w14disp} | Conviction: ${conv}\n`;
             out += `NAV: ${nav} | TSL: ${tsl} | WMA20: ${wma}\n`;
-            out += `RRG: ${rrg !== 'N/A' ? rrg.split('—')[0].trim() : 'N/A'}\n`;
-            out += `PC-Break: ${pcBreak.split('—')[0].trim()} | NC-Break: ${ncBreak.split('—')[0].trim()}\n`;
-            out += `Conviction: ${conv.split('.')[0].trim()}\n`;
+            out += `RRG: ${rrg} | PC: ${pcBreak} | NC: ${ncBreak}\n`;
+            out += `Crossover: ${crossover}\n`;
             out += `─────────────────────────────\n`;
             out += reasons.map(r => `• ${r}`).join('\n') + '\n';
             out += `─────────────────────────────\n`;

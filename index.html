@@ -13238,8 +13238,8 @@ Return ONLY valid JSON, no markdown, no extra text:
         </div>
         <button id="ld-ai-scroll-btn" style="position:absolute;bottom:110px;right:28px;background:var(--accent,#009e70);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.2);z-index:10002;">↓</button>
         <div style="padding: 0 16px 8px; background: var(--surface, #f2f5f9); border-top: 1px solid var(--border, #b0bece); display: flex; gap: 6px;">
-            <button type="button" id="ld-ai-deep-all-btn" style="flex:1; background: #7c3aed; color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 0.58rem; font-weight: bold; text-transform: uppercase; line-height: 1.3;">🔍 All Funds<br>Deep Analysis</button>
-            <button type="button" id="ld-ai-analyze-fund-btn" style="flex:1; background: var(--accent, #009e70); color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 0.58rem; font-weight: bold; text-transform: uppercase; line-height: 1.3;">📊 Current Fund<br>Lean Analysis</button>
+            <button type="button" id="ld-ai-analyze-fund-btn" style="flex:1; background: #7c3aed; color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 0.58rem; font-weight: bold; text-transform: uppercase; line-height: 1.3;">⚡ Current Fund<br>Lean Analysis</button>
+            <button type="button" id="ld-ai-deep-all-btn" style="flex:1; background: var(--accent, #009e70); color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 0.58rem; font-weight: bold; text-transform: uppercase; line-height: 1.3;">🔍 All Funds<br>Deep Analysis</button>
         </div>
         <div class="ld-ai-input-area">
             <input type="text" id="ld-ai-input" placeholder="Analyze market and answer queries...">
@@ -13736,49 +13736,75 @@ Return ONLY valid JSON, no markdown, no extra text:
         }
 
         function interpretSignalDump(dump, isDeep) {
-            // ── Parse key values from the raw dump string ──
-            function extract(label) {
-                const m = dump.match(new RegExp(label + '[:\\s]+([^\\n]+)'));
-                return m ? m[1].trim() : 'N/A';
+            // ── Dual-format extractor ──
+            // Lean format:  "Momentum Core: Regime=A — Hope | W-RSI=58 | D-RSI=42 | Delta=-16"
+            // Deep format:  "Regime Status: A — Hope\n"  /  "Weekly RSI (Structural): 58\n"
+            function extractInline(key) {
+                // Matches KEY=value up to the next | or end-of-line
+                const m = dump.match(new RegExp(key + '=([^|\\n]+)'));
+                return m ? m[1].trim() : null;
             }
-            const regime   = extract('Regime(?:\\sStatus)?');
-            const wRsi     = extract('Weekly RSI(?:[^:]*)?');
-            const dRsi     = extract('Daily RSI(?:[^:]*)?');
-            const delta    = extract('Delta(?:[^:]*)?');
-            const tsl      = extract('Adaptive TSL Floor(?:[^:]*)?');
-            const nav      = extract('Current NAV');
-            const wma      = extract('20-Day WMA');
-            const macro    = extract('MACRO VETO');
-            const rrg      = extract('RRG ACTION SIGNAL');
-            const pcBreak  = extract('PC-BREAKOUT ALERT');
-            const ncBreak  = extract('NC-BREAKDOWN ALERT');
-            const crossover= extract('REGIME CROSSOVER EVENT STATUS|STATUS');
-            const conv     = extract('W-RSI CONFLUENCE CONVICTION|Grade');
-            const fundName = extract('Name');
-            const fundCode = extract('Code');
+            function extractLabelled(label) {
+                // Matches "Label: value" on its own
+                const m = dump.match(new RegExp(label + '[:\\s]+([^\\n]+)'));
+                return m ? m[1].trim() : null;
+            }
+            function get(inlineKey, ...labelledAlts) {
+                return extractInline(inlineKey)
+                    || labelledAlts.map(l => extractLabelled(l)).find(v => v != null)
+                    || 'N/A';
+            }
+
+            // Read from both lean (inline) and deep (labelled) formats
+            const regime   = get('Regime',   'Regime Status', 'Regime');
+            const wRsi     = get('W-RSI',    'Weekly RSI.*', 'W-RSI');
+            const dRsi     = get('D-RSI',    'Daily RSI.*',  'D-RSI');
+            const delta    = get('Delta',    'Delta.*');
+            const nav      = get('NAV',      'Current NAV');
+            const tsl      = get('TSL',      'Adaptive TSL Floor.*');
+            const wma      = get('WMA20',    '20-Day WMA');
+            const macro    = extractLabelled('MACRO VETO') || 'N/A';
+            const rrg      = extractLabelled('RRG ACTION SIGNAL') || 'N/A';
+            const pcBreak  = extractLabelled('PC-BREAKOUT ALERT') || 'N/A';
+            const ncBreak  = extractLabelled('NC-BREAKDOWN ALERT') || 'N/A';
+            const crossover= extractLabelled('REGIME BREAKOUT EVENT') || extractLabelled('REGIME BREAKDOWN EVENT') || extractLabelled('REGIME CROSSOVER') || 'N/A';
+            const conv     = extractLabelled('Grade') || extractLabelled('W-RSI CONFLUENCE CONVICTION') || 'N/A';
+            const fundName = extractLabelled('Name') || 'N/A';
+            const fundCode = extractLabelled('Code') || 'N/A';
 
             const dRsiNum  = parseFloat(dRsi)  || 0;
             const wRsiNum  = parseFloat(wRsi)  || 0;
             const deltaNum = parseFloat(delta) || 0;
-            const navNum   = parseFloat(nav.replace(/[^\d.]/g,'')) || 0;
-            const tslNum   = parseFloat(tsl.replace(/[^\d.]/g,'')) || 0;
-            const wmaNum   = parseFloat(wma.replace(/[^\d.]/g,'')) || 0;
+            const navNum   = parseFloat(nav.replace(/[^\d.]/g,''))  || 0;
+            const tslNum   = parseFloat(tsl.replace(/[^\d.]/g,''))  || 0;
+            const wmaNum   = parseFloat(wma.replace(/[^\d.]/g,''))  || 0;
 
-            const regA = regime.includes('A') || regime.toUpperCase().includes('HOPE');
-            const regB = regime.includes('B') || regime.toUpperCase().includes('WATCH');
-            const regC = regime.includes('C') || regime.toUpperCase().includes('FEAR');
+            const regimeUC   = regime.toUpperCase();
+            const regA = regimeUC.includes(' A') || regimeUC.startsWith('A') || regimeUC.includes('HOPE');
+            const regB = regimeUC.includes(' B') || regimeUC.startsWith('B') || regimeUC.includes('WATCH');
+            const regC = regimeUC.includes(' C') || regimeUC.startsWith('C') || regimeUC.includes('FEAR');
             const macroVeto  = macro.toUpperCase().includes('YES');
-            const rrgLagging = rrg.toUpperCase().includes('LAGGING');
-            const rrgWeaken  = rrg.toUpperCase().includes('WEAKENING');
-            const rrgLeading = rrg.toUpperCase().includes('LEADING') || rrg.toUpperCase().includes('IMPROVING');
+            const rrgUC      = rrg.toUpperCase();
+            const rrgLagging = rrgUC.includes('LAGGING') || rrgUC.includes('AVOID');
+            const rrgWeaken  = rrgUC.includes('WEAKENING') || rrgUC.includes('SELL ALERT');
+            const rrgLeading = rrgUC.includes('LEADING') || rrgUC.includes('IMPROVING');
             const ncActive   = ncBreak.toUpperCase().includes('YES');
             const pcActive   = pcBreak.toUpperCase().includes('YES');
+            const crossUC    = crossover.toUpperCase();
+
+            // Data availability check
+            const hasData = regime !== 'N/A' || wRsi !== 'N/A' || dRsi !== 'N/A';
 
             let signal = 'HOLD', tier = '—', conviction = 'LOW', reasons = [];
             let nextAction = 'Monitor regime and RSI. No action required.';
 
+            if (!hasData) {
+                signal = '⚠ NO DATA';
+                reasons.push('No fund data loaded. Open Live Cockpit or Analytics for the target fund first, then re-run.');
+                nextAction = 'Load a fund in Live Cockpit, then tap the analysis button again.';
+            }
             // ── STEP 1: MACRO GATE ──
-            if (macroVeto) {
+            else if (macroVeto) {
                 signal = 'WAIT'; tier = 'MACRO GATE';
                 reasons.push('Nifty 50 in Fear regime — macro veto active. No BUY signals valid.');
                 nextAction = 'Wait for Nifty W-RSI to recover above 40 before any BUY.';
@@ -13815,14 +13841,14 @@ Return ONLY valid JSON, no markdown, no extra text:
                 reasons.push('Fund in Regime A but RRG quadrant = Lagging. All BUY tiers blocked.');
                 nextAction = 'No BUY until RRG improves to Improving or Leading quadrant.';
             }
-            else if (regA && dRsiNum < 40) {
+            else if (regA && dRsiNum > 0 && dRsiNum < 40) {
                 signal = 'BUY'; tier = dRsiNum < 35 ? 'T1 — DEEP OVERSOLD' : 'T1 — OVERSOLD';
                 conviction = dRsiNum < 35 ? 'HIGH' : 'MEDIUM';
                 reasons.push(`Regime A + D-RSI = ${dRsi} (< 40). Oversold entry signal.`);
                 if (dRsiNum < 35) reasons.push('Deep Oversold (< 35) — use larger tranche.');
                 nextAction = `BUY ${dRsiNum < 35 ? '25–50%' : '25%'} of available capital (T+2).`;
             }
-            else if (regA && deltaNum < -15) {
+            else if (regA && deltaNum !== 0 && deltaNum < -15) {
                 signal = 'BUY'; tier = 'T2 — SLINGSHOT';
                 conviction = 'MEDIUM';
                 reasons.push(`Regime A + Delta (D-RSI − W-RSI) = ${delta} (< −15). Slingshot momentum divergence.`);
@@ -13834,7 +13860,7 @@ Return ONLY valid JSON, no markdown, no extra text:
                 reasons.push('Regime A + PC-Breakout alert active. Consolidation escape entry.');
                 nextAction = 'BUY 15–25% of available capital (T+2).';
             }
-            else if (crossover && crossover.toUpperCase().includes('BREAKOUT')) {
+            else if (crossUC.includes('BREAKOUT') && crossUC.includes('YES')) {
                 signal = 'BUY'; tier = 'T4 — REGIME BREAKOUT';
                 conviction = 'MEDIUM';
                 reasons.push('W-RSI just crossed 50 upward — fresh structural momentum shift.');
@@ -13847,41 +13873,39 @@ Return ONLY valid JSON, no markdown, no extra text:
             }
             else if (regA) {
                 signal = 'HOLD'; tier = '—';
-                reasons.push(`Regime A but no active BUY tier triggered. D-RSI: ${dRsi}, Delta: ${delta}.`);
+                reasons.push(`Regime A — no BUY tier triggered. D-RSI: ${dRsi}, Delta: ${delta}.`);
                 nextAction = 'Hold existing position. Wait for D-RSI < 40 or Delta < −15 entry.';
                 if (rrgLeading) { conviction = 'MEDIUM'; reasons.push('RRG Leading/Improving — supporting momentum.'); }
+            } else {
+                signal = 'HOLD'; tier = '—';
+                reasons.push(`Regime unclear (${regime}). W-RSI: ${wRsi}, D-RSI: ${dRsi}.`);
+                nextAction = 'Verify regime in Live Cockpit before acting.';
             }
 
-            // ── Conviction from W-RSI confluence ──
+            // Conviction from W-RSI confluence (only upgrade on BUY)
             if (signal === 'BUY') {
                 if (conv.includes('HIGH')) conviction = 'HIGH';
                 else if (conv.includes('MEDIUM') && conviction !== 'HIGH') conviction = 'MEDIUM';
-                else if (conv.includes('LOW') && conviction === 'HIGH') conviction = 'MEDIUM';
             }
 
-            const modeTag = isDeep ? '🔍 DEEP SCAN — ALL SIGNALS' : '📊 LEAN SCAN — CURRENT FUND';
-            const fundTag = fundName !== 'N/A' ? `${fundName} (${fundCode})` : 'Current Fund';
+            const modeTag = isDeep ? '🔍 DEEP SCAN — ALL SIGNALS' : '⚡ LEAN SCAN — CURRENT FUND';
+            const fundTag = (fundName !== 'N/A' && fundName !== 'undefined') ? `${fundName}` : 'Current Fund';
 
             let out = `${modeTag}\n`;
             out += `Fund: ${fundTag}\n`;
             out += `─────────────────────────────\n`;
-            out += `STEP 1 — MACRO GATE\n`;
-            out += `Nifty 50 Macro Veto: ${macro}\n\n`;
-            out += `STEP 2 — SELL CHECK\n`;
-            out += `TSL Floor: ${tsl} | NAV: ${nav} | WMA20: ${wma}\n`;
-            out += `Regime: ${regime} | NC Alert: ${ncBreak.split('—')[0].trim()}\n`;
-            out += `RRG Signal: ${rrg.split('—')[0].trim()}\n\n`;
-            out += `STEP 3 — BUY EVALUATION\n`;
-            out += `W-RSI: ${wRsi} | D-RSI: ${dRsi} | Delta: ${delta}\n`;
-            out += `PC-Breakout: ${pcBreak.split('—')[0].trim()} | Crossover: ${crossover}\n`;
-            out += `W-RSI Conviction: ${conv.split('.')[0].trim()}\n`;
+            out += `MACRO GATE: ${macro}\n`;
+            out += `REGIME: ${regime} | W-RSI: ${wRsi} | D-RSI: ${dRsi} | Delta: ${delta}\n`;
+            out += `NAV: ${nav} | TSL: ${tsl} | WMA20: ${wma}\n`;
+            out += `RRG: ${rrg !== 'N/A' ? rrg.split('—')[0].trim() : 'N/A'}\n`;
+            out += `PC-Break: ${pcBreak.split('—')[0].trim()} | NC-Break: ${ncBreak.split('—')[0].trim()}\n`;
+            out += `Conviction: ${conv.split('.')[0].trim()}\n`;
             out += `─────────────────────────────\n`;
             out += reasons.map(r => `• ${r}`).join('\n') + '\n';
             out += `─────────────────────────────\n`;
             out += `▶ SIGNAL: ${signal}\n`;
             out += `▶ TIER: ${tier}\n`;
             out += `▶ CONVICTION: ${conviction}\n`;
-            out += `▶ REASON: ${reasons[0] || '—'}\n`;
             out += `▶ NEXT ACTION: ${nextAction}`;
             return out;
         }

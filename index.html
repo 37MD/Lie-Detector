@@ -13229,24 +13229,17 @@ Return ONLY valid JSON, no markdown, no extra text:
     <div id="ld-ai-panel">
         <div class="ld-ai-header">
             <span>📊 System Brain Auditor</span>
-            <div>
-                <button type="button" id="ld-ai-settings-btn" class="ld-ai-close" style="font-size:12px; margin-right:8px;">⚙️</button>
-                <button type="button" id="ld-ai-close-btn" class="ld-ai-close">✕</button>
-            </div>
-        </div>
-        <div id="ld-ai-settings-panel" class="ld-ai-settings">
-            <input type="password" id="ld-ai-api-key" placeholder="Enter Gemini API Key">
-            <button type="button" id="ld-ai-save-key" style="background:var(--accent);color:#fff;border:none;padding:6px;border-radius:4px;cursor:pointer;font-size:0.6rem;">SAVE KEY</button>
+            <button type="button" id="ld-ai-close-btn" class="ld-ai-close">✕</button>
         </div>
         <div class="ld-ai-chat-area" id="ld-ai-chat-area">
             <div class="ld-ai-message system">
-                Lean mode ( Fast, No tokens) · Current Fund — local signal read. Deep mode for ALL FUNDS ANALYSIS (Slow, No tokens).
+                Deep mode — ALL FUNDS ANALYSIS (Slow, No tokens). Lean mode — Current Fund only (Fast, No tokens).
             </div>
         </div>
         <button id="ld-ai-scroll-btn" style="position:absolute;bottom:110px;right:28px;background:var(--accent,#009e70);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.2);z-index:10002;">↓</button>
         <div style="padding: 0 16px 8px; background: var(--surface, #f2f5f9); border-top: 1px solid var(--border, #b0bece); display: flex; gap: 6px;">
-            <button type="button" id="ld-ai-analyze-fund-btn" style="flex:1; background: var(--accent, #009e70); color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 0.58rem; font-weight: bold; text-transform: uppercase; line-height: 1.3;">📊 Current Fund<br>Lean Analysis</button>
             <button type="button" id="ld-ai-deep-all-btn" style="flex:1; background: #7c3aed; color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 0.58rem; font-weight: bold; text-transform: uppercase; line-height: 1.3;">🔍 All Funds<br>Deep Analysis</button>
+            <button type="button" id="ld-ai-analyze-fund-btn" style="flex:1; background: var(--accent, #009e70); color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 0.58rem; font-weight: bold; text-transform: uppercase; line-height: 1.3;">📊 Current Fund<br>Lean Analysis</button>
         </div>
         <div class="ld-ai-input-area">
             <input type="text" id="ld-ai-input" placeholder="Analyze market and answer queries...">
@@ -13260,9 +13253,7 @@ Return ONLY valid JSON, no markdown, no extra text:
         const chatArea = document.getElementById('ld-ai-chat-area');
         const input = document.getElementById('ld-ai-input');
         const submit = document.getElementById('ld-ai-submit');
-        const apiKeyIn = document.getElementById('ld-ai-api-key');
         let apiKey = localStorage.getItem('ld_gemini_api_key') || '';
-        if (apiKey) apiKeyIn.value = apiKey;
 
         // === Scroll-to-bottom button wiring ===
         const scrollBtn = document.getElementById('ld-ai-scroll-btn');
@@ -13312,30 +13303,9 @@ Return ONLY valid JSON, no markdown, no extra text:
         el.addEventListener('click', (e) => {
             if (!dragMoved) {
                 panel.classList.toggle('open');
-                if (panel.classList.contains('open')) {
-                    const inputArea = document.querySelector('.ld-ai-input-area');
-                    const analyzeBtnWrap = document.getElementById('ld-ai-analyze-fund-btn')?.parentElement;
-                    // Always show chat — no API key required (local analysis)
-                    document.getElementById('ld-ai-settings-panel').classList.remove('open');
-                    chatArea.style.display = 'block';
-                    if (inputArea) inputArea.style.display = 'flex';
-                    if (analyzeBtnWrap) analyzeBtnWrap.style.display = 'flex';
-                }
             }
         });
         document.getElementById('ld-ai-close-btn').onclick = (e) => { e.preventDefault(); panel.classList.remove('open'); };
-        document.getElementById('ld-ai-settings-btn').onclick = (e) => { e.preventDefault(); document.getElementById('ld-ai-settings-panel').classList.toggle('open'); };
-        document.getElementById('ld-ai-save-key').onclick = (e) => {
-            e.preventDefault();
-            apiKey = apiKeyIn.value.trim();
-            if (!apiKey) {
-                 appendMsg('system', 'Please enter a valid key.');
-                 return;
-            }
-            localStorage.setItem('ld_gemini_api_key', apiKey);
-            document.getElementById('ld-ai-settings-panel').classList.remove('open');
-            appendMsg('system', 'API Key saved — used for ✨ AI Breadth Analysis in Live Cockpit. Auditor runs locally (no key needed).');
-        };
         function appendMsg(role, text) {
             const d = document.createElement('div');
             d.className = `ld-ai-message ${role}`;
@@ -13750,17 +13720,19 @@ Return ONLY valid JSON, no markdown, no extra text:
 
         function runLocalDeep() {
             appendMsg('user', '🔍 All Funds — Deep Analysis');
-            const load = document.createElement('div');
-            load.className = 'ld-ai-message system';
-            load.innerText = '🔍 Building full signal dump…';
-            chatArea.appendChild(load);
-            chatArea.scrollTop = chatArea.scrollHeight;
-            setTimeout(() => {
-                load.remove();
-                const dump = gatherContext();
-                const verdict = interpretSignalDump(dump, true);
-                appendMsg('system', verdict);
-            }, 80);
+            let dump, verdict;
+            try {
+                dump = gatherContext();
+            } catch(e) {
+                appendMsg('system', '⚠ Deep context error: ' + e.message + '\nTry opening Live Cockpit first to load fund data.');
+                return;
+            }
+            try {
+                verdict = interpretSignalDump(dump, true);
+            } catch(e) {
+                verdict = '⚠ Signal interpretation error: ' + e.message;
+            }
+            appendMsg('system', verdict);
         }
 
         function interpretSignalDump(dump, isDeep) {

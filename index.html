@@ -13119,8 +13119,14 @@ Return ONLY valid JSON, no markdown, no extra text:
             })
         });
 
-        const data = await resp.json();
+const data = await resp.json();
+        
+        if (!resp.ok || data.error) {
+            throw new Error(data.error?.message || `API HTTP Error: ${resp.status}`);
+        }
+
         const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
         
         // Use cleanAiResponse from Pdf.html to strip markdown fences
         let clean = abpCleanAiResponse(rawText);

@@ -13083,73 +13083,66 @@ window.executeAIBreadthCheck = async function() {
     const fundR1m = _abpFund.r1m != null ? `${Number(_abpFund.r1m).toFixed(2)}%` : '—';
     const fundRegime = parseFloat(fundWrsi) >= 50 ? 'A (Hope)' : parseFloat(fundWrsi) >= 40 ? 'B (Watch)' : 'C (Fear)';
 
-const promptText = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System.
-TASK: Identify the CORRECT underlying index for this fund from its name, then provide breadth confirmation using the TOP 5 CONSTITUENTS of THAT specific index.
+    // ── JS Fund→Index Lookup (zero API tokens) ─────────────────────────
+    function _abpGetIndexInfo(name) {
+        const n = (name || '').toLowerCase();
+        if (n.includes('gold') || n.includes('silver'))
+            return { equity: false, reason: 'Commodity fund — equity breadth not applicable.' };
+        if (n.includes('[nps]') && n.includes('scheme c'))
+            return { equity: false, reason: 'NPS Scheme C is a corporate bond fund — equity breadth not applicable.' };
+        const map = [
+            { k:'nifty it',              idx:'Nifty IT',                        s:[['TCS','20%'],['Infosys','15%'],['HCL Tech','12%'],['Wipro','10%'],['Tech Mahindra','8%']] },
+            { k:'private bank',          idx:'Nifty Private Bank',              s:[['HDFC Bank','26%'],['ICICI Bank','22%'],['Kotak Bank','16%'],['Axis Bank','14%'],['IndusInd Bank','10%']] },
+            { k:'nifty bank',            idx:'Nifty Bank',                      s:[['HDFC Bank','28%'],['ICICI Bank','20%'],['Kotak Bank','12%'],['Axis Bank','10%'],['SBI','8%']] },
+            { k:'nifty auto',            idx:'Nifty Auto',                      s:[['Maruti Suzuki','20%'],['M&M','18%'],['Bajaj Auto','16%'],['Eicher Motors','12%'],['Hero MotoCorp','10%']] },
+            { k:'nifty pharma',          idx:'Nifty Pharma',                    s:[['Sun Pharma','22%'],['Dr Reddys','16%'],['Cipla','12%'],['Divis Lab','10%'],['Apollo Hospitals','8%']] },
+            { k:'nifty realty',          idx:'Nifty Realty',                    s:[['DLF','24%'],['Macrotech','18%'],['Godrej Properties','14%'],['Prestige Estates','12%'],['Phoenix Mills','10%']] },
+            { k:'bse housing',           idx:'BSE Housing',                     s:[['DLF','18%'],['Macrotech','14%'],['Godrej Properties','12%'],['Prestige Estates','10%'],['Oberoi Realty','8%']] },
+            { k:'ev',                    idx:'Nifty EV & New Age Auto',         s:[['Tata Motors','22%'],['Bharat Forge','16%'],['Exide Industries','14%'],['Motherson Sumi','12%'],['Olectra Greentech','10%']] },
+            { k:'india digital',         idx:'Nifty India Digital',             s:[['Infosys','20%'],['TCS','18%'],['Persistent','14%'],['Coforge','12%'],['Mphasis','10%']] },
+            { k:'india consumption',     idx:'Nifty India Consumption',         s:[['ITC','18%'],['HUL','16%'],['Nestle India','12%'],['Titan','12%'],['Avenue Supermarts','10%']] },
+            { k:'india defence',         idx:'Nifty India Defence',             s:[['HAL','25%'],['BEL','20%'],['Bharat Dynamics','18%'],['BEML','14%'],['Data Patterns','10%']] },
+            { k:'commodit',              idx:'Nifty Commodities',               s:[['Coal India','20%'],['ONGC','18%'],['Hindalco','14%'],['Tata Steel','12%'],['JSW Steel','10%']] },
+            { k:'quality 30',            idx:'Nifty100 Quality 30',             s:[['TCS','12%'],['Infosys','10%'],['Bajaj Finance','8%'],['Asian Paints','8%'],['HCL Tech','7%']] },
+            { k:'value 30',              idx:'Nifty200 Value 30',               s:[['ONGC','14%'],['Coal India','12%'],['NMDC','10%'],['Power Grid','10%'],['GAIL','8%']] },
+            { k:'200 momentum 30',       idx:'Nifty200 Momentum 30',            s:[['Reliance','15%'],['HDFC Bank','12%'],['TCS','10%'],['Infosys','9%'],['ICICI Bank','8%']] },
+            { k:'500 momentum',          idx:'Nifty500 Momentum 50',            s:[['Reliance','10%'],['HDFC Bank','8%'],['TCS','7%'],['Infosys','6%'],['ICICI Bank','5%']] },
+            { k:'midcap 150 mom',        idx:'Nifty Midcap150 Momentum 50',     s:[['Persistent','3%'],['Coforge','2.5%'],['Indian Hotels','2%'],['Voltas','2%'],['Tube Investments','1.8%']] },
+            { k:'midcap 150',            idx:'Nifty Midcap 150',                s:[['Persistent','3%'],['Coforge','2.5%'],['Indian Hotels','2%'],['Voltas','2%'],['Tube Investments','1.8%']] },
+            { k:'smallcap 250',          idx:'Nifty SmallCap 250',              s:[['K.P.R. Mill','1.5%'],['Hatsun Agro','1.2%'],['Galaxy Surfactants','1.1%'],['Genesys Intl','1%'],['IIFL Securities','0.9%']] },
+            { k:'fin serv ex',           idx:'Nifty Fin Services Ex-Bank',      s:[['Bajaj Finance','22%'],['SBI Life','14%'],['HDFC AMC','12%'],['ICICI Lombard','10%'],['Muthoot Finance','8%']] },
+            { k:'500 multicap',          idx:'Nifty500 Multicap',               s:[['Reliance','8%'],['TCS','7%'],['HDFC Bank','6%'],['Infosys','5%'],['ICICI Bank','4%']] },
+            { k:'nifty 50',              idx:'Nifty 50',                        s:[['Reliance','10%'],['TCS','8%'],['HDFC Bank','7%'],['Infosys','7%'],['ICICI Bank','6%']] },
+        ];
+        for (const m of map) { if (n.includes(m.k)) return { equity:true, idx:m.idx, stocks:m.s }; }
+        // NPS Scheme E or Flexi/BAF → Nifty 50 proxy
+        return { equity:true, idx:'Nifty 50 (broad equity proxy)', stocks:[['Reliance','10%'],['TCS','8%'],['HDFC Bank','7%'],['Infosys','7%'],['ICICI Bank','6%']] };
+    }
 
-FUND BEING ANALYSED:
-Name: ${fundName}
-Regime: ${fundRegime}
-W-RSI: ${fundWrsi}
-D-RSI: ${fundDrsi}
-1M Return: ${fundR1m}
+    const idxInfo = _abpGetIndexInfo(fundName);
 
-STEP 0 — IDENTIFY THE CORRECT INDEX from the fund name:
-Use this mapping to identify which index/asset this fund tracks:
-- "Nifty IT" → Nifty IT Index (top IT stocks: TCS, Infosys, HCL Tech, Wipro, Tech Mahindra)
-- "Nifty Bank" or "Nifty Private Bank" → Nifty Private Bank Index (HDFC Bank, ICICI Bank, Kotak, Axis, IndusInd)
-- "Nifty Auto" → Nifty Auto Index (Maruti, M&M, Bajaj Auto, Eicher, Hero MotoCorp)
-- "Nifty Pharma" → Nifty Pharma Index (Sun Pharma, Dr Reddy, Cipla, Divis, Aurobindo)
-- "Nifty Realty" → Nifty Realty Index (DLF, Macrotech, Godrej Properties, Prestige, Phoenix Mills)
-- "Nifty EV" or "EV & New Age Auto" → Nifty EV & New Age Auto Index (Tata Motors, Ola Electric, Bharat Forge, Exide, Motherson)
-- "Nifty India Digital" → Nifty India Digital Index (Infosys, TCS, Persistent, Coforge, Mphasis)
-- "Nifty India Consumption" → Nifty India Consumption Index (ITC, HUL, Nestle, Titan, Avenue Supermarts)
-- "Nifty India Defence" → Nifty India Defence Index (HAL, BEL, Bharat Dynamics, BEML, Data Patterns)
-- "Nifty Commodities" → Nifty Commodities Index (Coal India, ONGC, Hindalco, Tata Steel, JSW Steel)
-- "Nifty Realty" or "BSE Housing" → Housing/Realty sector stocks
-- "Nifty100 Quality 30" → Nifty100 Quality 30 (quality-screened large caps: TCS, Infosys, Bajaj Finance, Asian Paints, HCL Tech)
-- "Nifty200 Value 30" → Nifty200 Value 30 (value-screened: ONGC, Coal India, NMDC, Power Grid, GAIL)
-- "Nifty200 Momentum 30" or "Nifty200 Mom" → Nifty200 Momentum 30 (recent momentum leaders)
-- "Nifty500 Momentum 50" → Nifty500 Momentum 50 (broader momentum leaders)
-- "Nifty Midcap 150" or "Midcap 150 Mom" → Nifty Midcap 150 (Persistent, Coforge, Tube Investments, Indian Hotels, Voltas)
-- "Nifty SmallCap 250" → Nifty SmallCap 250 (diverse small caps)
-- "Nifty Fin Serv Ex-Bank" → Nifty Financial Services Ex-Bank (Bajaj Finance, SBI Life, HDFC AMC, ICICI Lombard, Muthoot)
-- "NIFTY500 Multicap" → Nifty500 Multicap 50:25:25 (balanced large/mid/small mix)
-- "Nifty 50 Index" → Nifty 50 (Reliance, TCS, HDFC Bank, Infosys, ICICI Bank)
-- "Flexi Cap" or "FlexiCap" → Broad equity (model at AMC's discretion — use Nifty 50 top 5 as proxy)
-- "Balanced Advantage" or "BAF" → Mixed equity/debt — use large cap equity portion (Nifty 50 top 5 as proxy)
-- "Gold ETF" or "Gold Fund" → Gold/commodity — NOT equity breadth; set all verdicts to N/A, bull_count=0, confirmation="N/A", reasoning="Gold fund — equity breadth not applicable."
-- "Silver ETF" or "Silver Fund" → Silver/commodity — same as Gold, not equity breadth
-- "Gold Silver" → Mixed commodity — same as above
-- "[NPS] Scheme C" → NPS Corporate Bond fund — NOT equity; set all verdicts to N/A, bull_count=0, confirmation="N/A", reasoning="NPS Scheme C is a corporate bond fund — equity breadth not applicable."
-- "[NPS] Scheme E" → NPS Equity scheme — tracks broad Indian equity; use Nifty 50 top 5 (Reliance, TCS, HDFC Bank, Infosys, ICICI Bank)
+    // Non-equity funds: skip API call entirely, render N/A directly
+    if (!idxInfo.equity) {
+        _renderVerdict({ bull_count:0, bull_weight_sum:'0%', confirmation:'N/A', sop_action:'Not applicable — not an equity fund.' });
+        _renderStocks([]);
+        _renderReasoning(idxInfo.reason);
+        document.getElementById('abpLoading').classList.remove('visible');
+        document.getElementById('abpRunBtn').disabled = false;
+        document.getElementById('abpRunBtnLabel').textContent = 'Run Again';
+        return;
+    }
 
-STEP 1 — Pick the TOP 5 constituents by weight for the identified index (from the mapping above).
+    const stockLines = idxInfo.stocks.map(([t,w]) => `${t} (${w})`).join(', ');
 
-STEP 2 — Based on the fund's regime (W-RSI: ${fundWrsi}) and 1M return (${fundR1m}), reason about the likely regime and 14-day trend for each constituent. Stocks in the same sector as the fund will broadly follow the fund's regime direction.
+const promptText = `You are an Indian equity analyst. For ${fundName} (tracking ${idxInfo.idx}):
+Fund W-RSI: ${fundWrsi} → Regime ${fundRegime} | D-RSI: ${fundDrsi} | 1M Return: ${fundR1m}
 
-STEP 3 — For each stock assign:
-  * Regime A (Hope): W-RSI >= 50
-  * Regime B (Watch): W-RSI >= 40 and < 50
-  * Regime C (Fear): W-RSI < 40
-  VERDICT: BULL only if Regime A AND trend RISING. Otherwise BEAR.
+Top 5 constituents: ${stockLines}
 
-STEP 4 — Calculate total weight % of BULL stocks.
+For each stock, infer its likely W-RSI regime (A=>=50, B=40-49, C=<40) and 14-day trend (RISING/FALLING) based on the fund's own regime and sector context. BULL = Regime A AND RISING. Else BEAR.
 
-Return ONLY valid JSON, no markdown, no extra text:
-{
-  "stocks": [
-    {"ticker":"STOCK_1","weight":"X.X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"max 6 words, estimated W-RSI range"},
-    {"ticker":"STOCK_2","weight":"X.X%","trend_14d":"FALLING","regime":"C","verdict":"BEAR","note":"max 6 words, estimated W-RSI range"},
-    {"ticker":"STOCK_3","weight":"X.X%","trend_14d":"RISING","regime":"B","verdict":"BEAR","note":"max 6 words, estimated W-RSI range"},
-    {"ticker":"STOCK_4","weight":"X.X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"max 6 words, estimated W-RSI range"},
-    {"ticker":"STOCK_5","weight":"X.X%","trend_14d":"FALLING","regime":"A","verdict":"BEAR","note":"max 6 words, estimated W-RSI range"}
-  ],
-  "bull_count": 2,
-  "bull_weight_sum": "X.X%",
-  "confirmation": "CAUTION",
-  "sop_action": "max 12 words, SOP action for this fund based on breadth",
-  "reasoning": "max 2 sentences — name the identified index, then give macro breadth context inferred from fund regime and return"
-}`;
+Return ONLY valid JSON:
+{"stocks":[{"ticker":"X","weight":"X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"brief W-RSI estimate"}],"bull_count":0,"bull_weight_sum":"X%","confirmation":"CONFIRMED|CAUTION|WEAK","sop_action":"max 12 words","reasoning":"1-2 sentences on ${idxInfo.idx} breadth"}`;
 
 
 

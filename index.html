@@ -13027,10 +13027,9 @@ categories.forEach(cat => {
 
         // ── Execute AI Call ────────────────────────────────────
 
-
 window.abpFetchWithRetry = async function(url, options, maxRetries = 3) {
     let retries = 0;
-    let delay = 3000;
+    let delay = 20000; // Start with 20 seconds to guarantee crossing the 1-minute reset
 
     while (retries < maxRetries) {
         try {
@@ -13057,6 +13056,8 @@ window.abpFetchWithRetry = async function(url, options, maxRetries = 3) {
     
     throw new Error("API failed after maximum retries due to strict rate limits. Please wait 1 minute and try again.");
 };
+
+
 
 window.executeAIBreadthCheck = async function() {
     if (!_abpFund) return;
@@ -13089,7 +13090,7 @@ window.executeAIBreadthCheck = async function() {
     const fundR1m = _abpFund.r1m != null ? `${Number(_abpFund.r1m).toFixed(2)}%` : '—';
     const fundRegime = parseFloat(fundWrsi) >= 50 ? 'A (Hope)' : parseFloat(fundWrsi) >= 40 ? 'B (Watch)' : 'C (Fear)';
 
-    const promptText = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System.
+const promptText = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System.
 TASK: Provide index breadth confirmation for this SPECIFIC FUND using LIVE WEB SEARCH data.
 
 FUND BEING ANALYSED:
@@ -13100,18 +13101,14 @@ D-RSI: ${fundDrsi}
 1M Return: ${fundR1m}
 
 INSTRUCTIONS:
-1. Search the web for the LATEST STOCK CONSTITUENTS of the index tracked by this fund (source from NSE India, NPS Trust, or the fund manager's website).
-2. Sort the constituents from highest to lowest weightage.
-3. Pick the TOP 5 stocks by weight.
-4. For each of these 5 stocks, perform a strict debug analysis:
-   - STEP 4a (REGIME CHECK): Search for the current 14-period Weekly RSI (W-RSI) for the stock, calculated using Friday closing prices (standard TradingView format). 
-     Map the RSI to the following Regimes:
+1. Search the web to identify the LATEST TOP 5 STOCK CONSTITUENTS by weight for the index tracked by this fund.
+2. Perform ONE consolidated web search to find the current 14-period Weekly RSI (W-RSI) and the 14-day price trend (RISING or FALLING) for ALL 5 of these stocks simultaneously.
+3. For each stock, map its W-RSI to the following Regimes:
      * Regime A (Hope): W-RSI >= 50
      * Regime B (Watch): W-RSI >= 40 and < 50
      * Regime C (Fear): W-RSI < 40
-   - STEP 4b (TREND CHECK): Identify its price trend over the LAST 2 WEEKS (RISING or FALLING).
-   - STEP 4c (VERDICT): Evaluate the data. If the stock is BOTH in Regime A AND its price is RISING, the verdict is BULL (BUY). Otherwise, the verdict is BEAR (SELL/HOLD).
-5. STEP 5: Calculate the total combined weight percentage of the stocks that received a BULL verdict.
+4. EVALUATE VERDICT: If a stock is BOTH in Regime A AND its price is RISING, the verdict is BULL (BUY). Otherwise, the verdict is BEAR (SELL/HOLD).
+5. Calculate the total combined weight percentage of the stocks that received a BULL verdict.
 
 Return ONLY valid JSON, no markdown, no extra text:
 {
@@ -13128,6 +13125,8 @@ Return ONLY valid JSON, no markdown, no extra text:
   "sop_action": "max 12 words, SOP action for this fund's regime based on breadth",
   "reasoning": "max 2 sentences of macro context and search results for this fund"
 }`;
+
+
 
     try {
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;

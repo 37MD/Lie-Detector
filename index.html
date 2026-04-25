@@ -5590,9 +5590,13 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 // === FIX A: Export pcAlert + ncAlert to window so AI context can read them ===
                 window._lastPcAlert = snap.pcAlert || false;
                 window._lastNcAlert = snap.ncAlert || false;
-                const displayDate = (lastDate && lastDate.split('-').length === 3 && lastDate.split('-')[0].length === 4) ?
-                    lastDate.split('-').reverse().join('-') :
-                    lastDate;
+                // FIX-3: lastDate was never declared — derive it from globalLiveData
+                const _rawLastDate = globalLiveData.length
+                    ? (globalLiveData[globalLiveData.length - 1].date || '')
+                    : '';
+                const displayDate = (_rawLastDate && _rawLastDate.split('-').length === 3 && _rawLastDate.split('-')[0].length === 4)
+                    ? _rawLastDate.split('-').reverse().join('-')
+                    : _rawLastDate;
                 document.getElementById('liveNavDate').textContent = `NAV (${displayDate})`;
                 document.getElementById('liveNav').textContent = `NAV: ₹${snap.nav.toFixed(2)}`;
                 const dEl = document.getElementById('liveDRsi');
@@ -13863,114 +13867,245 @@ Return ONLY valid JSON, no markdown, no extra text:
                     w4, w8, w14, conviction, crossover, pcAlert, ncAlert,
                     macroVeto, niftyWrsi, ts } = S;
 
-            // ── Regime flags (numeric — authoritative) ──
-            const regA = wrsi >= 50;
-            const regB = wrsi >= 40 && wrsi < 50;
-            const regC = wrsi < 40;
-
-            // ── Conviction ──
-            // conviction string already computed; extract grade word
+            // ── Regime flags ──
+            const regA = wrsi >= 50, regB = wrsi >= 40 && wrsi < 50, regC = wrsi < 40;
             const convGrade = conviction.startsWith('HIGH') ? 'HIGH'
                             : conviction.startsWith('MEDIUM') ? 'MEDIUM' : 'LOW';
 
-            // ── Signal logic ──
+            // ─────────────────────────────────────────────────────────
+            // SHARED: derive the current-fund signal (used by both modes)
+            // ─────────────────────────────────────────────────────────
             let signal = 'HOLD', tier = '—', finalConv = convGrade, reasons = [];
             let nextAction = 'Monitor regime and RSI. No action required.';
 
-            // STEP 1 — MACRO GATE
             if (macroVeto === true) {
                 signal = 'WAIT'; tier = 'MACRO GATE';
                 reasons.push(`Nifty 50 W-RSI = ${niftyWrsi} — Fear regime. ALL BUY signals blocked.`);
                 nextAction = 'Wait for Nifty W-RSI > 40 before any BUY.';
-            }
-            // macroVeto === null means Nifty data not yet loaded — warn but don't block
-            else if (macroVeto === null) {
-                reasons.push('⚠ Nifty 50 W-RSI not yet loaded — Macro Gate UNVERIFIED. Reload Live Cockpit or wait 10s for async fetch.');
-            }
-            // STEP 2 — SELL CHECKS
-            else if (tslHit) {
-                signal = 'SELL ALL'; tier = 'T1 — TSL BREACH';
-                reasons.push(`NAV ₹${nav.toFixed(2)} < TSL Floor ₹${tslVal.toFixed(2)}. Non-negotiable exit.`);
-                nextAction = 'SELL ALL immediately (T+0). No exceptions.';
-            }
-            else if (ncAlert) {
-                signal = 'SELL ALERT'; tier = 'T4 — NC BREAKDOWN';
-                reasons.push('NC Breakdown active — cancel BUY orders, tighten TSL to box low.');
-                nextAction = 'Cancel all pending BUY orders. Tighten TSL watch immediately.';
-            }
-            else if (regC) {
-                signal = 'SELL ALL'; tier = 'T2 — REGIME FEAR';
-                reasons.push(`Fund W-RSI = ${wrsi} — Regime C (Fear). Crash exit rule active.`);
-                nextAction = 'SELL ALL (T+0). Re-enter only on confirmed Regime A breakout.';
-            }
-            else if (wma20 && nav < wma20 && regA) {
-                signal = 'TRIM 20%'; tier = 'T3 — WMA BREACH';
-                reasons.push(`NAV ₹${nav.toFixed(2)} < WMA20 ₹${wma20.toFixed(2)} in Regime A.`);
-                nextAction = 'Sell 20% of position. Monitor for TSL breach. Hold remainder.';
-            }
-            // STEP 3 — BUY CHECKS
-            else if (regA && drsi < 40) {
-                signal = 'BUY'; tier = drsi < 35 ? 'T1 — DEEP OVERSOLD' : 'T1 — OVERSOLD';
-                finalConv = drsi < 35 ? 'HIGH' : convGrade;
-                reasons.push(`Regime A + D-RSI = ${drsi} (< 40). Oversold entry signal.`);
-                if (drsi < 35) reasons.push('Deep Oversold (<35) — use larger tranche.');
-                nextAction = `BUY ${drsi < 35 ? '25–50%' : '25%'} of available capital (T+2).`;
-            }
-            else if (regA && delta < -15) {
-                signal = 'BUY'; tier = 'T2 — SLINGSHOT';
-                reasons.push(`Regime A + Delta = ${delta} (< −15). Momentum divergence.`);
-                nextAction = 'BUY 10–25% of available capital (T+2).';
-            }
-            else if (regA && pcAlert) {
-                signal = 'BUY'; tier = 'T3 — PC BREAKOUT';
-                reasons.push('Regime A + PC-Breakout detected. Consolidation escape entry.');
-                nextAction = 'BUY 15–25% of available capital (T+2).';
-            }
-            else if (crossover === 'BREAKOUT') {
-                signal = 'BUY'; tier = 'T4 — REGIME BREAKOUT';
-                reasons.push('W-RSI(4) just crossed 50 upward — fresh regime breakout.');
-                nextAction = 'BUY 25% of available capital (T+2).';
-            }
-            else if (regB) {
-                signal = 'HOLD'; tier = '—';
-                reasons.push(`Regime B (Watch). W-RSI = ${wrsi}. Waiting for crossover above 50.`);
-                nextAction = 'No BUY. Monitor for W-RSI > 50 crossover.';
-            }
-            else {
-                signal = 'HOLD'; tier = '—';
-                reasons.push(`Regime A — no BUY tier triggered. D-RSI: ${drsi}, Delta: ${delta}.`);
-                nextAction = 'Hold existing position. Wait for D-RSI <40 or Delta <−15.';
+            } else if (macroVeto === null) {
+                reasons.push('⚠ Nifty 50 W-RSI not yet loaded — Macro Gate UNVERIFIED. Reload Live Cockpit or wait 10s.');
             }
 
-            const modeTag = isDeep ? '🔍 DEEP SCAN — ALL SIGNALS' : '⚡ LEAN SCAN — CURRENT FUND';
-            const navDisp  = `₹${nav.toFixed(2)}`;
-            const tslDisp  = tslVal > 0 ? `₹${tslVal.toFixed(2)}${tslHit ? ' 🚨BREACHED' : ''}` : 'N/A';
-            const wmaDisp  = wma20 ? `₹${wma20.toFixed(2)}` : 'N/A';
-            const macroDisp = macroVeto === true  ? `🚨 YES — Nifty W-RSI ${niftyWrsi} (FEAR ZONE)`
-                            : macroVeto === false ? `NO — Nifty W-RSI ${niftyWrsi} (safe)`
-                            : '⚠ N/A — Nifty data loading… tap again in 10s';
-            const tsShort  = ts ? ts.slice(11,19) + ' UTC' : '—';
-            const regLine  = `${regime} | W-RSI 4W: ${w4 ?? '—'} | 8W: ${w8 ?? '—'} | 14W: ${w14 ?? '—'}`;
-            const crossDisp = crossover === 'BREAKOUT'  ? `${crossover} 🟢`
-                            : crossover === 'BREAKDOWN' ? `${crossover} 🚨` : crossover;
+            if (signal === 'HOLD') {
+                if (tslHit) {
+                    signal = 'SELL ALL'; tier = 'T1 — TSL BREACH';
+                    reasons.push(`NAV ₹${nav.toFixed(2)} < TSL Floor ₹${tslVal.toFixed(2)}. Non-negotiable exit.`);
+                    nextAction = 'SELL ALL immediately (T+0). No exceptions.';
+                } else if (ncAlert) {
+                    signal = 'SELL ALERT'; tier = 'T4 — NC BREAKDOWN';
+                    reasons.push('NC Breakdown active — cancel BUY orders, tighten TSL to box low.');
+                    nextAction = 'Cancel all pending BUY orders. Tighten TSL watch immediately.';
+                } else if (regC) {
+                    signal = 'SELL ALL'; tier = 'T2 — REGIME C';
+                    reasons.push(`W-RSI ${wrsi} < 40 — Structural Bear (Regime C). Capital destruction mode.`);
+                    nextAction = 'SELL ALL. Hold 100% cash until W-RSI > 40 restores.';
+                } else if (wma20 && nav < wma20 && regA) {
+                    signal = 'TRIM 20%'; tier = 'T3 — WMA BREACH';
+                    reasons.push(`NAV ₹${nav.toFixed(2)} broke below WMA20 ₹${wma20.toFixed(2)} in Regime A — reduce exposure.`);
+                    nextAction = 'Trim 20% of position. Re-enter on bounce above WMA20.';
+                } else if (regA && drsi < 35) {
+                    signal = 'BUY'; tier = 'T1 — DEEP OVERSOLD'; finalConv = convGrade;
+                    reasons.push(`Regime A + D-RSI ${drsi} < 35 — Deep oversold dip in structural bull. High-probability entry.`);
+                    nextAction = `Buy 20-25% tranche now. Set TSL at ₹${tslVal > 0 ? tslVal.toFixed(2) : 'Lowess floor'}.`;
+                } else if (regA && drsi < 40) {
+                    signal = 'BUY'; tier = 'T2 — OVERSOLD';
+                    reasons.push(`Regime A + D-RSI ${drsi} < 40 — Tactical oversold in bull regime.`);
+                    nextAction = `Buy 10-15% tranche. TSL ₹${tslVal > 0 ? tslVal.toFixed(2) : 'Lowess floor'}.`;
+                } else if (regA && delta < -15) {
+                    signal = 'BUY'; tier = 'T2 — SLINGSHOT';
+                    reasons.push(`Regime A + Delta ${delta} < -15 — Velocity collapse (slingshot setup).`);
+                    nextAction = 'Buy 10% tranche on this slingshot. Confirm D-RSI not rising fast.';
+                } else if (regA && pcAlert) {
+                    signal = 'BUY'; tier = 'T3 — PC BREAKOUT';
+                    reasons.push('Regime A + PC Breakout confirmed — price cleared consolidation box.');
+                    nextAction = 'Buy 10-15% tranche on breakout. Momentum carry likely.';
+                } else if (crossover === 'BREAKOUT') {
+                    signal = 'BUY'; tier = 'T4 — REGIME CROSSOVER';
+                    reasons.push('W-RSI crossed above 50 — regime just turned Hope. Early position.');
+                    nextAction = 'Buy 10% starter tranche. Confirm next week before adding.';
+                } else if (regB) {
+                    signal = 'HOLD'; tier = 'REGIME WATCH';
+                    reasons.push(`W-RSI ${wrsi} in 40-50 — Transition zone. Risk:Reward unclear.`);
+                    nextAction = 'No new positions. Watch for W-RSI > 50 crossover.';
+                } else {
+                    reasons.push(`No active signal. Regime A, no entry trigger. Hold existing positions.`);
+                }
+            }
 
-            let out = `${modeTag}\n`;
-            out += `Fund    : ${fund} (${code})\n`;
-            out += `Snap    : ${tsShort}\n`;
+            // ─────────────────────────────────────────────────────────
+            // LEAN MODE — current fund verdict only (concise, 10 lines)
+            // ─────────────────────────────────────────────────────────
+            if (!isDeep) {
+                const macroLine = macroVeto === true  ? `🚨 BLOCKED (Nifty W-RSI ${niftyWrsi})`
+                                : macroVeto === false ? `✅ CLEAR (Nifty W-RSI ${niftyWrsi})`
+                                : `⚠ UNVERIFIED`;
+                let out = `⚡ LEAN SCAN — ${fund}\n`;
+                out += `─────────────────────────────\n`;
+                out += `Snap   : ${ts ? ts.slice(11,16)+' UTC' : '—'}\n`;
+                out += `Regime : ${regime} | W-RSI: ${w4 ?? wrsi} | D-RSI: ${drsi}\n`;
+                out += `NAV    : ₹${nav.toFixed(2)} | TSL: ${tslVal > 0 ? '₹'+tslVal.toFixed(2) : 'N/A'} | WMA: ${wma20 ? '₹'+wma20.toFixed(2) : 'N/A'}\n`;
+                out += `Delta  : ${delta} | Crossover: ${crossover}\n`;
+                out += `Macro  : ${macroLine}\n`;
+                out += `─────────────────────────────\n`;
+                reasons.forEach(r => { out += `• ${r}\n`; });
+                out += `─────────────────────────────\n`;
+                out += `▶ SIGNAL     : ${signal}\n`;
+                out += `▶ TIER       : ${tier}\n`;
+                out += `▶ CONVICTION : ${finalConv}\n`;
+                out += `▶ NEXT ACTION: ${nextAction}`;
+                return out;
+            }
+
+            // ─────────────────────────────────────────────────────────
+            // DEEP MODE — parse dump for portfolio-wide analysis
+            // ─────────────────────────────────────────────────────────
+            // Helper: extract a section from the dump string
+            const getSection = (header) => {
+                const re = new RegExp(`\\[${header}\\]([\\s\\S]*?)(?=\\n\\[|$)`);
+                const m = dump.match(re);
+                return m ? m[1].trim() : '';
+            };
+
+            // Portfolio slots
+            const portfolioSec = getSection('LIVE PORTFOLIO STATE[^\\]]*');
+            const slot1Line = dump.match(/SLOT1: (.+)/)?.[1] || 'EMPTY';
+            const slot2Line = dump.match(/SLOT2: (.+)/)?.[1] || 'EMPTY';
+            const slot1Status = dump.match(/SLOT1[\s\S]{0,80}Status: ([^\n]+)/)?.[1] || '';
+            const slot2Status = dump.match(/SLOT2[\s\S]{0,80}Status: ([^\n]+)/)?.[1] || '';
+
+            // Switch journal
+            const switchSec = getSection('SWITCH JOURNAL[^\\]]*');
+            const hasSwitches = switchSec && !switchSec.includes('No active');
+
+            // Watchlist
+            const watchSec = getSection('WATCHLIST[^\\]]*');
+            const watchFunds = [];
+            if (watchSec) {
+                const wlines = watchSec.split('\n').filter(l => l.startsWith('-'));
+                wlines.forEach(l => {
+                    const nm = l.match(/- (.+?) \|/)?.[1];
+                    const wr = l.match(/wRSI:(\S+)/)?.[1];
+                    const rg = l.match(/Regime:(\S+)/)?.[1];
+                    if (nm) watchFunds.push({ name: nm, regime: rg, wrsi: wr });
+                });
+            }
+            const watchA = watchFunds.filter(f => f.regime === 'A' || (f.wrsi && parseFloat(f.wrsi) >= 50));
+            const watchC = watchFunds.filter(f => f.regime === 'C' || (f.wrsi && parseFloat(f.wrsi) < 40));
+
+            // Allocator top-2
+            const allocSec = getSection('ALLOCATOR STATE[^\\]]*');
+            const allocTop = [];
+            if (allocSec) {
+                const alines = allocSec.split('\n').filter(l => l.startsWith('Rank'));
+                alines.forEach(l => {
+                    const nm = l.match(/Rank \d+: (.+?) \|/)?.[1];
+                    const r1m = l.match(/1M Return: ([^|]+)/)?.[1]?.trim();
+                    const wr = l.match(/W-RSI: (\S+)/)?.[1];
+                    if (nm) allocTop.push({ name: nm, r1m, wrsi: wr });
+                });
+            }
+
+            // C3/BAF
+            const c3Line = dump.match(/C3 SIGNAL: ([^\n]+)/)?.[1] || 'N/A';
+            const beatsBaf = dump.match(/BEATS BAF \(1M\): ([^\n]+)/)?.[1] || 'N/A';
+
+            // RRG
+            const rrgQuad = dump.match(/Quadrant: ([^\n]+)/)?.[1] || 'N/A';
+            const rrgSig  = dump.match(/RRG ACTION SIGNAL: ([^\n]+)/)?.[1] || 'N/A';
+
+            // Deployment
+            const depLine = dump.match(/Currently Deployed: ([^\n]+)/)?.[1] || 'N/A';
+
+            // Macro
+            const macroLine2 = macroVeto === true  ? `🚨 BLOCKED — Nifty W-RSI ${niftyWrsi} (FEAR)`
+                             : macroVeto === false ? `✅ CLEAR — Nifty W-RSI ${niftyWrsi}`
+                             : `⚠ UNVERIFIED (Nifty loading)`;
+
+            // Build output
+            let out = `🔍 DEEP SCAN — PORTFOLIO VIEW\n`;
             out += `─────────────────────────────\n`;
-            out += `MACRO   : ${macroDisp}\n`;
-            out += `REGIME  : ${regLine}\n`;
-            out += `D-RSI   : ${drsi} | Delta: ${delta} | Crossover: ${crossDisp}\n`;
-            out += `NAV     : ${navDisp} | TSL: ${tslDisp} | WMA20: ${wmaDisp}\n`;
-            out += `PC Alert: ${pcAlert ? 'YES 🟢' : 'NO'} | NC Alert: ${ncAlert ? 'YES 🚨' : 'NO'}\n`;
-            out += `CONVICTION (W-RSI 4/8/14): ${conviction}\n`;
+            out += `MACRO GATE  : ${macroLine2}\n`;
+            out += `Deployment  : ${depLine}\n`;
             out += `─────────────────────────────\n`;
-            out += reasons.map(r => `• ${r}`).join('\n') + '\n';
+
+            // Section 1 — Current Fund
+            out += `\n① CURRENT FUND — ${fund} (${code})\n`;
+            out += `   Regime ${regime} | W-RSI ${w4 ?? wrsi} | D-RSI ${drsi} | Delta ${delta}\n`;
+            out += `   NAV ₹${nav.toFixed(2)} | TSL ${tslVal > 0 ? '₹'+tslVal.toFixed(2) : 'N/A'} | WMA ₹${wma20 ? wma20.toFixed(2) : 'N/A'}\n`;
+            reasons.forEach(r => { out += `   • ${r}\n`; });
+            out += `   ▶ ${signal} [${tier}] — Conviction: ${finalConv}\n`;
+            out += `   ▶ ${nextAction}\n`;
+
+            // Section 2 — Portfolio Slots
+            out += `\n② PORTFOLIO SLOTS\n`;
+            out += `   Slot 1: ${slot1Line}${slot1Status ? ' — '+slot1Status : ''}\n`;
+            out += `   Slot 2: ${slot2Line}${slot2Status ? ' — '+slot2Status : ''}\n`;
+            if (hasSwitches) {
+                out += `   Switch Journal: ACTIVE positions — review P&L before exit\n`;
+                const pnlLines = switchSec.split('\n').filter(l => l.includes('P&L:'));
+                pnlLines.forEach(l => { out += `     ${l.trim()}\n`; });
+            } else {
+                out += `   Switch Journal: No active switch positions\n`;
+            }
+
+            // Section 3 — Watchlist Scan
+            out += `\n③ WATCHLIST SCAN (${watchFunds.length} funds)\n`;
+            if (watchA.length > 0) {
+                out += `   ✅ Regime A (BUY eligible): ${watchA.map(f => f.name).join(', ')}\n`;
+            } else {
+                out += `   ✅ Regime A: None on watchlist currently\n`;
+            }
+            if (watchC.length > 0) {
+                out += `   🚨 Regime C (AVOID): ${watchC.map(f => f.name).join(', ')}\n`;
+            }
+            const watchB = watchFunds.filter(f => !watchA.includes(f) && !watchC.includes(f));
+            if (watchB.length > 0) {
+                out += `   🟡 Regime B (WATCH): ${watchB.map(f => f.name).join(', ')}\n`;
+            }
+
+            // Section 4 — Allocator Top-2
+            out += `\n④ ALLOCATOR TOP-2 PICKS\n`;
+            if (allocTop.length > 0) {
+                allocTop.forEach((f, i) => {
+                    out += `   Rank ${i+1}: ${f.name} | 1M: ${f.r1m || 'N/A'} | W-RSI: ${f.wrsi || 'N/A'}\n`;
+                });
+                const topMatchesCurrent = allocTop.some(f =>
+                    f.name?.toLowerCase().includes(fund.toLowerCase().slice(0,8)));
+                out += `   Current fund in Top-2: ${topMatchesCurrent ? 'YES — consistent signal' : 'NO — consider allocator pick if signal aligns'}\n`;
+            } else {
+                out += `   No allocator data. Run Allocator scan first.\n`;
+            }
+
+            // Section 5 — RRG + C3
+            out += `\n⑤ ROTATION + MOMENTUM CONFIRM\n`;
+            out += `   RRG Quadrant : ${rrgQuad}\n`;
+            out += `   RRG Signal   : ${rrgSig}\n`;
+            out += `   C3 Signal    : ${c3Line}\n`;
+            out += `   Beats BAF 1M : ${beatsBaf}\n`;
+
+            // Section 6 — Portfolio Action
+            out += `\n⑥ PORTFOLIO ACTION\n`;
+            const bothEmpty = slot1Line === 'EMPTY' && slot2Line === 'EMPTY';
+            const oneEmpty  = (slot1Line === 'EMPTY') !== (slot2Line === 'EMPTY');
+            if (macroVeto === true) {
+                out += `   🚨 MACRO VETO ACTIVE — hold all cash. No new entries.\n`;
+            } else if (signal === 'SELL ALL' || signal === 'SELL ALERT') {
+                out += `   🚨 EXIT SIGNAL on current fund. Review all slots for same fund.\n`;
+                out += `   Check watchlist for Regime A alternatives after exit.\n`;
+            } else if (signal === 'BUY' && bothEmpty) {
+                out += `   ✅ Both slots empty + BUY signal — deploy Slot 1 in ${fund}.\n`;
+                out += `   Slot 2 reserve for 2nd tranche or allocator top pick.\n`;
+            } else if (signal === 'BUY' && oneEmpty) {
+                out += `   ✅ One slot available + BUY signal — add tranche in ${fund}.\n`;
+                out += `   Conviction ${finalConv} → size accordingly.\n`;
+            } else if (signal === 'BUY') {
+                out += `   ✅ BUY signal but slots occupied — review if current positions\n`;
+                out += `   can be trimmed or a slot freed for fresh tranche.\n`;
+            } else {
+                out += `   No action on portfolio slots. Monitor regime.\n`;
+            }
             out += `─────────────────────────────\n`;
-            out += `▶ SIGNAL     : ${signal}\n`;
-            out += `▶ TIER       : ${tier}\n`;
-            out += `▶ CONVICTION : ${finalConv}\n`;
-            out += `▶ NEXT ACTION: ${nextAction}`;
+            out += `Scan captured: ${ts ? ts.slice(0,19).replace('T',' ')+' UTC' : '—'}`;
             return out;
         }
         // ── Button wiring ──────────────────────────────────────

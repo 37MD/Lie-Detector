@@ -13026,39 +13026,41 @@ categories.forEach(cat => {
         // ── End Pdf.html helpers ────────────────────────────────────────
 
         // ── Execute AI Call ────────────────────────────────────
-        window.executeAIBreadthCheck = async function() {
-            if (!_abpFund) return;
-            // Get key — prompt user if not stored (same pattern as Pdf.html)
-            let apiKey = '';
-            if (window.getGeminiKey) {
-                apiKey = window.getGeminiKey() || '';
-            } else {
-                apiKey = localStorage.getItem('ld_gemini_api_key') || '';
-                if (!apiKey) {
-                    const entered = prompt('Enter your Gemini API key (required for AI Breadth):\n\nGet one free at: https://aistudio.google.com/apikey');
-                    if (entered && entered.trim()) {
-                        apiKey = entered.trim();
-                        localStorage.setItem('ld_gemini_api_key', apiKey);
-                    }
-                }
+
+window.executeAIBreadthCheck = async function() {
+    if (!_abpFund) return;
+
+    // Get key — prompt user if not stored (same pattern as Pdf.html)
+    let apiKey = '';
+    if (window.getGeminiKey) {
+        apiKey = window.getGeminiKey() || '';
+    } else {
+        apiKey = localStorage.getItem('ld_gemini_api_key') || '';
+        if (!apiKey) {
+            const entered = prompt('Enter your Gemini API key (required for AI Breadth):\n\nGet one free at: https://aistudio.google.com/apikey');
+            if (entered && entered.trim()) {
+                apiKey = entered.trim();
+                localStorage.setItem('ld_gemini_api_key', apiKey);
             }
-            if (!apiKey) return;
-            document.getElementById('abpRunBtn').disabled = true;
-            document.getElementById('abpRunBtnLabel').textContent = 'Running…';
-            document.getElementById('abpLoading').classList.add('visible');
-            document.getElementById('abpVerdictBox').className = 'abp-verdict-box';
-            document.getElementById('abpStocksGrid').style.display = 'none';
-            document.getElementById('abpReasoning').classList.remove('visible');
+        }
+    }
+    if (!apiKey) return;
 
-            const fundName  = _abpFund.name || _abpFund.code;
-            const fundWrsi  = _abpFund.wrsi ?? '—';
-            const fundDrsi  = _abpFund.drsi ?? '—';
-            const fundR1m   = _abpFund.r1m != null ? `${Number(_abpFund.r1m).toFixed(2)}%` : '—';
-            const fundRegime = parseFloat(fundWrsi) >= 50 ? 'A (Hope)' : parseFloat(fundWrsi) >= 40 ? 'B (Watch)' : 'C (Fear)';
+    document.getElementById('abpRunBtn').disabled = true;
+    document.getElementById('abpRunBtnLabel').textContent = 'Running…';
+    document.getElementById('abpLoading').classList.add('visible');
+    document.getElementById('abpVerdictBox').className = 'abp-verdict-box';
+    document.getElementById('abpStocksGrid').style.display = 'none';
+    document.getElementById('abpReasoning').classList.remove('visible');
 
-            const prompt = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System (LD246LAI).
+    const fundName = _abpFund.name || _abpFund.code;
+    const fundWrsi = _abpFund.wrsi ?? '—';
+    const fundDrsi = _abpFund.drsi ?? '—';
+    const fundR1m = _abpFund.r1m != null ? `${Number(_abpFund.r1m).toFixed(2)}%` : '—';
+    const fundRegime = parseFloat(fundWrsi) >= 50 ? 'A (Hope)' : parseFloat(fundWrsi) >= 40 ? 'B (Watch)' : 'C (Fear)';
 
-TASK: Provide index breadth confirmation for this SPECIFIC FUND.
+    const promptText = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System.
+TASK: Provide index breadth confirmation for this SPECIFIC FUND using LIVE WEB SEARCH data.
 
 FUND BEING ANALYSED:
 Name: ${fundName}
@@ -13067,136 +13069,162 @@ W-RSI: ${fundWrsi}
 D-RSI: ${fundDrsi}
 1M Return: ${fundR1m}
 
-Assess the current price trend and momentum of the TOP 5 Nifty 50 stocks by index weightage based on recent (last 2 weeks) market conditions:
-1. RELIANCE INDUSTRIES (~9.5% weight)
-2. HDFC BANK (~8.5% weight)
-3. ICICI BANK (~7.8% weight)
-4. INFOSYS (~6.2% weight)
-5. TCS (~4.8% weight)
-
-For each stock determine:
-- 14-day price trend: POSITIVE or NEGATIVE
-- Position vs 20-day MA: ABOVE or BELOW
-- Verdict: BULL (positive trend AND above MA20) or BEAR
-
-Then provide a confirmation verdict specifically calibrated to the fund's own regime status above.
+INSTRUCTIONS:
+1. Search the web for the LATEST STOCK CONSTITUENTS of the index tracked by this fund (source from NSE India, NPS Trust, or the fund manager's website).
+2. Sort the constituents from highest to lowest weightage.
+3. Pick the TOP 5 stocks by weight.
+4. For each of these 5 stocks, perform a strict debug analysis:
+   - STEP 4a (REGIME CHECK): Search for the current 14-period Weekly RSI (W-RSI) for the stock, calculated using Friday closing prices (standard TradingView format). 
+     Map the RSI to the following Regimes:
+     * Regime A (Hope): W-RSI >= 50
+     * Regime B (Watch): W-RSI >= 40 and < 50
+     * Regime C (Fear): W-RSI < 40
+   - STEP 4b (TREND CHECK): Identify its price trend over the LAST 2 WEEKS (RISING or FALLING).
+   - STEP 4c (VERDICT): Evaluate the data. If the stock is BOTH in Regime A AND its price is RISING, the verdict is BULL (BUY). Otherwise, the verdict is BEAR (SELL/HOLD).
+5. STEP 5: Calculate the total combined weight percentage of the stocks that received a BULL verdict.
 
 Return ONLY valid JSON, no markdown, no extra text:
 {
   "stocks": [
-    {"ticker":"RELIANCE","weight":"~9.5%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"max 6 words"},
-    {"ticker":"HDFCBANK","weight":"~8.5%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"max 6 words"},
-    {"ticker":"ICICIBANK","weight":"~7.8%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"max 6 words"},
-    {"ticker":"INFY","weight":"~6.2%","trend_14d":"NEGATIVE","vs_ma20":"BELOW","verdict":"BEAR","note":"max 6 words"},
-    {"ticker":"TCS","weight":"~4.8%","trend_14d":"POSITIVE","vs_ma20":"ABOVE","verdict":"BULL","note":"max 6 words"}
+    {"ticker":"STOCK_1","weight":"X.X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"max 6 words, list exact W-RSI"},
+    {"ticker":"STOCK_2","weight":"X.X%","trend_14d":"FALLING","regime":"C","verdict":"BEAR","note":"max 6 words, list exact W-RSI"},
+    {"ticker":"STOCK_3","weight":"X.X%","trend_14d":"RISING","regime":"B","verdict":"BEAR","note":"max 6 words, list exact W-RSI"},
+    {"ticker":"STOCK_4","weight":"X.X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"max 6 words, list exact W-RSI"},
+    {"ticker":"STOCK_5","weight":"X.X%","trend_14d":"FALLING","regime":"A","verdict":"BEAR","note":"max 6 words, list exact W-RSI"}
   ],
-  "bull_count": 4,
-  "confirmation": "CONFIRMED",
-  "sop_action": "max 12 words, SOP action for this fund's regime",
-  "reasoning": "max 2 sentences of macro context for this fund"
+  "bull_count": 2,
+  "bull_weight_sum": "X.X%",
+  "confirmation": "CAUTION",
+  "sop_action": "max 12 words, SOP action for this fund's regime based on breadth",
+  "reasoning": "max 2 sentences of macro context and search results for this fund"
 }`;
 
-            try {
-                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                const resp = await abpFetchWithRetry(endpoint, {
-                    method:'POST',
-                    headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({
-                        contents:[{ role:'user', parts:[{ text: prompt }] }],
-                        generationConfig:{ temperature:0.05, maxOutputTokens:1800 }
-                    })
-                });
-                const data = await resp.json();
-                const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                // Use cleanAiResponse from Pdf.html to strip markdown fences
-                let clean = abpCleanAiResponse(rawText);
-                const jsonStart = clean.indexOf('{');
-                const jsonEnd   = clean.lastIndexOf('}');
-                if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
-                    clean = clean.slice(jsonStart, jsonEnd + 1);
+    try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const resp = await abpFetchWithRetry(endpoint, {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+                contents:[{
+                    role:'user',
+                    parts:[{ text: promptText }]
+                }],
+                tools: [{
+                    google_search: {}
+                }],
+                generationConfig:{
+                    temperature:0.05,
+                    maxOutputTokens:1800
                 }
-                // Attempt parse; if truncated, try to repair by closing open structure
-                let parsed;
-                try {
-                    parsed = JSON.parse(clean);
-                } catch(parseErr) {
-                    // Close any unclosed array/object and retry once
-                    let repaired = clean.trimEnd();
-                    if (!repaired.endsWith('}')) {
-                        const opens = (repaired.match(/\{/g)||[]).length - (repaired.match(/\}/g)||[]).length;
-                        const arrOpens = (repaired.match(/\[/g)||[]).length - (repaired.match(/\]/g)||[]).length;
-                        for(let i=0;i<arrOpens;i++) repaired += ']';
-                        for(let i=0;i<opens;i++) repaired += '}';
-                    }
-                    parsed = JSON.parse(repaired);
-                }
-                _renderVerdict(parsed);
-                _renderStocks(parsed.stocks);
-                _renderReasoning(parsed.reasoning);
-            } catch(err) {
-                document.getElementById('abpReasoningText').textContent = 'Error: ' + err.message + '\n\nPlease retry.';
-                document.getElementById('abpReasoning').classList.add('visible');
-            }
-            document.getElementById('abpLoading').classList.remove('visible');
-            document.getElementById('abpRunBtn').disabled = false;
-            document.getElementById('abpRunBtnLabel').textContent = 'Run Again';
-        };
+            })
+        });
 
-        function _renderVerdict(parsed) {
-            const bc = parsed.bull_count ?? 0;
-            let type, hl, sub, action;
-            if (bc >= 3) {
-                type='confirmed';
-                hl='✅ INDEX BREADTH CONFIRMED';
-                sub=`${bc}/5 Nifty heavyweights positive. Macro structure supports deployment per SOP.`;
-                action='▶ PROCEED — Execute per SOP. ' + (parsed.sop_action||'');
-            } else if (bc === 2) {
-                type='caution';
-                hl='⚠ BREADTH MARGINAL';
-                sub=`Only ${bc}/5 positive. Consider reducing tranche size or waiting one session.`;
-                action='⚠ REDUCE SIZE — Halve planned tranche. Monitor 1 session.';
-            } else {
-                type='weak';
-                hl='🚨 BREADTH WEAK — HOLD';
-                sub=`Only ${bc}/5 positive. Broad market structure does not support deployment.`;
-                action='✗ DO NOT DEPLOY — Wait for breadth ≥ 3/5.';
-            }
-            const vb = document.getElementById('abpVerdictBox');
-            vb.className = `abp-verdict-box visible ${type}`;
-            document.getElementById('abpVerdictHeadline').className = `abp-verdict-headline ${type}`;
-            document.getElementById('abpVerdictHeadline').textContent = hl;
-            document.getElementById('abpVerdictCount').className = `abp-verdict-count ${type}`;
-            document.getElementById('abpVerdictCount').textContent = bc;
-            document.getElementById('abpVerdictSub').textContent = sub;
-            const act = document.getElementById('abpVerdictAction');
-            act.className = `abp-verdict-action ${type}`;
-            act.textContent = action;
+        const data = await resp.json();
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        
+        // Use cleanAiResponse from Pdf.html to strip markdown fences
+        let clean = abpCleanAiResponse(rawText);
+        const jsonStart = clean.indexOf('{');
+        const jsonEnd = clean.lastIndexOf('}');
+        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+            clean = clean.slice(jsonStart, jsonEnd + 1);
         }
 
-        function _renderStocks(stocks) {
-            if (!stocks || !stocks.length) return;
-            const grid = document.getElementById('abpStocksGrid');
-            grid.style.display = 'grid';
-            grid.innerHTML = stocks.map(s => {
-                const bull = s.verdict === 'BULL';
-                return `<div class="abp-stock-card ${bull?'bull':'bear'}">
-                    <div class="abp-stock-ticker">
-                        <span>${s.ticker}</span>
-                        <span class="abp-stock-weight">${s.weight}</span>
-                    </div>
-                    <div class="abp-stock-row">
-                        <span>14d Trend</span>
-                        <span class="${s.trend_14d==='POSITIVE'?'abp-stock-val-pos':'abp-stock-val-neg'}">${s.trend_14d}</span>
-                    </div>
-                    <div class="abp-stock-row">
-                        <span>vs MA20</span>
-                        <span class="${s.vs_ma20==='ABOVE'?'abp-stock-val-pos':'abp-stock-val-neg'}">${s.vs_ma20}</span>
-                    </div>
-                    <div class="abp-stock-note">${s.note||''}</div>
-                    <div class="${bull?'abp-badge-bull':'abp-badge-bear'}">${bull?'▲ BULL':'▼ BEAR'}</div>
-                </div>`;
-            }).join('');
+        // Attempt parse; if truncated, try to repair by closing open structure
+        let parsed;
+        try {
+            parsed = JSON.parse(clean);
+        } catch(parseErr) {
+            // Close any unclosed array/object and retry once
+            let repaired = clean.trimEnd();
+            if (!repaired.endsWith('}')) {
+                const opens = (repaired.match(/\{/g)||[]).length - (repaired.match(/\}/g)||[]).length;
+                const arrOpens = (repaired.match(/\[/g)||[]).length - (repaired.match(/\]/g)||[]).length;
+                for(let i=0;i<arrOpens;i++) repaired += ']';
+                for(let i=0;i<opens;i++) repaired += '}';
+            }
+            parsed = JSON.parse(repaired);
         }
+
+        _renderVerdict(parsed);
+        _renderStocks(parsed.stocks);
+        _renderReasoning(parsed.reasoning);
+
+    } catch(err) {
+        document.getElementById('abpReasoningText').textContent = 'Error: ' + err.message + '\n\nPlease retry.';
+        document.getElementById('abpReasoning').classList.add('visible');
+    }
+
+    document.getElementById('abpLoading').classList.remove('visible');
+    document.getElementById('abpRunBtn').disabled = false;
+    document.getElementById('abpRunBtnLabel').textContent = 'Run Again';
+};
+
+function _renderVerdict(parsed) {
+    const bc = parsed.bull_count ?? 0;
+    const bWeight = parsed.bull_weight_sum || '0%';
+    let type, hl, sub, action;
+
+    if (bc >= 3) {
+        type='confirmed';
+        hl='✅ INDEX BREADTH CONFIRMED';
+        sub=`${bc}/5 Top stocks are positive. ${bWeight} of stocks by Weightage are in Regime A/Hope. Macro structure supports deployment per SOP.`;
+        action='▶ PROCEED — Execute per SOP. ' + (parsed.sop_action||'');
+    } else if (bc === 2) {
+        type='caution';
+        hl='⚠ BREADTH MARGINAL';
+        sub=`Only ${bc}/5 positive. ${bWeight} of stocks by Weightage are in Regime A/Hope. Consider reducing tranche size or waiting one session.`;
+        action='⚠ REDUCE SIZE — Halve planned tranche. Monitor 1 session.';
+    } else {
+        type='weak';
+        hl='🚨 BREADTH WEAK — HOLD';
+        sub=`Only ${bc}/5 positive. ${bWeight} of stocks by Weightage are in Regime A/Hope. Broad market structure does not support deployment.`;
+        action='✗ DO NOT DEPLOY — Wait for breadth ≥ 3/5.';
+    }
+
+    const vb = document.getElementById('abpVerdictBox');
+    vb.className = `abp-verdict-box visible ${type}`;
+    
+    document.getElementById('abpVerdictHeadline').className = `abp-verdict-headline ${type}`;
+    document.getElementById('abpVerdictHeadline').textContent = hl;
+    
+    document.getElementById('abpVerdictCount').className = `abp-verdict-count ${type}`;
+    document.getElementById('abpVerdictCount').textContent = bc;
+    
+    document.getElementById('abpVerdictSub').textContent = sub;
+    
+    const act = document.getElementById('abpVerdictAction');
+    act.className = `abp-verdict-action ${type}`;
+    act.textContent = action;
+}
+
+function _renderStocks(stocks) {
+    if (!stocks || !stocks.length) return;
+    const grid = document.getElementById('abpStocksGrid');
+    grid.style.display = 'grid';
+    grid.innerHTML = stocks.map(s => {
+        const bull = s.verdict === 'BULL';
+        return `<div class="abp-stock-card ${bull?'bull':'bear'}">
+            <div class="abp-stock-ticker">
+                <span>${s.ticker}</span>
+                <span class="abp-stock-weight">${s.weight}</span>
+            </div>
+            <div class="abp-stock-row">
+                <span>14d Trend</span>
+                <span class="${(s.trend_14d || '').toUpperCase() === 'RISING' ? 'abp-stock-val-pos' : 'abp-stock-val-neg'}">${s.trend_14d}</span>
+            </div>
+            <div class="abp-stock-row">
+                <span>Regime</span>
+                <span class="${(s.regime || '').toUpperCase() === 'A' ? 'abp-stock-val-pos' : 'abp-stock-val-neg'}">${s.regime}</span>
+            </div>
+            <div class="abp-stock-note">${s.note || ''}</div>
+            <div class="${bull?'abp-badge-bull':'abp-badge-bear'}">${bull?'▲ BUY':'▼ SELL'}</div>
+        </div>`;
+    }).join('');
+}
+
+
+
 
         function _renderReasoning(text) {
             if (!text) return;

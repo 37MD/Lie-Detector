@@ -12997,22 +12997,6 @@ categories.forEach(cat => {
                 </div>`).join('');
         }
 
-        // ── Gemini API helpers — copied verbatim from Pdf.html ─────────
-        async function abpFetchWithRetry(url, options, maxRetries = 3) {
-            let attempt = 0;
-            while (attempt < maxRetries) {
-                const response = await fetch(url, options);
-                if (response.status === 429) {
-                    attempt++;
-                    if (attempt >= maxRetries) throw new Error("Rate limit exceeded (429). Please wait a minute.");
-                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
-                } else {
-                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                    return response;
-                }
-            }
-        }
-
         function abpCleanAiResponse(text) {
             let t          = text.trim();
             const marker   = String.fromCharCode(96, 96, 96);
@@ -13023,72 +13007,50 @@ categories.forEach(cat => {
             if (t.endsWith(marker)) { t = t.substring(0, t.length - 3); }
             return t.trim();
         }
-        // ── End Pdf.html helpers ────────────────────────────────────────
 
-        // ── Execute AI Call ────────────────────────────────────
-
+        // ── Single retry helper — shows live countdown on 429 ─────────
 window.abpFetchWithRetry = async function(url, options, maxRetries = 3) {
-    let retries = 0;
-    let delay = 20000; // Start with 20 seconds to guarantee crossing the 1-minute reset
+    const loadingEl = document.getElementById('abpLoading');
+    const originalHTML = loadingEl ? loadingEl.innerHTML : '';
 
-    while (retries < maxRetries) {
+    function setLoadingMsg(msg) {
+        if (loadingEl) loadingEl.innerHTML = `<div style="text-align:center;font-size:0.65rem;color:var(--accent2,#c97a00);padding:8px 0;">${msg}</div>`;
+    }
+
+    async function countdown(seconds, attempt, total) {
+        for (let s = seconds; s > 0; s--) {
+            setLoadingMsg(`⏳ Rate limit hit (${attempt}/${total}) — retrying in ${s}s…`);
+            await new Promise(r => setTimeout(r, 1000));
+        }
+        if (loadingEl) loadingEl.innerHTML = originalHTML;
+    }
+
+    let retries = 0;
+    let delay = 30; // seconds — enough to cross Gemini's per-minute window
+
+    while (retries <= maxRetries) {
         try {
             const response = await fetch(url, options);
-
             if (response.status === 429) {
-                console.warn(`[API] 429 Rate Limit hit. Retrying in ${delay/1000}s... (Attempt ${retries + 1} of ${maxRetries})`);
-                await new Promise(resolve => setTimeout(resolve, delay));
                 retries++;
-                delay *= 2; 
+                if (retries > maxRetries) throw new Error(`Rate limit exceeded after ${maxRetries} retries. Please wait ~1 minute and try again.`);
+                console.warn(`[AI Breadth] 429 — waiting ${delay}s before retry ${retries}/${maxRetries}`);
+                await countdown(delay, retries, maxRetries);
+                delay = Math.min(delay + 15, 90); // increase by 15s each time, cap at 90s
                 continue;
             }
-
             return response;
-
         } catch (error) {
-            if (retries >= maxRetries - 1) throw error;
-            console.warn(`[API] Network error. Retrying in ${delay/1000}s...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
+            if (error.message.includes('429') || retries >= maxRetries) throw error;
             retries++;
-            delay *= 2;
+            await countdown(delay, retries, maxRetries);
+            delay = Math.min(delay + 15, 90);
         }
     }
-    
-    throw new Error("API failed after maximum retries due to strict rate limits. Please wait 1 minute and try again.");
+    throw new Error('API failed after maximum retries. Please wait 1 minute and try again.');
 };
 
 
-
-
-window.abpFetchWithRetry = async function(url, options, maxRetries = 3) {
-    let retries = 0;
-    let delay = 20000;
-
-    while (retries < maxRetries) {
-        try {
-            const response = await fetch(url, options);
-
-            if (response.status === 429) {
-                console.warn(`[API] 429 Rate Limit hit. Retrying in ${delay/1000}s... (Attempt ${retries + 1} of ${maxRetries})`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-                retries++;
-                delay *= 2; 
-                continue;
-            }
-
-            return response;
-
-        } catch (error) {
-            if (retries >= maxRetries - 1) throw error;
-            console.warn(`[API] Network error. Retrying in ${delay/1000}s...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-            retries++;
-            delay *= 2;
-        }
-    }
-    
-    throw new Error("API failed after maximum retries due to strict rate limits. Please wait 1 minute and try again.");
-};
 
 window.executeAIBreadthCheck = async function() {
     if (!_abpFund) return;
@@ -13121,7 +13083,7 @@ window.executeAIBreadthCheck = async function() {
     const fundR1m = _abpFund.r1m != null ? `${Number(_abpFund.r1m).toFixed(2)}%` : '—';
     const fundRegime = parseFloat(fundWrsi) >= 50 ? 'A (Hope)' : parseFloat(fundWrsi) >= 40 ? 'B (Watch)' : 'C (Fear)';
 
-    const promptText = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System.
+const promptText = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System.
 TASK: Provide index breadth confirmation for this SPECIFIC FUND using LIVE WEB SEARCH data.
 
 FUND BEING ANALYSED:
@@ -13157,9 +13119,11 @@ Return ONLY valid JSON, no markdown, no extra text:
   "reasoning": "max 2 sentences of macro context and search results for this fund"
 }`;
 
+
+
     try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-        const resp = await window.abpFetchWithRetry(endpoint, {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        const resp = await abpFetchWithRetry(endpoint, {
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body: JSON.stringify({
@@ -13183,14 +13147,7 @@ Return ONLY valid JSON, no markdown, no extra text:
             throw new Error(data.error?.message || `API HTTP Error: ${resp.status}`);
         }
 
-        let rawText = '';
-        if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
-            for (const part of data.candidates[0].content.parts) {
-                if (part.text) {
-                    rawText += part.text;
-                }
-            }
-        }
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
         
         let clean = abpCleanAiResponse(rawText);
         const jsonStart = clean.indexOf('{');
@@ -13213,9 +13170,9 @@ Return ONLY valid JSON, no markdown, no extra text:
             parsed = JSON.parse(repaired);
         }
 
-        if (typeof _renderVerdict === 'function') _renderVerdict(parsed);
-        if (typeof _renderStocks === 'function') _renderStocks(parsed.stocks);
-        if (typeof _renderReasoning === 'function') _renderReasoning(parsed.reasoning);
+        _renderVerdict(parsed);
+        _renderStocks(parsed.stocks);
+        _renderReasoning(parsed.reasoning);
 
     } catch(err) {
         document.getElementById('abpReasoningText').textContent = 'Error: ' + err.message + '\n\nPlease retry.';
@@ -13226,7 +13183,6 @@ Return ONLY valid JSON, no markdown, no extra text:
     document.getElementById('abpRunBtn').disabled = false;
     document.getElementById('abpRunBtnLabel').textContent = 'Run Again';
 };
-
 
 function _renderVerdict(parsed) {
     const bc = parsed.bull_count ?? 0;

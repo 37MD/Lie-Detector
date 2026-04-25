@@ -13170,13 +13170,13 @@ ${dataLines}
 Return ONLY valid JSON (no markdown):
 {"stocks":[{"ticker":"X","weight":"X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"W-RSI XX"}],"bull_count":0,"bull_weight_sum":"X%","confirmation":"CONFIRMED","sop_action":"max 12 words","reasoning":"2 sentences on ${idxInfo.idx} breadth based on above live data"}`;
 
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.0-flash'}:generateContent?key=${apiKey}`;
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash'}:generateContent?key=${apiKey}`;
         const resp = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ role: 'user', parts: [{ text: promptText2 }] }],
-                generationConfig: { temperature: 0.05, maxOutputTokens: 1500 }
+                generationConfig: { temperature: 0.05, maxOutputTokens: 8000 }
             })
         });
 
@@ -13198,14 +13198,21 @@ Return ONLY valid JSON (no markdown):
         try {
             parsed = JSON.parse(clean);
         } catch(parseErr) {
+            // Robust repair: handle unterminated strings, arrays, objects
             let repaired = clean.trimEnd();
-            if (!repaired.endsWith('}')) {
-                const opens = (repaired.match(/\{/g)||[]).length - (repaired.match(/\}/g)||[]).length;
-                const arrOpens = (repaired.match(/\[/g)||[]).length - (repaired.match(/\]/g)||[]).length;
-                for(let i=0;i<arrOpens;i++) repaired += ']';
-                for(let i=0;i<opens;i++) repaired += '}';
+            // Close unterminated string: if odd number of unescaped quotes, close it
+            const quoteCount = (repaired.match(/(?<!\\)"/g) || []).length;
+            if (quoteCount % 2 !== 0) repaired += '"';
+            // Close open arrays then objects
+            const arrOpens = (repaired.match(/\[/g)||[]).length - (repaired.match(/\]/g)||[]).length;
+            const objOpens = (repaired.match(/\{/g)||[]).length - (repaired.match(/\}/g)||[]).length;
+            for (let i = 0; i < arrOpens; i++) repaired += ']';
+            for (let i = 0; i < objOpens; i++) repaired += '}';
+            try {
+                parsed = JSON.parse(repaired);
+            } catch(e2) {
+                throw new Error('Response was cut off mid-JSON. Retrying usually fixes this — tap Run Again.');
             }
-            parsed = JSON.parse(repaired);
         }
 
         _renderVerdict(parsed);
@@ -14445,7 +14452,7 @@ Return ONLY valid JSON (no markdown):
         // ── State ──────────────────────────────────────────────────────
         let _pdfBase64    = null;   // raw base64 of last uploaded PDF
         let _pdfFilename  = '';
-        const GEMINI_PDF_MODEL = (window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.0-flash');
+        const GEMINI_PDF_MODEL = (window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash');
 
         // ── Defer until DOM is fully ready ─────────────────────────────
         function init() {

@@ -13084,7 +13084,7 @@ window.executeAIBreadthCheck = async function() {
     const fundRegime = parseFloat(fundWrsi) >= 50 ? 'A (Hope)' : parseFloat(fundWrsi) >= 40 ? 'B (Watch)' : 'C (Fear)';
 
 const promptText = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System.
-TASK: Provide index breadth confirmation for this SPECIFIC FUND using LIVE WEB SEARCH data.
+TASK: Identify the CORRECT underlying index for this fund from its name, then provide breadth confirmation using the TOP 5 CONSTITUENTS of THAT specific index.
 
 FUND BEING ANALYSED:
 Name: ${fundName}
@@ -13093,36 +13093,68 @@ W-RSI: ${fundWrsi}
 D-RSI: ${fundDrsi}
 1M Return: ${fundR1m}
 
-INSTRUCTIONS:
-1. Search the web to identify the LATEST TOP 5 STOCK CONSTITUENTS by weight for the index tracked by this fund.
-2. Perform ONE consolidated web search to find the current 14-period Weekly RSI (W-RSI) and the 14-day price trend (RISING or FALLING) for ALL 5 of these stocks simultaneously.
-3. For each stock, map its W-RSI to the following Regimes:
-     * Regime A (Hope): W-RSI >= 50
-     * Regime B (Watch): W-RSI >= 40 and < 50
-     * Regime C (Fear): W-RSI < 40
-4. EVALUATE VERDICT: If a stock is BOTH in Regime A AND its price is RISING, the verdict is BULL (BUY). Otherwise, the verdict is BEAR (SELL/HOLD).
-5. Calculate the total combined weight percentage of the stocks that received a BULL verdict.
+STEP 0 — IDENTIFY THE CORRECT INDEX from the fund name:
+Use this mapping to identify which index/asset this fund tracks:
+- "Nifty IT" → Nifty IT Index (top IT stocks: TCS, Infosys, HCL Tech, Wipro, Tech Mahindra)
+- "Nifty Bank" or "Nifty Private Bank" → Nifty Private Bank Index (HDFC Bank, ICICI Bank, Kotak, Axis, IndusInd)
+- "Nifty Auto" → Nifty Auto Index (Maruti, M&M, Bajaj Auto, Eicher, Hero MotoCorp)
+- "Nifty Pharma" → Nifty Pharma Index (Sun Pharma, Dr Reddy, Cipla, Divis, Aurobindo)
+- "Nifty Realty" → Nifty Realty Index (DLF, Macrotech, Godrej Properties, Prestige, Phoenix Mills)
+- "Nifty EV" or "EV & New Age Auto" → Nifty EV & New Age Auto Index (Tata Motors, Ola Electric, Bharat Forge, Exide, Motherson)
+- "Nifty India Digital" → Nifty India Digital Index (Infosys, TCS, Persistent, Coforge, Mphasis)
+- "Nifty India Consumption" → Nifty India Consumption Index (ITC, HUL, Nestle, Titan, Avenue Supermarts)
+- "Nifty India Defence" → Nifty India Defence Index (HAL, BEL, Bharat Dynamics, BEML, Data Patterns)
+- "Nifty Commodities" → Nifty Commodities Index (Coal India, ONGC, Hindalco, Tata Steel, JSW Steel)
+- "Nifty Realty" or "BSE Housing" → Housing/Realty sector stocks
+- "Nifty100 Quality 30" → Nifty100 Quality 30 (quality-screened large caps: TCS, Infosys, Bajaj Finance, Asian Paints, HCL Tech)
+- "Nifty200 Value 30" → Nifty200 Value 30 (value-screened: ONGC, Coal India, NMDC, Power Grid, GAIL)
+- "Nifty200 Momentum 30" or "Nifty200 Mom" → Nifty200 Momentum 30 (recent momentum leaders)
+- "Nifty500 Momentum 50" → Nifty500 Momentum 50 (broader momentum leaders)
+- "Nifty Midcap 150" or "Midcap 150 Mom" → Nifty Midcap 150 (Persistent, Coforge, Tube Investments, Indian Hotels, Voltas)
+- "Nifty SmallCap 250" → Nifty SmallCap 250 (diverse small caps)
+- "Nifty Fin Serv Ex-Bank" → Nifty Financial Services Ex-Bank (Bajaj Finance, SBI Life, HDFC AMC, ICICI Lombard, Muthoot)
+- "NIFTY500 Multicap" → Nifty500 Multicap 50:25:25 (balanced large/mid/small mix)
+- "Nifty 50 Index" → Nifty 50 (Reliance, TCS, HDFC Bank, Infosys, ICICI Bank)
+- "Flexi Cap" or "FlexiCap" → Broad equity (model at AMC's discretion — use Nifty 50 top 5 as proxy)
+- "Balanced Advantage" or "BAF" → Mixed equity/debt — use large cap equity portion (Nifty 50 top 5 as proxy)
+- "Gold ETF" or "Gold Fund" → Gold/commodity — NOT equity breadth; set all verdicts to N/A, bull_count=0, confirmation="N/A", reasoning="Gold fund — equity breadth not applicable."
+- "Silver ETF" or "Silver Fund" → Silver/commodity — same as Gold, not equity breadth
+- "Gold Silver" → Mixed commodity — same as above
+- "[NPS] Scheme C" → NPS Corporate Bond fund — NOT equity; set all verdicts to N/A, bull_count=0, confirmation="N/A", reasoning="NPS Scheme C is a corporate bond fund — equity breadth not applicable."
+- "[NPS] Scheme E" → NPS Equity scheme — tracks broad Indian equity; use Nifty 50 top 5 (Reliance, TCS, HDFC Bank, Infosys, ICICI Bank)
+
+STEP 1 — Pick the TOP 5 constituents by weight for the identified index (from the mapping above).
+
+STEP 2 — Based on the fund's regime (W-RSI: ${fundWrsi}) and 1M return (${fundR1m}), reason about the likely regime and 14-day trend for each constituent. Stocks in the same sector as the fund will broadly follow the fund's regime direction.
+
+STEP 3 — For each stock assign:
+  * Regime A (Hope): W-RSI >= 50
+  * Regime B (Watch): W-RSI >= 40 and < 50
+  * Regime C (Fear): W-RSI < 40
+  VERDICT: BULL only if Regime A AND trend RISING. Otherwise BEAR.
+
+STEP 4 — Calculate total weight % of BULL stocks.
 
 Return ONLY valid JSON, no markdown, no extra text:
 {
   "stocks": [
-    {"ticker":"STOCK_1","weight":"X.X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"max 6 words, list exact W-RSI"},
-    {"ticker":"STOCK_2","weight":"X.X%","trend_14d":"FALLING","regime":"C","verdict":"BEAR","note":"max 6 words, list exact W-RSI"},
-    {"ticker":"STOCK_3","weight":"X.X%","trend_14d":"RISING","regime":"B","verdict":"BEAR","note":"max 6 words, list exact W-RSI"},
-    {"ticker":"STOCK_4","weight":"X.X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"max 6 words, list exact W-RSI"},
-    {"ticker":"STOCK_5","weight":"X.X%","trend_14d":"FALLING","regime":"A","verdict":"BEAR","note":"max 6 words, list exact W-RSI"}
+    {"ticker":"STOCK_1","weight":"X.X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"max 6 words, estimated W-RSI range"},
+    {"ticker":"STOCK_2","weight":"X.X%","trend_14d":"FALLING","regime":"C","verdict":"BEAR","note":"max 6 words, estimated W-RSI range"},
+    {"ticker":"STOCK_3","weight":"X.X%","trend_14d":"RISING","regime":"B","verdict":"BEAR","note":"max 6 words, estimated W-RSI range"},
+    {"ticker":"STOCK_4","weight":"X.X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"max 6 words, estimated W-RSI range"},
+    {"ticker":"STOCK_5","weight":"X.X%","trend_14d":"FALLING","regime":"A","verdict":"BEAR","note":"max 6 words, estimated W-RSI range"}
   ],
   "bull_count": 2,
   "bull_weight_sum": "X.X%",
   "confirmation": "CAUTION",
-  "sop_action": "max 12 words, SOP action for this fund's regime based on breadth",
-  "reasoning": "max 2 sentences of macro context and search results for this fund"
+  "sop_action": "max 12 words, SOP action for this fund based on breadth",
+  "reasoning": "max 2 sentences — name the identified index, then give macro breadth context inferred from fund regime and return"
 }`;
 
 
 
     try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         const resp = await abpFetchWithRetry(endpoint, {
             method:'POST',
             headers:{'Content-Type':'application/json'},
@@ -13131,12 +13163,9 @@ Return ONLY valid JSON, no markdown, no extra text:
                     role:'user',
                     parts:[{ text: promptText }]
                 }],
-                tools: [{
-                    google_search: {}
-                }],
                 generationConfig:{
-                    temperature:0.05,
-                    maxOutputTokens:8000
+                    temperature:0.1,
+                    maxOutputTokens:1500
                 }
             })
         });

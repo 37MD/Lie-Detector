@@ -13059,6 +13059,37 @@ window.abpFetchWithRetry = async function(url, options, maxRetries = 3) {
 
 
 
+
+window.abpFetchWithRetry = async function(url, options, maxRetries = 3) {
+    let retries = 0;
+    let delay = 20000;
+
+    while (retries < maxRetries) {
+        try {
+            const response = await fetch(url, options);
+
+            if (response.status === 429) {
+                console.warn(`[API] 429 Rate Limit hit. Retrying in ${delay/1000}s... (Attempt ${retries + 1} of ${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                retries++;
+                delay *= 2; 
+                continue;
+            }
+
+            return response;
+
+        } catch (error) {
+            if (retries >= maxRetries - 1) throw error;
+            console.warn(`[API] Network error. Retrying in ${delay/1000}s...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            retries++;
+            delay *= 2;
+        }
+    }
+    
+    throw new Error("API failed after maximum retries due to strict rate limits. Please wait 1 minute and try again.");
+};
+
 window.executeAIBreadthCheck = async function() {
     if (!_abpFund) return;
 
@@ -13090,7 +13121,7 @@ window.executeAIBreadthCheck = async function() {
     const fundR1m = _abpFund.r1m != null ? `${Number(_abpFund.r1m).toFixed(2)}%` : '—';
     const fundRegime = parseFloat(fundWrsi) >= 50 ? 'A (Hope)' : parseFloat(fundWrsi) >= 40 ? 'B (Watch)' : 'C (Fear)';
 
-const promptText = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System.
+    const promptText = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System.
 TASK: Provide index breadth confirmation for this SPECIFIC FUND using LIVE WEB SEARCH data.
 
 FUND BEING ANALYSED:
@@ -13126,11 +13157,9 @@ Return ONLY valid JSON, no markdown, no extra text:
   "reasoning": "max 2 sentences of macro context and search results for this fund"
 }`;
 
-
-
     try {
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-        const resp = await abpFetchWithRetry(endpoint, {
+        const resp = await window.abpFetchWithRetry(endpoint, {
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body: JSON.stringify({
@@ -13154,7 +13183,14 @@ Return ONLY valid JSON, no markdown, no extra text:
             throw new Error(data.error?.message || `API HTTP Error: ${resp.status}`);
         }
 
-        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        let rawText = '';
+        if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+            for (const part of data.candidates[0].content.parts) {
+                if (part.text) {
+                    rawText += part.text;
+                }
+            }
+        }
         
         let clean = abpCleanAiResponse(rawText);
         const jsonStart = clean.indexOf('{');
@@ -13177,9 +13213,9 @@ Return ONLY valid JSON, no markdown, no extra text:
             parsed = JSON.parse(repaired);
         }
 
-        _renderVerdict(parsed);
-        _renderStocks(parsed.stocks);
-        _renderReasoning(parsed.reasoning);
+        if (typeof _renderVerdict === 'function') _renderVerdict(parsed);
+        if (typeof _renderStocks === 'function') _renderStocks(parsed.stocks);
+        if (typeof _renderReasoning === 'function') _renderReasoning(parsed.reasoning);
 
     } catch(err) {
         document.getElementById('abpReasoningText').textContent = 'Error: ' + err.message + '\n\nPlease retry.';
@@ -13190,6 +13226,7 @@ Return ONLY valid JSON, no markdown, no extra text:
     document.getElementById('abpRunBtn').disabled = false;
     document.getElementById('abpRunBtnLabel').textContent = 'Run Again';
 };
+
 
 function _renderVerdict(parsed) {
     const bc = parsed.bull_count ?? 0;

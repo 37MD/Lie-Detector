@@ -13038,74 +13038,136 @@ window.executeAIBreadthCheck = async function() {
     const fundR1m = _abpFund.r1m != null ? `${Number(_abpFund.r1m).toFixed(2)}%` : '—';
     const fundRegime = parseFloat(fundWrsi) >= 50 ? 'A (Hope)' : parseFloat(fundWrsi) >= 40 ? 'B (Watch)' : 'C (Fear)';
 
-const promptText = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System.
-TASK: Provide index breadth confirmation for this SPECIFIC FUND using LIVE WEB SEARCH data.
-
-FUND BEING ANALYSED:
-Name: ${fundName}
-Regime: ${fundRegime}
-W-RSI: ${fundWrsi}
-D-RSI: ${fundDrsi}
-1M Return: ${fundR1m}
-
-INSTRUCTIONS:
-1. Search the web to identify the LATEST TOP 5 STOCK CONSTITUENTS by weight for the index tracked by this fund.
-2. Perform ONE consolidated web search to find the current 14-period Weekly RSI (W-RSI) and the 14-day price trend (RISING or FALLING) for ALL 5 of these stocks simultaneously.
-3. For each stock, map its W-RSI to the following Regimes:
-     * Regime A (Hope): W-RSI >= 50
-     * Regime B (Watch): W-RSI >= 40 and < 50
-     * Regime C (Fear): W-RSI < 40
-4. EVALUATE VERDICT: If a stock is BOTH in Regime A AND its price is RISING, the verdict is BULL (BUY). Otherwise, the verdict is BEAR (SELL/HOLD).
-5. Calculate the total combined weight percentage of the stocks that received a BULL verdict.
-
-Return ONLY valid JSON, no markdown, no extra text:
-{
-  "stocks": [
-    {"ticker":"STOCK_1","weight":"X.X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"max 6 words, list exact W-RSI"},
-    {"ticker":"STOCK_2","weight":"X.X%","trend_14d":"FALLING","regime":"C","verdict":"BEAR","note":"max 6 words, list exact W-RSI"},
-    {"ticker":"STOCK_3","weight":"X.X%","trend_14d":"RISING","regime":"B","verdict":"BEAR","note":"max 6 words, list exact W-RSI"},
-    {"ticker":"STOCK_4","weight":"X.X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"max 6 words, list exact W-RSI"},
-    {"ticker":"STOCK_5","weight":"X.X%","trend_14d":"FALLING","regime":"A","verdict":"BEAR","note":"max 6 words, list exact W-RSI"}
-  ],
-  "bull_count": 2,
-  "bull_weight_sum": "X.X%",
-  "confirmation": "CAUTION",
-  "sop_action": "max 12 words, SOP action for this fund's regime based on breadth",
-  "reasoning": "max 2 sentences of macro context and search results for this fund"
-}`;
-
-
 
     try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        // ── Step 1: Identify index + top 5 stocks from fund name ──────────
+        function _abpGetStocks(name) {
+            const n = (name || '').toLowerCase();
+            if (n.includes('gold') || n.includes('silver'))
+                return { equity: false, reason: 'Commodity fund — equity breadth not applicable.' };
+            if (n.includes('[nps]') && n.includes('scheme c'))
+                return { equity: false, reason: 'NPS Scheme C is a bond fund — equity breadth not applicable.' };
+            const map = [
+                { k:'nifty it',          idx:'Nifty IT',              s:[['TCS.NS','TCS','20%'],['INFY.NS','Infosys','15%'],['HCLTECH.NS','HCL Tech','12%'],['WIPRO.NS','Wipro','10%'],['TECHM.NS','Tech Mahindra','8%']] },
+                { k:'private bank',      idx:'Nifty Private Bank',    s:[['HDFCBANK.NS','HDFC Bank','26%'],['ICICIBANK.NS','ICICI Bank','22%'],['KOTAKBANK.NS','Kotak Bank','16%'],['AXISBANK.NS','Axis Bank','14%'],['INDUSINDBK.NS','IndusInd Bank','10%']] },
+                { k:'nifty bank',        idx:'Nifty Bank',            s:[['HDFCBANK.NS','HDFC Bank','28%'],['ICICIBANK.NS','ICICI Bank','20%'],['KOTAKBANK.NS','Kotak Bank','12%'],['AXISBANK.NS','Axis Bank','10%'],['SBIN.NS','SBI','8%']] },
+                { k:'nifty auto',        idx:'Nifty Auto',            s:[['MARUTI.NS','Maruti Suzuki','20%'],['M&M.NS','M&M','18%'],['BAJAJ-AUTO.NS','Bajaj Auto','16%'],['EICHERMOT.NS','Eicher Motors','12%'],['HEROMOTOCO.NS','Hero MotoCorp','10%']] },
+                { k:'nifty pharma',      idx:'Nifty Pharma',          s:[['SUNPHARMA.NS','Sun Pharma','22%'],['DRREDDY.NS','Dr Reddys','16%'],['CIPLA.NS','Cipla','12%'],['DIVISLAB.NS','Divis Lab','10%'],['APOLLOHOSP.NS','Apollo Hospitals','8%']] },
+                { k:'nifty realty',      idx:'Nifty Realty',          s:[['DLF.NS','DLF','24%'],['LODHA.NS','Macrotech','18%'],['GODREJPROP.NS','Godrej Properties','14%'],['PRESTIGE.NS','Prestige Estates','12%'],['PHOENIXLTD.NS','Phoenix Mills','10%']] },
+                { k:'bse housing',       idx:'BSE Housing',           s:[['DLF.NS','DLF','18%'],['LODHA.NS','Macrotech','14%'],['GODREJPROP.NS','Godrej Properties','12%'],['PRESTIGE.NS','Prestige Estates','10%'],['OBEROIRLTY.NS','Oberoi Realty','8%']] },
+                { k:'ev',                idx:'Nifty EV & New Age Auto',s:[['TATAMOTORS.NS','Tata Motors','22%'],['BHARATFORG.NS','Bharat Forge','16%'],['EXIDEIND.NS','Exide Industries','14%'],['MOTHERSON.NS','Motherson Sumi','12%'],['OLECTRA.NS','Olectra Greentech','10%']] },
+                { k:'india digital',     idx:'Nifty India Digital',   s:[['INFY.NS','Infosys','20%'],['TCS.NS','TCS','18%'],['PERSISTENT.NS','Persistent','14%'],['COFORGE.NS','Coforge','12%'],['MPHASIS.NS','Mphasis','10%']] },
+                { k:'india consumption', idx:'Nifty India Consumption',s:[['ITC.NS','ITC','18%'],['HINDUNILVR.NS','HUL','16%'],['NESTLEIND.NS','Nestle India','12%'],['TITAN.NS','Titan','12%'],['DMART.NS','Avenue Supermarts','10%']] },
+                { k:'india defence',     idx:'Nifty India Defence',   s:[['HAL.NS','HAL','25%'],['BEL.NS','BEL','20%'],['BDL.NS','Bharat Dynamics','18%'],['BEML.NS','BEML','14%'],['DATAPATTNS.NS','Data Patterns','10%']] },
+                { k:'commodit',          idx:'Nifty Commodities',     s:[['COALINDIA.NS','Coal India','20%'],['ONGC.NS','ONGC','18%'],['HINDALCO.NS','Hindalco','14%'],['TATASTEEL.NS','Tata Steel','12%'],['JSWSTEEL.NS','JSW Steel','10%']] },
+                { k:'quality 30',        idx:'Nifty100 Quality 30',   s:[['TCS.NS','TCS','12%'],['INFY.NS','Infosys','10%'],['BAJFINANCE.NS','Bajaj Finance','8%'],['ASIANPAINT.NS','Asian Paints','8%'],['HCLTECH.NS','HCL Tech','7%']] },
+                { k:'value 30',          idx:'Nifty200 Value 30',     s:[['ONGC.NS','ONGC','14%'],['COALINDIA.NS','Coal India','12%'],['NMDC.NS','NMDC','10%'],['POWERGRID.NS','Power Grid','10%'],['GAIL.NS','GAIL','8%']] },
+                { k:'200 momentum 30',   idx:'Nifty200 Momentum 30',  s:[['RELIANCE.NS','Reliance','15%'],['HDFCBANK.NS','HDFC Bank','12%'],['TCS.NS','TCS','10%'],['INFY.NS','Infosys','9%'],['ICICIBANK.NS','ICICI Bank','8%']] },
+                { k:'500 momentum',      idx:'Nifty500 Momentum 50',  s:[['RELIANCE.NS','Reliance','10%'],['HDFCBANK.NS','HDFC Bank','8%'],['TCS.NS','TCS','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
+                { k:'midcap 150 mom',    idx:'Nifty Midcap150 Mom50', s:[['PERSISTENT.NS','Persistent','3%'],['COFORGE.NS','Coforge','2.5%'],['INDHOTEL.NS','Indian Hotels','2%'],['VOLTAS.NS','Voltas','2%'],['TUBEINVEST.NS','Tube Investments','1.8%']] },
+                { k:'midcap 150',        idx:'Nifty Midcap 150',      s:[['PERSISTENT.NS','Persistent','3%'],['COFORGE.NS','Coforge','2.5%'],['INDHOTEL.NS','Indian Hotels','2%'],['VOLTAS.NS','Voltas','2%'],['TUBEINVEST.NS','Tube Investments','1.8%']] },
+                { k:'smallcap 250',      idx:'Nifty SmallCap 250',    s:[['KPRMILL.NS','K.P.R. Mill','1.5%'],['HATSUN.NS','Hatsun Agro','1.2%'],['GALAXYSURF.NS','Galaxy Surfactants','1.1%'],['GENESYS.NS','Genesys Intl','1%'],['IIFLSEC.NS','IIFL Securities','0.9%']] },
+                { k:'fin serv ex',       idx:'Nifty Fin Serv Ex-Bank',s:[['BAJFINANCE.NS','Bajaj Finance','22%'],['SBILIFE.NS','SBI Life','14%'],['HDFCAMC.NS','HDFC AMC','12%'],['ICICIGI.NS','ICICI Lombard','10%'],['MUTHOOTFIN.NS','Muthoot Finance','8%']] },
+                { k:'500 multicap',      idx:'Nifty500 Multicap',     s:[['RELIANCE.NS','Reliance','8%'],['TCS.NS','TCS','7%'],['HDFCBANK.NS','HDFC Bank','6%'],['INFY.NS','Infosys','5%'],['ICICIBANK.NS','ICICI Bank','4%']] },
+                { k:'nifty 50',          idx:'Nifty 50',              s:[['RELIANCE.NS','Reliance','10%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','7%'],['ICICIBANK.NS','ICICI Bank','6%']] },
+            ];
+            for (const m of map) { if (n.includes(m.k)) return { equity:true, idx:m.idx, stocks:m.s }; }
+            return { equity:true, idx:'Nifty 50 (proxy)', stocks:[['RELIANCE.NS','Reliance','10%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','7%'],['ICICIBANK.NS','ICICI Bank','6%']] };
+        }
+
+        const idxInfo = _abpGetStocks(fundName);
+
+        // Non-equity: skip entirely
+        if (!idxInfo.equity) {
+            _renderVerdict({ bull_count:0, bull_weight_sum:'0%', confirmation:'N/A', sop_action:'Not applicable.' });
+            _renderStocks([]);
+            _renderReasoning(idxInfo.reason);
+            document.getElementById('abpLoading').classList.remove('visible');
+            document.getElementById('abpRunBtn').disabled = false;
+            document.getElementById('abpRunBtnLabel').textContent = 'Run Again';
+            return;
+        }
+
+        // ── Step 2: Fetch 20 weeks of prices from Yahoo Finance + compute RSI ──
+        function calcRSI(closes, period = 14) {
+            if (closes.length < period + 1) return null;
+            let gains = 0, losses = 0;
+            for (let i = 1; i <= period; i++) {
+                const d = closes[i] - closes[i - 1];
+                if (d >= 0) gains += d; else losses -= d;
+            }
+            let avgGain = gains / period, avgLoss = losses / period;
+            for (let i = period + 1; i < closes.length; i++) {
+                const d = closes[i] - closes[i - 1];
+                avgGain = (avgGain * (period - 1) + (d > 0 ? d : 0)) / period;
+                avgLoss = (avgLoss * (period - 1) + (d < 0 ? -d : 0)) / period;
+            }
+            if (avgLoss === 0) return 100;
+            return Math.round(100 - 100 / (1 + avgGain / avgLoss));
+        }
+
+        async function fetchStockData(ticker) {
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1wk&range=20wk`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`Yahoo Finance error for ${ticker}: ${res.status}`);
+            const json = await res.json();
+            const closes = json.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v => v != null);
+            if (!closes || closes.length < 15) throw new Error(`Insufficient data for ${ticker}`);
+            return closes;
+        }
+
+        document.getElementById('abpLoading').innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">📡 Fetching live prices…</div>`;
+
+        const stockResults = await Promise.allSettled(
+            idxInfo.stocks.map(async ([ticker, name, weight]) => {
+                const closes = await fetchStockData(ticker);
+                const rsi = calcRSI(closes);
+                const last2 = closes.slice(-2);
+                const trend = last2[1] > last2[0] ? 'RISING' : 'FALLING';
+                const regime = rsi >= 50 ? 'A' : rsi >= 40 ? 'B' : 'C';
+                const verdict = regime === 'A' && trend === 'RISING' ? 'BULL' : 'BEAR';
+                return { ticker: name, weight, trend_14d: trend, regime, verdict, note: `W-RSI ${rsi}`, rsi };
+            })
+        );
+
+        const stocks = stockResults.map((r, i) => {
+            if (r.status === 'fulfilled') return r.value;
+            // Fallback if Yahoo Finance blocked for this ticker
+            const [, name, weight] = idxInfo.stocks[i];
+            return { ticker: name, weight, trend_14d: '—', regime: '—', verdict: 'BEAR', note: 'Data unavailable' };
+        });
+
+        // ── Step 3: Send computed RSI data to Gemini for interpretation (no google_search) ──
+        const dataLines = stocks.map(s =>
+            `${s.ticker} (${s.weight}): W-RSI=${s.note}, Trend=${s.trend_14d}, Regime=${s.regime}, Verdict=${s.verdict}`
+        ).join('\n');
+
+        const promptText2 = `You are an Indian equity analyst. Interpret this LIVE breadth data for ${fundName} tracking ${idxInfo.idx}.
+
+Fund: W-RSI=${fundWrsi} (${fundRegime}), D-RSI=${fundDrsi}, 1M Return=${fundR1m}
+
+Live computed stock data:
+${dataLines}
+
+Return ONLY valid JSON (no markdown):
+{"stocks":[{"ticker":"X","weight":"X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"W-RSI XX"}],"bull_count":0,"bull_weight_sum":"X%","confirmation":"CONFIRMED","sop_action":"max 12 words","reasoning":"2 sentences on ${idxInfo.idx} breadth based on above live data"}`;
+
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         const resp = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ role: 'user', parts: [{ text: promptText }] }],
-                tools: [{ google_search: {} }],
-                generationConfig: { temperature: 0.05, maxOutputTokens: 8000 }
+                contents: [{ role: 'user', parts: [{ text: promptText2 }] }],
+                generationConfig: { temperature: 0.05, maxOutputTokens: 1500 }
             })
         });
 
-        // 429 = daily search quota exhausted — retrying wastes more quota, just inform user
-        if (resp.status === 429) {
-            throw new Error('⚠ Gemini search quota exceeded for today.\n\nThis feature uses Google Search grounding which has a daily free limit.\n\nTry again after midnight IST, or upgrade to a paid Gemini API key at aistudio.google.com.');
-        }
+        if (resp.status === 429) throw new Error('Gemini quota exceeded. Please wait and try again.');
 
         const data = await resp.json();
+        if (!resp.ok || data.error) throw new Error(data.error?.message || `API Error: ${resp.status}`);
 
-        if (!resp.ok || data.error) {
-            throw new Error(data.error?.message || `API Error: ${resp.status}`);
-        }
-
-        // With google_search grounding, Gemini returns multiple parts (search metadata + text).
-        // Find the part that contains the JSON answer — it's the text part with a '{' in it.
-        const parts = data.candidates?.[0]?.content?.parts || [];
-        const rawText = parts
-            .filter(p => p.text && p.text.includes('{'))
-            .map(p => p.text)
-            .join('') || parts.map(p => p.text || '').join('');
+        const rawText = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
         
         let clean = abpCleanAiResponse(rawText);
         const jsonStart = clean.indexOf('{');

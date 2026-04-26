@@ -13891,12 +13891,11 @@ Return ONLY valid JSON:
             modelSelect.addEventListener('change', function() {
                 const chosen = this.value;
                 const label = this.options[this.selectedIndex].text;
-                const confirmed = confirm(`Switch Gemini model to ${label}?\n\nNote: gemini-2.5-flash may be slower but more capable.`);
-                if (confirmed) {
-                    localStorage.setItem('ld_gemini_model', chosen);
-                    appendMsg('system', `✅ Model switched to ${label}. All subsequent AI calls will use this model.`);
-                } else {
-                    this.value = localStorage.getItem('ld_gemini_model') || GEMINI_MODEL_DEFAULT;
+                localStorage.setItem('ld_gemini_model', chosen);
+                // Show brief status in key box status area if visible, else no-op
+                if (keyStatus && keyBox && keyBox.style.display !== 'none') {
+                    keyStatus.innerHTML = `<span style="color:#fbbf24">✅ Model → ${label}</span>`;
+                    setTimeout(_updateKeyStatus, 1500);
                 }
             });
         }
@@ -13948,15 +13947,8 @@ Return ONLY valid JSON:
             localStorage.removeItem('ld_gemini_api_key');
         }
 
-        // Expose helpers globally
-        window.getGeminiKey      = getGeminiKey;
-        window.clearGeminiKey    = clearGeminiKey;
-        window.getGeminiModel    = getGeminiModel;
-        window.shiftToBackupKey  = shiftToBackupKey;
-        window.resetToPrimaryKey = resetToPrimaryKey;
-        window.openKeyBox        = openKeyBox;
-
         // ── Key Manager UI ─────────────────────────────────────────────
+        // ALL DOM refs and functions defined here, THEN window.* assigned below
         const keyBtn        = document.getElementById('ld-ai-key-btn');
         const keyBox        = document.getElementById('ld-ai-key-box');
         const key1Input     = document.getElementById('ld-key1-input');
@@ -13967,65 +13959,78 @@ Return ONLY valid JSON:
         const keyStatus     = document.getElementById('ld-ai-key-status');
 
         function _maskKey(k) {
-            return k ? `${k.slice(0,6)}…${k.slice(-4)} (${k.length}c)` : '—  not saved';
+            return k ? `${k.slice(0,6)}…${k.slice(-4)} (${k.length}c)` : '— not saved';
         }
 
         function _updateKeyStatus() {
+            if (!keyStatus) return;
             const k1 = _getKey(1), k2 = _getKey(2);
-            if (keyStatus) {
-                keyStatus.innerHTML =
-                    `K1: <span style="color:${k1?'#6ee7b7':'#f87171'}">${_maskKey(k1)}</span>` +
-                    `&nbsp;&nbsp;K2: <span style="color:${k2?'#fbbf24':'#64748b'}">${_maskKey(k2)}</span>` +
-                    (k2 ? '&nbsp;<span style="color:#64748b">— auto-fallback active</span>' : '');
-            }
+            keyStatus.innerHTML =
+                `K1: <span style="color:${k1?'#6ee7b7':'#f87171'};font-weight:700">${_maskKey(k1)}</span>` +
+                `&nbsp;&nbsp;K2: <span style="color:${k2?'#fbbf24':'#64748b'};font-weight:700">${_maskKey(k2)}</span>` +
+                (k2 ? `&nbsp;<span style="color:#64748b">✓ auto-fallback ready</span>` : '');
         }
 
         function openKeyBox() {
+            if (!keyBox) return;
             keyBox.style.display = 'block';
-            key1Input.value = '';
-            key2Input.value = '';
+            if (key1Input) key1Input.value = '';
+            if (key2Input) key2Input.value = '';
             _updateKeyStatus();
-            setTimeout(() => key1Input.focus(), 60);
+            setTimeout(() => { if (key1Input) key1Input.focus(); }, 80);
         }
 
         function closeKeyBox() {
+            if (!keyBox) return;
             keyBox.style.display = 'none';
-            key1Input.value = '';
-            key2Input.value = '';
+            if (key1Input) key1Input.value = '';
+            if (key2Input) key2Input.value = '';
         }
 
         function _saveKey(slot, val) {
+            if (!keyStatus) return;
             if (!val || val.length < 20) {
-                if (keyStatus) { keyStatus.style.color='#f87171'; keyStatus.textContent='⚠ Key too short — paste the full AIza… key.'; }
+                keyStatus.style.cssText = 'color:#f87171;font-size:0.48rem;';
+                keyStatus.textContent = '⚠ Key too short — paste the full AIza… key.';
                 return;
             }
             const storageKey = slot === 2 ? 'ld_gemini_api_key2' : 'ld_gemini_api_key';
             localStorage.setItem(storageKey, val);
-            if (slot === 1 && window.setGeminiKey) window.setGeminiKey(val);
+            keyStatus.style.cssText = '';
             _updateKeyStatus();
-            // Echo into chat after appendMsg is available
-            setTimeout(() => {
-                if (typeof appendMsg === 'function') {
-                    appendMsg('system', `🔐 Key ${slot} saved: ${_maskKey(val)}${slot===2?' — will auto-activate on Key 1 quota exhaustion':''}`);
-                }
-            }, 50);
-            if (slot === 1) { key1Input.value = ''; setTimeout(closeKeyBox, 1200); }
-            else            { key2Input.value = ''; }
+            // Show inline confirmation in status bar
+            const savedMsg = `✅ Key ${slot} saved! ${_maskKey(val)}` +
+                (slot === 2 ? ' — auto-activates on K1 quota' : '');
+            keyStatus.innerHTML = `<span style="color:#6ee7b7;font-weight:700">${savedMsg}</span>`;
+            if (slot === 1) {
+                if (key1Input) key1Input.value = '';
+                setTimeout(() => { closeKeyBox(); _updateKeyStatus(); }, 1500);
+            } else {
+                if (key2Input) key2Input.value = '';
+                setTimeout(_updateKeyStatus, 1500);
+            }
         }
 
+        // Wire up buttons — safe because all functions defined above
         if (keyBtn)       keyBtn.addEventListener('click', openKeyBox);
         if (keyCancelBtn) keyCancelBtn.addEventListener('click', closeKeyBox);
         if (key1SaveBtn)  key1SaveBtn.addEventListener('click', () => _saveKey(1, (key1Input.value||'').trim()));
         if (key2SaveBtn)  key2SaveBtn.addEventListener('click', () => _saveKey(2, (key2Input.value||'').trim()));
-
-        // Enter key support
         [key1Input, key2Input].forEach((inp, i) => {
             if (!inp) return;
             inp.addEventListener('keydown', e => {
-                if (e.key === 'Enter') { e.preventDefault(); i===0 ? key1SaveBtn&&key1SaveBtn.click() : key2SaveBtn&&key2SaveBtn.click(); }
+                if (e.key === 'Enter')  { e.preventDefault(); (i===0 ? key1SaveBtn : key2SaveBtn)?.click(); }
                 if (e.key === 'Escape') closeKeyBox();
             });
         });
+
+        // Expose globals AFTER all functions are defined
+        window.getGeminiKey      = getGeminiKey;
+        window.clearGeminiKey    = clearGeminiKey;
+        window.getGeminiModel    = getGeminiModel;
+        window.shiftToBackupKey  = shiftToBackupKey;
+        window.resetToPrimaryKey = resetToPrimaryKey;
+        window.openKeyBox        = openKeyBox;
 
         async function fetchWithRetry(url, options = {}, retries = 2) {
             const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };

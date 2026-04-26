@@ -2827,8 +2827,18 @@
                             <td>"Nifty 500" funds (HDFC Flexi Cap, Kotak Flexicap) were previously falling through to the default Nifty 50 proxy because 'nifty 50' matched first. Fixed by placing 'nifty 500' and 'flexi' entries <strong>above</strong> 'nifty 50' in the map. Similarly, 'bse 500 momentum' is placed above the generic '500 momentum' key to prevent BSE momentum funds from being classified as Nifty500 Momentum. Map order is now precision-first, broad-last.</td>
                         </tr>
                         <tr>
+                            <td style="font-weight:700;color:#7c3aed;">🔄 3-Layer Data Pipeline — Yahoo → Stooq → Gemini Search</td>
+                            <td>
+                                <strong>Problem:</strong> Yahoo Finance CORS blocks browser fetches intermittently — leaving W-RSI as "unavailable" and breaking regime classification.<br><br>
+                                <strong>Pass 1 — Yahoo Finance</strong> (fast, direct): Fetches 22 weeks of weekly closes via <code>query1.finance.yahoo.com</code>. 14-week Wilder RSI calculated locally in browser. Timeout: 6s per stock.<br><br>
+                                <strong>Pass 1B — Stooq.com</strong> (CSV fallback): For any stock that fails Pass 1, Stooq is tried immediately. Stooq serves weekly OHLC as plain CSV with no Cloudflare protection and no API key. Ticker format: same as Yahoo (e.g. <code>reliance.ns</code>). CSV is newest-first so rows are reversed before RSI calc. Timeout: 8s.<br><br>
+                                <strong>Pass 2 — Gemini google_search</strong> (last resort): Only fires if ≥3 stocks are still unavailable after both Pass 1 and Pass 1B. Gemini is asked to search the web for current 14-week W-RSI, 2-week trend, and regime. Results merged back into stock array before final Sacred RSI analysis call.<br><br>
+                                <strong>Loading status</strong> updates at each pass so you can see exactly which layer is active and where data came from.
+                            </td>
+                        </tr>
+                        <tr>
                             <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246QAI</td>
-                            <td>All 8 version surfaces updated: HTML header comment, File/Version line, SOP modal header badge, SOP footer note, Setup Screen clickable badge, JS version string, AI Breadth code comment, end-of-file HTML comment. SOP Part 15 (this section) added.</td>
+                            <td>All 8 version surfaces updated: HTML header comment, File/Version line, SOP modal header badge, SOP footer note, Setup Screen clickable badge, JS version string, AI Breadth code comment, end-of-file HTML comment. SOP Parts 15 (this section) added.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -13142,7 +13152,14 @@ categories.forEach(cat => {
             return;
         }
 
-        // ── Step 2: Fetch 20 weeks of prices from Yahoo Finance + compute RSI ──
+        // ════════════════════════════════════════════════════════
+        // Step 2: 3-LAYER DATA PIPELINE
+        //   Pass 1  — Yahoo Finance (direct fetch + local RSI calc)
+        //   Pass 1B — Stooq.com    (CSV fallback, CORS-friendly)
+        //   Pass 2  — Gemini google_search (last resort, always works)
+        // ════════════════════════════════════════════════════════
+
+        // ── Shared RSI calculator (Wilder smoothing, period=14) ──
         function calcRSI(closes, period = 14) {
             if (closes.length < period + 1) return null;
             let gains = 0, losses = 0;
@@ -13160,38 +13177,150 @@ categories.forEach(cat => {
             return Math.round(100 - 100 / (1 + avgGain / avgLoss));
         }
 
-        async function fetchStockData(ticker) {
-            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1wk&range=20wk`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`Yahoo Finance error for ${ticker}: ${res.status}`);
+        // ── Helper: build stock result object from closes array ──
+        function _buildStock(closes, name, weight) {
+            const rsi    = calcRSI(closes);
+            const last2  = closes.slice(-2);
+            const trend  = last2[1] > last2[0] ? 'RISING' : 'FALLING';
+            const regime = rsi >= 50 ? 'A' : rsi >= 40 ? 'B' : 'C';
+            const verdict = (regime === 'A' && trend === 'RISING') ? 'BULL' : 'BEAR';
+            return { ticker: name, weight, trend_14d: trend, regime, verdict, note: `W-RSI ${rsi}`, rsi };
+        }
+
+        // ── PASS 1 — Yahoo Finance ────────────────────────────────
+        async function fetchYahoo(ticker) {
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1wk&range=22wk`;
+            const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+            if (!res.ok) throw new Error(`Yahoo ${res.status}`);
             const json = await res.json();
             const closes = json.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v => v != null);
-            if (!closes || closes.length < 15) throw new Error(`Insufficient data for ${ticker}`);
+            if (!closes || closes.length < 15) throw new Error('Insufficient Yahoo data');
             return closes;
         }
 
-        document.getElementById('abpLoading').innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">📡 Fetching live prices…</div>`;
+        // ── PASS 1B — Stooq.com (CSV, weekly) ────────────────────
+        // Stooq ticker: same as Yahoo but lowercase, e.g. RELIANCE.NS → reliance.ns
+        // URL returns CSV: Date,Open,High,Low,Close,Volume (newest first)
+        async function fetchStooq(ticker) {
+            const stooqTicker = ticker.toLowerCase();
+            const url = `https://stooq.com/q/d/l/?s=${stooqTicker}&i=w`;
+            const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+            if (!res.ok) throw new Error(`Stooq ${res.status}`);
+            const text = await res.text();
+            if (text.includes('No data') || text.trim().length < 50) throw new Error('Stooq: no data');
+            // CSV: header on line 0, data lines follow (newest first on Stooq)
+            const lines = text.trim().split('\n').slice(1).filter(l => l.trim());
+            if (lines.length < 15) throw new Error('Insufficient Stooq data');
+            // Take last 22 rows (oldest→newest order after reverse)
+            const closes = lines
+                .slice(0, 22)           // Stooq is newest-first, take top 22
+                .reverse()              // flip to oldest→newest for RSI calc
+                .map(l => parseFloat(l.split(',')[4]))
+                .filter(v => !isNaN(v));
+            if (closes.length < 15) throw new Error('Stooq: parse failed');
+            return closes;
+        }
 
-        const stockResults = await Promise.allSettled(
+        const loadingEl = document.getElementById('abpLoading');
+        loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">📡 Pass 1 — Yahoo Finance…</div>`;
+
+        // Run Pass 1 for all 5 stocks in parallel
+        const p1Results = await Promise.allSettled(
             idxInfo.stocks.map(async ([ticker, name, weight]) => {
-                const closes = await fetchStockData(ticker);
-                const rsi = calcRSI(closes);
-                const last2 = closes.slice(-2);
-                const trend = last2[1] > last2[0] ? 'RISING' : 'FALLING';
-                const regime = rsi >= 50 ? 'A' : rsi >= 40 ? 'B' : 'C';
-                const verdict = regime === 'A' && trend === 'RISING' ? 'BULL' : 'BEAR';
-                return { ticker: name, weight, trend_14d: trend, regime, verdict, note: `W-RSI ${rsi}`, rsi };
+                const closes = await fetchYahoo(ticker);
+                return _buildStock(closes, name, weight);
             })
         );
 
-        const stocks = stockResults.map((r, i) => {
+        let stocks = p1Results.map((r, i) => {
             if (r.status === 'fulfilled') return r.value;
-            // Fallback if Yahoo Finance blocked for this ticker
             const [, name, weight] = idxInfo.stocks[i];
-            return { ticker: name, weight, trend_14d: '—', regime: '—', verdict: 'BEAR', note: 'Data unavailable' };
+            return { ticker: name, weight, trend_14d: '—', regime: '—', verdict: 'BEAR', note: 'Data unavailable', _failed: true, _idx: i };
         });
 
-        // ── Step 3: Send computed RSI data to Gemini for interpretation (no google_search) ──
+        // ── PASS 1B — Stooq fallback for any Yahoo failures ──────
+        const failedAfterP1 = stocks.filter(s => s._failed);
+        if (failedAfterP1.length > 0) {
+            loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent2);padding:6px 0;">⚠ Yahoo blocked (${failedAfterP1.length}/5). Pass 1B — Stooq.com fallback…</div>`;
+
+            const p1bResults = await Promise.allSettled(
+                failedAfterP1.map(async s => {
+                    const [ticker, name, weight] = idxInfo.stocks[s._idx];
+                    const closes = await fetchStooq(ticker);
+                    return { idx: s._idx, stock: _buildStock(closes, name, weight) };
+                })
+            );
+
+            p1bResults.forEach(r => {
+                if (r.status === 'fulfilled') {
+                    stocks[r.value.idx] = r.value.stock;   // replace failed slot with Stooq data
+                }
+            });
+
+            const stillFailed = stocks.filter(s => s._failed).length;
+            if (stillFailed === 0) {
+                loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">✅ Pass 1B complete — ${failedAfterP1.length} stock(s) recovered via Stooq.</div>`;
+            }
+        }
+
+        // ── PASS 2 — Gemini google_search (if ≥3 still unavailable) ──
+        const unavailableCount = stocks.filter(s => s._failed || s.trend_14d === '—').length;
+        if (unavailableCount >= 3) {
+            loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent2);padding:6px 0;">⚠ ${unavailableCount}/5 still missing. Pass 2 — AI web search for W-RSI…</div>`;
+
+            const stockListForSearch = idxInfo.stocks.map(([, name, weight]) => `${name} (${weight})`).join(', ');
+            const searchPrompt = `You are the Sacred RSI Regime Lie Detector. Search the web RIGHT NOW for the CURRENT 14-week Weekly RSI of these Indian NSE-listed stocks for the index ${idxInfo.idx}: ${stockListForSearch}.
+
+For each stock find:
+1. Current 14-week Weekly RSI (TradingView method: 13 locked Friday weekly closes + current live/last traded price as the 14th data point, Wilder smoothing)
+2. 2-week price trend: RISING or FALLING (compare last 2 weekly closes)
+3. Regime: A (W-RSI ≥ 50), B (W-RSI 40–49), C (W-RSI < 40)
+4. Verdict: BULL if Regime A + RISING, else BEAR
+
+STRICT: Use actual searched data only. State W-RSI as a number. Do NOT guess or hallucinate.
+
+Return ONLY valid JSON (no markdown, no preamble):
+{"stocks":[{"ticker":"Stock Name","weight":"X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"W-RSI 58"}],"bull_count":0,"bull_weight_sum":"X%","data_source":"google_search","search_note":"brief note on data freshness"}`;
+
+            const endpointSearch = `https://generativelanguage.googleapis.com/v1beta/models/${window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash'}:generateContent?key=${apiKey}`;
+            const respSearch = await fetch(endpointSearch, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ role: 'user', parts: [{ text: searchPrompt }] }],
+                    tools: [{ google_search: {} }],
+                    generationConfig: { temperature: 0.05, maxOutputTokens: 4000 }
+                })
+            });
+
+            if (respSearch.ok) {
+                const searchData = await respSearch.json();
+                const searchRaw = (searchData.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
+                let searchClean = abpCleanAiResponse(searchRaw);
+                const sj = searchClean.indexOf('{'), se = searchClean.lastIndexOf('}');
+                if (sj !== -1 && se > sj) {
+                    try {
+                        const searchParsed = JSON.parse(searchClean.slice(sj, se + 1));
+                        if (Array.isArray(searchParsed.stocks) && searchParsed.stocks.length >= 3) {
+                            stocks = stocks.map((orig, i) => {
+                                if (!orig._failed) return orig;   // keep Pass 1/1B successes
+                                const found = searchParsed.stocks[i] || searchParsed.stocks.find(s =>
+                                    s.ticker && orig.ticker &&
+                                    s.ticker.toLowerCase().includes(orig.ticker.toLowerCase().split(' ')[0])
+                                );
+                                return (found && found.note && found.note !== 'Data unavailable') ? found : orig;
+                            });
+                            loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">✅ Pass 2 complete — W-RSI via AI web search${searchParsed.search_note ? ' · ' + searchParsed.search_note : ''}</div>`;
+                        }
+                    } catch(e) { /* Pass 2 parse failed — proceed with partial data */ }
+                }
+            }
+        }
+
+        // Clean up internal flags before sending to analysis
+        stocks = stocks.map(({ _failed, _idx, ...s }) => s);
+
+        // ── Step 3: Send final stock data to Gemini for Sacred RSI interpretation ──
         const dataLines = stocks.map(s =>
             `${s.ticker} (${s.weight}): W-RSI=${s.note}, Trend=${s.trend_14d}, Regime=${s.regime}, Verdict=${s.verdict}`
         ).join('\n');

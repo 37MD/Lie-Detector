@@ -13808,35 +13808,61 @@ Return ONLY valid JSON:
                 <button type="button" id="ld-ai-close-btn" class="ld-ai-close">✕</button>
             </div>
         </div>
+        <!-- ── Inline API Key Manager (sits between header & chat, flex-shrink:0) ── -->
+        <div id="ld-ai-key-box" style="
+            display:none; flex-shrink:0;
+            padding:10px 14px 8px; 
+            background:#1a2332; 
+            border-bottom:2px solid #009e70;">
+            <!-- Title row -->
+            <div style="font-size:0.58rem;font-weight:700;color:#6ee7b7;letter-spacing:0.06em;margin-bottom:6px;">
+                🔑 API KEY MANAGER
+            </div>
+            <!-- Key 1 row -->
+            <div style="font-size:0.5rem;color:#94a3b8;margin-bottom:3px;">PRIMARY KEY (Key 1)</div>
+            <div style="display:flex;gap:5px;align-items:center;margin-bottom:6px;">
+                <input id="ld-key1-input" type="password" placeholder="AIza… (Primary)"
+                    style="flex:1;font-size:0.55rem;padding:5px 8px;border-radius:5px;
+                           border:1px solid #334155;background:#0f172a;
+                           color:#e2e8f0;outline:none;font-family:monospace;" />
+                <button id="ld-key1-save"
+                    style="background:#009e70;color:#fff;border:none;border-radius:5px;
+                           padding:5px 9px;font-size:0.5rem;cursor:pointer;white-space:nowrap;">
+                    💾 Save K1
+                </button>
+            </div>
+            <!-- Key 2 row -->
+            <div style="font-size:0.5rem;color:#94a3b8;margin-bottom:3px;">BACKUP KEY (Key 2 — auto-used on quota)</div>
+            <div style="display:flex;gap:5px;align-items:center;margin-bottom:6px;">
+                <input id="ld-key2-input" type="password" placeholder="AIza… (Backup)"
+                    style="flex:1;font-size:0.55rem;padding:5px 8px;border-radius:5px;
+                           border:1px solid #334155;background:#0f172a;
+                           color:#e2e8f0;outline:none;font-family:monospace;" />
+                <button id="ld-key2-save"
+                    style="background:#c97a00;color:#fff;border:none;border-radius:5px;
+                           padding:5px 9px;font-size:0.5rem;cursor:pointer;white-space:nowrap;">
+                    💾 Save K2
+                </button>
+            </div>
+            <!-- Status + close -->
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div id="ld-ai-key-status" style="font-size:0.48rem;color:#6ee7b7;flex:1;"></div>
+                <button id="ld-ai-key-cancel-btn"
+                    style="background:rgba(255,255,255,0.08);color:#94a3b8;border:1px solid #334155;
+                           border-radius:5px;padding:3px 10px;font-size:0.5rem;cursor:pointer;">
+                    ✕ Close
+                </button>
+            </div>
+            <div style="font-size:0.44rem;color:#475569;margin-top:5px;">
+                Get free keys at <span style="color:#6ee7b7;">aistudio.google.com/apikey</span> · On 429 quota, app auto-shifts to Key 2
+            </div>
+        </div>
+        <!-- ── End API Key Manager ── -->
         <div class="ld-ai-chat-area" id="ld-ai-chat-area">
             <div class="ld-ai-message system">
                 💬 Ask anything about your fund in the text box — Gemini AI will answer using live fund data.<br>⚡ Lean = current fund (local, instant). 🔍 Deep = all funds (local, instant). Free-text = Gemini AI (requires API key).
             </div>
         </div>
-        <!-- ── Inline API Key Box ── -->
-        <div id="ld-ai-key-box" style="display:none;padding:8px 12px 6px;background:rgba(0,0,0,0.25);border-bottom:1px solid rgba(255,255,255,0.15);">
-            <div style="font-size:0.5rem;color:rgba(255,255,255,0.6);margin-bottom:5px;">
-                🔑 Paste your Gemini API key — saves instantly. Get a free key at <span style="color:#6ee7b7;">aistudio.google.com/apikey</span>
-            </div>
-            <div style="display:flex;gap:6px;align-items:center;">
-                <input id="ld-ai-key-input" type="password" placeholder="AIza…"
-                    style="flex:1;font-size:0.55rem;padding:5px 8px;border-radius:5px;
-                           border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.4);
-                           color:#fff;outline:none;font-family:monospace;" />
-                <button id="ld-ai-key-save-btn"
-                    style="background:#009e70;color:#fff;border:none;border-radius:5px;
-                           padding:5px 10px;font-size:0.52rem;cursor:pointer;white-space:nowrap;font-family:var(--mono);">
-                    ✅ Save
-                </button>
-                <button id="ld-ai-key-cancel-btn"
-                    style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);
-                           border-radius:5px;padding:5px 8px;font-size:0.52rem;cursor:pointer;font-family:var(--mono);">
-                    ✕
-                </button>
-            </div>
-            <div id="ld-ai-key-status" style="font-size:0.48rem;margin-top:4px;color:#6ee7b7;min-height:12px;"></div>
-        </div>
-        <!-- ── End API Key Box ── -->
         <button id="ld-ai-scroll-btn" style="position:absolute;bottom:110px;right:28px;background:var(--accent,#009e70);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.2);z-index:10002;">↓</button>
         <div style="padding: 0 16px 8px; background: var(--surface, #f2f5f9); border-top: 1px solid var(--border, #b0bece); display: flex; gap: 6px;">
             <button type="button" id="ld-ai-analyze-fund-btn" style="flex:1; background: #7c3aed; color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 0.58rem; font-weight: bold; text-transform: uppercase; line-height: 1.3;">⚡ Current Fund<br>Lean Analysis</button>
@@ -13879,74 +13905,127 @@ Return ONLY valid JSON:
             return localStorage.getItem('ld_gemini_model') || GEMINI_MODEL_DEFAULT;
         }
 
+        // ══════════════════════════════════════════════════════════════
+        // DUAL-KEY SYSTEM
+        // ld_gemini_api_key  = Primary key (Key 1)
+        // ld_gemini_api_key2 = Backup key  (Key 2)
+        // On 429, auto-shift to Key 2; restore to Key 1 on next session
+        // ══════════════════════════════════════════════════════════════
+        let _activeKeySlot = 1; // 1 = primary, 2 = backup
+
+        function _getKey(slot) {
+            const k = slot === 2
+                ? localStorage.getItem('ld_gemini_api_key2')
+                : localStorage.getItem('ld_gemini_api_key');
+            return k ? k.trim() : null;
+        }
+
         function getGeminiKey() {
-            let key = localStorage.getItem('ld_gemini_api_key');
-            if (!key) {
-                key = prompt('Enter your Gemini API key (required for AI chat):\n\nGet one free at: https://aistudio.google.com/apikey');
-                if (key) localStorage.setItem('ld_gemini_api_key', key.trim());
+            // Return active key; if missing fall back to the other slot
+            const primary = _getKey(1);
+            const backup  = _getKey(2);
+            if (_activeKeySlot === 2 && backup) return backup;
+            if (primary) return primary;
+            if (backup)  return backup;
+            return null; // no key — caller must prompt via UI
+        }
+
+        function shiftToBackupKey() {
+            // Called on 429 to switch from Key1 → Key2
+            const backup = _getKey(2);
+            if (backup && _activeKeySlot === 1) {
+                _activeKeySlot = 2;
+                return true;
             }
-            return key ? key.trim() : null;
+            return false;
+        }
+
+        function resetToPrimaryKey() {
+            _activeKeySlot = 1;
         }
 
         function clearGeminiKey() {
             localStorage.removeItem('ld_gemini_api_key');
         }
 
-        // ── 🔐 Inline API Key Box logic ────────────────────────────────
-        const keyBtn       = document.getElementById('ld-ai-key-btn');
-        const keyBox       = document.getElementById('ld-ai-key-box');
-        const keyInput     = document.getElementById('ld-ai-key-input');
-        const keySaveBtn   = document.getElementById('ld-ai-key-save-btn');
-        const keyCancelBtn = document.getElementById('ld-ai-key-cancel-btn');
-        const keyStatus    = document.getElementById('ld-ai-key-status');
+        // Expose helpers globally
+        window.getGeminiKey      = getGeminiKey;
+        window.clearGeminiKey    = clearGeminiKey;
+        window.getGeminiModel    = getGeminiModel;
+        window.shiftToBackupKey  = shiftToBackupKey;
+        window.resetToPrimaryKey = resetToPrimaryKey;
+        window.openKeyBox        = openKeyBox;
+
+        // ── Key Manager UI ─────────────────────────────────────────────
+        const keyBtn        = document.getElementById('ld-ai-key-btn');
+        const keyBox        = document.getElementById('ld-ai-key-box');
+        const key1Input     = document.getElementById('ld-key1-input');
+        const key2Input     = document.getElementById('ld-key2-input');
+        const key1SaveBtn   = document.getElementById('ld-key1-save');
+        const key2SaveBtn   = document.getElementById('ld-key2-save');
+        const keyCancelBtn  = document.getElementById('ld-ai-key-cancel-btn');
+        const keyStatus     = document.getElementById('ld-ai-key-status');
+
+        function _maskKey(k) {
+            return k ? `${k.slice(0,6)}…${k.slice(-4)} (${k.length}c)` : '—  not saved';
+        }
+
+        function _updateKeyStatus() {
+            const k1 = _getKey(1), k2 = _getKey(2);
+            if (keyStatus) {
+                keyStatus.innerHTML =
+                    `K1: <span style="color:${k1?'#6ee7b7':'#f87171'}">${_maskKey(k1)}</span>` +
+                    `&nbsp;&nbsp;K2: <span style="color:${k2?'#fbbf24':'#64748b'}">${_maskKey(k2)}</span>` +
+                    (k2 ? '&nbsp;<span style="color:#64748b">— auto-fallback active</span>' : '');
+            }
+        }
 
         function openKeyBox() {
             keyBox.style.display = 'block';
-            keyInput.value = '';
-            const cur = localStorage.getItem('ld_gemini_api_key') || '';
-            keyStatus.style.color = '#6ee7b7';
-            keyStatus.textContent = cur
-                ? `Current key: ${cur.slice(0,6)}…${cur.slice(-4)} (${cur.length} chars) — paste new key to replace`
-                : 'No key saved yet — paste your AIza… key above';
-            setTimeout(() => keyInput.focus(), 80);
+            key1Input.value = '';
+            key2Input.value = '';
+            _updateKeyStatus();
+            setTimeout(() => key1Input.focus(), 60);
         }
 
         function closeKeyBox() {
             keyBox.style.display = 'none';
-            keyInput.value = '';
+            key1Input.value = '';
+            key2Input.value = '';
+        }
+
+        function _saveKey(slot, val) {
+            if (!val || val.length < 20) {
+                if (keyStatus) { keyStatus.style.color='#f87171'; keyStatus.textContent='⚠ Key too short — paste the full AIza… key.'; }
+                return;
+            }
+            const storageKey = slot === 2 ? 'ld_gemini_api_key2' : 'ld_gemini_api_key';
+            localStorage.setItem(storageKey, val);
+            if (slot === 1 && window.setGeminiKey) window.setGeminiKey(val);
+            _updateKeyStatus();
+            // Echo into chat after appendMsg is available
+            setTimeout(() => {
+                if (typeof appendMsg === 'function') {
+                    appendMsg('system', `🔐 Key ${slot} saved: ${_maskKey(val)}${slot===2?' — will auto-activate on Key 1 quota exhaustion':''}`);
+                }
+            }, 50);
+            if (slot === 1) { key1Input.value = ''; setTimeout(closeKeyBox, 1200); }
+            else            { key2Input.value = ''; }
         }
 
         if (keyBtn)       keyBtn.addEventListener('click', openKeyBox);
         if (keyCancelBtn) keyCancelBtn.addEventListener('click', closeKeyBox);
-        if (keySaveBtn) {
-            keySaveBtn.addEventListener('click', function() {
-                const val = (keyInput.value || '').trim();
-                if (!val || val.length < 20) {
-                    keyStatus.style.color = '#ef4444';
-                    keyStatus.textContent = '⚠ Key too short — paste the full AIza… key.';
-                    return;
-                }
-                localStorage.setItem('ld_gemini_api_key', val);
-                if (window.setGeminiKey) window.setGeminiKey(val);
-                keyStatus.style.color = '#6ee7b7';
-                keyStatus.textContent = `✅ Saved! ${val.slice(0,6)}…${val.slice(-4)} — AI features ready.`;
-                keyInput.value = '';
-                appendMsg('system', '🔐 API key saved successfully. Ready to use AI features.');
-                setTimeout(closeKeyBox, 1400);
-            });
-        }
-        // Allow Enter key in key input
-        if (keyInput) {
-            keyInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') { e.preventDefault(); keySaveBtn && keySaveBtn.click(); }
+        if (key1SaveBtn)  key1SaveBtn.addEventListener('click', () => _saveKey(1, (key1Input.value||'').trim()));
+        if (key2SaveBtn)  key2SaveBtn.addEventListener('click', () => _saveKey(2, (key2Input.value||'').trim()));
+
+        // Enter key support
+        [key1Input, key2Input].forEach((inp, i) => {
+            if (!inp) return;
+            inp.addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault(); i===0 ? key1SaveBtn&&key1SaveBtn.click() : key2SaveBtn&&key2SaveBtn.click(); }
                 if (e.key === 'Escape') closeKeyBox();
             });
-        }
-
-        // Expose helpers globally so AI Breadth and other modules can share them
-        window.getGeminiKey   = getGeminiKey;
-        window.clearGeminiKey = clearGeminiKey;
-        window.getGeminiModel = getGeminiModel;
+        });
 
         async function fetchWithRetry(url, options = {}, retries = 2) {
             const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
@@ -14713,10 +14792,11 @@ Return ONLY valid JSON:
                 runLocalLean(); return;
             }
 
-            // ── All other queries → call Gemini AI ────────────────────
+            // ── All other queries → call Gemini AI (dual-key aware) ────
             const apiKey = getGeminiKey();
             if (!apiKey) {
-                appendMsg('system', '⚠ No API key provided. AI chat requires a Gemini API key.\nTip: Use ⚡ Lean or 🔍 Deep buttons for token-free local analysis.');
+                appendMsg('system', '⚠ No API key saved. Tap 🔐 in the header to add your Gemini API key.\nTip: Use ⚡ Lean or 🔍 Deep buttons for token-free local analysis.');
+                openKeyBox();
                 return;
             }
 
@@ -14740,24 +14820,42 @@ Return ONLY valid JSON:
             chatArea.appendChild(loadDiv);
             chatArea.scrollTop = chatArea.scrollHeight;
 
+            // ── Dual-key fetch: try Key1, on 429 shift to Key2 ─────────
+            async function dualKeyFetch(promptText) {
+                const model = getGeminiModel();
+                const payload = { contents: [{ parts: [{ text: promptText }] }] };
+                const slots = [1, 2];
+                for (const slot of slots) {
+                    const k = slot === 2
+                        ? localStorage.getItem('ld_gemini_api_key2')
+                        : localStorage.getItem('ld_gemini_api_key');
+                    if (!k) continue;
+                    if (slot === 2) {
+                        loadDiv.textContent = '⚡ Key 1 quota hit — switching to Key 2…';
+                        chatArea.scrollTop = chatArea.scrollHeight;
+                    }
+                    const ep = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${k.trim()}`;
+                    const res = await fetch(ep, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+                    if (res.status === 429 && slot === 1) continue; // try Key2
+                    return res; // success, error, or Key2 429
+                }
+                throw new Error('Both API keys hit quota (429). Wait ~1 min and retry.');
+            }
+
             try {
-                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${getGeminiModel()}:generateContent?key=${apiKey}`;
-                const payload = {
-                    contents: [{
-                        parts: [{ text: systemPrompt + '\n\nUSER QUESTION: ' + txt }]
-                    }]
-                };
-                const res  = await fetchWithRetry(endpoint, { method: 'POST', body: JSON.stringify(payload) });
+                const res  = await dualKeyFetch(systemPrompt + '\n\nUSER QUESTION: ' + txt);
                 const data = await res.json();
 
-                chatArea.removeChild(loadDiv);
+                if (chatArea.contains(loadDiv)) chatArea.removeChild(loadDiv);
 
                 if (data.error) {
                     const errMsg = data.error.message || 'Unknown Gemini error';
-                    // Bad key → clear it so user is prompted again next time
                     if (data.error.code === 400 || data.error.code === 403) {
                         clearGeminiKey();
-                        appendMsg('system', `🔑 API key error: ${errMsg}\n\nYour key has been cleared. Tap ➤ again to enter a new key.\nGet a free key at: https://aistudio.google.com/apikey`);
+                        appendMsg('system', `🔑 API key error: ${errMsg}\n\nPlease tap 🔐 to enter a new valid key.`);
+                        openKeyBox();
+                    } else if (data.error.code === 429) {
+                        appendMsg('system', `⏳ Both API keys are at quota limit.\nWait ~1 minute and try again, or add a second key via 🔐.`);
                     } else {
                         appendMsg('system', `⚠ Gemini error (${data.error.code}): ${errMsg}`);
                     }
@@ -14769,7 +14867,7 @@ Return ONLY valid JSON:
 
             } catch(err) {
                 if (chatArea.contains(loadDiv)) chatArea.removeChild(loadDiv);
-                appendMsg('system', `⚠ Network error: ${err.message}\n\nCheck your internet connection and try again.`);
+                appendMsg('system', `⚠ ${err.message}`);
             }
         }
 

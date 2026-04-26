@@ -13329,11 +13329,11 @@ categories.forEach(cat => {
         const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${apiKey}`;
 
         // ── callGemini: model cascade on 429 (no waiting — just switch model) ──
-        // gemini-2.5-flash = 2 RPM free | gemini-1.5-flash = 15 RPM | gemini-1.5-flash-8b = 15 RPM
+        // gemini-2.5-flash = primary | gemini-2.0-flash = first fallback | gemini-2.0-flash-lite = second fallback
         const GEMINI_CASCADE = [
             geminiModel,                    // user's selected model (likely 2.5-flash)
-            'gemini-1.5-flash',             // 15 RPM — first fallback
-            'gemini-1.5-flash-8b',          // 15 RPM — second fallback
+            'gemini-2.0-flash',             // first fallback
+            'gemini-2.0-flash-lite',        // second fallback
         ];
 
         async function callGemini(prompt, useSearch = false) {
@@ -13802,7 +13802,7 @@ Return ONLY valid JSON:
                     <option value="gemini-2.5-flash">2.5 Flash</option>
                     <option value="gemini-2.0-flash">2.0 Flash</option>
                 </select>
-                <button type="button" id="ld-ai-key-btn" title="Reset / Change API Key" style="
+                <button type="button" id="ld-ai-key-btn" title="Change API Key" style="
                     background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);
                     border-radius:4px;padding:2px 7px;font-size:0.75rem;cursor:pointer;line-height:1;">🔐</button>
                 <button type="button" id="ld-ai-close-btn" class="ld-ai-close">✕</button>
@@ -13813,6 +13813,30 @@ Return ONLY valid JSON:
                 💬 Ask anything about your fund in the text box — Gemini AI will answer using live fund data.<br>⚡ Lean = current fund (local, instant). 🔍 Deep = all funds (local, instant). Free-text = Gemini AI (requires API key).
             </div>
         </div>
+        <!-- ── Inline API Key Box ── -->
+        <div id="ld-ai-key-box" style="display:none;padding:8px 12px 6px;background:rgba(0,0,0,0.25);border-bottom:1px solid rgba(255,255,255,0.15);">
+            <div style="font-size:0.5rem;color:rgba(255,255,255,0.6);margin-bottom:5px;">
+                🔑 Paste your Gemini API key — saves instantly. Get a free key at <span style="color:#6ee7b7;">aistudio.google.com/apikey</span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;">
+                <input id="ld-ai-key-input" type="password" placeholder="AIza…"
+                    style="flex:1;font-size:0.55rem;padding:5px 8px;border-radius:5px;
+                           border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.4);
+                           color:#fff;outline:none;font-family:monospace;" />
+                <button id="ld-ai-key-save-btn"
+                    style="background:#009e70;color:#fff;border:none;border-radius:5px;
+                           padding:5px 10px;font-size:0.52rem;cursor:pointer;white-space:nowrap;font-family:var(--mono);">
+                    ✅ Save
+                </button>
+                <button id="ld-ai-key-cancel-btn"
+                    style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);
+                           border-radius:5px;padding:5px 8px;font-size:0.52rem;cursor:pointer;font-family:var(--mono);">
+                    ✕
+                </button>
+            </div>
+            <div id="ld-ai-key-status" style="font-size:0.48rem;margin-top:4px;color:#6ee7b7;min-height:12px;"></div>
+        </div>
+        <!-- ── End API Key Box ── -->
         <button id="ld-ai-scroll-btn" style="position:absolute;bottom:110px;right:28px;background:var(--accent,#009e70);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.2);z-index:10002;">↓</button>
         <div style="padding: 0 16px 8px; background: var(--surface, #f2f5f9); border-top: 1px solid var(--border, #b0bece); display: flex; gap: 6px;">
             <button type="button" id="ld-ai-analyze-fund-btn" style="flex:1; background: #7c3aed; color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 0.58rem; font-weight: bold; text-transform: uppercase; line-height: 1.3;">⚡ Current Fund<br>Lean Analysis</button>
@@ -13868,24 +13892,54 @@ Return ONLY valid JSON:
             localStorage.removeItem('ld_gemini_api_key');
         }
 
-        // ── 🔐 Key reset button ─────────────────────────────────────
-        const keyBtn = document.getElementById('ld-ai-key-btn');
-        if (keyBtn) {
-            keyBtn.addEventListener('click', function() {
-                const hasKey = !!localStorage.getItem('ld_gemini_api_key');
-                const action = hasKey
-                    ? confirm('🔐 API Key Options:\n\nOK = Reset & enter a new key\nCancel = Keep current key')
-                    : true;
-                if (action) {
-                    localStorage.removeItem('ld_gemini_api_key');
-                    const newKey = prompt('Enter your new Gemini API key:\n\nGet one free at: https://aistudio.google.com/apikey');
-                    if (newKey && newKey.trim()) {
-                        localStorage.setItem('ld_gemini_api_key', newKey.trim());
-                        appendMsg('system', '🔐 API key updated successfully. Ready to use AI features.');
-                    } else {
-                        appendMsg('system', '⚠ No key entered. AI features will prompt for a key on next use.');
-                    }
+        // ── 🔐 Inline API Key Box logic ────────────────────────────────
+        const keyBtn       = document.getElementById('ld-ai-key-btn');
+        const keyBox       = document.getElementById('ld-ai-key-box');
+        const keyInput     = document.getElementById('ld-ai-key-input');
+        const keySaveBtn   = document.getElementById('ld-ai-key-save-btn');
+        const keyCancelBtn = document.getElementById('ld-ai-key-cancel-btn');
+        const keyStatus    = document.getElementById('ld-ai-key-status');
+
+        function openKeyBox() {
+            keyBox.style.display = 'block';
+            keyInput.value = '';
+            const cur = localStorage.getItem('ld_gemini_api_key') || '';
+            keyStatus.style.color = '#6ee7b7';
+            keyStatus.textContent = cur
+                ? `Current key: ${cur.slice(0,6)}…${cur.slice(-4)} (${cur.length} chars) — paste new key to replace`
+                : 'No key saved yet — paste your AIza… key above';
+            setTimeout(() => keyInput.focus(), 80);
+        }
+
+        function closeKeyBox() {
+            keyBox.style.display = 'none';
+            keyInput.value = '';
+        }
+
+        if (keyBtn)       keyBtn.addEventListener('click', openKeyBox);
+        if (keyCancelBtn) keyCancelBtn.addEventListener('click', closeKeyBox);
+        if (keySaveBtn) {
+            keySaveBtn.addEventListener('click', function() {
+                const val = (keyInput.value || '').trim();
+                if (!val || val.length < 20) {
+                    keyStatus.style.color = '#ef4444';
+                    keyStatus.textContent = '⚠ Key too short — paste the full AIza… key.';
+                    return;
                 }
+                localStorage.setItem('ld_gemini_api_key', val);
+                if (window.setGeminiKey) window.setGeminiKey(val);
+                keyStatus.style.color = '#6ee7b7';
+                keyStatus.textContent = `✅ Saved! ${val.slice(0,6)}…${val.slice(-4)} — AI features ready.`;
+                keyInput.value = '';
+                appendMsg('system', '🔐 API key saved successfully. Ready to use AI features.');
+                setTimeout(closeKeyBox, 1400);
+            });
+        }
+        // Allow Enter key in key input
+        if (keyInput) {
+            keyInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); keySaveBtn && keySaveBtn.click(); }
+                if (e.key === 'Escape') closeKeyBox();
             });
         }
 

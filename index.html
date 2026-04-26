@@ -13216,42 +13216,68 @@ categories.forEach(cat => {
         const geminiModel = window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash';
         const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${apiKey}`;
 
+        // ── callGemini: model cascade on 429 (no waiting — just switch model) ──
+        // gemini-2.5-flash = 2 RPM free | gemini-1.5-flash = 15 RPM | gemini-1.5-flash-8b = 15 RPM
+        const GEMINI_CASCADE = [
+            geminiModel,                    // user's selected model (likely 2.5-flash)
+            'gemini-1.5-flash',             // 15 RPM — first fallback
+            'gemini-1.5-flash-8b',          // 15 RPM — second fallback
+        ];
+
         async function callGemini(prompt, useSearch = false) {
             const body = {
                 contents: [{ role: 'user', parts: [{ text: prompt }] }],
                 generationConfig: { temperature: 0.05, maxOutputTokens: 8000 }
             };
             if (useSearch) body.tools = [{ google_search: {} }];
-            const res = await fetch(geminiEndpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-            // 429: wait and auto-retry once
-            if (res.status === 429) {
-                const waitSec = parseInt(res.headers.get('Retry-After') || '65');
+
+            for (let i = 0; i < GEMINI_CASCADE.length; i++) {
+                const model  = GEMINI_CASCADE[i];
+                const ep     = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                const isFallback = i > 0;
+
+                if (isFallback) {
+                    loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent2);padding:6px 0;">⚡ Switching to ${model} (higher quota)…</div>`;
+                }
+
+                const res = await fetch(ep, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (res.status !== 429) return res;   // success or non-quota error — return as-is
+
+                // 429 on this model — try next in cascade
+                if (i < GEMINI_CASCADE.length - 1) {
+                    loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:#f59e0b;padding:6px 0;">⚠ ${model} quota hit — trying next model…</div>`;
+                    continue;
+                }
+
+                // All models exhausted — show countdown + retry on first model
                 const reasonEl = document.getElementById('abpReasoningText');
                 document.getElementById('abpReasoning').classList.add('visible');
                 await new Promise(resolve => {
-                    let remaining = isNaN(waitSec) ? 65 : waitSec;
+                    let remaining = 90;
                     const tick = () => {
-                        reasonEl.textContent = `⏳ Gemini free-tier rate limit hit.\n\nAuto-retrying in ${remaining}s — no action needed.\n\nThis resets every minute automatically.`;
+                        reasonEl.textContent = `⏳ All Gemini models at quota limit.\n\nAuto-retrying in ${remaining}s on ${GEMINI_CASCADE[1]}…\n\nThis is the free-tier limit. It resets shortly.`;
                         if (remaining <= 0) { resolve(); return; }
                         remaining--;
                         setTimeout(tick, 1000);
                     };
                     tick();
                 });
-                loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">🔄 Quota reset — retrying…</div>`;
-                const retry = await fetch(geminiEndpoint, {
+
+                loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">🔄 Retrying on ${GEMINI_CASCADE[1]}…</div>`;
+                const finalEp = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_CASCADE[1]}:generateContent?key=${apiKey}`;
+                const finalRes = await fetch(finalEp, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)
                 });
-                if (retry.status === 429) throw new Error('Quota still exhausted. Wait 2–3 min and tap Run Again.');
-                return retry;
+                if (finalRes.status === 429) throw new Error('All models quota-exhausted. Wait 2 min and tap Run Again.');
+                return finalRes;
             }
-            return res;
         }
 
         const loadingEl = document.getElementById('abpLoading');

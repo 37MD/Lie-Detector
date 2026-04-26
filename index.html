@@ -13153,10 +13153,9 @@ categories.forEach(cat => {
         }
 
         // ════════════════════════════════════════════════════════
-        // Step 2: 3-LAYER DATA PIPELINE
-        //   Pass 1  — Yahoo Finance (direct fetch + local RSI calc)
-        //   Pass 1B — Stooq.com    (CSV fallback, CORS-friendly)
-        //   Pass 2  — Gemini google_search (last resort, always works)
+        // Step 2: DATA PIPELINE — Yahoo → Stooq → (if both fail)
+        //         ONE unified Gemini call: search + analyse together
+        //         Max Gemini calls per tap = 1 (never 2)
         // ════════════════════════════════════════════════════════
 
         // ── Shared RSI calculator (Wilder smoothing, period=14) ──
@@ -13177,7 +13176,6 @@ categories.forEach(cat => {
             return Math.round(100 - 100 / (1 + avgGain / avgLoss));
         }
 
-        // ── Helper: build stock result object from closes array ──
         function _buildStock(closes, name, weight) {
             const rsi    = calcRSI(closes);
             const last2  = closes.slice(-2);
@@ -13198,33 +13196,71 @@ categories.forEach(cat => {
             return closes;
         }
 
-        // ── PASS 1B — Stooq.com (CSV, weekly) ────────────────────
-        // Stooq ticker: same as Yahoo but lowercase, e.g. RELIANCE.NS → reliance.ns
-        // URL returns CSV: Date,Open,High,Low,Close,Volume (newest first)
+        // ── PASS 1B — Stooq.com (.in suffix for NSE stocks) ──────
         async function fetchStooq(ticker) {
-            const stooqTicker = ticker.toLowerCase();
+            const stooqTicker = ticker.toLowerCase().replace(/\.ns$/, '.in').replace(/\.bo$/, '.in');
             const url = `https://stooq.com/q/d/l/?s=${stooqTicker}&i=w`;
             const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
             if (!res.ok) throw new Error(`Stooq ${res.status}`);
             const text = await res.text();
             if (text.includes('No data') || text.trim().length < 50) throw new Error('Stooq: no data');
-            // CSV: header on line 0, data lines follow (newest first on Stooq)
             const lines = text.trim().split('\n').slice(1).filter(l => l.trim());
             if (lines.length < 15) throw new Error('Insufficient Stooq data');
-            // Take last 22 rows (oldest→newest order after reverse)
-            const closes = lines
-                .slice(0, 22)           // Stooq is newest-first, take top 22
-                .reverse()              // flip to oldest→newest for RSI calc
-                .map(l => parseFloat(l.split(',')[4]))
-                .filter(v => !isNaN(v));
+            const closes = lines.slice(0, 22).reverse()
+                .map(l => parseFloat(l.split(',')[4])).filter(v => !isNaN(v));
             if (closes.length < 15) throw new Error('Stooq: parse failed');
             return closes;
         }
 
+        // ── Gemini endpoint helper ────────────────────────────────
+        const geminiModel = window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash';
+        const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${apiKey}`;
+
+        async function callGemini(prompt, useSearch = false) {
+            const body = {
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.05, maxOutputTokens: 8000 }
+            };
+            if (useSearch) body.tools = [{ google_search: {} }];
+            const res = await fetch(geminiEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            // 429: wait and auto-retry once
+            if (res.status === 429) {
+                const waitSec = parseInt(res.headers.get('Retry-After') || '65');
+                const reasonEl = document.getElementById('abpReasoningText');
+                document.getElementById('abpReasoning').classList.add('visible');
+                await new Promise(resolve => {
+                    let remaining = isNaN(waitSec) ? 65 : waitSec;
+                    const tick = () => {
+                        reasonEl.textContent = `⏳ Gemini free-tier rate limit hit.\n\nAuto-retrying in ${remaining}s — no action needed.\n\nThis resets every minute automatically.`;
+                        if (remaining <= 0) { resolve(); return; }
+                        remaining--;
+                        setTimeout(tick, 1000);
+                    };
+                    tick();
+                });
+                loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">🔄 Quota reset — retrying…</div>`;
+                const retry = await fetch(geminiEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (retry.status === 429) throw new Error('Quota still exhausted. Wait 2–3 min and tap Run Again.');
+                return retry;
+            }
+            return res;
+        }
+
         const loadingEl = document.getElementById('abpLoading');
+
+        // ─────────────────────────────────────────────────────────
+        // ATTEMPT DIRECT FETCH (Yahoo → Stooq) for each stock
+        // ─────────────────────────────────────────────────────────
         loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">📡 Pass 1 — Yahoo Finance…</div>`;
 
-        // Run Pass 1 for all 5 stocks in parallel
         const p1Results = await Promise.allSettled(
             idxInfo.stocks.map(async ([ticker, name, weight]) => {
                 const closes = await fetchYahoo(ticker);
@@ -13235,133 +13271,84 @@ categories.forEach(cat => {
         let stocks = p1Results.map((r, i) => {
             if (r.status === 'fulfilled') return r.value;
             const [, name, weight] = idxInfo.stocks[i];
-            return { ticker: name, weight, trend_14d: '—', regime: '—', verdict: 'BEAR', note: 'Data unavailable', _failed: true, _idx: i };
+            return { ticker: name, weight, trend_14d: '—', regime: '—', verdict: 'BEAR', note: 'Pending', _failed: true, _idx: i };
         });
 
-        // ── PASS 1B — Stooq fallback for any Yahoo failures ──────
-        const failedAfterP1 = stocks.filter(s => s._failed);
-        if (failedAfterP1.length > 0) {
-            loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent2);padding:6px 0;">⚠ Yahoo blocked (${failedAfterP1.length}/5). Pass 1B — Stooq.com fallback…</div>`;
-
+        // Pass 1B — Stooq for any Yahoo failures
+        const failedP1 = stocks.filter(s => s._failed);
+        if (failedP1.length > 0) {
+            loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent2);padding:6px 0;">⚠ Yahoo blocked (${failedP1.length}/5) — trying Stooq…</div>`;
             const p1bResults = await Promise.allSettled(
-                failedAfterP1.map(async s => {
+                failedP1.map(async s => {
                     const [ticker, name, weight] = idxInfo.stocks[s._idx];
                     const closes = await fetchStooq(ticker);
                     return { idx: s._idx, stock: _buildStock(closes, name, weight) };
                 })
             );
-
             p1bResults.forEach(r => {
-                if (r.status === 'fulfilled') {
-                    stocks[r.value.idx] = r.value.stock;   // replace failed slot with Stooq data
-                }
+                if (r.status === 'fulfilled') stocks[r.value.idx] = r.value.stock;
             });
-
-            const stillFailed = stocks.filter(s => s._failed).length;
-            if (stillFailed === 0) {
-                loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">✅ Pass 1B complete — ${failedAfterP1.length} stock(s) recovered via Stooq.</div>`;
+            const recovered = failedP1.length - stocks.filter(s => s._failed).length;
+            if (recovered > 0) {
+                loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">✅ Stooq recovered ${recovered} stock(s).</div>`;
             }
         }
 
-        // ── PASS 2 — Gemini google_search (if ≥3 still unavailable) ──
-        const unavailableCount = stocks.filter(s => s._failed || s.trend_14d === '—').length;
-        if (unavailableCount >= 3) {
-            loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent2);padding:6px 0;">⚠ ${unavailableCount}/5 still missing. Pass 2 — AI web search for W-RSI…</div>`;
-
-            const stockListForSearch = idxInfo.stocks.map(([, name, weight]) => `${name} (${weight})`).join(', ');
-            const searchPrompt = `You are the Sacred RSI Regime Lie Detector. Search the web RIGHT NOW for the CURRENT 14-week Weekly RSI of these Indian NSE-listed stocks for the index ${idxInfo.idx}: ${stockListForSearch}.
-
-For each stock find:
-1. Current 14-week Weekly RSI (TradingView method: 13 locked Friday weekly closes + current live/last traded price as the 14th data point, Wilder smoothing)
-2. 2-week price trend: RISING or FALLING (compare last 2 weekly closes)
-3. Regime: A (W-RSI ≥ 50), B (W-RSI 40–49), C (W-RSI < 40)
-4. Verdict: BULL if Regime A + RISING, else BEAR
-
-STRICT: Use actual searched data only. State W-RSI as a number. Do NOT guess or hallucinate.
-
-Return ONLY valid JSON (no markdown, no preamble):
-{"stocks":[{"ticker":"Stock Name","weight":"X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"W-RSI 58"}],"bull_count":0,"bull_weight_sum":"X%","data_source":"google_search","search_note":"brief note on data freshness"}`;
-
-            const endpointSearch = `https://generativelanguage.googleapis.com/v1beta/models/${window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash'}:generateContent?key=${apiKey}`;
-            const respSearch = await fetch(endpointSearch, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ role: 'user', parts: [{ text: searchPrompt }] }],
-                    tools: [{ google_search: {} }],
-                    generationConfig: { temperature: 0.05, maxOutputTokens: 4000 }
-                })
-            });
-
-            if (respSearch.ok) {
-                const searchData = await respSearch.json();
-                const searchRaw = (searchData.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
-                let searchClean = abpCleanAiResponse(searchRaw);
-                const sj = searchClean.indexOf('{'), se = searchClean.lastIndexOf('}');
-                if (sj !== -1 && se > sj) {
-                    try {
-                        const searchParsed = JSON.parse(searchClean.slice(sj, se + 1));
-                        if (Array.isArray(searchParsed.stocks) && searchParsed.stocks.length >= 3) {
-                            stocks = stocks.map((orig, i) => {
-                                if (!orig._failed) return orig;   // keep Pass 1/1B successes
-                                const found = searchParsed.stocks[i] || searchParsed.stocks.find(s =>
-                                    s.ticker && orig.ticker &&
-                                    s.ticker.toLowerCase().includes(orig.ticker.toLowerCase().split(' ')[0])
-                                );
-                                return (found && found.note && found.note !== 'Data unavailable') ? found : orig;
-                            });
-                            loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">✅ Pass 2 complete — W-RSI via AI web search${searchParsed.search_note ? ' · ' + searchParsed.search_note : ''}</div>`;
-                        }
-                    } catch(e) { /* Pass 2 parse failed — proceed with partial data */ }
-                }
-            }
-        }
-
-        // Clean up internal flags before sending to analysis
+        // Clean internal flags
         stocks = stocks.map(({ _failed, _idx, ...s }) => s);
 
-        // ── Step 3: Send final stock data to Gemini for Sacred RSI interpretation ──
+        const stillMissing = stocks.filter(s => s.note === 'Pending').length;
+
+        // ─────────────────────────────────────────────────────────
+        // UNIFIED GEMINI CALL — always exactly 1 call
+        //   • If direct fetch succeeded: analysis only (no google_search)
+        //   • If direct fetch failed:    google_search + analysis together
+        // ─────────────────────────────────────────────────────────
+        const useGoogleSearch = stillMissing >= 3;
+
+        if (useGoogleSearch) {
+            loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent2);padding:6px 0;">📡 CORS blocked — one AI call: searching + analysing together…</div>`;
+        } else {
+            loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">🧠 Running Sacred RSI Lie Detector…</div>`;
+        }
+
+        const stockListStr = idxInfo.stocks.map(([, name, weight]) => `${name} (${weight})`).join(', ');
         const dataLines = stocks.map(s =>
             `${s.ticker} (${s.weight}): W-RSI=${s.note}, Trend=${s.trend_14d}, Regime=${s.regime}, Verdict=${s.verdict}`
         ).join('\n');
 
-        // LD246QAI: Updated prompt — Sacred RSI Regime Lie Detector Auditor (optimized)
+        // LD246QAI: Sacred RSI Regime Lie Detector prompt
+        // If google_search is enabled, ask Gemini to search first then analyse
+        // If not, use the pre-computed local data
+        const searchSection = useGoogleSearch
+            ? `STEP 1 — SEARCH: Use google_search to find the CURRENT 14-week Weekly RSI and 2-week price trend for each of these NSE stocks in ${idxInfo.idx}: ${stockListStr}. Use TradingView method (13 locked Friday closes + current live price as 14th period, Wilder smoothing). State W-RSI as a real number. STRICT: no hallucinations.\n\nSTEP 2 — ANALYSE using the data you just searched:`
+            : `CONSTITUENT DATA (computed locally from Yahoo/Stooq weekly closes, 14-week Wilder RSI):\n${dataLines}\n\nANALYSE the above data:`;
+
         const promptText2 = `You are the Sacred RSI Regime INDEX Portfolio Lie Detector Auditor for an Indian equity system.
 
-STRICT RULE: Use ONLY the live data provided below. NO assumptions. NO hallucinations. If data is missing, say so.
+STRICT RULE: Use ONLY actual data. NO hallucinations. If data unavailable, say so.
 
-SACRED RSI REGIME RULES (apply strictly):
+SACRED RSI REGIME RULES:
 - Regime A (W-RSI ≥ 50): Structural Bull — institutions defending. Verdict = BULL.
 - Regime B (W-RSI 40–49): Fatigue — earnings trust suspect. Verdict = HOLD.
-- Regime C (W-RSI < 40): Trust Break — institutional exit. Verdict = BEAR. NEVER average down.
-SACRED RULE: True compounders do NOT stay below W-RSI 40. If below 40 and cannot reclaim 45 = earnings trust broken.
-DIVERGENCE LIE DETECTOR: If price/trend is RISING but W-RSI is falling or below 50 = "Cosmetic Growth" (smart money selling into EPS optics). Flag it.
+- Regime C (W-RSI < 40): Trust Break — institutional exit. Verdict = BEAR. Never average down.
+SACRED RULE: True compounders never stay below W-RSI 40. Below 40 + cannot reclaim 45 = earnings trust broken.
+DIVERGENCE LIE DETECTOR: Price RISING + W-RSI falling/below 50 = Cosmetic Growth (smart money selling into EPS). Flag it.
 PSYCHOLOGY FILTER: Price moves first; earnings explanations come later.
-WEEKLY RSI METHOD: TradingView — 13 locked Friday closes + current live price as 14th period (Wilder's smoothing).
+WEEKLY RSI: TradingView method — 13 locked Friday closes + current live price as 14th period (Wilder smoothing).
 
 FUND UNDER ANALYSIS:
-Fund: ${fundName} | Benchmark Index: ${idxInfo.idx}
+Fund: ${fundName} | Benchmark: ${idxInfo.idx}
 Fund W-RSI: ${fundWrsi} (${fundRegime}) | D-RSI: ${fundDrsi} | 1M Return: ${fundR1m}
 
-LIVE CONSTITUENT X-RAY — Top 5 by Index Weight (computed from Yahoo Finance, 14-week RSI):
-${dataLines}
+${searchSection}
 
-TASK: Apply Sacred RSI Lie Detector. Classify each stock A/B/C. Count BULL stocks and sum their weights. Flag any divergence, RSI lie, or psychology trap. Give sop_action in ≤12 words.
+TASK: Classify each stock Regime A/B/C. Count BULL stocks (Regime A + RISING) and sum their weights. Flag divergence, RSI lies, cosmetic growth. Give sop_action in ≤12 words.
 
-Return ONLY valid JSON — no markdown, no preamble, no explanation outside JSON:
-{"stocks":[{"ticker":"X","weight":"X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"W-RSI XX"}],"bull_count":0,"bull_weight_sum":"X%","confirmation":"CONFIRMED","sop_action":"max 12 words","reasoning":"2 sentences: Sacred RSI Lie Detector verdict on ${idxInfo.idx} breadth — cite any divergence, cosmetic growth, or earnings lie if present"}`;
+Return ONLY valid JSON — no markdown, no preamble:
+{"stocks":[{"ticker":"Name","weight":"X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"W-RSI 58"}],"bull_count":0,"bull_weight_sum":"X%","confirmation":"CONFIRMED","sop_action":"max 12 words","reasoning":"2 sentences: Sacred RSI Lie Detector verdict on ${idxInfo.idx} — cite any divergence or earnings lie"}`;
 
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash'}:generateContent?key=${apiKey}`;
-        const resp = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ role: 'user', parts: [{ text: promptText2 }] }],
-                generationConfig: { temperature: 0.05, maxOutputTokens: 8000 }
-            })
-        });
-
-        if (resp.status === 429) throw new Error('Gemini quota exceeded. Please wait and try again.');
+        const resp = await callGemini(promptText2, useGoogleSearch);
 
         const data = await resp.json();
         if (!resp.ok || data.error) throw new Error(data.error?.message || `API Error: ${resp.status}`);

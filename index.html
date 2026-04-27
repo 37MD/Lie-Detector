@@ -2842,7 +2842,61 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="sop-part sop-part-green">PART 16 — LD246RAI: DUAL API KEY MANAGER + UI CLEANUP</div>
+                <div class="sop-part sop-part-green">PART 18 — LD246RAI: LAZY LOAD + 24-HOUR BREADTH CACHE (QUOTA PROTECTION)</div>
+                <table class="sop-table">
+                    <thead><tr><th style="width:34%">Change</th><th>Detail</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Why the "Every 2 Min" Pattern Was Fatal</td>
+                            <td>MF/NPS NAVs update once daily (9–11:30 PM IST). Weekly RSI cannot swing between regimes in minutes. Polling 5 funds every 2 min = 150 API calls/hour — instant Free Tier lockout. The app never had a background interval, but had no cache protection either: every tap fired a fresh Gemini call.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Lazy Load + 24-Hour Cache Architecture</td>
+                            <td>Cache key: <code>breadth_v1_{fundCode}_{YYYYMMDD}</code> (IST calendar day). On modal open: if today's cache exists → render instantly from localStorage, zero API tokens used. If no cache → show first-run CTA. Cache resets at IST midnight automatically (date embedded in key). Guaranteed: max 1 Gemini call per fund per calendar day.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Smart Button States</td>
+                            <td>First open (no cache): button shows <strong>▶ Run Breadth Analysis (1 API call)</strong> in green. After analysis: button changes to <strong>🔄 Refresh (uses 1 API token)</strong> in slate — visual friction to prevent accidental re-runs. Cache note line below button tells the user exactly what's happening (⚡ no cache / ✅ cached / ⏳ running).</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">prompt() Removed</td>
+                            <td>The old <code>prompt()</code> fallback for missing API key is gone. If no key is saved, the cache note shows a red message directing user to 🔐 in the System Brain Auditor. No browser dialogs anywhere.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#7c3aed;">Quota Maths Post-Fix</td>
+                            <td>With 10 funds in your universe and daily NAV updates: max 10 Gemini calls per day total, regardless of how many times you open the modal. Free Tier (1,500 calls/day on Gemini Flash) is never threatened. Refresh is always available but requires a conscious tap on the slate button.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="sop-table">
+                    <thead><tr><th style="width:34%">Change</th><th>Detail</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Full Audit Guidelines Preamble</td>
+                            <td>The AI Breadth prompt now opens with the complete Lie Detector ruleset: Sacred Rule (true compounders never stay below W-RSI 40), Divergence Check (price new high + lower RSI high = Cosmetic Growth), and Psychology Filter ("Price moves first; earnings explanations come later").</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Full 8-Column Stock Table (Section 1)</td>
+                            <td>AI now returns all planned columns per stock: Stock Name | NAV/Price (₹) | Daily RSI (14) | Weekly RSI (14) | WMA20 (₹) | Price vs 20WMA (ABOVE/BELOW) | Regime (A/B/C) | 2W Trend | Action | Recommendation. Previously, only W-RSI, Trend, and Regime were returned.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Divergence &amp; Psychology Alert (Section 3)</td>
+                            <td>AI now explicitly outputs a Divergence Alert flagging "Cosmetic Growth" (price rising + RSI diverging), and a Psychology Audit with a "Lookout for…" warning tailored to the current regime. Both render in the reasoning panel with distinct colour coding (amber for divergence, purple for psychology).</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Broad Market Regime A Scan (Section 4)</td>
+                            <td>AI now scans ALL major Nifty broad market, sectoral, and strategy indices (Nifty 50, Bank, IT, Auto, Pharma, Realty, Midcap 150, Smallcap 250, FMCG, Metal, Energy, Infra, PSU Bank, Fin Services, Defence, EV, Consumption, Quality 30, Value 30, Momentum 30, etc.) and lists only those in Regime A in a clean table: Index | W-RSI | 2W Trend | Signal.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Richer JSON Schema</td>
+                            <td>Response JSON now includes: <code>price</code>, <code>daily_rsi</code>, <code>weekly_rsi</code>, <code>wma20</code>, <code>price_vs_wma20</code>, <code>action</code>, <code>recommendation</code> per stock, plus top-level <code>divergence_alert</code>, <code>psychology_audit</code>, and <code>broad_market_regime_a[]</code> array.</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:var(--accent);">Render Engine Upgraded</td>
+                            <td>_renderStocks() replaced card grid with a scrollable 11-column table. _renderReasoning() now renders three distinct panels: Divergence Alert, Psychology Audit, Breadth Context, and the full Broad Market Regime A scan table — all colour-coded (green/amber/red/purple).</td>
+                        </tr>
+                    </tbody>
+                </table>
                 <table class="sop-table">
                     <thead><tr><th style="width:34%">Change</th><th>Detail</th></tr></thead>
                     <tbody>
@@ -12963,9 +13017,14 @@ categories.forEach(cat => {
         <div class="abp-body">
           <!-- Fund meta row -->
           <div class="abp-fund-meta" id="abpFundMeta"></div>
+          <!-- Cache status note -->
+          <div id="abpCacheNote" style="
+              display:none; font-size:0.5rem; color:#009e70; font-family:var(--mono);
+              text-align:center; padding:4px 10px 2px; margin-bottom:2px;
+              background:rgba(0,158,112,0.07); border-radius:5px; line-height:1.5;"></div>
           <!-- Run button -->
           <button class="abp-run-btn" id="abpRunBtn" onclick="executeAIBreadthCheck()">
-            <span>✨</span><span id="abpRunBtnLabel">Run AI Breadth Check</span>
+            <span>✨</span><span id="abpRunBtnLabel">▶ Run Breadth Analysis (1 API call)</span>
           </button>
 
           <!-- API key managed via 🔐 in System Brain Auditor panel -->
@@ -13015,11 +13074,73 @@ categories.forEach(cat => {
         let _abpFund = null; // { code, name, wrsi, drsi, r1m }
 
         // ── §2 MODAL PUBLIC API ────────────────────────────────
+        // ════════════════════════════════════════════════════════════
+        // §2b  24-HOUR CACHE HELPERS
+        //      Key: breadth_v1_{fundCode}_{YYYYMMDD}
+        //      TTL: strictly calendar-day (IST midnight resets it)
+        // ════════════════════════════════════════════════════════════
+        function _cacheKey(fundCode) {
+            // IST date string — resets at midnight IST regardless of user timezone
+            const now = new Date(Date.now() + 5.5 * 60 * 60 * 1000); // UTC+5:30
+            const d = now.toISOString().slice(0, 10).replace(/-/g, '');
+            return `breadth_v1_${(fundCode||'').replace(/\W/g,'_')}_${d}`;
+        }
+
+        function _cacheLoad(fundCode) {
+            try {
+                const raw = localStorage.getItem(_cacheKey(fundCode));
+                return raw ? JSON.parse(raw) : null;
+            } catch(e) { return null; }
+        }
+
+        function _cacheSave(fundCode, parsed) {
+            try {
+                localStorage.setItem(_cacheKey(fundCode), JSON.stringify(parsed));
+            } catch(e) { /* storage full — fail silently */ }
+        }
+
+        function _cacheClear(fundCode) {
+            // Clear today's key so next run re-fetches
+            try { localStorage.removeItem(_cacheKey(fundCode)); } catch(e) {}
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // §2c  SMART OPEN — check cache, update button state
+        // ════════════════════════════════════════════════════════════
         window.openAIBreadthModal = function(fund) {
             _abpFund = fund;
             _resetPanel();
             _populateFundMeta(fund);
             document.getElementById('abpFundTag').textContent = fund.name || fund.code;
+
+            // Check if today's cache exists
+            const cached = _cacheLoad(fund.code || fund.name);
+            const runBtn = document.getElementById('abpRunBtn');
+            const runLbl = document.getElementById('abpRunBtnLabel');
+            const cacheNote = document.getElementById('abpCacheNote');
+
+            if (cached) {
+                // Show cached result immediately — no API call
+                runLbl.textContent = '🔄 Refresh (uses 1 API token)';
+                runBtn.style.background = '#334155';
+                if (cacheNote) {
+                    cacheNote.style.display = 'block';
+                    cacheNote.textContent = '✅ Showing today\'s cached analysis — zero tokens used. Tap Refresh to re-run.';
+                }
+                _renderVerdict(cached);
+                _renderStocks(cached.stocks);
+                _renderReasoning(cached.reasoning, cached);
+                document.getElementById('abpLoading').classList.remove('visible');
+            } else {
+                // No cache — show first-run CTA
+                runLbl.textContent = '▶ Run Breadth Analysis (1 API call)';
+                runBtn.style.background = '#009e70';
+                if (cacheNote) {
+                    cacheNote.style.display = 'block';
+                    cacheNote.textContent = '⚡ No cache for today. Tap above to run — result saves for 24h.';
+                }
+            }
+
             document.getElementById('aiBreadthOverlay').classList.add('open');
         };
 
@@ -13042,14 +13163,19 @@ categories.forEach(cat => {
 
         // ── Reset ──────────────────────────────────────────────
         function _resetPanel() {
-            document.getElementById('abpRunBtn').disabled = false;
-            document.getElementById('abpRunBtnLabel').textContent = 'Run AI Breadth Check';
+            const runBtn = document.getElementById('abpRunBtn');
+            const runLbl = document.getElementById('abpRunBtnLabel');
+            runBtn.disabled = false;
+            runBtn.style.background = '#009e70';
+            runLbl.textContent = '▶ Run Breadth Analysis (1 API call)';
             document.getElementById('abpLoading').classList.remove('visible');
             const vb = document.getElementById('abpVerdictBox');
             vb.className = 'abp-verdict-box';
             document.getElementById('abpStocksGrid').style.display = 'none';
             document.getElementById('abpReasoning').classList.remove('visible');
             document.getElementById('abpFundMeta').innerHTML = '';
+            const cn = document.getElementById('abpCacheNote');
+            if (cn) { cn.style.display = 'none'; cn.textContent = ''; }
         }
 
         // ── Fund Meta ──────────────────────────────────────────
@@ -13084,27 +13210,37 @@ categories.forEach(cat => {
 
     // ════════════════════════════════════════════════════════════
     // §4 MAIN ENGINE — executeAIBreadthCheck
+    //    Lazy Load: reads cache first. Only calls Gemini if:
+    //    (a) no today's cache exists, OR (b) user explicitly refreshes
     // ════════════════════════════════════════════════════════════
     window.executeAIBreadthCheck = async function() {
     if (!_abpFund) return;
 
-    let apiKey = '';
-    if (window.getGeminiKey) {
-        apiKey = window.getGeminiKey() || '';
-    } else {
-        apiKey = localStorage.getItem('ld_gemini_api_key') || '';
-        if (!apiKey) {
-            const entered = prompt('Enter your Gemini API key (required for AI Breadth):\n\nGet one free at: https://aistudio.google.com/apikey');
-            if (entered && entered.trim()) {
-                apiKey = entered.trim();
-                localStorage.setItem('ld_gemini_api_key', apiKey);
-            }
+    // ── API key check — direct to 🔐 panel, never prompt() ──
+    const apiKey = (window.getGeminiKey ? window.getGeminiKey() : localStorage.getItem('ld_gemini_api_key') || '');
+    if (!apiKey) {
+        const cn = document.getElementById('abpCacheNote');
+        if (cn) {
+            cn.style.display = 'block';
+            cn.style.color = '#c8102e';
+            cn.textContent = '🔑 No API key saved. Close this panel and tap 🔐 in the System Brain Auditor to add your key.';
         }
+        return;
     }
-    if (!apiKey) return;
+
+    // ── Force-clear today's cache so this run re-fetches ────
+    const fundKey = _abpFund.code || _abpFund.name;
+    _cacheClear(fundKey);
+
+    const cacheNote = document.getElementById('abpCacheNote');
+    if (cacheNote) {
+        cacheNote.style.display = 'block';
+        cacheNote.style.color = '#94a3b8';
+        cacheNote.textContent = '⏳ Fetching live data + running Gemini analysis…';
+    }
 
     document.getElementById('abpRunBtn').disabled = true;
-    document.getElementById('abpRunBtnLabel').textContent = 'Running…';
+    document.getElementById('abpRunBtnLabel').textContent = 'Analysing…';
     document.getElementById('abpLoading').classList.add('visible');
     document.getElementById('abpVerdictBox').className = 'abp-verdict-box';
     document.getElementById('abpStocksGrid').style.display = 'none';
@@ -13400,25 +13536,98 @@ categories.forEach(cat => {
             ? `NOTE: Live data fetch was CORS-blocked. Use your training knowledge to ESTIMATE the recent 14-week Weekly RSI and 2-week trend for these NSE stocks in ${idxInfo.idx}: ${stockListStr}. Label as "Est. W-RSI ~XX". Apply Sacred RSI rules to your estimates.`
             : `CONSTITUENT DATA (locally computed — 14-week Wilder RSI from weekly closes):\n${dataLines}`;
 
-        const promptText2 = `You are the Sacred RSI Regime INDEX Portfolio Lie Detector Auditor for an Indian equity system.
+        const promptText2 = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System — the "Lie Detector Auditor" for Indian NPS/MF funds.
 
-SACRED RSI REGIME RULES:
-- Regime A (W-RSI ≥ 50): Structural Bull. Verdict = BULL.
-- Regime B (W-RSI 40–49): Fatigue. Verdict = HOLD.
-- Regime C (W-RSI < 40): Trust Break. Verdict = BEAR. Never average down.
-SACRED RULE: True compounders never stay below W-RSI 40.
-DIVERGENCE: Price RISING + W-RSI falling/below 50 = Cosmetic Growth. Flag it.
-PSYCHOLOGY: Price moves first; earnings explanations come later.
+════════════════════════════════════════════════════════
+AUDIT GUIDELINES — THE LIE DETECTOR RULES
+════════════════════════════════════════════════════════
+SACRED RULE: True compounders do NOT stay below 40 Weekly RSI. If an index or fund breaks W-RSI 40 and cannot reclaim 45, the earnings trust is broken — expect guidance cuts or downgrades.
 
-FUND: ${fundName} | Benchmark: ${idxInfo.idx}
-Fund W-RSI: ${fundWrsi} (${fundRegime}) | D-RSI: ${fundDrsi} | 1M Return: ${fundR1m}
+DIVERGENCE CHECK: If price/NAV hits a new high but Daily RSI shows a lower high, flag it as "Cosmetic Growth" (Smart money selling into EPS optics).
 
+PSYCHOLOGY FILTER: Remind the user — "Price moves first; earnings explanations come later."
+
+REGIME RULES:
+- Regime A (W-RSI ≥ 50): Structural Bull → BULL / BUY
+- Regime B (W-RSI 40–49): Fatigue / Transition → HOLD / WATCH
+- Regime C (W-RSI < 40): Trust Break → BEAR / REDUCE. Never average down.
+
+════════════════════════════════════════════════════════
+FUND UNDER REVIEW
+════════════════════════════════════════════════════════
+Fund: ${fundName}
+Benchmark Index: ${idxInfo.idx}
+Fund W-RSI: ${fundWrsi} (${fundRegime}) | Fund D-RSI: ${fundDrsi} | 1M Return: ${fundR1m}
+
+════════════════════════════════════════════════════════
+CONSTITUENT DATA (locally computed — 14-week Wilder RSI from live weekly closes)
+════════════════════════════════════════════════════════
 ${dataSection}
 
-TASK: Classify each stock A/B/C. Count BULL stocks and sum weights. Flag divergence. sop_action ≤12 words.
+════════════════════════════════════════════════════════
+YOUR TASKS — OUTPUT ALL 5 SECTIONS BELOW
+════════════════════════════════════════════════════════
 
-Return ONLY valid JSON:
-{"stocks":[{"ticker":"Name","weight":"X%","trend_14d":"RISING","regime":"A","verdict":"BULL","note":"W-RSI 58"}],"bull_count":0,"bull_weight_sum":"X%","confirmation":"CONFIRMED","sop_action":"max 12 words","reasoning":"2 sentences on ${idxInfo.idx} breadth"}`;
+SECTION 1 — CONSTITUENT X-RAY TABLE
+For each of the 5 top-weight stocks of ${idxInfo.idx}, present this EXACT table:
+| Stock Name | NAV / Price (₹) | Daily RSI (14) | Weekly RSI (14) | WMA20 of Price (₹) | Price vs 20WMA | Regime (A/B/C) | 2W Trend | Action (Buy/Hold/Reduce) | Recommendation |
+Use the pre-computed data above. For any missing field (Daily RSI, Price, WMA20), use your training knowledge and label it "Est."
+For "Price vs 20WMA": write ABOVE or BELOW.
+For "Recommendation": 1 crisp sentence max.
+
+SECTION 2 — VERDICT SUMMARY
+Count BULL stocks (Regime A + RISING). Sum their index weights.
+State: bull_count (0–5), bull_weight_sum (e.g. 42%), and one of:
+- CONFIRMED (bull_count ≥ 3): "Breadth confirmed — macro supports deployment."
+- MARGINAL (bull_count = 2): "Breadth marginal — reduce tranche size."
+- WEAK (bull_count ≤ 1): "Breadth weak — do not deploy."
+
+SECTION 3 — DIVERGENCE & PSYCHOLOGY ALERT
+3a. DIVERGENCE ALERT: Identify any stock where Price is RISING but W-RSI is falling or stuck below 50 → flag as "Cosmetic Growth — Smart money may be selling into EPS optics."
+If no divergence: write "No divergence detected."
+3b. PSYCHOLOGY AUDIT: Write one "Lookout for…" warning tailored to the current regime of ${idxInfo.idx}. Example: "Don't get trapped by EPS optics if W-RSI is failing to reclaim 50."
+
+SECTION 4 — BROAD MARKET REGIME SCAN
+Scan ALL major Nifty broad market, sectoral, and strategy indices (Nifty 50, Nifty Bank, Nifty IT, Nifty Auto, Nifty Pharma, Nifty Realty, Nifty Midcap 150, Nifty Smallcap 250, Nifty FMCG, Nifty Metal, Nifty Energy, Nifty Infra, Nifty PSU Bank, Nifty Financial Services, Nifty India Defence, Nifty EV, Nifty Consumption, Nifty Quality 30, Nifty Value 30, Nifty Momentum 30, etc.)
+List ONLY those currently in Regime A (W-RSI ≥ 50) in a clean table:
+| Index Name | Est. W-RSI | Regime | 2W Trend | Signal |
+If an index is borderline or uncertain, mark W-RSI as "Est. ~XX".
+
+SECTION 5 — SOP ACTION
+One final line: the exact SOP action for this fund in ≤ 12 words. E.g. "Deploy tranche — breadth confirmed, regime A intact."
+
+════════════════════════════════════════════════════════
+OUTPUT FORMAT
+════════════════════════════════════════════════════════
+Return a JSON object with this exact structure:
+{
+  "stocks": [
+    {
+      "ticker": "Stock Name",
+      "weight": "X%",
+      "price": "₹XXXX",
+      "daily_rsi": "XX or Est. XX",
+      "weekly_rsi": "XX or Est. XX",
+      "wma20": "₹XXXX or Est.",
+      "price_vs_wma20": "ABOVE or BELOW",
+      "trend_14d": "RISING or FALLING",
+      "regime": "A or B or C",
+      "verdict": "BULL or HOLD or BEAR",
+      "action": "Buy / Hold / Reduce",
+      "recommendation": "One crisp sentence."
+    }
+  ],
+  "bull_count": 0,
+  "bull_weight_sum": "X%",
+  "confirmation": "CONFIRMED or MARGINAL or WEAK",
+  "sop_action": "≤12 words",
+  "divergence_alert": "text or No divergence detected.",
+  "psychology_audit": "Lookout for… text",
+  "broad_market_regime_a": [
+    { "index": "Index Name", "wrsi": "XX or Est. ~XX", "trend": "RISING or FALLING", "signal": "BUY / WATCH" }
+  ],
+  "reasoning": "2–3 sentences on ${idxInfo.idx} breadth and overall market context."
+}`;
 
         const resp = await callGemini(promptText2, false); // google_search NEVER used
 
@@ -13457,17 +13666,34 @@ Return ONLY valid JSON:
 
         _renderVerdict(parsed);
         _renderStocks(parsed.stocks);
-        _renderReasoning(parsed.reasoning);
+        _renderReasoning(parsed.reasoning, parsed);
+
+        // ── Save to 24-hour cache ───────────────────────────────
+        _cacheSave(fundKey, parsed);
+        const runBtn2 = document.getElementById('abpRunBtn');
+        const runLbl2 = document.getElementById('abpRunBtnLabel');
+        runBtn2.style.background = '#334155';
+        runLbl2.textContent = '🔄 Refresh (uses 1 API token)';
+        if (cacheNote) {
+            cacheNote.style.color = '#009e70';
+            cacheNote.textContent = '✅ Analysis cached for today (IST). Tap Refresh only if needed — saves quota.';
+        }
 
     } catch(err) {
         document.getElementById('abpReasoningText').textContent = 'Error: ' + err.message + '\n\nPlease retry.';
         document.getElementById('abpReasoning').classList.add('visible');
+        if (cacheNote) { cacheNote.style.color = '#c8102e'; cacheNote.textContent = '⚠ Analysis failed — not cached. Check API key or retry.'; }
     }
 
     document.getElementById('abpLoading').classList.remove('visible');
     document.getElementById('abpRunBtn').disabled = false;
-    document.getElementById('abpRunBtnLabel').textContent = 'Run Again';
 };
+
+        // ── Close on overlay tap ───────────────────────────────
+        document.getElementById('aiBreadthOverlay').addEventListener('click', function(e){
+            if (e.target === this) window.closeAIBreadthModal();
+        });
+    })();
 
     // ════════════════════════════════════════════════════════════
     // §5 RENDER — Verdict Box
@@ -13480,79 +13706,153 @@ Return ONLY valid JSON:
     if (bc >= 3) {
         type='confirmed';
         hl='✅ INDEX BREADTH CONFIRMED';
-        sub=`${bc}/5 Top stocks are positive. ${bWeight} of stocks by Weightage are in Regime A/Hope. Macro structure supports deployment per SOP.`;
+        sub=`${bc}/5 top stocks in Regime A. ${bWeight} of index weight is BULL. Macro structure supports deployment per SOP.`;
         action='▶ PROCEED — Execute per SOP. ' + (parsed.sop_action||'');
     } else if (bc === 2) {
         type='caution';
         hl='⚠ BREADTH MARGINAL';
-        sub=`Only ${bc}/5 positive. ${bWeight} of stocks by Weightage are in Regime A/Hope. Consider reducing tranche size or waiting one session.`;
+        sub=`Only ${bc}/5 positive. ${bWeight} of index weight is BULL. Reduce tranche size — wait one session.`;
         action='⚠ REDUCE SIZE — Halve planned tranche. Monitor 1 session.';
     } else {
         type='weak';
         hl='🚨 BREADTH WEAK — HOLD';
-        sub=`Only ${bc}/5 positive. ${bWeight} of stocks by Weightage are in Regime A/Hope. Broad market structure does not support deployment.`;
+        sub=`Only ${bc}/5 positive. ${bWeight} of index weight is BULL. Broad market structure does not support deployment.`;
         action='✗ DO NOT DEPLOY — Wait for breadth ≥ 3/5.';
     }
 
     const vb = document.getElementById('abpVerdictBox');
     vb.className = `abp-verdict-box visible ${type}`;
-    
     document.getElementById('abpVerdictHeadline').className = `abp-verdict-headline ${type}`;
     document.getElementById('abpVerdictHeadline').textContent = hl;
-    
     document.getElementById('abpVerdictCount').className = `abp-verdict-count ${type}`;
     document.getElementById('abpVerdictCount').textContent = bc;
-    
     document.getElementById('abpVerdictSub').textContent = sub;
-    
     const act = document.getElementById('abpVerdictAction');
     act.className = `abp-verdict-action ${type}`;
     act.textContent = action;
 }
 
     // ════════════════════════════════════════════════════════════
-    // §6 RENDER — Stock Cards Grid
+    // §6 RENDER — Stock Cards Grid (full spec: all columns)
     // ════════════════════════════════════════════════════════════
     function _renderStocks(stocks) {
     if (!stocks || !stocks.length) return;
     const grid = document.getElementById('abpStocksGrid');
-    grid.style.display = 'grid';
-    grid.innerHTML = stocks.map(s => {
-        const bull = s.verdict === 'BULL';
-        return `<div class="abp-stock-card ${bull?'bull':'bear'}">
-            <div class="abp-stock-ticker">
-                <span>${s.ticker}</span>
-                <span class="abp-stock-weight">${s.weight}</span>
-            </div>
-            <div class="abp-stock-row">
-                <span>14d Trend</span>
-                <span class="${(s.trend_14d || '').toUpperCase() === 'RISING' ? 'abp-stock-val-pos' : 'abp-stock-val-neg'}">${s.trend_14d}</span>
-            </div>
-            <div class="abp-stock-row">
-                <span>Regime</span>
-                <span class="${(s.regime || '').toUpperCase() === 'A' ? 'abp-stock-val-pos' : 'abp-stock-val-neg'}">${s.regime}</span>
-            </div>
-            <div class="abp-stock-note">${s.note || ''}</div>
-            <div class="${bull?'abp-badge-bull':'abp-badge-bear'}">${bull?'▲ BUY':'▼ SELL'}</div>
+    grid.style.display = 'block';
+
+    const regimeColour = r => r === 'A' ? '#009e70' : r === 'B' ? '#e6a817' : '#c8102e';
+    const verdictColour = v => v === 'BULL' ? '#009e70' : v === 'HOLD' ? '#e6a817' : '#c8102e';
+    const trendColour = t => (t||'').toUpperCase() === 'RISING' ? '#009e70' : '#c8102e';
+    const wmaColour = w => (w||'').toUpperCase() === 'ABOVE' ? '#009e70' : '#c8102e';
+
+    grid.innerHTML = `
+        <div style="overflow-x:auto;margin:0 0 8px;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.5rem;font-family:var(--mono);">
+            <thead>
+                <tr style="background:#1a2332;color:#e2e8f0;">
+                    <th style="padding:5px 6px;text-align:left;white-space:nowrap;border-bottom:2px solid #009e70;">Stock</th>
+                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">Wt.</th>
+                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">Price (₹)</th>
+                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">D-RSI</th>
+                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">W-RSI</th>
+                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">WMA20</th>
+                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">vs WMA</th>
+                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">Regime</th>
+                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">2W</th>
+                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">Action</th>
+                    <th style="padding:5px 6px;text-align:left;white-space:nowrap;border-bottom:2px solid #009e70;">Recommendation</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${stocks.map((s, i) => {
+                    const rowBg = i % 2 === 0 ? 'rgba(255,255,255,0.03)' : 'transparent';
+                    return `<tr style="background:${rowBg};">
+                        <td style="padding:5px 6px;font-weight:700;color:#e2e8f0;">${s.ticker}</td>
+                        <td style="padding:5px 4px;text-align:center;color:#94a3b8;">${s.weight||'—'}</td>
+                        <td style="padding:5px 4px;text-align:center;color:#e2e8f0;">${s.price||'—'}</td>
+                        <td style="padding:5px 4px;text-align:center;color:#94a3b8;">${s.daily_rsi||s.note||'—'}</td>
+                        <td style="padding:5px 4px;text-align:center;font-weight:700;color:${regimeColour(s.regime)};">${s.weekly_rsi||s.note||'—'}</td>
+                        <td style="padding:5px 4px;text-align:center;color:#94a3b8;">${s.wma20||'—'}</td>
+                        <td style="padding:5px 4px;text-align:center;font-weight:700;color:${wmaColour(s.price_vs_wma20)};">${s.price_vs_wma20||'—'}</td>
+                        <td style="padding:5px 4px;text-align:center;font-weight:700;color:${regimeColour(s.regime)};">${s.regime||'—'}</td>
+                        <td style="padding:5px 4px;text-align:center;font-weight:700;color:${trendColour(s.trend_14d)};">${s.trend_14d||'—'}</td>
+                        <td style="padding:5px 4px;text-align:center;font-weight:700;color:${verdictColour(s.verdict)};">${s.action||s.verdict||'—'}</td>
+                        <td style="padding:5px 6px;color:#cbd5e1;font-size:0.46rem;">${s.recommendation||''}</td>
+                    </tr>`;
+                }).join('')}
+            </tbody>
+        </table>
         </div>`;
-    }).join('');
 }
 
-
-
-
-        // ── Close on overlay tap ───────────────────────────────
-        document.getElementById('aiBreadthOverlay').addEventListener('click', function(e){
-            if (e.target === this) window.closeAIBreadthModal();
-        });
-    })();
-
     // ════════════════════════════════════════════════════════════
-    // §7 RENDER — Macro Context / Reasoning
+    // §7 RENDER — Macro Context + Divergence + Broad Scan
     // ════════════════════════════════════════════════════════════
-    function _renderReasoning(text) {
-        if (!text) return;
-        document.getElementById('abpReasoningText').textContent = text;
+    function _renderReasoning(text, parsed) {
+        const el = document.getElementById('abpReasoningText');
+        if (!el) return;
+
+        // ── If called with just a plain string (error/non-equity) ──
+        if (!parsed) { el.textContent = text || ''; document.getElementById('abpReasoning').classList.add('visible'); return; }
+
+        let html = '';
+
+        // 3a — Divergence Alert
+        const divAlert = parsed.divergence_alert || 'No divergence detected.';
+        const isDivergent = !divAlert.toLowerCase().includes('no divergence');
+        html += `<div style="margin-bottom:8px;">
+            <div style="font-size:0.52rem;font-weight:700;color:${isDivergent?'#f59e0b':'#009e70'};letter-spacing:0.06em;margin-bottom:3px;">
+                ${isDivergent ? '⚠ DIVERGENCE ALERT — COSMETIC GROWTH' : '✅ DIVERGENCE CHECK — CLEAN'}
+            </div>
+            <div style="font-size:0.5rem;color:#cbd5e1;line-height:1.5;">${divAlert}</div>
+        </div>`;
+
+        // 3b — Psychology Audit
+        const psych = parsed.psychology_audit || '';
+        if (psych) {
+            html += `<div style="margin-bottom:8px;padding:6px 8px;background:rgba(124,58,237,0.12);border-left:3px solid #7c3aed;border-radius:0 4px 4px 0;">
+                <div style="font-size:0.52rem;font-weight:700;color:#a78bfa;margin-bottom:2px;">🧠 PSYCHOLOGY AUDIT</div>
+                <div style="font-size:0.5rem;color:#ddd6fe;line-height:1.5;">${psych}</div>
+            </div>`;
+        }
+
+        // Reasoning / breadth context
+        if (text) {
+            html += `<div style="margin-bottom:8px;">
+                <div style="font-size:0.52rem;font-weight:700;color:#64748b;letter-spacing:0.06em;margin-bottom:3px;">📊 BREADTH CONTEXT</div>
+                <div style="font-size:0.5rem;color:#94a3b8;line-height:1.5;">${text}</div>
+            </div>`;
+        }
+
+        // Section 4 — Broad Market Scan
+        const bm = parsed.broad_market_regime_a;
+        if (bm && bm.length) {
+            const trendC = t => (t||'').toUpperCase() === 'RISING' ? '#009e70' : '#c8102e';
+            html += `<div style="margin-top:6px;">
+                <div style="font-size:0.52rem;font-weight:700;color:#009e70;letter-spacing:0.06em;margin-bottom:4px;">🟢 BROAD MARKET — REGIME A INDICES (Invest Mode)</div>
+                <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:0.48rem;font-family:var(--mono);">
+                    <thead><tr style="background:rgba(0,158,112,0.15);color:#6ee7b7;">
+                        <th style="padding:4px 6px;text-align:left;">Index</th>
+                        <th style="padding:4px 4px;text-align:center;">W-RSI</th>
+                        <th style="padding:4px 4px;text-align:center;">2W Trend</th>
+                        <th style="padding:4px 6px;text-align:center;">Signal</th>
+                    </tr></thead>
+                    <tbody>
+                        ${bm.map((idx, i) => `
+                        <tr style="background:${i%2===0?'rgba(255,255,255,0.03)':'transparent'};">
+                            <td style="padding:4px 6px;color:#e2e8f0;font-weight:600;">${idx.index}</td>
+                            <td style="padding:4px 4px;text-align:center;color:#6ee7b7;font-weight:700;">${idx.wrsi}</td>
+                            <td style="padding:4px 4px;text-align:center;font-weight:700;color:${trendC(idx.trend)};">${idx.trend}</td>
+                            <td style="padding:4px 6px;text-align:center;font-weight:700;color:#009e70;">${idx.signal}</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>
+                </div>
+            </div>`;
+        }
+
+        el.innerHTML = html;
         document.getElementById('abpReasoning').classList.add('visible');
     }
     </script>

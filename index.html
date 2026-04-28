@@ -2144,7 +2144,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD246RAI</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD246SAI</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2784,7 +2784,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="sop-part sop-part-green">PART 14 — LD246RAI: AI BREADTH CONFIRMATION (UPDATED)</div>
+                <div class="sop-part sop-part-green">PART 14 — LD246SAI: AI BREADTH CONFIRMATION (UPDATED)</div>
                 <table class="sop-table">
                     <thead><tr><th>Feature</th><th>What Changed / How to Use</th></tr></thead>
                     <tbody>
@@ -2805,12 +2805,12 @@
                             <td>The AI is called <strong>once per tap</strong> with a compact, fund-specific prompt (~400 tokens). The app handles all gate analysis (W-RSI, TSL, NC, Concentration Guard, signal confirmation) before the AI is invoked. AI role is confirmation only — macro breadth as a final deployment filter. Uses the existing Gemini API key stored in the app — no new key required. A <strong>Run Again</strong> button allows a fresh call without reopening the modal.</td>
                         </tr>
                         <tr>
-                            <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246RAI</td>
+                            <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246SAI</td>
                             <td>All 4 version surfaces updated: SOP modal header badge, SOP footer note, Setup Screen clickable badge, switch journal version string. SOP Part 14 (this section) added.</td>
                         </tr>
                     </tbody>
                 </table>
-                <div class="sop-part sop-part-green">PART 15 — LD246RAI: INDEX MAP EXPANSION + SACRED RSI PROMPT UPGRADE</div>
+                <div class="sop-part sop-part-green">PART 15 — LD246SAI: INDEX MAP EXPANSION + SACRED RSI PROMPT UPGRADE</div>
                 <table class="sop-table">
                     <thead><tr><th>Feature</th><th>What Changed / How to Use</th></tr></thead>
                     <tbody>
@@ -2837,12 +2837,12 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246RAI</td>
+                            <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246SAI</td>
                             <td>All 8 version surfaces updated: HTML header comment, File/Version line, SOP modal header badge, SOP footer note, Setup Screen clickable badge, JS version string, AI Breadth code comment, end-of-file HTML comment. SOP Parts 15 (this section) added.</td>
                         </tr>
                     </tbody>
                 </table>
-                <div class="sop-part sop-part-green">PART 18 — LD246RAI: LAZY LOAD + 24-HOUR BREADTH CACHE (QUOTA PROTECTION)</div>
+                <div class="sop-part sop-part-green">PART 18 — LD246SAI: LAZY LOAD + 24-HOUR BREADTH CACHE (QUOTA PROTECTION)</div>
                 <table class="sop-table">
                     <thead><tr><th style="width:34%">Change</th><th>Detail</th></tr></thead>
                     <tbody>
@@ -2917,7 +2917,7 @@
                             <td>Previous versions had a silent ReferenceError: <code>window.openKeyBox</code> was assigned before <code>openKeyBox</code> was declared, causing the button to be frozen. All function definitions now precede their <code>window.*</code> exports and <code>addEventListener</code> wiring.</td>
                         </tr>
                         <tr>
-                            <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246RAI</td>
+                            <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246SAI</td>
                             <td>All version surfaces updated: SOP modal header badge, SOP footer note, Setup Screen clickable badge, JS version string, AI Breadth code comment. SOP Part 16 (this section) added.</td>
                         </tr>
                     </tbody>
@@ -2928,7 +2928,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD246RAI &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD246SAI &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2940,7 +2940,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246RAI 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246SAI 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -4819,7 +4819,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD246RAI', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD246SAI', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -5072,9 +5072,13 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 _fetchLock = true;
                 const ovEl = document.getElementById('ov');
                 const ovTxt = document.getElementById('ovTxt');
-                ovTxt.textContent = 'FETCHING DATA...';
-                ovTxt.style.color = 'var(--accent)';
-                ovEl.style.display = 'flex';
+                // ── Never show the #ov overlay while breadth modal is open (prevents cockpit blank) ──
+                const breadthOpen = document.getElementById('aiBreadthOverlay')?.classList.contains('open');
+                if (!breadthOpen) {
+                    ovTxt.textContent = 'FETCHING DATA...';
+                    ovTxt.style.color = 'var(--accent)';
+                    ovEl.style.display = 'flex';
+                }
                 const url = code.startsWith('SM') ?
                     `https://npsnav.in/api/historical/${code}` :
                     `https://api.mfapi.in/mf/${code}`;
@@ -5140,7 +5144,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         `NETWORK ERROR: ${err.message}`;
                     ovTxt.style.color = 'var(--red)';
                     setTimeout(() => {
-                        ovEl.style.display = 'none';
+                        const _bo = document.getElementById('aiBreadthOverlay')?.classList.contains('open');
+                        if (!_bo) ovEl.style.display = 'none';
                     }, 2_500);
                     return [];
                 } finally {
@@ -5160,8 +5165,9 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     return true;
                 }
                 globalLiveData = await fetchFundData();
-                if (!globalLiveData || !globalLiveData.length) {  
-                    document.getElementById('ov').style.display = 'none';
+                if (!globalLiveData || !globalLiveData.length) {
+                    const _bo = document.getElementById('aiBreadthOverlay')?.classList.contains('open');
+                    if (!_bo) document.getElementById('ov').style.display = 'none';
                     return false;
                 }
                 const navs = globalLiveData.map(d => d.nav);
@@ -12871,137 +12877,138 @@ categories.forEach(cat => {
     });
 </script>
     <!-- ════════════════ AI BREADTH CODE ════════════════ -->
-    <!-- LD246RAI: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
+    <!-- LD246SAI: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
     <style>
     #aiBreadthOverlay {
-        position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,0.55);
+        position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,0.45);
         display:none;align-items:flex-end;justify-content:center;
     }
     #aiBreadthOverlay.open { display:flex; }
     #aiBreadthPanel {
-        background:var(--bg,#fff);
-        border-radius:14px 14px 0 0;
-        border:1px solid var(--border,#b0bece);
+        background:#ffffff;
+        border-radius:16px 16px 0 0;
+        border:1px solid #b0bece;
         border-bottom:none;
-        width:100%;max-width:480px;
-        max-height:90vh;
+        width:100%;max-width:520px;
+        max-height:92vh;
         display:flex;flex-direction:column;
         overflow:hidden;
         font-family:var(--mono,'Space Mono',monospace);
-        box-shadow:0 -8px 32px rgba(0,0,0,0.18);
+        box-shadow:0 -10px 40px rgba(0,0,0,0.18);
         animation: slideUp 0.28s cubic-bezier(.22,1,.36,1);
     }
     @keyframes slideUp { from { transform:translateY(60px);opacity:0; } to { transform:translateY(0);opacity:1; } }
     #aiBreadthPanel .abp-header {
         display:flex;align-items:center;justify-content:space-between;
-        padding:10px 14px 8px;
-        border-bottom:1px solid var(--border,#b0bece);
-        background:var(--surface,#f2f5f9);
+        padding:12px 16px 10px;
+        border-bottom:2px solid #009e70;
+        background:#f8fafb;
         flex-shrink:0;
     }
     #aiBreadthPanel .abp-title {
-        font-size:0.68rem;font-weight:700;color:#7c3aed;letter-spacing:0.06em;text-transform:uppercase;
+        font-size:0.9rem;font-weight:800;color:#7c3aed;letter-spacing:0.06em;text-transform:uppercase;
     }
     #aiBreadthPanel .abp-fund-tag {
-        font-size:0.52rem;color:var(--muted,#404060);margin-top:2px;letter-spacing:0.02em;
-        max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        font-size:0.72rem;color:#404060;margin-top:3px;letter-spacing:0.02em;
+        max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;
     }
     #aiBreadthPanel .abp-close {
-        background:transparent;border:none;font-size:18px;cursor:pointer;color:var(--muted,#404060);padding:2px 6px;
+        background:transparent;border:none;font-size:22px;cursor:pointer;color:#404060;padding:2px 8px;
     }
     #aiBreadthPanel .abp-body {
-        overflow-y:auto;flex:1;padding:12px 14px;
+        overflow-y:auto;flex:1;padding:14px 16px;background:#ffffff;
     }
+    /* ── Meta cells ── */
     .abp-fund-meta {
-        display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;
+        display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;
     }
     .abp-meta-cell {
-        background:var(--surface,#f2f5f9);border:1px solid var(--border,#b0bece);
-        border-radius:5px;padding:6px 8px;display:flex;flex-direction:column;gap:2px;
+        background:#f2f5f9;border:1.5px solid #d0d8e4;
+        border-radius:7px;padding:8px 10px;display:flex;flex-direction:column;gap:3px;
     }
-    .abp-meta-label { font-size:0.42rem;color:var(--muted,#404060);letter-spacing:0.08em;text-transform:uppercase; }
-    .abp-meta-val { font-size:0.7rem;font-weight:700;color:var(--text,#000); }
+    .abp-meta-label { font-size:0.6rem;color:#404060;letter-spacing:0.08em;text-transform:uppercase;font-weight:600; }
+    .abp-meta-val   { font-size:1.0rem;font-weight:800;color:#000; }
     .abp-meta-val.regime-a { color:#009e70; }
     .abp-meta-val.regime-b { color:#c97a00; }
     .abp-meta-val.regime-c { color:#c8102e; }
+    /* ── Cache note ── */
+    #abpCacheNote {
+        font-size:0.72rem;color:#009e70;font-family:var(--mono,'Space Mono',monospace);
+        text-align:center;padding:6px 12px 4px;margin-bottom:6px;
+        background:rgba(0,158,112,0.06);border-radius:6px;line-height:1.5;font-weight:600;
+    }
+    /* ── Run button ── */
     .abp-run-btn {
-        width:100%;padding:10px;background:#7c3aed;color:#fff;border:none;border-radius:7px;
-        font-family:var(--mono,'Space Mono',monospace);font-size:0.65rem;font-weight:700;
+        width:100%;padding:13px;background:#009e70;color:#fff;border:none;border-radius:8px;
+        font-family:var(--mono,'Space Mono',monospace);font-size:0.85rem;font-weight:800;
         letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;
         display:flex;align-items:center;justify-content:center;gap:8px;
-        transition:background 0.15s;margin-bottom:10px;
+        transition:background 0.15s;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,158,112,0.2);
     }
-    .abp-run-btn:hover:not(:disabled) { background:#6d28d9; }
-    .abp-run-btn:disabled { background:var(--surface2,#e4eaf2);color:var(--muted,#404060);cursor:not-allowed; }
+    .abp-run-btn:hover:not(:disabled) { filter:brightness(1.06); }
+    .abp-run-btn:disabled { background:#e4eaf2;color:#a0aab8;cursor:not-allowed;box-shadow:none; }
+    /* ── Loading ── */
     .abp-loading {
-        display:none;align-items:center;gap:8px;font-size:0.58rem;color:#7c3aed;
-        padding:8px 10px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.2);
-        border-radius:6px;margin-bottom:10px;
+        display:none;align-items:center;gap:10px;font-size:0.78rem;color:#7c3aed;font-weight:700;
+        padding:10px 12px;background:rgba(124,58,237,0.06);border:1.5px solid rgba(124,58,237,0.2);
+        border-radius:8px;margin-bottom:12px;
     }
     .abp-loading.visible { display:flex; }
     .abp-spinner {
-        width:13px;height:13px;border:2px solid rgba(124,58,237,0.2);
+        width:16px;height:16px;border:2.5px solid rgba(124,58,237,0.2);
         border-top-color:#7c3aed;border-radius:50%;
         animation:abp-spin 0.75s linear infinite;flex-shrink:0;
     }
     @keyframes abp-spin { to { transform:rotate(360deg); } }
+    /* ── Verdict box ── */
     .abp-verdict-box {
-        border-radius:7px;padding:12px 12px 10px;margin-bottom:10px;display:none;
-        flex-direction:column;gap:6px;
+        border-radius:8px;padding:14px 14px 12px;margin-bottom:12px;display:none;
+        flex-direction:column;gap:7px;
     }
     .abp-verdict-box.visible { display:flex; }
-    .abp-verdict-box.confirmed { background:rgba(0,158,112,0.07);border:1px solid rgba(0,158,112,0.35); }
-    .abp-verdict-box.caution   { background:rgba(201,122,0,0.07);border:1px solid rgba(201,122,0,0.35); }
-    .abp-verdict-box.weak      { background:rgba(200,16,46,0.07);border:1px solid rgba(200,16,46,0.30); }
-    .abp-verdict-headline { font-size:0.72rem;font-weight:700;letter-spacing:0.04em; }
+    .abp-verdict-box.confirmed { background:#f0fdf8;border:2px solid #009e70; }
+    .abp-verdict-box.caution   { background:#fffbf0;border:2px solid #c97a00; }
+    .abp-verdict-box.weak      { background:#fff5f5;border:2px solid #c8102e; }
+    .abp-verdict-headline { font-size:1.0rem;font-weight:800;letter-spacing:0.04em;color:#000; }
     .abp-verdict-headline.confirmed { color:#009e70; }
     .abp-verdict-headline.caution   { color:#c97a00; }
     .abp-verdict-headline.weak      { color:#c8102e; }
-    .abp-verdict-count { font-size:1.5rem;font-weight:700;line-height:1; }
+    .abp-verdict-count { font-size:2.2rem;font-weight:800;line-height:1; }
     .abp-verdict-count.confirmed { color:#009e70; }
     .abp-verdict-count.caution   { color:#c97a00; }
     .abp-verdict-count.weak      { color:#c8102e; }
-    .abp-verdict-sub  { font-size:0.84rem;color:var(--muted,#404060);line-height:1.5; }
+    .abp-verdict-sub  { font-size:0.82rem;color:#404060;line-height:1.6;font-weight:500; }
     .abp-verdict-action {
-        font-size:0.83rem;font-weight:700;padding:5px 9px;border-radius:4px;
+        font-size:0.84rem;font-weight:800;padding:7px 12px;border-radius:5px;
         letter-spacing:0.04em;width:fit-content;margin-top:2px;
     }
-    .abp-verdict-action.confirmed { background:rgba(0,158,112,0.1);color:#009e70;border:1px solid rgba(0,158,112,0.3); }
-    .abp-verdict-action.caution   { background:rgba(201,122,0,0.1);color:#c97a00;border:1px solid rgba(201,122,0,0.3); }
-    .abp-verdict-action.weak      { background:rgba(200,16,46,0.08);color:#c8102e;border:1px solid rgba(200,16,46,0.25); }
-    .abp-stocks-grid {
-        display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;
-    }
-    .abp-stock-card {
-        background:var(--surface,#f2f5f9);border:1px solid var(--border,#b0bece);
-        border-radius:6px;padding:8px 9px;display:flex;flex-direction:column;gap:4px;
-        transition:border-color 0.2s;
-    }
-    .abp-stock-card.bull { border-color:rgba(0,158,112,0.4);background:rgba(0,158,112,0.04); }
-    .abp-stock-card.bear { border-color:rgba(200,16,46,0.3);background:rgba(200,16,46,0.03); }
-    .abp-stock-ticker {
-        display:flex;align-items:center;justify-content:space-between;
-        font-size:0.6rem;font-weight:700;color:var(--text,#000);
-    }
-    .abp-stock-weight {
-        font-size:0.44rem;background:var(--surface2,#e4eaf2);
-        border:1px solid var(--border,#b0bece);padding:1px 5px;border-radius:3px;color:var(--muted,#404060);
-    }
-    .abp-stock-row { display:flex;justify-content:space-between;font-size:0.5rem;color:var(--muted,#404060); }
-    .abp-stock-val-pos { color:#009e70;font-weight:700;font-size:0.75rem; }
-    .abp-stock-val-neg { color:#c8102e;font-weight:700;font-size:0.75rem; }
-    .abp-stock-note { font-size:0.44rem;color:var(--muted,#404060);line-height:1.4; }
-    .abp-badge-bull { font-size:0.46rem;font-weight:700;padding:2px 6px;border-radius:3px;width:fit-content;background:rgba(0,158,112,0.1);color:#009e70;border:1px solid rgba(0,158,112,0.3); }
-    .abp-badge-bear { font-size:0.46rem;font-weight:700;padding:2px 6px;border-radius:3px;width:fit-content;background:rgba(200,16,46,0.07);color:#c8102e;border:1px solid rgba(200,16,46,0.25); }
+    .abp-verdict-action.confirmed { background:rgba(0,158,112,0.12);color:#007a55;border:1.5px solid #009e70; }
+    .abp-verdict-action.caution   { background:rgba(201,122,0,0.10);color:#a05f00;border:1.5px solid #c97a00; }
+    .abp-verdict-action.weak      { background:rgba(200,16,46,0.08);color:#a00020;border:1.5px solid #c8102e; }
+    /* ── Stocks grid / table area ── */
+    .abp-stocks-grid { display:block;margin-bottom:12px; }
+    /* table cells — base black on white, coloured only for status values */
+    .abp-tbl { width:100%;border-collapse:collapse;font-size:0.68rem;font-family:var(--mono,'Space Mono',monospace); }
+    .abp-tbl thead tr { background:#1a2332;color:#ffffff; }
+    .abp-tbl thead th { padding:7px 6px;text-align:center;white-space:nowrap;border-bottom:2.5px solid #009e70;font-size:0.62rem;font-weight:700; }
+    .abp-tbl thead th:first-child { text-align:left;padding-left:8px; }
+    .abp-tbl tbody tr:nth-child(even) { background:#f8fafb; }
+    .abp-tbl tbody tr:nth-child(odd)  { background:#ffffff; }
+    .abp-tbl tbody td { padding:7px 6px;text-align:center;color:#000;border-bottom:1px solid #e8edf2;font-size:0.68rem; }
+    .abp-tbl tbody td:first-child { text-align:left;padding-left:8px;font-weight:700; }
+    .abp-tbl-green { color:#009e70!important;font-weight:800; }
+    .abp-tbl-orange{ color:#c97a00!important;font-weight:800; }
+    .abp-tbl-red   { color:#c8102e!important;font-weight:800; }
+    /* ── Reasoning / context panel ── */
     .abp-reasoning {
-        background:var(--surface,#f2f5f9);border:1px solid var(--border,#b0bece);
-        border-radius:6px;padding:6px 10px;font-size:0.73rem;line-height:1.45;
-        color:var(--text,#000);white-space:pre-wrap;display:none;
+        background:#ffffff;border:1.5px solid #d0d8e4;
+        border-radius:8px;padding:10px 14px;font-size:0.72rem;line-height:1.55;
+        color:#000;display:none;
     }
     .abp-reasoning.visible { display:block; }
     .abp-reasoning-label {
-        font-size:0.52rem;font-weight:400;color:#7c3aed;letter-spacing:0.08em;
-        text-transform:uppercase;margin-bottom:3px;
+        font-size:0.68rem;font-weight:700;color:#7c3aed;letter-spacing:0.08em;
+        text-transform:uppercase;margin-bottom:4px;
     }
     </style>
 
@@ -13056,7 +13063,7 @@ categories.forEach(cat => {
 
     <script>
     // ════════════════════════════════════════════════════════════
-    // LD246RAI — AI BREADTH CONFIRMATION ENGINE
+    // LD246SAI — AI BREADTH CONFIRMATION ENGINE
     // Sections:
     //   1. IIFE: State + Modal API (open/close/populate)
     //   2. abpCleanAiResponse — JSON cleanup helper
@@ -13261,7 +13268,7 @@ categories.forEach(cat => {
                 return { equity: false, reason: 'Commodity fund — equity breadth not applicable.' };
             if (n.includes('[nps]') && n.includes('scheme c'))
                 return { equity: false, reason: 'NPS Scheme C is a bond fund — equity breadth not applicable.' };
-            // LD246RAI: Full 58-fund index map — covers all SEBI benchmarks in Official Benchmarks table
+            // LD246SAI: Full 58-fund index map — covers all SEBI benchmarks in Official Benchmarks table
             const map = [
                 // ── Sectoral / Thematic ──────────────────────────────────────────────────────
                 { k:'nifty it',          idx:'Nifty IT',              s:[['TCS.NS','TCS','20%'],['INFY.NS','Infosys','15%'],['HCLTECH.NS','HCL Tech','12%'],['WIPRO.NS','Wipro','10%'],['TECHM.NS','Tech Mahindra','8%']] },
@@ -13275,14 +13282,14 @@ categories.forEach(cat => {
                 { k:'india digital',     idx:'Nifty India Digital',   s:[['INFY.NS','Infosys','20%'],['TCS.NS','TCS','18%'],['PERSISTENT.NS','Persistent','14%'],['COFORGE.NS','Coforge','12%'],['MPHASIS.NS','Mphasis','10%']] },
                 { k:'india consumption', idx:'Nifty India Consumption',s:[['ITC.NS','ITC','18%'],['HINDUNILVR.NS','HUL','16%'],['NESTLEIND.NS','Nestle India','12%'],['TITAN.NS','Titan','12%'],['DMART.NS','Avenue Supermarts','10%']] },
                 { k:'india defence',     idx:'Nifty India Defence',   s:[['HAL.NS','HAL','25%'],['BEL.NS','BEL','20%'],['BDL.NS','Bharat Dynamics','18%'],['BEML.NS','BEML','14%'],['DATAPATTNS.NS','Data Patterns','10%']] },
-                // LD246RAI NEW: BSE India Infrastructure (ABSL BSE India Infrastructure - Direct)
+                // LD246SAI NEW: BSE India Infrastructure (ABSL BSE India Infrastructure - Direct)
                 { k:'india infra',       idx:'BSE India Infrastructure',s:[['LT.NS','L&T','18%'],['NTPC.NS','NTPC','14%'],['POWERGRID.NS','Power Grid','12%'],['ADANIPORTS.NS','Adani Ports','10%'],['BHEL.NS','BHEL','8%']] },
                 { k:'commodit',          idx:'Nifty Commodities',     s:[['COALINDIA.NS','Coal India','20%'],['ONGC.NS','ONGC','18%'],['HINDALCO.NS','Hindalco','14%'],['TATASTEEL.NS','Tata Steel','12%'],['JSWSTEEL.NS','JSW Steel','10%']] },
                 // ── Strategy / Factor ─────────────────────────────────────────────────────────
                 { k:'quality 30',        idx:'Nifty100 Quality 30',   s:[['TCS.NS','TCS','12%'],['INFY.NS','Infosys','10%'],['BAJFINANCE.NS','Bajaj Finance','8%'],['ASIANPAINT.NS','Asian Paints','8%'],['HCLTECH.NS','HCL Tech','7%']] },
                 { k:'value 30',          idx:'Nifty200 Value 30',     s:[['ONGC.NS','ONGC','14%'],['COALINDIA.NS','Coal India','12%'],['NMDC.NS','NMDC','10%'],['POWERGRID.NS','Power Grid','10%'],['GAIL.NS','GAIL','8%']] },
                 { k:'200 momentum 30',   idx:'Nifty200 Momentum 30',  s:[['RELIANCE.NS','Reliance','15%'],['HDFCBANK.NS','HDFC Bank','12%'],['TCS.NS','TCS','10%'],['INFY.NS','Infosys','9%'],['ICICIBANK.NS','ICICI Bank','8%']] },
-                // LD246RAI: BSE 500 Momentum 50 must precede generic '500 momentum' to avoid mismatch
+                // LD246SAI: BSE 500 Momentum 50 must precede generic '500 momentum' to avoid mismatch
                 { k:'bse 500 momentum',  idx:'BSE 500 Momentum 50',   s:[['RELIANCE.NS','Reliance','9%'],['HDFCBANK.NS','HDFC Bank','8%'],['TCS.NS','TCS','7%'],['ICICIBANK.NS','ICICI Bank','6%'],['INFY.NS','Infosys','5%']] },
                 { k:'500 momentum',      idx:'Nifty500 Momentum 50',  s:[['RELIANCE.NS','Reliance','10%'],['HDFCBANK.NS','HDFC Bank','8%'],['TCS.NS','TCS','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
                 { k:'midcap 150 mom',    idx:'Nifty Midcap150 Mom50', s:[['PERSISTENT.NS','Persistent','3%'],['COFORGE.NS','Coforge','2.5%'],['INDHOTEL.NS','Indian Hotels','2%'],['VOLTAS.NS','Voltas','2%'],['TUBEINVEST.NS','Tube Investments','1.8%']] },
@@ -13291,11 +13298,11 @@ categories.forEach(cat => {
                 { k:'fin serv ex',       idx:'Nifty Fin Serv Ex-Bank',s:[['BAJFINANCE.NS','Bajaj Finance','22%'],['SBILIFE.NS','SBI Life','14%'],['HDFCAMC.NS','HDFC AMC','12%'],['ICICIGI.NS','ICICI Lombard','10%'],['MUTHOOTFIN.NS','Muthoot Finance','8%']] },
                 { k:'500 multicap',      idx:'Nifty500 Multicap',     s:[['RELIANCE.NS','Reliance','8%'],['TCS.NS','TCS','7%'],['HDFCBANK.NS','HDFC Bank','6%'],['INFY.NS','Infosys','5%'],['ICICIBANK.NS','ICICI Bank','4%']] },
                 // ── Broad Market / Active Equity ──────────────────────────────────────────────
-                // LD246RAI NEW: Nifty 500 (HDFC/Kotak Flexi Cap) — must precede 'nifty 50' to avoid substring trap
+                // LD246SAI NEW: Nifty 500 (HDFC/Kotak Flexi Cap) — must precede 'nifty 50' to avoid substring trap
                 { k:'nifty 500',         idx:'Nifty 500',             s:[['RELIANCE.NS','Reliance','9%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
-                // LD246RAI NEW: Flexi Cap / Flexicap funds (HDFC, ICICI, Kotak) — BSE 500 & Nifty 500 proxied via Nifty 500 top-5
+                // LD246SAI NEW: Flexi Cap / Flexicap funds (HDFC, ICICI, Kotak) — BSE 500 & Nifty 500 proxied via Nifty 500 top-5
                 { k:'flexi',             idx:'Nifty 500 (Flexi Cap)',  s:[['RELIANCE.NS','Reliance','9%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
-                // LD246RAI NEW: BSE 500 (explicit key for any future BSE-500-named funds)
+                // LD246SAI NEW: BSE 500 (explicit key for any future BSE-500-named funds)
                 { k:'bse 500',           idx:'BSE 500',               s:[['RELIANCE.NS','Reliance','8%'],['TCS.NS','TCS','7%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
                 { k:'nifty 50',          idx:'Nifty 50',              s:[['RELIANCE.NS','Reliance','10%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','7%'],['ICICIBANK.NS','ICICI Bank','6%']] },
             ];
@@ -13689,11 +13696,12 @@ Return a JSON object with this exact structure:
     document.getElementById('abpRunBtn').disabled = false;
 };
 
-        // ── Close on overlay tap ───────────────────────────────
-        document.getElementById('aiBreadthOverlay').addEventListener('click', function(e){
-            if (e.target === this) window.closeAIBreadthModal();
-        });
-    })();
+    // ── Close on overlay tap ───────────────────────────────
+    document.getElementById('aiBreadthOverlay').addEventListener('click', function(e){
+        if (e.target === this) window.closeAIBreadthModal();
+    });
+
+    })(); // ── END AI BREADTH IIFE ──────────────────────────
 
     // ════════════════════════════════════════════════════════════
     // §5 RENDER — Verdict Box
@@ -13733,118 +13741,112 @@ Return a JSON object with this exact structure:
 }
 
     // ════════════════════════════════════════════════════════════
-    // §6 RENDER — Stock Cards Grid (full spec: all columns)
+    // §6 RENDER — Stock Table (full 11-column, white bg, semantic colour)
     // ════════════════════════════════════════════════════════════
     function _renderStocks(stocks) {
     if (!stocks || !stocks.length) return;
     const grid = document.getElementById('abpStocksGrid');
     grid.style.display = 'block';
 
-    const regimeColour = r => r === 'A' ? '#009e70' : r === 'B' ? '#e6a817' : '#c8102e';
-    const verdictColour = v => v === 'BULL' ? '#009e70' : v === 'HOLD' ? '#e6a817' : '#c8102e';
-    const trendColour = t => (t||'').toUpperCase() === 'RISING' ? '#009e70' : '#c8102e';
-    const wmaColour = w => (w||'').toUpperCase() === 'ABOVE' ? '#009e70' : '#c8102e';
+    const regC = r => r==='A'?'abp-tbl-green':r==='B'?'abp-tbl-orange':'abp-tbl-red';
+    const trnC = t => (t||'').toUpperCase()==='RISING'?'abp-tbl-green':'abp-tbl-red';
+    const wmaC = w => (w||'').toUpperCase()==='ABOVE'?'abp-tbl-green':'abp-tbl-red';
+    const actC = a => { const u=(a||'').toUpperCase(); return u.includes('BUY')?'abp-tbl-green':u.includes('REDUCE')||u.includes('SELL')?'abp-tbl-red':'abp-tbl-orange'; };
 
     grid.innerHTML = `
-        <div style="overflow-x:auto;margin:0 0 8px;">
-        <table style="width:100%;border-collapse:collapse;font-size:0.5rem;font-family:var(--mono);">
+        <div style="overflow-x:auto;margin-bottom:12px;">
+        <table class="abp-tbl">
             <thead>
-                <tr style="background:#1a2332;color:#e2e8f0;">
-                    <th style="padding:5px 6px;text-align:left;white-space:nowrap;border-bottom:2px solid #009e70;">Stock</th>
-                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">Wt.</th>
-                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">Price (₹)</th>
-                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">D-RSI</th>
-                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">W-RSI</th>
-                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">WMA20</th>
-                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">vs WMA</th>
-                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">Regime</th>
-                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">2W</th>
-                    <th style="padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:2px solid #009e70;">Action</th>
-                    <th style="padding:5px 6px;text-align:left;white-space:nowrap;border-bottom:2px solid #009e70;">Recommendation</th>
+                <tr>
+                    <th style="text-align:left;">Stock</th>
+                    <th>Wt.</th>
+                    <th>Price ₹</th>
+                    <th>D-RSI</th>
+                    <th>W-RSI</th>
+                    <th>WMA20</th>
+                    <th>vs WMA</th>
+                    <th>Rgm</th>
+                    <th>2W</th>
+                    <th>Action</th>
+                    <th style="text-align:left;">Rec.</th>
                 </tr>
             </thead>
             <tbody>
-                ${stocks.map((s, i) => {
-                    const rowBg = i % 2 === 0 ? 'rgba(255,255,255,0.03)' : 'transparent';
-                    return `<tr style="background:${rowBg};">
-                        <td style="padding:5px 6px;font-weight:700;color:#e2e8f0;">${s.ticker}</td>
-                        <td style="padding:5px 4px;text-align:center;color:#94a3b8;">${s.weight||'—'}</td>
-                        <td style="padding:5px 4px;text-align:center;color:#e2e8f0;">${s.price||'—'}</td>
-                        <td style="padding:5px 4px;text-align:center;color:#94a3b8;">${s.daily_rsi||s.note||'—'}</td>
-                        <td style="padding:5px 4px;text-align:center;font-weight:700;color:${regimeColour(s.regime)};">${s.weekly_rsi||s.note||'—'}</td>
-                        <td style="padding:5px 4px;text-align:center;color:#94a3b8;">${s.wma20||'—'}</td>
-                        <td style="padding:5px 4px;text-align:center;font-weight:700;color:${wmaColour(s.price_vs_wma20)};">${s.price_vs_wma20||'—'}</td>
-                        <td style="padding:5px 4px;text-align:center;font-weight:700;color:${regimeColour(s.regime)};">${s.regime||'—'}</td>
-                        <td style="padding:5px 4px;text-align:center;font-weight:700;color:${trendColour(s.trend_14d)};">${s.trend_14d||'—'}</td>
-                        <td style="padding:5px 4px;text-align:center;font-weight:700;color:${verdictColour(s.verdict)};">${s.action||s.verdict||'—'}</td>
-                        <td style="padding:5px 6px;color:#cbd5e1;font-size:0.46rem;">${s.recommendation||''}</td>
-                    </tr>`;
-                }).join('')}
+                ${stocks.map(s => `<tr>
+                    <td style="font-weight:800;">${s.ticker}</td>
+                    <td>${s.weight||'—'}</td>
+                    <td>${s.price||'—'}</td>
+                    <td>${s.daily_rsi||s.note||'—'}</td>
+                    <td class="${regC(s.regime)}">${s.weekly_rsi||'—'}</td>
+                    <td>${s.wma20||'—'}</td>
+                    <td class="${wmaC(s.price_vs_wma20)}">${s.price_vs_wma20||'—'}</td>
+                    <td class="${regC(s.regime)}">${s.regime||'—'}</td>
+                    <td class="${trnC(s.trend_14d)}">${s.trend_14d||'—'}</td>
+                    <td class="${actC(s.action||s.verdict)}">${s.action||s.verdict||'—'}</td>
+                    <td style="text-align:left;font-size:0.62rem;color:#404060;">${s.recommendation||''}</td>
+                </tr>`).join('')}
             </tbody>
         </table>
         </div>`;
 }
 
     // ════════════════════════════════════════════════════════════
-    // §7 RENDER — Macro Context + Divergence + Broad Scan
+    // §7 RENDER — Divergence + Psychology + Broad Scan
     // ════════════════════════════════════════════════════════════
     function _renderReasoning(text, parsed) {
         const el = document.getElementById('abpReasoningText');
         if (!el) return;
-
-        // ── If called with just a plain string (error/non-equity) ──
-        if (!parsed) { el.textContent = text || ''; document.getElementById('abpReasoning').classList.add('visible'); return; }
+        if (!parsed) { el.style.fontSize='0.72rem'; el.style.color='#000'; el.textContent = text || ''; document.getElementById('abpReasoning').classList.add('visible'); return; }
 
         let html = '';
 
         // 3a — Divergence Alert
         const divAlert = parsed.divergence_alert || 'No divergence detected.';
         const isDivergent = !divAlert.toLowerCase().includes('no divergence');
-        html += `<div style="margin-bottom:8px;">
-            <div style="font-size:0.52rem;font-weight:700;color:${isDivergent?'#f59e0b':'#009e70'};letter-spacing:0.06em;margin-bottom:3px;">
-                ${isDivergent ? '⚠ DIVERGENCE ALERT — COSMETIC GROWTH' : '✅ DIVERGENCE CHECK — CLEAN'}
+        html += `<div style="margin-bottom:12px;padding:10px 12px;border-radius:7px;
+            background:${isDivergent?'#fffbf0':'#f0fdf8'};border:1.5px solid ${isDivergent?'#c97a00':'#009e70'};">
+            <div style="font-size:0.8rem;font-weight:800;color:${isDivergent?'#c97a00':'#009e70'};letter-spacing:0.05em;margin-bottom:4px;">
+                ${isDivergent?'⚠ DIVERGENCE ALERT — COSMETIC GROWTH':'✅ DIVERGENCE CHECK — CLEAN'}
             </div>
-            <div style="font-size:0.5rem;color:#cbd5e1;line-height:1.5;">${divAlert}</div>
+            <div style="font-size:0.72rem;color:#000;line-height:1.6;">${divAlert}</div>
         </div>`;
 
         // 3b — Psychology Audit
         const psych = parsed.psychology_audit || '';
         if (psych) {
-            html += `<div style="margin-bottom:8px;padding:6px 8px;background:rgba(124,58,237,0.12);border-left:3px solid #7c3aed;border-radius:0 4px 4px 0;">
-                <div style="font-size:0.52rem;font-weight:700;color:#a78bfa;margin-bottom:2px;">🧠 PSYCHOLOGY AUDIT</div>
-                <div style="font-size:0.5rem;color:#ddd6fe;line-height:1.5;">${psych}</div>
+            html += `<div style="margin-bottom:12px;padding:10px 12px;background:#faf5ff;border:1.5px solid #7c3aed;border-radius:7px;">
+                <div style="font-size:0.8rem;font-weight:800;color:#7c3aed;margin-bottom:4px;">🧠 PSYCHOLOGY AUDIT</div>
+                <div style="font-size:0.72rem;color:#000;line-height:1.6;">${psych}</div>
             </div>`;
         }
 
-        // Reasoning / breadth context
+        // Breadth context
         if (text) {
-            html += `<div style="margin-bottom:8px;">
-                <div style="font-size:0.52rem;font-weight:700;color:#64748b;letter-spacing:0.06em;margin-bottom:3px;">📊 BREADTH CONTEXT</div>
-                <div style="font-size:0.5rem;color:#94a3b8;line-height:1.5;">${text}</div>
+            html += `<div style="margin-bottom:12px;padding:10px 12px;background:#f8fafb;border:1.5px solid #d0d8e4;border-radius:7px;">
+                <div style="font-size:0.76rem;font-weight:800;color:#404060;letter-spacing:0.05em;margin-bottom:4px;">📊 BREADTH CONTEXT</div>
+                <div style="font-size:0.72rem;color:#000;line-height:1.6;">${text}</div>
             </div>`;
         }
 
-        // Section 4 — Broad Market Scan
+        // Section 4 — Broad Market Regime A Scan
         const bm = parsed.broad_market_regime_a;
         if (bm && bm.length) {
-            const trendC = t => (t||'').toUpperCase() === 'RISING' ? '#009e70' : '#c8102e';
-            html += `<div style="margin-top:6px;">
-                <div style="font-size:0.52rem;font-weight:700;color:#009e70;letter-spacing:0.06em;margin-bottom:4px;">🟢 BROAD MARKET — REGIME A INDICES (Invest Mode)</div>
+            html += `<div style="margin-top:4px;">
+                <div style="font-size:0.8rem;font-weight:800;color:#009e70;letter-spacing:0.05em;margin-bottom:6px;">🟢 BROAD MARKET — REGIME A (Invest Mode)</div>
                 <div style="overflow-x:auto;">
-                <table style="width:100%;border-collapse:collapse;font-size:0.48rem;font-family:var(--mono);">
-                    <thead><tr style="background:rgba(0,158,112,0.15);color:#6ee7b7;">
-                        <th style="padding:4px 6px;text-align:left;">Index</th>
-                        <th style="padding:4px 4px;text-align:center;">W-RSI</th>
-                        <th style="padding:4px 4px;text-align:center;">2W Trend</th>
-                        <th style="padding:4px 6px;text-align:center;">Signal</th>
+                <table class="abp-tbl">
+                    <thead><tr>
+                        <th style="text-align:left;">Index</th>
+                        <th>W-RSI</th>
+                        <th>2W Trend</th>
+                        <th>Signal</th>
                     </tr></thead>
                     <tbody>
-                        ${bm.map((idx, i) => `
-                        <tr style="background:${i%2===0?'rgba(255,255,255,0.03)':'transparent'};">
-                            <td style="padding:4px 6px;color:#e2e8f0;font-weight:600;">${idx.index}</td>
-                            <td style="padding:4px 4px;text-align:center;color:#6ee7b7;font-weight:700;">${idx.wrsi}</td>
-                            <td style="padding:4px 4px;text-align:center;font-weight:700;color:${trendC(idx.trend)};">${idx.trend}</td>
-                            <td style="padding:4px 6px;text-align:center;font-weight:700;color:#009e70;">${idx.signal}</td>
+                        ${bm.map(idx => `<tr>
+                            <td style="text-align:left;font-weight:700;">${idx.index}</td>
+                            <td class="abp-tbl-green">${idx.wrsi}</td>
+                            <td class="${(idx.trend||'').toUpperCase()==='RISING'?'abp-tbl-green':'abp-tbl-red'}">${idx.trend}</td>
+                            <td class="abp-tbl-green">${idx.signal}</td>
                         </tr>`).join('')}
                     </tbody>
                 </table>
@@ -14305,7 +14307,16 @@ Return a JSON object with this exact structure:
             if (inp) inp.value = '';
             _updateKeyStatus();
             // Auto-close after saving K1; stay open for K2 so user can also enter K2
-            if (slot === 1) setTimeout(() => { closeKeyBox(); _refreshButtonStates(); }, 1400);
+            if (slot === 1) setTimeout(() => {
+                closeKeyBox();
+                _refreshButtonStates();
+                // Trigger BG scan if it hasn't run today and addon is loaded
+                if (window.bgBreadthForceRun && !localStorage.getItem('bgbreadth_ran_' +
+                    new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,''))) {
+                    console.log('[BG Breadth] K1 saved — auto-starting background scan.');
+                    setTimeout(window.bgBreadthForceRun, 1000);
+                }
+            }, 1400);
         }
 
         // Wire up buttons
@@ -15535,6 +15546,502 @@ Return a JSON object with this exact structure:
         };
     })();
     </script>
-    <!-- ═══════════════ END DEBUG PANEL ═══════════════ -->
-    </body>
-</html>
+    <!-- ═══════════════════════════════════════════════════════════════════
+         LD246SAI — BACKGROUND BREADTH PRE-FETCH ADD-ON (TEST MODE)
+         ─────────────────────────────────────────────────────────────────
+         Purpose : On first app-open each IST day, silently scan all 58
+                   funds, identify Regime A (W-RSI ≥ 50) equity funds,
+                   then fetch + run breadth analysis for each — one at a
+                   time, 100-second gap between calls — and store results
+                   in localStorage for 24 hours (same key as manual tap).
+         Trigger : Runs once per IST calendar day, 6 seconds after load.
+         Guard   : Skips if API key missing. Skips any fund already cached
+                   today. Skips bond/commodity funds. Stops if tab hidden.
+         UI      : Floating status pill (bottom-left) shows progress.
+                   Can be dismissed. Toggled via window.bgBreadthStatus().
+         Add-on  : Completely standalone. Removing this block has zero
+                   effect on the rest of the app.
+    ═══════════════════════════════════════════════════════════════════ -->
+    <script>
+    (function() {
+    'use strict';
+
+    // ── Constants ─────────────────────────────────────────────────────
+    const GAP_MS        = 100_000;          // 100 seconds between Gemini calls
+    const BOOT_DELAY_MS =   6_000;          // wait 6s for app to settle
+    const RSI_PERIOD    = 4;                // Weekly RSI period (matches app)
+    const ADDON_VER     = 'LD246SAI-BG-v1';
+    const RUN_FLAG_KEY  = 'bgbreadth_ran_'; // + YYYYMMDD_IST
+
+    // ── IST date string ────────────────────────────────────────────────
+    function _istDate() {
+        const now = new Date(Date.now() + 5.5 * 3600_000);
+        return now.toISOString().slice(0, 10).replace(/-/g, '');
+    }
+
+    // ── Same cache key format as manual breadth panel ─────────────────
+    function _cacheKey(fundCode) {
+        return `breadth_v1_${(fundCode||'').replace(/\W/g,'_')}_${_istDate()}`;
+    }
+
+    function _cacheExists(fundCode) {
+        try { return !!localStorage.getItem(_cacheKey(fundCode)); } catch { return false; }
+    }
+
+    function _cacheSave(fundCode, parsed) {
+        try { localStorage.setItem(_cacheKey(fundCode), JSON.stringify(parsed)); } catch(e) {}
+    }
+
+    // ── Run-flag: one full scan per IST day ───────────────────────────
+    function _hasRanToday() {
+        try { return !!localStorage.getItem(RUN_FLAG_KEY + _istDate()); } catch { return false; }
+    }
+    function _markRanToday() {
+        try { localStorage.setItem(RUN_FLAG_KEY + _istDate(), '1'); } catch {}
+    }
+
+    // ── Build flat fund list from window.amcFunds ─────────────────────
+    function _allFunds() {
+        const af = window.amcFunds;
+        if (!af) return [];
+        return Object.values(af).flat();   // all 58 funds flat
+    }
+
+    // ── Equity-only filter (skip bond / Scheme C / gold / silver) ─────
+    function _isEquity(fund) {
+        const n = (fund.name || '').toLowerCase();
+        if (n.includes('scheme c'))  return false;
+        if (n.includes('gold'))      return false;
+        if (n.includes('silver'))    return false;
+        if (n.includes('bharatbond'))return false;
+        return true;
+    }
+
+    // ── Fetch NAV data (same pattern as app's fetchFundData) ──────────
+    async function _fetchNav(code) {
+        const url = code.startsWith('SM')
+            ? `https://npsnav.in/api/historical/${code}`
+            : `https://api.mfapi.in/mf/${code}`;
+        const ctrl = new AbortController();
+        const tid  = setTimeout(() => ctrl.abort(), 12_000);
+        try {
+            const res  = await fetch(url, { signal: ctrl.signal });
+            const json = await res.json();
+            clearTimeout(tid);
+            // Normalise to [{date, nav}] descending
+            if (code.startsWith('SM')) {
+                if (!Array.isArray(json)) return [];
+                return json.map(r => ({ date: r.date, nav: parseFloat(r.nav) }))
+                           .filter(r => !isNaN(r.nav))
+                           .sort((a, b) => new Date(b.date) - new Date(a.date));
+            } else {
+                const rows = json?.data;
+                if (!Array.isArray(rows)) return [];
+                return rows.map(r => ({ date: r.date, nav: parseFloat(r.nav) }))
+                           .filter(r => !isNaN(r.nav));
+            }
+        } catch { clearTimeout(tid); return []; }
+    }
+
+    // ── Compute W-RSI from NAV array (descending date order) ──────────
+    function _computeWrsi(navRows) {
+        if (!navRows || navRows.length < 30) return null;
+        const fn = window.buildWeeklyRsiFast;
+        if (!fn) return null;
+        // App expects ascending order for the builder
+        const asc   = [...navRows].reverse();
+        const navs  = asc.map(r => r.nav);
+        const dates = asc.map(r => r.date);
+        const arr = fn(navs, RSI_PERIOD, dates);
+        return arr.length ? arr[arr.length - 1] : null;
+    }
+
+    // ── Fire ONE Gemini breadth call (uses pre-resolved apiKey) ──────
+    async function _callGeminiBreadth(fund, wrsi, resolvedApiKey) {
+        const getKey2 = () => localStorage.getItem('ld_gemini_api_key2');
+        const getModel= window.getGeminiModel || (() => 'gemini-2.5-flash-preview-04-17');
+
+        // Reuse the same index map helper from the breadth modal
+        // We inline a minimal version to stay standalone
+        const n = (fund.name || '').toLowerCase();
+        let idxName = 'Nifty 50 (proxy)';
+        const MAP = [
+            ['nifty it','Nifty IT'],['private bank','Nifty Private Bank'],
+            ['nifty bank','Nifty Bank'],['nifty auto','Nifty Auto'],
+            ['nifty pharma','Nifty Pharma'],['nifty realty','Nifty Realty'],
+            ['bse housing','BSE Housing'],['ev','Nifty EV & New Age Auto'],
+            ['india digital','Nifty India Digital'],['india consumption','Nifty India Consumption'],
+            ['india defence','Nifty India Defence'],['india infra','BSE India Infrastructure'],
+            ['commodit','Nifty Commodities'],['quality 30','Nifty100 Quality 30'],
+            ['value 30','Nifty200 Value 30'],['200 momentum 30','Nifty200 Momentum 30'],
+            ['bse 500 momentum','BSE 500 Momentum 50'],['500 momentum','Nifty500 Momentum 50'],
+            ['midcap 150 mom','Nifty Midcap150 Mom50'],['midcap 150','Nifty Midcap 150'],
+            ['smallcap 250','Nifty SmallCap 250'],['fin serv ex','Nifty Fin Serv Ex-Bank'],
+            ['500 multicap','Nifty500 Multicap'],['nifty 500','Nifty 500'],
+            ['flexi','Nifty 500 (Flexi Cap)'],['bse 500','BSE 500'],['nifty 50','Nifty 50'],
+        ];
+        for (const [k, v] of MAP) { if (n.includes(k)) { idxName = v; break; } }
+
+        const regime = wrsi >= 50 ? 'A (Hope)' : wrsi >= 40 ? 'B (Watch)' : 'C (Fear)';
+        const prompt = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System — the Lie Detector Auditor.
+
+FUND: ${fund.name} | Benchmark: ${idxName}
+Fund W-RSI: ${Math.round(wrsi)} (${regime})
+
+SACRED RULE: True compounders never stay below W-RSI 40.
+DIVERGENCE: Price RISING + W-RSI falling/below 50 = Cosmetic Growth. Flag it.
+PSYCHOLOGY: Price moves first; earnings explanations come later.
+
+TASK: Perform Constituent X-Ray on top 5 stocks of ${idxName} by index weight.
+For each stock return current W-RSI(14), 2-week trend (RISING/FALLING), regime (A/B/C), action.
+Count BULL stocks (regime A + RISING). Sum weights.
+Return ONLY valid JSON:
+{
+  "stocks":[{"ticker":"Name","weight":"X%","price":"₹XXXX","daily_rsi":"XX","weekly_rsi":"XX","wma20":"₹XXXX","price_vs_wma20":"ABOVE or BELOW","trend_14d":"RISING or FALLING","regime":"A or B or C","verdict":"BULL or HOLD or BEAR","action":"Buy or Hold or Reduce","recommendation":"One sentence."}],
+  "bull_count":0,"bull_weight_sum":"X%",
+  "confirmation":"CONFIRMED or MARGINAL or WEAK",
+  "sop_action":"max 12 words",
+  "divergence_alert":"text or No divergence detected.",
+  "psychology_audit":"Lookout for… text",
+  "broad_market_regime_a":[{"index":"Name","wrsi":"XX","trend":"RISING or FALLING","signal":"BUY or WATCH"}],
+  "reasoning":"2-3 sentences on ${idxName} breadth."
+}`;
+
+        const payload = { contents:[{ parts:[{ text: prompt }] }] };
+        const model   = getModel();
+
+        // Try K1 (resolved at scan start) then K2 on 429
+        for (const slot of [1, 2]) {
+            const k = slot === 1 ? resolvedApiKey : getKey2();
+            if (!k) continue;
+            const ep  = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${k.trim()}`;
+            const res = await fetch(ep, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.status === 429 && slot === 1) continue; // try K2
+            const data = await res.json();
+            if (data.error) throw new Error(`Gemini ${data.error.code}: ${data.error.message}`);
+            let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            raw = raw.trim();
+            const fenceEnd = raw.indexOf('\n');
+            if (raw.startsWith('```')) raw = raw.substring(fenceEnd + 1);
+            if (raw.endsWith('```')) raw  = raw.slice(0, -3);
+            return JSON.parse(raw.trim());
+        }
+        throw new Error('No API key available or both keys at quota.');
+    }
+
+    // ── Status pill UI ────────────────────────────────────────────────
+    function _makePill() {
+        const el = document.createElement('div');
+        el.id = 'bgBreadthPill';
+        el.style.cssText = `
+            position:fixed;bottom:14px;left:12px;z-index:25000;
+            background:#1a2332;color:#e2e8f0;font-size:0.62rem;
+            font-family:'Space Mono',monospace;font-weight:600;
+            padding:7px 12px 7px 10px;border-radius:20px;
+            border:1.5px solid #009e70;box-shadow:0 3px 14px rgba(0,0,0,0.35);
+            max-width:260px;line-height:1.4;cursor:pointer;
+            display:flex;align-items:center;gap:8px;transition:opacity 0.3s;`;
+        el.innerHTML = `
+            <span id="bgBreadthDot" style="width:8px;height:8px;border-radius:50%;
+                background:#009e70;flex-shrink:0;
+                animation:bgPillPulse 1.2s ease-in-out infinite;"></span>
+            <span id="bgBreadthMsg">⏳ Background breadth scan starting…</span>
+            <span onclick="document.getElementById('bgBreadthPill').style.display='none'"
+                style="margin-left:4px;opacity:0.5;font-size:0.8rem;flex-shrink:0;">✕</span>`;
+        const style = document.createElement('style');
+        style.textContent = `@keyframes bgPillPulse{0%,100%{opacity:1}50%{opacity:0.3}}`;
+        document.head.appendChild(style);
+        document.body.appendChild(el);
+        return el;
+    }
+
+    function _setPillMsg(msg, colour) {
+        const m = document.getElementById('bgBreadthMsg');
+        const d = document.getElementById('bgBreadthDot');
+        if (m) m.textContent = msg;
+        if (d) d.style.background = colour || '#009e70';
+    }
+
+    function _donePill(msg) {
+        _setPillMsg(msg, '#009e70');
+        const d = document.getElementById('bgBreadthDot');
+        if (d) d.style.animation = 'none';
+        setTimeout(() => {
+            const p = document.getElementById('bgBreadthPill');
+            if (p) { p.style.opacity = '0'; setTimeout(() => p.remove(), 800); }
+        }, 6000);
+    }
+
+    // ── Sleep helper ──────────────────────────────────────────────────
+    const _sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    // ── Main orchestrator ─────────────────────────────────────────────
+    async function _runBackgroundScan() {
+        // Guard: run once per IST day only
+        if (_hasRanToday()) {
+            console.log(`[BG Breadth] Already ran today (${_istDate()}) — skipping.`);
+            return;
+        }
+
+        // Guard: need API key — check all known storage key names
+        // NOTE: If running from file://, each filename has its own localStorage scope.
+        // Keys saved in LD246PAI.html will NOT appear in LD246SAI.html.
+        const KEY_NAMES = [
+            'ld_gemini_api_key',    // current primary
+            'ld_gemini_api_key2',   // current backup
+            'gemini_api_key',       // legacy name
+            'apiKey',               // legacy name
+            'geminiKey',            // legacy name
+        ];
+        let apiKey = null;
+        for (const kn of KEY_NAMES) {
+            const v = localStorage.getItem(kn);
+            if (v && v.trim().length > 20) { apiKey = v.trim(); break; }
+        }
+
+        // Debug: show all found keys (masked)
+        const _mask = k => k ? `${k.slice(0,6)}…${k.slice(-4)}(${k.length}c)` : 'none';
+        const _k1 = localStorage.getItem('ld_gemini_api_key');
+        const _k2 = localStorage.getItem('ld_gemini_api_key2');
+        console.log(`[BG Breadth] Key scan — K1:${_mask(_k1)} K2:${_mask(_k2)} resolved:${_mask(apiKey)}`);
+
+        if (!apiKey) {
+            // Show a simple fixed key-entry panel — no dependency on _makePill()
+            const panel = document.createElement('div');
+            panel.id = 'bgKeyPanel';
+            panel.style.cssText = [
+                'position:fixed','bottom:16px','left:12px','z-index:99999',
+                'background:#0f172a','color:#e2e8f0',
+                'border:2px solid #c97a00','border-radius:12px',
+                'padding:14px 16px','width:280px',
+                'font-family:monospace','font-size:0.62rem',
+                'box-shadow:0 4px 24px rgba(0,0,0,0.5)',
+                'line-height:1.5'
+            ].join(';');
+            panel.innerHTML = [
+                '<div style="color:#fbbf24;font-weight:700;margin-bottom:6px;">',
+                '  🔑 BG Breadth — API Key Required',
+                '</div>',
+                '<div style="color:#94a3b8;font-size:0.54rem;margin-bottom:8px;">',
+                '  Each HTML file has its own localStorage.<br>',
+                '  Paste your Gemini key (AIza…) once to activate:',
+                '</div>',
+                '<input id="bgKeyPanelInput" type="password" placeholder="AIza…(39 chars)"',
+                '  style="width:100%;box-sizing:border-box;padding:6px 8px;',
+                '         border-radius:6px;border:1px solid #475569;',
+                '         background:#1e293b;color:#e2e8f0;font-family:monospace;',
+                '         font-size:0.6rem;outline:none;margin-bottom:8px;" />',
+                '<div style="display:flex;gap:8px;">',
+                '  <button id="bgKeyPanelSave"',
+                '    style="flex:1;background:#009e70;color:#fff;border:none;',
+                '           border-radius:6px;padding:7px;font-size:0.6rem;',
+                '           font-weight:700;cursor:pointer;">',
+                '    ✅ Save &amp; Start Scan',
+                '  </button>',
+                '  <button id="bgKeyPanelClose"',
+                '    style="background:#334155;color:#94a3b8;border:none;',
+                '           border-radius:6px;padding:7px 10px;font-size:0.6rem;cursor:pointer;">',
+                '    ✕',
+                '  </button>',
+                '</div>',
+                '<div id="bgKeyPanelStatus" style="margin-top:6px;font-size:0.52rem;',
+                '     color:#64748b;min-height:14px;"></div>',
+            ].join('\n');
+
+            document.body.appendChild(panel);
+
+            document.getElementById('bgKeyPanelClose').onclick = () => panel.remove();
+
+            document.getElementById('bgKeyPanelSave').onclick = function() {
+                const inp = document.getElementById('bgKeyPanelInput');
+                const st  = document.getElementById('bgKeyPanelStatus');
+                const val = (inp ? inp.value : '').trim();
+                if (!val || val.length < 20) {
+                    st.style.color = '#f87171';
+                    st.textContent = '⚠ Too short — paste full AIza… key (39 chars)';
+                    return;
+                }
+                localStorage.setItem('ld_gemini_api_key', val);
+                if (inp) inp.value = '';
+                st.style.color = '#6ee7b7';
+                st.textContent = '✅ Key saved — starting scan in 3 seconds…';
+                console.log('[BG Breadth] Key saved via panel — restarting scan.');
+                setTimeout(() => {
+                    panel.remove();
+                    _runBackgroundScan();
+                }, 3000);
+            };
+
+            const inp = document.getElementById('bgKeyPanelInput');
+            if (inp) inp.addEventListener('keydown', e => {
+                if (e.key === 'Enter') document.getElementById('bgKeyPanelSave').click();
+            });
+
+            console.log('[BG Breadth] Key panel shown — paste your Gemini API key to start.');
+            return;
+        }
+
+        // Guard: need RSI builder
+        if (!window.buildWeeklyRsiFast) {
+            console.log('[BG Breadth] buildWeeklyRsiFast not ready — retrying in 5s.');
+            await _sleep(5000);
+            if (!window.buildWeeklyRsiFast) return;
+        }
+
+        const pill = _makePill();
+
+        // Step 1: Scan all equity funds for Regime A
+        const allFunds   = _allFunds();
+        const equityFunds = allFunds.filter(_isEquity);
+        _setPillMsg(`🔍 Scanning ${equityFunds.length} equity funds for Regime A…`);
+
+        const regimeAFunds = [];
+        let scanned = 0;
+
+        for (const fund of equityFunds) {
+            // If tab is hidden, pause scanning — don't waste bandwidth
+            if (document.hidden) await _sleep(2000);
+
+            // Skip Scheme C bond funds already caught by _isEquity, but double-check
+            if (!_isEquity(fund)) continue;
+
+            try {
+                const navRows = await _fetchNav(fund.code);
+                if (navRows.length < 30) { scanned++; continue; }
+                const wrsi = _computeWrsi(navRows);
+                scanned++;
+                _setPillMsg(`🔍 ${scanned}/${equityFunds.length} scanned — ${regimeAFunds.length} Regime A so far`);
+                if (wrsi !== null && wrsi >= 50) {
+                    regimeAFunds.push({ ...fund, wrsi: Math.round(wrsi * 10) / 10 });
+                    console.log(`[BG Breadth] Regime A: ${fund.name} (W-RSI ${Math.round(wrsi)})`);
+                }
+            } catch(e) {
+                console.warn(`[BG Breadth] Nav fetch failed for ${fund.code}:`, e.message);
+                scanned++;
+            }
+
+            // Small gap between NAV fetches (not Gemini) — 800ms is courteous
+            await _sleep(800);
+        }
+
+        if (!regimeAFunds.length) {
+            _donePill(`✅ Scan complete — 0 funds in Regime A today.`);
+            _markRanToday();
+            return;
+        }
+
+        // Step 2: Filter out already-cached funds
+        const needsBreadth = regimeAFunds.filter(f => !_cacheExists(f.code));
+
+        _setPillMsg(
+            `🟢 ${regimeAFunds.length} Regime A funds found. ` +
+            `${needsBreadth.length} need breadth (${regimeAFunds.length - needsBreadth.length} cached).`
+        );
+
+        console.log(`[BG Breadth] Regime A funds:`, regimeAFunds.map(f => f.name));
+        console.log(`[BG Breadth] Needs breadth fetch: ${needsBreadth.length}`);
+
+        if (!needsBreadth.length) {
+            _donePill(`✅ All ${regimeAFunds.length} Regime A funds already cached today.`);
+            _markRanToday();
+            return;
+        }
+
+        // Store the Regime A list itself for status display
+        try {
+            localStorage.setItem(
+                `bgbreadth_regimeA_${_istDate()}`,
+                JSON.stringify(regimeAFunds.map(f => ({ code: f.code, name: f.name, wrsi: f.wrsi })))
+            );
+        } catch(e) {}
+
+        // Step 3: Fire Gemini breadth for each — 100s gap between calls
+        let done = 0, failed = 0;
+
+        for (let i = 0; i < needsBreadth.length; i++) {
+            const fund = needsBreadth[i];
+
+            // Pause if tab hidden
+            while (document.hidden) { await _sleep(3000); }
+
+            _setPillMsg(
+                `✨ Breadth ${i + 1}/${needsBreadth.length}: ${fund.name.replace(/\[NPS\] /,'').slice(0, 28)}…` +
+                (i > 0 ? ` (${Math.round(GAP_MS/1000)}s gap)` : '')
+            );
+
+            try {
+                const parsed = await _callGeminiBreadth(fund, fund.wrsi, apiKey);
+                _cacheSave(fund.code, parsed);
+                done++;
+                console.log(`[BG Breadth] ✅ Cached: ${fund.name} → ${parsed.confirmation}`);
+            } catch(e) {
+                failed++;
+                console.warn(`[BG Breadth] ❌ Failed: ${fund.name}:`, e.message);
+                _setPillMsg(`⚠ ${fund.name.slice(0,22)} failed — continuing…`, '#c97a00');
+                await _sleep(3000); // short pause then continue
+            }
+
+            // 100-second gap before next Gemini call (skip gap after last one)
+            if (i < needsBreadth.length - 1) {
+                for (let s = GAP_MS / 1000; s > 0; s -= 5) {
+                    if (document.hidden) { await _sleep(3000); continue; }
+                    _setPillMsg(
+                        `⏱ Next breadth in ${s}s — (${done} done${failed ? ', ' + failed + ' failed' : ''})`,
+                        '#6366f1'
+                    );
+                    await _sleep(Math.min(5000, s * 1000));
+                }
+            }
+        }
+
+        _markRanToday();
+        _donePill(
+            `✅ BG Breadth done — ${done}/${needsBreadth.length} cached` +
+            (failed ? ` (${failed} failed)` : '') +
+            `. ${regimeAFunds.length} Regime A funds today.`
+        );
+        console.log(`[BG Breadth] Complete. ${done} cached, ${failed} failed.`);
+    }
+
+    // ── Public API ────────────────────────────────────────────────────
+    // window.bgBreadthStatus() → returns today's Regime A list from cache
+    window.bgBreadthStatus = function() {
+        try {
+            const raw = localStorage.getItem(`bgbreadth_regimeA_${_istDate()}`);
+            const list = raw ? JSON.parse(raw) : [];
+            console.table(list);
+            return list;
+        } catch { return []; }
+    };
+
+    // window.bgBreadthForceRun() → clear run flag and restart (for testing)
+    window.bgBreadthForceRun = function() {
+        try { localStorage.removeItem(RUN_FLAG_KEY + _istDate()); } catch {}
+        _runBackgroundScan();
+    };
+
+    // window.bgBreadthClearAll() → wipe all breadth caches for today
+    window.bgBreadthClearAll = function() {
+        const d = _istDate();
+        const keys = Object.keys(localStorage).filter(k => k.includes(d) && k.startsWith('breadth_v1_'));
+        keys.forEach(k => localStorage.removeItem(k));
+        localStorage.removeItem(RUN_FLAG_KEY + d);
+        localStorage.removeItem(`bgbreadth_regimeA_${d}`);
+        console.log(`[BG Breadth] Cleared ${keys.length} cache entries + run flag for ${d}.`);
+    };
+
+    // ── Auto-start: 6 seconds after page load ─────────────────────────
+    window.addEventListener('load', () => {
+        setTimeout(_runBackgroundScan, BOOT_DELAY_MS);
+    });
+
+    console.log(`[BG Breadth] Add-on ${ADDON_VER} loaded. Starts in ${BOOT_DELAY_MS/1000}s.`);
+    console.log('[BG Breadth] Debug: bgBreadthStatus() | bgBreadthForceRun() | bgBreadthClearAll()');
+
+    })();
+    </script>
+    <!-- ═══════════════ END BG BREADTH ADD-ON ═══════════════ -->

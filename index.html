@@ -13753,6 +13753,30 @@ Return a JSON object with this exact structure:
     const wmaC = w => (w||'').toUpperCase()==='ABOVE'?'abp-tbl-green':'abp-tbl-red';
     const actC = a => { const u=(a||'').toUpperCase(); return u.includes('BUY')?'abp-tbl-green':u.includes('REDUCE')||u.includes('SELL')?'abp-tbl-red':'abp-tbl-orange'; };
 
+    // 10 data columns (Recommendation removed from header)
+    const rows = stocks.map(s => `
+        <tr>
+            <td style="font-weight:800;">${s.ticker}</td>
+            <td>${s.weight||'—'}</td>
+            <td>${s.price||'—'}</td>
+            <td>${s.daily_rsi||s.note||'—'}</td>
+            <td class="${regC(s.regime)}">${s.weekly_rsi||'—'}</td>
+            <td>${s.wma20||'—'}</td>
+            <td class="${wmaC(s.price_vs_wma20)}">${s.price_vs_wma20||'—'}</td>
+            <td class="${regC(s.regime)}">${s.regime||'—'}</td>
+            <td class="${trnC(s.trend_14d)}">${s.trend_14d||'—'}</td>
+            <td class="${actC(s.action||s.verdict)}">${s.action||s.verdict||'—'}</td>
+        </tr>
+        <tr class="recommendation-row">
+            <td colspan="10" style="
+                text-align:left;padding:5px 10px 8px;
+                font-size:0.66rem;color:#404060;font-style:italic;
+                background:#f8fafb;border-bottom:2px solid #e8edf2;
+                border-left:3px solid #009e70;line-height:1.5;">
+                <span style="font-weight:700;font-style:normal;color:#009e70;">Rec: </span>${s.recommendation||'—'}
+            </td>
+        </tr>`).join('');
+
     grid.innerHTML = `
         <div style="overflow-x:auto;margin-bottom:12px;">
         <table class="abp-tbl">
@@ -13768,24 +13792,9 @@ Return a JSON object with this exact structure:
                     <th>Rgm</th>
                     <th>2W</th>
                     <th>Action</th>
-                    <th style="text-align:left;">Rec.</th>
                 </tr>
             </thead>
-            <tbody>
-                ${stocks.map(s => `<tr>
-                    <td style="font-weight:800;">${s.ticker}</td>
-                    <td>${s.weight||'—'}</td>
-                    <td>${s.price||'—'}</td>
-                    <td>${s.daily_rsi||s.note||'—'}</td>
-                    <td class="${regC(s.regime)}">${s.weekly_rsi||'—'}</td>
-                    <td>${s.wma20||'—'}</td>
-                    <td class="${wmaC(s.price_vs_wma20)}">${s.price_vs_wma20||'—'}</td>
-                    <td class="${regC(s.regime)}">${s.regime||'—'}</td>
-                    <td class="${trnC(s.trend_14d)}">${s.trend_14d||'—'}</td>
-                    <td class="${actC(s.action||s.verdict)}">${s.action||s.verdict||'—'}</td>
-                    <td style="text-align:left;font-size:0.62rem;color:#404060;">${s.recommendation||''}</td>
-                </tr>`).join('')}
-            </tbody>
+            <tbody>${rows}</tbody>
         </table>
         </div>`;
 }
@@ -15547,77 +15556,70 @@ Return a JSON object with this exact structure:
     })();
     </script>
     <!-- ═══════════════════════════════════════════════════════════════════
-         LD246SAI — BACKGROUND BREADTH PRE-FETCH ADD-ON (TEST MODE)
+         LD246SAI — BACKGROUND BREADTH ADD-ON (STRICT DAILY CACHE SYSTEM)
          ─────────────────────────────────────────────────────────────────
-         Purpose : On first app-open each IST day, silently scan all 58
-                   funds, identify Regime A (W-RSI ≥ 50) equity funds,
-                   then fetch + run breadth analysis for each — one at a
-                   time, 100-second gap between calls — and store results
-                   in localStorage for 24 hours (same key as manual tap).
-         Trigger : Runs once per IST calendar day, 6 seconds after load.
-         Guard   : Skips if API key missing. Skips any fund already cached
-                   today. Skips bond/commodity funds. Stops if tab hidden.
-         UI      : Floating status pill (bottom-left) shows progress.
-                   Can be dismissed. Toggled via window.bgBreadthStatus().
-         Add-on  : Completely standalone. Removing this block has zero
-                   effect on the rest of the app.
+         RULES (strictly enforced):
+         • Regime A scan: once per IST day, stored, never re-scans on open
+         • BA processing: only pending funds, stops when all done
+         • On app open: show stored data ONLY — zero API calls
+         • Daily lock: BA_completed_today flag stops all processing
+         • Quota: 1 Gemini call per fund per day maximum
+         • Trigger: MANUAL ONLY via bgBreadthForceRun() — NOT on app open
     ═══════════════════════════════════════════════════════════════════ -->
     <script>
     (function() {
     'use strict';
 
-    // ── Constants ─────────────────────────────────────────────────────
-    const GAP_MS        = 100_000;          // 100 seconds between Gemini calls
-    const BOOT_DELAY_MS =   6_000;          // wait 6s for app to settle
-    const RSI_PERIOD    = 4;                // Weekly RSI period (matches app)
-    const ADDON_VER     = 'LD246SAI-BG-v1';
-    const RUN_FLAG_KEY  = 'bgbreadth_ran_'; // + YYYYMMDD_IST
+    const ADDON_VER  = 'LD246SAI-BG-v2';
+    const GAP_MS     = 100_000;                    // 100s between Gemini calls
+    const MODEL      = 'gemini-1.5-flash-latest';  // stable, not discontinued
 
-    // ── IST date string ────────────────────────────────────────────────
+    // ── IST calendar date string (resets at IST midnight) ────────────
     function _istDate() {
-        const now = new Date(Date.now() + 5.5 * 3600_000);
-        return now.toISOString().slice(0, 10).replace(/-/g, '');
+        return new Date(Date.now() + 5.5 * 3600_000)
+               .toISOString().slice(0, 10).replace(/-/g, '');
     }
 
-    // ── Same cache key format as manual breadth panel ─────────────────
-    function _cacheKey(fundCode) {
-        return `breadth_v1_${(fundCode||'').replace(/\W/g,'_')}_${_istDate()}`;
+    // ── localStorage keys (all date-scoped) ──────────────────────────
+    const _K = {
+        regimeA   : () => `bgb_regimeA_${_istDate()}`,       // Regime A fund list
+        completed : () => `bgb_completed_${_istDate()}`,     // completed fund codes[]
+        baLock    : () => `bgb_BA_done_${_istDate()}`,       // BA_completed_today flag
+        breadth   : c  => `breadth_v1_${(c||'').replace(/\W/g,'_')}_${_istDate()}`,
+    };
+
+    // ── Safe localStorage helpers ─────────────────────────────────────
+    const _ls = {
+        get : k => { try { return localStorage.getItem(k); } catch { return null; } },
+        set : (k,v) => { try { localStorage.setItem(k, v); } catch {} },
+        del : k => { try { localStorage.removeItem(k); } catch {} },
+        getJ: k => { try { const r=localStorage.getItem(k); return r?JSON.parse(r):null; } catch { return null; } },
+        setJ: (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+    };
+
+    // ── State queries ─────────────────────────────────────────────────
+    function _getRegimeAFunds()   { return _ls.getJ(_K.regimeA())   || []; }
+    function _getCompleted()      { return _ls.getJ(_K.completed())  || []; }
+    function _isBADoneToday()     { return _ls.get(_K.baLock()) === '1'; }
+    function _markBADone()        { _ls.set(_K.baLock(), '1'); }
+    function _markCompleted(code) {
+        const arr = _getCompleted();
+        if (!arr.includes(code)) { arr.push(code); _ls.setJ(_K.completed(), arr); }
     }
 
-    function _cacheExists(fundCode) {
-        try { return !!localStorage.getItem(_cacheKey(fundCode)); } catch { return false; }
-    }
-
-    function _cacheSave(fundCode, parsed) {
-        try { localStorage.setItem(_cacheKey(fundCode), JSON.stringify(parsed)); } catch(e) {}
-    }
-
-    // ── Run-flag: one full scan per IST day ───────────────────────────
-    function _hasRanToday() {
-        try { return !!localStorage.getItem(RUN_FLAG_KEY + _istDate()); } catch { return false; }
-    }
-    function _markRanToday() {
-        try { localStorage.setItem(RUN_FLAG_KEY + _istDate(), '1'); } catch {}
-    }
-
-    // ── Build flat fund list from window.amcFunds ─────────────────────
-    function _allFunds() {
-        const af = window.amcFunds;
-        if (!af) return [];
-        return Object.values(af).flat();   // all 58 funds flat
-    }
-
-    // ── Equity-only filter (skip bond / Scheme C / gold / silver) ─────
+    // ── Equity-only filter ────────────────────────────────────────────
     function _isEquity(fund) {
         const n = (fund.name || '').toLowerCase();
-        if (n.includes('scheme c'))  return false;
-        if (n.includes('gold'))      return false;
-        if (n.includes('silver'))    return false;
-        if (n.includes('bharatbond'))return false;
-        return true;
+        return !['scheme c','gold','silver','bharatbond'].some(x => n.includes(x));
     }
 
-    // ── Fetch NAV data (same pattern as app's fetchFundData) ──────────
+    // ── All 58 funds flat ─────────────────────────────────────────────
+    function _allFunds() {
+        const af = window.amcFunds;
+        return af ? Object.values(af).flat() : [];
+    }
+
+    // ── NAV fetch ─────────────────────────────────────────────────────
     async function _fetchNav(code) {
         const url = code.startsWith('SM')
             ? `https://npsnav.in/api/historical/${code}`
@@ -15628,43 +15630,32 @@ Return a JSON object with this exact structure:
             const res  = await fetch(url, { signal: ctrl.signal });
             const json = await res.json();
             clearTimeout(tid);
-            // Normalise to [{date, nav}] descending
             if (code.startsWith('SM')) {
-                if (!Array.isArray(json)) return [];
-                return json.map(r => ({ date: r.date, nav: parseFloat(r.nav) }))
-                           .filter(r => !isNaN(r.nav))
-                           .sort((a, b) => new Date(b.date) - new Date(a.date));
-            } else {
-                const rows = json?.data;
-                if (!Array.isArray(rows)) return [];
-                return rows.map(r => ({ date: r.date, nav: parseFloat(r.nav) }))
-                           .filter(r => !isNaN(r.nav));
+                return Array.isArray(json)
+                    ? json.map(r=>({date:r.date,nav:parseFloat(r.nav)}))
+                          .filter(r=>!isNaN(r.nav))
+                          .sort((a,b)=>new Date(b.date)-new Date(a.date))
+                    : [];
             }
+            const rows = json?.data;
+            return Array.isArray(rows)
+                ? rows.map(r=>({date:r.date,nav:parseFloat(r.nav)})).filter(r=>!isNaN(r.nav))
+                : [];
         } catch { clearTimeout(tid); return []; }
     }
 
-    // ── Compute W-RSI from NAV array (descending date order) ──────────
+    // ── Compute W-RSI ─────────────────────────────────────────────────
     function _computeWrsi(navRows) {
-        if (!navRows || navRows.length < 30) return null;
-        const fn = window.buildWeeklyRsiFast;
-        if (!fn) return null;
-        // App expects ascending order for the builder
+        if (!navRows || navRows.length < 30 || !window.buildWeeklyRsiFast) return null;
         const asc   = [...navRows].reverse();
-        const navs  = asc.map(r => r.nav);
-        const dates = asc.map(r => r.date);
-        const arr = fn(navs, RSI_PERIOD, dates);
-        return arr.length ? arr[arr.length - 1] : null;
+        const arr   = window.buildWeeklyRsiFast(asc.map(r=>r.nav), 4, asc.map(r=>r.date));
+        return arr.length ? arr[arr.length-1] : null;
     }
 
-    // ── Fire ONE Gemini breadth call (uses pre-resolved apiKey) ──────
-    async function _callGeminiBreadth(fund, wrsi, resolvedApiKey) {
-        const getKey2 = () => localStorage.getItem('ld_gemini_api_key2');
-        const getModel= window.getGeminiModel || (() => 'gemini-2.5-flash-preview-04-17');
-
-        // Reuse the same index map helper from the breadth modal
-        // We inline a minimal version to stay standalone
-        const n = (fund.name || '').toLowerCase();
-        let idxName = 'Nifty 50 (proxy)';
+    // ── Gemini breadth call (unchanged prompt, model fixed to 1.5-flash) ─
+    async function _callGemini(fund, wrsi, apiKey) {
+        const n = (fund.name||'').toLowerCase();
+        let idx = 'Nifty 50';
         const MAP = [
             ['nifty it','Nifty IT'],['private bank','Nifty Private Bank'],
             ['nifty bank','Nifty Bank'],['nifty auto','Nifty Auto'],
@@ -15672,376 +15663,311 @@ Return a JSON object with this exact structure:
             ['bse housing','BSE Housing'],['ev','Nifty EV & New Age Auto'],
             ['india digital','Nifty India Digital'],['india consumption','Nifty India Consumption'],
             ['india defence','Nifty India Defence'],['india infra','BSE India Infrastructure'],
-            ['commodit','Nifty Commodities'],['quality 30','Nifty100 Quality 30'],
-            ['value 30','Nifty200 Value 30'],['200 momentum 30','Nifty200 Momentum 30'],
-            ['bse 500 momentum','BSE 500 Momentum 50'],['500 momentum','Nifty500 Momentum 50'],
-            ['midcap 150 mom','Nifty Midcap150 Mom50'],['midcap 150','Nifty Midcap 150'],
-            ['smallcap 250','Nifty SmallCap 250'],['fin serv ex','Nifty Fin Serv Ex-Bank'],
-            ['500 multicap','Nifty500 Multicap'],['nifty 500','Nifty 500'],
-            ['flexi','Nifty 500 (Flexi Cap)'],['bse 500','BSE 500'],['nifty 50','Nifty 50'],
+            ['quality 30','Nifty100 Quality 30'],['value 30','Nifty200 Value 30'],
+            ['200 momentum 30','Nifty200 Momentum 30'],['500 momentum','Nifty500 Momentum 50'],
+            ['midcap 150','Nifty Midcap 150'],['smallcap 250','Nifty SmallCap 250'],
+            ['nifty 500','Nifty 500'],['flexi','Nifty 500'],['bse 500','BSE 500'],
         ];
-        for (const [k, v] of MAP) { if (n.includes(k)) { idxName = v; break; } }
+        for (const [k,v] of MAP) { if (n.includes(k)) { idx=v; break; } }
 
-        const regime = wrsi >= 50 ? 'A (Hope)' : wrsi >= 40 ? 'B (Watch)' : 'C (Fear)';
-        const prompt = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System — the Lie Detector Auditor.
+        const regime = wrsi>=50?'A (Hope)':wrsi>=40?'B (Watch)':'C (Fear)';
+        const prompt = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System.
 
-FUND: ${fund.name} | Benchmark: ${idxName}
-Fund W-RSI: ${Math.round(wrsi)} (${regime})
-
+FUND: ${fund.name} | Benchmark: ${idx} | Fund W-RSI: ${Math.round(wrsi)} (${regime})
 SACRED RULE: True compounders never stay below W-RSI 40.
-DIVERGENCE: Price RISING + W-RSI falling/below 50 = Cosmetic Growth. Flag it.
-PSYCHOLOGY: Price moves first; earnings explanations come later.
+DIVERGENCE: Price RISING + W-RSI falling = Cosmetic Growth. Flag it.
 
-TASK: Perform Constituent X-Ray on top 5 stocks of ${idxName} by index weight.
-For each stock return current W-RSI(14), 2-week trend (RISING/FALLING), regime (A/B/C), action.
-Count BULL stocks (regime A + RISING). Sum weights.
-Return ONLY valid JSON:
-{
-  "stocks":[{"ticker":"Name","weight":"X%","price":"₹XXXX","daily_rsi":"XX","weekly_rsi":"XX","wma20":"₹XXXX","price_vs_wma20":"ABOVE or BELOW","trend_14d":"RISING or FALLING","regime":"A or B or C","verdict":"BULL or HOLD or BEAR","action":"Buy or Hold or Reduce","recommendation":"One sentence."}],
-  "bull_count":0,"bull_weight_sum":"X%",
-  "confirmation":"CONFIRMED or MARGINAL or WEAK",
-  "sop_action":"max 12 words",
-  "divergence_alert":"text or No divergence detected.",
-  "psychology_audit":"Lookout for… text",
-  "broad_market_regime_a":[{"index":"Name","wrsi":"XX","trend":"RISING or FALLING","signal":"BUY or WATCH"}],
-  "reasoning":"2-3 sentences on ${idxName} breadth."
-}`;
+TASK: Top 5 stocks of ${idx} by weight. For each: W-RSI(14), 2W trend, regime (A/B/C), action.
+Return ONLY valid JSON — no markdown, no explanation:
+{"stocks":[{"ticker":"Name","weight":"X%","price":"₹XXXX","daily_rsi":"XX","weekly_rsi":"XX","wma20":"₹XXXX","price_vs_wma20":"ABOVE or BELOW","trend_14d":"RISING or FALLING","regime":"A or B or C","verdict":"BULL or HOLD or BEAR","action":"Buy or Hold or Reduce","recommendation":"One sentence."}],"bull_count":0,"bull_weight_sum":"X%","confirmation":"CONFIRMED or MARGINAL or WEAK","sop_action":"max 12 words","divergence_alert":"text or No divergence detected.","psychology_audit":"Lookout for… text","broad_market_regime_a":[{"index":"Name","wrsi":"XX","trend":"RISING or FALLING","signal":"BUY or WATCH"}],"reasoning":"2-3 sentences."}`;
 
-        const payload = { contents:[{ parts:[{ text: prompt }] }] };
-        const model   = getModel();
-
-        // Try K1 (resolved at scan start) then K2 on 429
-        for (const slot of [1, 2]) {
-            const k = slot === 1 ? resolvedApiKey : getKey2();
-            if (!k) continue;
-            const ep  = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${k.trim()}`;
+        // Try K1 then K2 on 429
+        const keys = [apiKey, localStorage.getItem('ld_gemini_api_key2')].filter(Boolean);
+        for (const k of keys) {
+            const ep  = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${k.trim()}`;
             const res = await fetch(ep, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({contents:[{parts:[{text:prompt}]}]})
             });
-            if (res.status === 429 && slot === 1) continue; // try K2
+            if (res.status === 429 && k === keys[0] && keys.length > 1) continue;
             const data = await res.json();
             if (data.error) throw new Error(`Gemini ${data.error.code}: ${data.error.message}`);
-            let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            raw = raw.trim();
-            const fenceEnd = raw.indexOf('\n');
-            if (raw.startsWith('```')) raw = raw.substring(fenceEnd + 1);
-            if (raw.endsWith('```')) raw  = raw.slice(0, -3);
-            return JSON.parse(raw.trim());
+            let raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+            raw = raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+            return JSON.parse(raw);
         }
-        throw new Error('No API key available or both keys at quota.');
+        throw new Error('No valid API key or both keys exhausted.');
     }
 
-    // ── Status pill UI ────────────────────────────────────────────────
-    function _makePill() {
-        const el = document.createElement('div');
-        el.id = 'bgBreadthPill';
-        el.style.cssText = `
-            position:fixed;bottom:14px;left:12px;z-index:25000;
-            background:#1a2332;color:#e2e8f0;font-size:0.62rem;
-            font-family:'Space Mono',monospace;font-weight:600;
-            padding:7px 12px 7px 10px;border-radius:20px;
-            border:1.5px solid #009e70;box-shadow:0 3px 14px rgba(0,0,0,0.35);
-            max-width:260px;line-height:1.4;cursor:pointer;
-            display:flex;align-items:center;gap:8px;transition:opacity 0.3s;`;
-        el.innerHTML = `
-            <span id="bgBreadthDot" style="width:8px;height:8px;border-radius:50%;
-                background:#009e70;flex-shrink:0;
-                animation:bgPillPulse 1.2s ease-in-out infinite;"></span>
-            <span id="bgBreadthMsg">⏳ Background breadth scan starting…</span>
-            <span onclick="document.getElementById('bgBreadthPill').style.display='none'"
-                style="margin-left:4px;opacity:0.5;font-size:0.8rem;flex-shrink:0;">✕</span>`;
-        const style = document.createElement('style');
-        style.textContent = `@keyframes bgPillPulse{0%,100%{opacity:1}50%{opacity:0.3}}`;
-        document.head.appendChild(style);
-        document.body.appendChild(el);
-        return el;
-    }
-
-    function _setPillMsg(msg, colour) {
-        const m = document.getElementById('bgBreadthMsg');
-        const d = document.getElementById('bgBreadthDot');
-        if (m) m.textContent = msg;
-        if (d) d.style.background = colour || '#009e70';
-    }
-
-    function _donePill(msg) {
-        _setPillMsg(msg, '#009e70');
-        const d = document.getElementById('bgBreadthDot');
-        if (d) d.style.animation = 'none';
-        setTimeout(() => {
-            const p = document.getElementById('bgBreadthPill');
-            if (p) { p.style.opacity = '0'; setTimeout(() => p.remove(), 800); }
-        }, 6000);
-    }
-
-    // ── Sleep helper ──────────────────────────────────────────────────
+    // ── Sleep ─────────────────────────────────────────────────────────
     const _sleep = ms => new Promise(r => setTimeout(r, ms));
 
-    // ── Main orchestrator ─────────────────────────────────────────────
-    async function _runBackgroundScan() {
-        // Guard: run once per IST day only
-        if (_hasRanToday()) {
-            console.log(`[BG Breadth] Already ran today (${_istDate()}) — skipping.`);
-            return;
+    // ── Status pill ───────────────────────────────────────────────────
+    let _pill = null;
+    function _showPill(msg, colour) {
+        if (!_pill) {
+            _pill = document.createElement('div');
+            _pill.style.cssText = 'position:fixed;bottom:14px;left:12px;z-index:99999;'+
+                'background:#1a2332;color:#e2e8f0;font-size:0.62rem;'+
+                'font-family:monospace;font-weight:600;padding:8px 14px;'+
+                'border-radius:20px;border:1.5px solid #009e70;'+
+                'box-shadow:0 3px 14px rgba(0,0,0,0.35);max-width:300px;'+
+                'display:flex;align-items:center;gap:8px;line-height:1.4;';
+            _pill.innerHTML = '<span id="_bgDot" style="width:8px;height:8px;border-radius:50%;'+
+                'background:#009e70;flex-shrink:0;"></span>'+
+                '<span id="_bgMsg"></span>'+
+                '<span onclick="this.parentElement.remove()" style="margin-left:4px;'+
+                'opacity:0.4;cursor:pointer;flex-shrink:0;">✕</span>';
+            document.body.appendChild(_pill);
+        }
+        const msg_el = document.getElementById('_bgMsg');
+        const dot_el = document.getElementById('_bgDot');
+        if (msg_el) msg_el.textContent = msg;
+        if (dot_el) dot_el.style.background = colour || '#009e70';
+    }
+    function _donePill(msg) {
+        _showPill(msg, '#009e70');
+        setTimeout(() => { if (_pill) { _pill.style.opacity='0'; setTimeout(()=>{ _pill&&_pill.remove(); _pill=null; },600); } }, 6000);
+    }
+    function _removePill() { if (_pill) { _pill.remove(); _pill=null; } }
+
+    // ── Key entry panel (shown only when no key found) ────────────────
+    function _showKeyPanel(onKey) {
+        const p = document.createElement('div');
+        p.id = 'bgKeyPanel';
+        p.style.cssText = 'position:fixed;bottom:16px;left:12px;z-index:99999;'+
+            'background:#0f172a;color:#e2e8f0;border:2px solid #c97a00;'+
+            'border-radius:12px;padding:14px 16px;width:280px;'+
+            'font-family:monospace;font-size:0.62rem;box-shadow:0 4px 24px rgba(0,0,0,0.5);line-height:1.5;';
+        p.innerHTML =
+            '<div style="color:#fbbf24;font-weight:700;margin-bottom:6px;">🔑 BG Breadth — API Key Required</div>'+
+            '<div style="color:#94a3b8;font-size:0.54rem;margin-bottom:8px;">'+
+              'Each HTML filename has its own localStorage.<br>Paste your Gemini key once to activate:</div>'+
+            '<input id="bgKpIn" type="password" placeholder="AIza… (39 chars)"'+
+              ' style="width:100%;box-sizing:border-box;padding:6px 8px;border-radius:6px;'+
+              'border:1px solid #475569;background:#1e293b;color:#e2e8f0;'+
+              'font-family:monospace;font-size:0.6rem;outline:none;margin-bottom:8px;" />'+
+            '<div style="display:flex;gap:8px;">'+
+              '<button id="bgKpSave" style="flex:1;background:#009e70;color:#fff;border:none;'+
+                'border-radius:6px;padding:7px;font-size:0.6rem;font-weight:700;cursor:pointer;">'+
+                '✅ Save &amp; Start Scan</button>'+
+              '<button id="bgKpClose" style="background:#334155;color:#94a3b8;border:none;'+
+                'border-radius:6px;padding:7px 10px;font-size:0.6rem;cursor:pointer;">✕</button>'+
+            '</div>'+
+            '<div id="bgKpSt" style="margin-top:6px;font-size:0.52rem;color:#64748b;min-height:14px;"></div>';
+        document.body.appendChild(p);
+        document.getElementById('bgKpClose').onclick = () => p.remove();
+        document.getElementById('bgKpSave').onclick  = () => {
+            const val = (document.getElementById('bgKpIn').value||'').trim();
+            const st  = document.getElementById('bgKpSt');
+            if (!val || val.length < 20) { st.style.color='#f87171'; st.textContent='⚠ Too short'; return; }
+            localStorage.setItem('ld_gemini_api_key', val);
+            st.style.color='#6ee7b7'; st.textContent='✅ Saved — starting in 3s…';
+            setTimeout(() => { p.remove(); onKey(val); }, 3000);
+        };
+        const inp = document.getElementById('bgKpIn');
+        if (inp) inp.addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('bgKpSave').click(); });
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // PHASE 1 — REGIME A SCAN (NAV fetch only, no Gemini)
+    // Runs once per day. On second call: returns stored data immediately.
+    // ════════════════════════════════════════════════════════════════
+    async function _scanRegimeA() {
+        const stored = _getRegimeAFunds();
+        if (stored.length) {
+            console.log(`[BG] Regime A: using stored data (${stored.length} funds)`);
+            return stored;
         }
 
-        // Guard: need API key — check all known storage key names
-        // NOTE: If running from file://, each filename has its own localStorage scope.
-        // Keys saved in LD246PAI.html will NOT appear in LD246SAI.html.
-        const KEY_NAMES = [
-            'ld_gemini_api_key',    // current primary
-            'ld_gemini_api_key2',   // current backup
-            'gemini_api_key',       // legacy name
-            'apiKey',               // legacy name
-            'geminiKey',            // legacy name
-        ];
-        let apiKey = null;
-        for (const kn of KEY_NAMES) {
-            const v = localStorage.getItem(kn);
-            if (v && v.trim().length > 20) { apiKey = v.trim(); break; }
-        }
+        const equity = _allFunds().filter(_isEquity);
+        _showPill(`🔍 Scanning ${equity.length} equity funds for Regime A…`);
 
-        // Debug: show all found keys (masked)
-        const _mask = k => k ? `${k.slice(0,6)}…${k.slice(-4)}(${k.length}c)` : 'none';
-        const _k1 = localStorage.getItem('ld_gemini_api_key');
-        const _k2 = localStorage.getItem('ld_gemini_api_key2');
-        console.log(`[BG Breadth] Key scan — K1:${_mask(_k1)} K2:${_mask(_k2)} resolved:${_mask(apiKey)}`);
-
-        if (!apiKey) {
-            // Show a simple fixed key-entry panel — no dependency on _makePill()
-            const panel = document.createElement('div');
-            panel.id = 'bgKeyPanel';
-            panel.style.cssText = [
-                'position:fixed','bottom:16px','left:12px','z-index:99999',
-                'background:#0f172a','color:#e2e8f0',
-                'border:2px solid #c97a00','border-radius:12px',
-                'padding:14px 16px','width:280px',
-                'font-family:monospace','font-size:0.62rem',
-                'box-shadow:0 4px 24px rgba(0,0,0,0.5)',
-                'line-height:1.5'
-            ].join(';');
-            panel.innerHTML = [
-                '<div style="color:#fbbf24;font-weight:700;margin-bottom:6px;">',
-                '  🔑 BG Breadth — API Key Required',
-                '</div>',
-                '<div style="color:#94a3b8;font-size:0.54rem;margin-bottom:8px;">',
-                '  Each HTML file has its own localStorage.<br>',
-                '  Paste your Gemini key (AIza…) once to activate:',
-                '</div>',
-                '<input id="bgKeyPanelInput" type="password" placeholder="AIza…(39 chars)"',
-                '  style="width:100%;box-sizing:border-box;padding:6px 8px;',
-                '         border-radius:6px;border:1px solid #475569;',
-                '         background:#1e293b;color:#e2e8f0;font-family:monospace;',
-                '         font-size:0.6rem;outline:none;margin-bottom:8px;" />',
-                '<div style="display:flex;gap:8px;">',
-                '  <button id="bgKeyPanelSave"',
-                '    style="flex:1;background:#009e70;color:#fff;border:none;',
-                '           border-radius:6px;padding:7px;font-size:0.6rem;',
-                '           font-weight:700;cursor:pointer;">',
-                '    ✅ Save &amp; Start Scan',
-                '  </button>',
-                '  <button id="bgKeyPanelClose"',
-                '    style="background:#334155;color:#94a3b8;border:none;',
-                '           border-radius:6px;padding:7px 10px;font-size:0.6rem;cursor:pointer;">',
-                '    ✕',
-                '  </button>',
-                '</div>',
-                '<div id="bgKeyPanelStatus" style="margin-top:6px;font-size:0.52rem;',
-                '     color:#64748b;min-height:14px;"></div>',
-            ].join('\n');
-
-            document.body.appendChild(panel);
-
-            document.getElementById('bgKeyPanelClose').onclick = () => panel.remove();
-
-            document.getElementById('bgKeyPanelSave').onclick = function() {
-                const inp = document.getElementById('bgKeyPanelInput');
-                const st  = document.getElementById('bgKeyPanelStatus');
-                const val = (inp ? inp.value : '').trim();
-                if (!val || val.length < 20) {
-                    st.style.color = '#f87171';
-                    st.textContent = '⚠ Too short — paste full AIza… key (39 chars)';
-                    return;
-                }
-                localStorage.setItem('ld_gemini_api_key', val);
-                if (inp) inp.value = '';
-                st.style.color = '#6ee7b7';
-                st.textContent = '✅ Key saved — starting scan in 3 seconds…';
-                console.log('[BG Breadth] Key saved via panel — restarting scan.');
-                setTimeout(() => {
-                    panel.remove();
-                    _runBackgroundScan();
-                }, 3000);
-            };
-
-            const inp = document.getElementById('bgKeyPanelInput');
-            if (inp) inp.addEventListener('keydown', e => {
-                if (e.key === 'Enter') document.getElementById('bgKeyPanelSave').click();
-            });
-
-            console.log('[BG Breadth] Key panel shown — paste your Gemini API key to start.');
-            return;
-        }
-
-        // Guard: need RSI builder
-        if (!window.buildWeeklyRsiFast) {
-            console.log('[BG Breadth] buildWeeklyRsiFast not ready — retrying in 5s.');
-            await _sleep(5000);
-            if (!window.buildWeeklyRsiFast) return;
-        }
-
-        const pill = _makePill();
-
-        // Step 1: Scan all equity funds for Regime A
-        const allFunds   = _allFunds();
-        const equityFunds = allFunds.filter(_isEquity);
-        _setPillMsg(`🔍 Scanning ${equityFunds.length} equity funds for Regime A…`);
-
-        const regimeAFunds = [];
-        let scanned = 0;
-
-        for (const fund of equityFunds) {
-            // If tab is hidden, pause scanning — don't waste bandwidth
-            if (document.hidden) await _sleep(2000);
-
-            // Skip Scheme C bond funds already caught by _isEquity, but double-check
-            if (!_isEquity(fund)) continue;
-
+        const regimeA = [];
+        for (let i = 0; i < equity.length; i++) {
+            while (document.hidden) await _sleep(2000);
+            const fund = equity[i];
             try {
-                const navRows = await _fetchNav(fund.code);
-                if (navRows.length < 30) { scanned++; continue; }
-                const wrsi = _computeWrsi(navRows);
-                scanned++;
-                _setPillMsg(`🔍 ${scanned}/${equityFunds.length} scanned — ${regimeAFunds.length} Regime A so far`);
+                const navs = await _fetchNav(fund.code);
+                const wrsi = _computeWrsi(navs);
                 if (wrsi !== null && wrsi >= 50) {
-                    regimeAFunds.push({ ...fund, wrsi: Math.round(wrsi * 10) / 10 });
-                    console.log(`[BG Breadth] Regime A: ${fund.name} (W-RSI ${Math.round(wrsi)})`);
+                    regimeA.push({ code: fund.code, name: fund.name, wrsi: Math.round(wrsi * 10) / 10 });
                 }
-            } catch(e) {
-                console.warn(`[BG Breadth] Nav fetch failed for ${fund.code}:`, e.message);
-                scanned++;
-            }
-
-            // Small gap between NAV fetches (not Gemini) — 800ms is courteous
+            } catch {}
+            _showPill(`🔍 ${i+1}/${equity.length} scanned — ${regimeA.length} Regime A`);
             await _sleep(800);
         }
 
-        if (!regimeAFunds.length) {
-            _donePill(`✅ Scan complete — 0 funds in Regime A today.`);
-            _markRanToday();
+        // Store for the day
+        _ls.setJ(_K.regimeA(), regimeA);
+        console.log(`[BG] Regime A scan done: ${regimeA.length} funds stored.`);
+        return regimeA;
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // PHASE 2 — BA PROCESSING (Gemini, pending only, daily lock)
+    // ════════════════════════════════════════════════════════════════
+    async function _runBA(regimeAFunds, apiKey) {
+        // ── Daily lock: if all done, stop immediately ─────────────
+        if (_isBADoneToday()) {
+            _showPill('✅ BA complete for today — all funds processed.', '#009e70');
+            setTimeout(_donePill, 2000, '✅ BA already complete today.');
+            console.log('[BG] BA_completed_today=true — skipping all BA logic.');
             return;
         }
 
-        // Step 2: Filter out already-cached funds
-        const needsBreadth = regimeAFunds.filter(f => !_cacheExists(f.code));
+        const completed = _getCompleted();
+        const pending   = regimeAFunds.filter(f => !completed.includes(f.code) && !_ls.get(_K.breadth(f.code)));
 
-        _setPillMsg(
-            `🟢 ${regimeAFunds.length} Regime A funds found. ` +
-            `${needsBreadth.length} need breadth (${regimeAFunds.length - needsBreadth.length} cached).`
-        );
+        console.log(`[BG] BA: ${regimeAFunds.length} Regime A | ${completed.length} completed | ${pending.length} pending`);
 
-        console.log(`[BG Breadth] Regime A funds:`, regimeAFunds.map(f => f.name));
-        console.log(`[BG Breadth] Needs breadth fetch: ${needsBreadth.length}`);
-
-        if (!needsBreadth.length) {
-            _donePill(`✅ All ${regimeAFunds.length} Regime A funds already cached today.`);
-            _markRanToday();
+        if (!pending.length) {
+            _markBADone();
+            _donePill(`✅ BA complete — all ${regimeAFunds.length} Regime A funds cached.`);
+            console.log('[BG] All funds processed — BA_completed_today set.');
             return;
         }
 
-        // Store the Regime A list itself for status display
-        try {
-            localStorage.setItem(
-                `bgbreadth_regimeA_${_istDate()}`,
-                JSON.stringify(regimeAFunds.map(f => ({ code: f.code, name: f.name, wrsi: f.wrsi })))
-            );
-        } catch(e) {}
-
-        // Step 3: Fire Gemini breadth for each — 100s gap between calls
         let done = 0, failed = 0;
 
-        for (let i = 0; i < needsBreadth.length; i++) {
-            const fund = needsBreadth[i];
-
-            // Pause if tab hidden
-            while (document.hidden) { await _sleep(3000); }
-
-            _setPillMsg(
-                `✨ Breadth ${i + 1}/${needsBreadth.length}: ${fund.name.replace(/\[NPS\] /,'').slice(0, 28)}…` +
-                (i > 0 ? ` (${Math.round(GAP_MS/1000)}s gap)` : '')
-            );
-
-            try {
-                const parsed = await _callGeminiBreadth(fund, fund.wrsi, apiKey);
-                _cacheSave(fund.code, parsed);
-                done++;
-                console.log(`[BG Breadth] ✅ Cached: ${fund.name} → ${parsed.confirmation}`);
-            } catch(e) {
-                failed++;
-                console.warn(`[BG Breadth] ❌ Failed: ${fund.name}:`, e.message);
-                _setPillMsg(`⚠ ${fund.name.slice(0,22)} failed — continuing…`, '#c97a00');
-                await _sleep(3000); // short pause then continue
+        for (let i = 0; i < pending.length; i++) {
+            // ── Stop condition check before each fund ──────────────
+            if (_isBADoneToday()) {
+                console.log('[BG] BA lock set externally — stopping.');
+                break;
             }
 
-            // 100-second gap before next Gemini call (skip gap after last one)
-            if (i < needsBreadth.length - 1) {
+            while (document.hidden) await _sleep(3000);
+
+            const fund = pending[i];
+            _showPill(`✨ BA ${i+1}/${pending.length}: ${fund.name.slice(0,26)}…`);
+
+            try {
+                const parsed = await _callGemini(fund, fund.wrsi, apiKey);
+                _ls.setJ(_K.breadth(fund.code), parsed);   // save immediately after each fund
+                _markCompleted(fund.code);                  // track in completed[]
+                done++;
+                console.log(`[BG] ✅ ${fund.name} → ${parsed.confirmation}`);
+            } catch(e) {
+                failed++;
+                console.warn(`[BG] ❌ ${fund.name}:`, e.message);
+                _showPill(`⚠ ${fund.name.slice(0,22)} failed — continuing…`, '#c97a00');
+                await _sleep(3000);
+            }
+
+            // 100s gap — skip after last fund
+            if (i < pending.length - 1) {
                 for (let s = GAP_MS / 1000; s > 0; s -= 5) {
-                    if (document.hidden) { await _sleep(3000); continue; }
-                    _setPillMsg(
-                        `⏱ Next breadth in ${s}s — (${done} done${failed ? ', ' + failed + ' failed' : ''})`,
-                        '#6366f1'
-                    );
+                    while (document.hidden) await _sleep(3000);
+                    _showPill(`⏱ Next in ${s}s — (${done} done${failed?', '+failed+' failed':''})`, '#6366f1');
                     await _sleep(Math.min(5000, s * 1000));
                 }
             }
         }
 
-        _markRanToday();
-        _donePill(
-            `✅ BG Breadth done — ${done}/${needsBreadth.length} cached` +
-            (failed ? ` (${failed} failed)` : '') +
-            `. ${regimeAFunds.length} Regime A funds today.`
+        // ── Check if all Regime A funds are now complete ────────────
+        const allCompleted = regimeAFunds.every(f =>
+            _getCompleted().includes(f.code) || _ls.get(_K.breadth(f.code))
         );
-        console.log(`[BG Breadth] Complete. ${done} cached, ${failed} failed.`);
+        if (allCompleted) {
+            _markBADone();
+            _donePill(`✅ BA complete — ${done} cached, ${regimeAFunds.length} Regime A funds done.`);
+            console.log('[BG] All Regime A funds processed — BA_completed_today set.');
+        } else {
+            _donePill(`⏸ BA partial — ${done} done, ${failed} failed. Resume tomorrow or bgBreadthForceRun().`);
+        }
     }
 
-    // ── Public API ────────────────────────────────────────────────────
-    // window.bgBreadthStatus() → returns today's Regime A list from cache
-    window.bgBreadthStatus = function() {
+    // ════════════════════════════════════════════════════════════════
+    // MAIN — _runBackgroundScan()
+    // Called MANUALLY only (bgBreadthForceRun). NOT on app open.
+    // On app open: stored data shown by manual breadth panel (zero API).
+    // ════════════════════════════════════════════════════════════════
+    async function _runBackgroundScan() {
+        // ── Show stored results and stop if BA already complete ────
+        const stored = _getRegimeAFunds();
+        if (_isBADoneToday()) {
+            console.log(`[BG] Today complete. Regime A: ${stored.length} funds, BA: all done.`);
+            console.log('[BG] Tap bgBreadthStatus() to see results. bgBreadthClearAll() to reset.');
+            return;
+        }
+
+        // ── API key resolution ─────────────────────────────────────
+        const KEY_NAMES = ['ld_gemini_api_key','ld_gemini_api_key2','gemini_api_key','apiKey'];
+        let apiKey = null;
+        for (const k of KEY_NAMES) {
+            const v = localStorage.getItem(k);
+            if (v && v.trim().length > 20) { apiKey = v.trim(); break; }
+        }
+
+        const _mask = k => k ? `${k.slice(0,6)}…${k.slice(-4)}(${k.length}c)` : 'none';
+        console.log(`[BG] Key: ${_mask(apiKey)}`);
+
+        if (!apiKey) {
+            _showKeyPanel(savedKey => _runBackgroundScan());
+            return;
+        }
+
+        // ── Phase 1: Regime A scan (instant if already stored) ────
+        let regimeA;
         try {
-            const raw = localStorage.getItem(`bgbreadth_regimeA_${_istDate()}`);
-            const list = raw ? JSON.parse(raw) : [];
-            console.table(list);
-            return list;
-        } catch { return []; }
+            regimeA = await _scanRegimeA();
+        } catch(e) {
+            console.error('[BG] Regime A scan failed:', e.message);
+            _removePill();
+            return;
+        }
+
+        if (!regimeA.length) {
+            _donePill('✅ Scan complete — 0 funds in Regime A today.');
+            return;
+        }
+
+        console.log(`[BG] Regime A funds (${regimeA.length}):`, regimeA.map(f=>f.name));
+
+        // ── Phase 2: BA processing ─────────────────────────────────
+        await _runBA(regimeA, apiKey);
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // PUBLIC API
+    // ════════════════════════════════════════════════════════════════
+
+    // Show today's status (no API calls)
+    window.bgBreadthStatus = function() {
+        const d     = _istDate();
+        const rA    = _getRegimeAFunds();
+        const done  = _getCompleted();
+        const baOk  = _isBADoneToday();
+        console.log(`[BG Status] Date: ${d} | Regime A: ${rA.length} | Completed: ${done.length} | BA done: ${baOk}`);
+        if (rA.length) console.table(rA);
+        return { regimeA: rA, completed: done, baComplete: baOk };
     };
 
-    // window.bgBreadthForceRun() → clear run flag and restart (for testing)
+    // Force run (for testing — clears locks then runs)
     window.bgBreadthForceRun = function() {
-        try { localStorage.removeItem(RUN_FLAG_KEY + _istDate()); } catch {}
+        const d = _istDate();
+        _ls.del(_K.baLock());
+        _ls.del(_K.completed());
+        console.log('[BG] Locks cleared — starting scan…');
         _runBackgroundScan();
     };
 
-    // window.bgBreadthClearAll() → wipe all breadth caches for today
+    // Reset everything for today (full clear)
     window.bgBreadthClearAll = function() {
-        const d = _istDate();
-        const keys = Object.keys(localStorage).filter(k => k.includes(d) && k.startsWith('breadth_v1_'));
+        const d    = _istDate();
+        const keys = Object.keys(localStorage).filter(k => k.includes(d));
         keys.forEach(k => localStorage.removeItem(k));
-        localStorage.removeItem(RUN_FLAG_KEY + d);
-        localStorage.removeItem(`bgbreadth_regimeA_${d}`);
-        console.log(`[BG Breadth] Cleared ${keys.length} cache entries + run flag for ${d}.`);
+        _pill && _pill.remove(); _pill = null;
+        console.log(`[BG] Cleared ${keys.length} entries for ${d}.`);
     };
 
-    // ── Auto-start: 6 seconds after page load ─────────────────────────
-    window.addEventListener('load', () => {
-        setTimeout(_runBackgroundScan, BOOT_DELAY_MS);
-    });
-
-    console.log(`[BG Breadth] Add-on ${ADDON_VER} loaded. Starts in ${BOOT_DELAY_MS/1000}s.`);
-    console.log('[BG Breadth] Debug: bgBreadthStatus() | bgBreadthForceRun() | bgBreadthClearAll()');
+    // ── NOT auto-started on app open — manual only ─────────────────
+    console.log(`[BG Breadth] ${ADDON_VER} ready.`);
+    console.log('[BG Breadth] Commands: bgBreadthForceRun() | bgBreadthStatus() | bgBreadthClearAll()');
+    console.log('[BG Breadth] On app open: stored BA shown in manual breadth panel (zero API calls).');
 
     })();
     </script>
     <!-- ═══════════════ END BG BREADTH ADD-ON ═══════════════ -->
+

@@ -2144,7 +2144,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD246UAI</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD246VAI</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2572,7 +2572,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD246UAI &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD246VAI &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2584,7 +2584,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246UAI 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -4464,6 +4464,20 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         }
                         if (bucket.length === 0) continue;
                         const key = `${amc}_${type}`;
+                        // Skip if this bucket was already completed today (partial resume)
+                        const _todayKey = new Date().toISOString().slice(0,10);
+                        const _mcDone   = JSON.parse(localStorage.getItem(`ld_v3_morning_completed_${_todayKey}`) || '[]');
+                        if (_mcDone.includes(key)) {
+                            // Load cached result for this bucket
+                            try {
+                                const _prev = JSON.parse(localStorage.getItem(`ld_v3_morning_${key}`) || 'null');
+                                if (_prev?.rank1) {
+                                    scanResults[key] = { rank1: _prev.rank1, scanned: _prev.scanned, type, amc };
+                                    totalScanned += _prev.scanned || 0;
+                                }
+                            } catch(_) {}
+                            continue; // skip network fetch for this bucket
+                        }
                         const fundScores = [];
                         for (const f of bucket) {
                             try {
@@ -4500,10 +4514,26 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             localStorage.setItem(`ld_v3_morning_${key}`, JSON.stringify({
                                 rank1, scanned: fundScores.length, ts: Date.now()
                             }));
+                            // ── Partial completion: mark this bucket done ──────────────
+                            const _mcKey = `ld_v3_morning_completed_${new Date().toISOString().slice(0,10)}`;
+                            const _mc    = JSON.parse(localStorage.getItem(_mcKey) || '[]');
+                            if (!_mc.includes(key)) _mc.push(key);
+                            localStorage.setItem(_mcKey, JSON.stringify(_mc));
+                            // Update storage counter in banner
+                            const _allBuckets = Object.keys(window.amcFunds).filter(a=>a!=='NPS').reduce((arr,a)=>{
+                                ['MF','NPS_T1','NPS_T2'].forEach(t=>arr.push(`${a}_${t}`));
+                                return arr;
+                            },[]);
+                            const _scanCountEl = document.getElementById('morningScanBanner');
+                            if (_scanCountEl) {
+                                _scanCountEl.style.display='block';
+                                _scanCountEl.style.color='#f59e0b';
+                                _scanCountEl.textContent=`🔍 Regime A Scan: ${_mc.length}/${_allBuckets.length} buckets done today`;
+                            }
                         } catch(_) {}
                         if (rank1 && rank1.regime === 'A') {
-                            if (!_watchlist.find(w => w.code === rank1.code)) {
-                                _watchlist.push({ code: rank1.code, name: rank1.name, morningAdd: true });
+                            if (!_watchlist.find(w => w.code === rank1.code) && _watchlist.length < 20) {
+                                _watchlist.push({ code: rank1.code, name: rank1.name, morningAdd: true, portfolio: false });
                                 localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
                                 addedToWatchlist++;
                             }
@@ -4575,7 +4605,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD246UAI', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD246VAI', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -8915,7 +8945,12 @@ This is exactly how the system is meant to be played.
                     setTimeout(() => { if (_ovEl) _ovEl.style.display = 'none'; }, 1500);
                     return;
                 }
-                _watchlist.push({ code, name });
+                if (_watchlist.length >= 20) {
+                    if (_ovTxt) { _ovTxt.textContent = 'WATCHLIST FULL (max 20 funds)'; _ovTxt.style.color = 'var(--red)'; }
+                    return;
+                }
+                const _isPortfolio = confirm(`Add "${name.replace(/\[NPS\] | - Growth| - Direct/gi,'').trim()}" to Portfolio as well?\n\nTap OK = In Portfolio (✓)\nTap Cancel = Watchlist only`);
+                _watchlist.push({ code, name, portfolio: _isPortfolio });
                 localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
                 renderWatchlistStubs();
                 refreshWatchlist();
@@ -8948,18 +8983,50 @@ This is exactly how the system is meant to be played.
                 const body = document.getElementById('watchlistBody');
                 if (!body) return;
                 if (_watchlist.length === 0) {
-                    body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No funds pinned. Select a fund and tap "+ PIN THIS FUND".</div>';
+                    body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No funds pinned (max 20). Select a fund and tap "+ PIN THIS FUND".</div>';
                     return;
                 }
-                body.innerHTML = _watchlist.map((w, i) =>
-                    `<div class="wl-row" id="wlrow-${i}" onclick="_launchFromWatchlist('${w.code}')">
-            <div class="wl-reg" style="background:var(--surface2);color:var(--muted);" id="wlreg-${i}">…</div>
-            <div class="wl-name">${w.name.replace(/\[NPS\] | - Growth| - Direct/gi, '').trim()}</div>
-            <div class="wl-rsi" id="wlrsi-${i}">D:-- W:--</div>
-            <div class="wl-alert" id="wlalert-${i}">🔘</div>
-            <span onclick="event.stopPropagation();_removeWatchlistItem(${i})" style="font-size:0.5rem;color:var(--muted);padding:2px 4px;cursor:pointer;">✕</span>
-        </div>`
-                ).join('');
+                // Header row
+                const hdr = `<div style="display:grid;grid-template-columns:1fr 36px 52px 32px 28px 18px;
+                    gap:4px;padding:3px 6px;font-size:0.42rem;font-weight:600;
+                    color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;border-bottom:1px solid var(--border);">
+                    <span>Fund (click = Live Chart)</span>
+                    <span style="text-align:center;">Port</span>
+                    <span style="text-align:center;">Regime</span>
+                    <span style="text-align:center;">RSI</span>
+                    <span style="text-align:center;">Alert</span>
+                    <span></span>
+                </div>`;
+                const rows = _watchlist.map((w, i) => {
+                    const portIcon = w.portfolio
+                        ? `<span style="color:var(--accent);font-size:0.72rem;font-weight:700;cursor:pointer;"
+                               title="In portfolio — tap to remove" onclick="event.stopPropagation();_togglePortfolio(${i})">✓</span>`
+                        : `<span style="color:var(--muted);font-size:0.62rem;cursor:pointer;"
+                               title="Not in portfolio — tap to add" onclick="event.stopPropagation();_togglePortfolio(${i})">○</span>`;
+                    return `<div style="display:grid;grid-template-columns:1fr 36px 52px 32px 28px 18px;
+                        gap:4px;padding:5px 6px;align-items:center;cursor:pointer;
+                        border-bottom:1px solid var(--border);font-size:0.54rem;"
+                        onclick="_launchFromWatchlist('${w.code}')" id="wlrow-${i}">
+                        <div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:0.56rem;">
+                            ${w.name.replace(/\[NPS\] | - Growth| - Direct/gi,'').trim().slice(0,28)}
+                        </div>
+                        <div style="text-align:center;">${portIcon}</div>
+                        <div class="wl-reg" id="wlreg-${i}" style="text-align:center;font-size:0.46rem;
+                            padding:2px 4px;border-radius:3px;background:var(--surface2);color:var(--muted);">…</div>
+                        <div id="wlrsi-${i}" style="text-align:center;font-size:0.42rem;color:var(--muted);">--</div>
+                        <div id="wlalert-${i}" style="text-align:center;">🔘</div>
+                        <span onclick="event.stopPropagation();_removeWatchlistItem(${i})"
+                            style="font-size:0.48rem;color:var(--muted);cursor:pointer;text-align:center;">✕</span>
+                    </div>`;
+                }).join('');
+                body.innerHTML = hdr + rows;
+            }
+            function _togglePortfolio(i) {
+                if (!_watchlist[i]) return;
+                _watchlist[i].portfolio = !_watchlist[i].portfolio;
+                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+                renderWatchlistStubs();
+                refreshWatchlist();
             }
             async function refreshWatchlist() {
                 const rsiLen = parseInt(document.getElementById('rsiLengthIn')?.value) || 4;
@@ -9006,7 +9073,20 @@ This is exactly how the system is meant to be played.
                             regEl.style.background = regime === 'A' ? 'var(--accent-dim)' : regime === 'B' ? 'var(--accent2-dim)' : 'var(--red-dim)';
                             regEl.style.color = regime === 'A' ? 'var(--accent)' : regime === 'B' ? 'var(--accent2)' : 'var(--red)';
                         }
-                        if (rsiEl) rsiEl.textContent = `D:${Math.round(dr)} W:${Math.round(wr)}`;
+                        if (rsiEl) {
+                            // Confluence circle: compute w4/w8/w14 and show 1/2/3 with colour
+                            const _wRsiC4  = window.buildWeeklyRsiFast(navs, 4,  dates);
+                            const _wRsiC8  = window.buildWeeklyRsiFast(navs, 8,  dates);
+                            const _wRsiC14 = window.buildWeeklyRsiFast(navs, 14, dates);
+                            const _c4  = _wRsiC4.length  ? _wRsiC4[_wRsiC4.length-1]   : 0;
+                            const _c8  = _wRsiC8.length  ? _wRsiC8[_wRsiC8.length-1]   : 0;
+                            const _c14 = _wRsiC14.length ? _wRsiC14[_wRsiC14.length-1] : 0;
+                            const _cScore = [_c4, _c8, _c14].filter(v => v >= 50).length;
+                            const _cColor = _cScore === 3 ? '#005c00' : _cScore === 2 ? '#33a133' : '#99cc99';
+                            rsiEl.innerHTML = `<span style="display:inline-flex;align-items:center;justify-content:center;
+                                width:20px;height:20px;border-radius:50%;
+                                background:${_cColor};color:#fff;font-size:0.5rem;font-weight:700;" title="RSI Confluence: ${_cScore}/3 (W4:${Math.round(_c4)} W8:${Math.round(_c8)} W14:${Math.round(_c14)})">${_cScore}</span>`;
+                        }
                         if (alEl) {
                             alEl.textContent = alertIcon;
                             alEl.title = alertTip;
@@ -11780,14 +11860,14 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         const regime = it.regime === 'A' ? 'Hope' : it.regime === 'B' ? 'Watch' : 'Fear';
                         const clr = it.regime === 'A' ? 'var(--accent)' : it.regime === 'B' ? 'var(--accent2,#f5a623)' : 'var(--red)';
                         return `<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;border-bottom:1px solid var(--border);">
-                            <div style="flex:1;font-size:0.6rem;font-weight:700;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${it.name}</div>
-                            <div style="font-size:0.54rem;color:var(--muted);min-width:32px;text-align:right;">${it.amc}</div>
+                            <div style="flex:1;font-size:0.6rem;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${it.name}</div>
+                            <div style="font-size:0.54rem;color:var(--muted);min-width:32px;text-align:right;font-weight:400">${it.amc}</div>
                             <div style="font-size:0.54rem;font-weight:700;color:${clr};min-width:42px;text-align:right;">${regime}</div>
                             <div style="font-size:0.54rem;color:${color};font-weight:700;min-width:60px;text-align:right;">${it.val}</div>
                         </div>`;
                     }).join('');
                     return `<div style="border:1px solid ${color}44;border-radius:8px;overflow:hidden;margin-bottom:8px;">
-                        <div style="background:${color}18;padding:5px 8px;font-size:0.58rem;font-weight:700;color:${color};letter-spacing:0.07em;">${icon} ${title} (${arr.length})</div>
+                        <div style="background:${color}18;padding:5px 8px;font-size:0.58rem;font-weight:500;color:${color};letter-spacing:0.07em;">${icon} ${title} (${arr.length})</div>
                         ${rows}
                     </div>`;
                 };
@@ -11878,6 +11958,10 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         const dRsiArr   = window.buildDailyRsiFast(scanPrices, userRsiLength);
                         const lowessArr = window.buildLowessGaussianFast(scanPrices);
                         const snap      = buildEngineSnapshot(scanPrices.length - 1, scanPrices, 0, dRsiArr, wRsiArr, lowessArr, 0, [], 0);
+                        // Pre-compute Triple RSI here — reused in bucketing below (no duplicate calls)
+                        const _w4arr  = window.buildWeeklyRsiFast(scanPrices, 4,  scanDates);
+                        const _w8arr  = window.buildWeeklyRsiFast(scanPrices, 8,  scanDates);
+                        const _w14arr = window.buildWeeklyRsiFast(scanPrices, 14, scanDates);
                         const prevWr        = wRsiArr[scanPrices.length - 2] ?? 50;
                         const prevRegimeScan = prevWr >= 50 ? 'A' : prevWr >= 40 ? 'B' : 'C';
                         const item = {
@@ -11888,6 +11972,9 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                             wrsi:   Math.round(snap.wrsi),
                             delta:  Math.round(snap.delta),
                             regime: snap.regime,
+                            _w4v:   _w4arr.length  ? _w4arr[_w4arr.length-1]   : 0,
+                            _w8v:   _w8arr.length  ? _w8arr[_w8arr.length-1]   : 0,
+                            _w14v:  _w14arr.length ? _w14arr[_w14arr.length-1] : 0,
                             r1m:    scanPrices.length > 21 ? (scanPrices[scanPrices.length-1] - scanPrices[scanPrices.length-22]) / scanPrices[scanPrices.length-22] * 100 : 0,
                             amc:    fund.code.startsWith('SM') ? 'NPS' : (() => {
                                         for (const a in window.amcFunds) {
@@ -11912,14 +11999,9 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                             item.val = 'NC BREAKDOWN';
                             results.NC.push(item);
                         } else if (snap.regime === 'A') {
-                            // Check Triple RSI Confluence (W-RSI 4, 8, 14 all ≥50)
-                            const _wRsi4  = window.buildWeeklyRsiFast ? window.buildWeeklyRsiFast(scanPrices, 4,  scanDates) : [];
-                            const _wRsi8  = window.buildWeeklyRsiFast ? window.buildWeeklyRsiFast(scanPrices, 8,  scanDates) : [];
-                            const _wRsi14 = window.buildWeeklyRsiFast ? window.buildWeeklyRsiFast(scanPrices, 14, scanDates) : [];
-                            const _w4v  = _wRsi4.length  ? _wRsi4[_wRsi4.length-1]   : 0;
-                            const _w8v  = _wRsi8.length  ? _wRsi8[_wRsi8.length-1]   : 0;
-                            const _w14v = _wRsi14.length ? _wRsi14[_wRsi14.length-1] : 0;
-                            const _tripleOk = _w4v >= 50 && _w8v >= 50 && _w14v >= 50;
+                            // Triple RSI — reuse already-fetched data (no extra API call)
+                            const _tripleOk = item._w4v >= 50 && item._w8v >= 50 && item._w14v >= 50;
+                            const _w4v = item._w4v, _w8v = item._w8v, _w14v = item._w14v;
                             if (_tripleOk) {
                                 item.val = `🔥 W4:${Math.round(_w4v)} W8:${Math.round(_w8v)} W14:${Math.round(_w14v)}`;
                                 results.TRIPLE_RSI.push(item);
@@ -11944,7 +12026,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     processed++;
                     const prog = document.getElementById('alertProg');
                     if (prog) prog.textContent = `${processed}/${allFunds.length} funds processed`;
-                    await new Promise(r => setTimeout(r, 10));
+                    await new Promise(r => setTimeout(r, 0)); // yield to UI thread
                 }
                 // ── Save to daily cache before rendering ──────────────────
                 const _alertTs = new Date(Date.now()+5.5*3600000).toISOString().replace('T',' ').slice(0,16)+' IST';
@@ -12270,6 +12352,10 @@ categories.forEach(cat => {
                         const dRsiArr   = window.buildDailyRsiFast(scanPrices, userRsiLength);
                         const lowessArr = window.buildLowessGaussianFast(scanPrices);
                         const snap      = buildEngineSnapshot(scanPrices.length - 1, scanPrices, 0, dRsiArr, wRsiArr, lowessArr, 0, [], 0);
+                        // Pre-compute Triple RSI here — reused in bucketing below (no duplicate calls)
+                        const _w4arr  = window.buildWeeklyRsiFast(scanPrices, 4,  scanDates);
+                        const _w8arr  = window.buildWeeklyRsiFast(scanPrices, 8,  scanDates);
+                        const _w14arr = window.buildWeeklyRsiFast(scanPrices, 14, scanDates);
                         const prevWr        = wRsiArr[scanPrices.length - 2] ?? 50;
                         const prevRegimeScan = prevWr >= 50 ? 'A' : prevWr >= 40 ? 'B' : 'C';
                         const isActionable =
@@ -12779,7 +12865,7 @@ categories.forEach(cat => {
     });
 </script>
     <!-- ════════════════ AI BREADTH CODE ════════════════ -->
-    <!-- LD246UAI: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
+    <!-- LD246VAI: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
     <style>
     #aiBreadthOverlay {
         position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,0.45);
@@ -12967,7 +13053,7 @@ categories.forEach(cat => {
 
     <script>
     // ════════════════════════════════════════════════════════════
-    // LD246UAI — AI BREADTH CONFIRMATION ENGINE
+    // LD246VAI — AI BREADTH CONFIRMATION ENGINE
     // Sections:
     //   1. IIFE: State + Modal API (open/close/populate)
     //   2. abpCleanAiResponse — JSON cleanup helper
@@ -13100,7 +13186,12 @@ categories.forEach(cat => {
                         : '';
                     const _ts = cached._cachedAtDisplay || cached._cachedAt?.slice(0,16).replace('T',' ') || '';
                     const _stale = _ts ? ` Last updated: ${_ts}.` : '';
-                    cacheNote.textContent = '✅ Stored analysis — zero tokens used.' + bgBadge + lockNote + _stale;
+                    const _baComp = _baGetCompleted();
+                    const _baRgmA = _baLoadRegimeA() || [];
+                    const _baCount = _baComp.length;
+                    const _baTotal = _baRgmA.length;
+                    const _baCounter = _baTotal > 0 ? ` Storage: ${_baCount}/${_baTotal} BA done today.` : '';
+                    cacheNote.textContent = '✅ Stored analysis — zero tokens used.' + bgBadge + lockNote + _stale + _baCounter;
                     cacheNote.style.color = cached._bgSource ? '#c97a00' : '#64748b';
                 }
                 _renderVerdict(cached);
@@ -13250,7 +13341,7 @@ categories.forEach(cat => {
                 return { equity: false, reason: 'Commodity fund — equity breadth not applicable.' };
             if (n.includes('[nps]') && n.includes('scheme c'))
                 return { equity: false, reason: 'NPS Scheme C is a bond fund — equity breadth not applicable.' };
-            // LD246UAI: Full 58-fund index map — covers all SEBI benchmarks in Official Benchmarks table
+            // LD246VAI: Full 58-fund index map — covers all SEBI benchmarks in Official Benchmarks table
             const map = [
                 // ── Sectoral / Thematic ──────────────────────────────────────────────────────
                 { k:'nifty it',          idx:'Nifty IT',              s:[['TCS.NS','TCS','20%'],['INFY.NS','Infosys','15%'],['HCLTECH.NS','HCL Tech','12%'],['WIPRO.NS','Wipro','10%'],['TECHM.NS','Tech Mahindra','8%']] },
@@ -13264,14 +13355,14 @@ categories.forEach(cat => {
                 { k:'india digital',     idx:'Nifty India Digital',   s:[['INFY.NS','Infosys','20%'],['TCS.NS','TCS','18%'],['PERSISTENT.NS','Persistent','14%'],['COFORGE.NS','Coforge','12%'],['MPHASIS.NS','Mphasis','10%']] },
                 { k:'india consumption', idx:'Nifty India Consumption',s:[['ITC.NS','ITC','18%'],['HINDUNILVR.NS','HUL','16%'],['NESTLEIND.NS','Nestle India','12%'],['TITAN.NS','Titan','12%'],['DMART.NS','Avenue Supermarts','10%']] },
                 { k:'india defence',     idx:'Nifty India Defence',   s:[['HAL.NS','HAL','25%'],['BEL.NS','BEL','20%'],['BDL.NS','Bharat Dynamics','18%'],['BEML.NS','BEML','14%'],['DATAPATTNS.NS','Data Patterns','10%']] },
-                // LD246UAI NEW: BSE India Infrastructure (ABSL BSE India Infrastructure - Direct)
+                // LD246VAI NEW: BSE India Infrastructure (ABSL BSE India Infrastructure - Direct)
                 { k:'india infra',       idx:'BSE India Infrastructure',s:[['LT.NS','L&T','18%'],['NTPC.NS','NTPC','14%'],['POWERGRID.NS','Power Grid','12%'],['ADANIPORTS.NS','Adani Ports','10%'],['BHEL.NS','BHEL','8%']] },
                 { k:'commodit',          idx:'Nifty Commodities',     s:[['COALINDIA.NS','Coal India','20%'],['ONGC.NS','ONGC','18%'],['HINDALCO.NS','Hindalco','14%'],['TATASTEEL.NS','Tata Steel','12%'],['JSWSTEEL.NS','JSW Steel','10%']] },
                 // ── Strategy / Factor ─────────────────────────────────────────────────────────
                 { k:'quality 30',        idx:'Nifty100 Quality 30',   s:[['TCS.NS','TCS','12%'],['INFY.NS','Infosys','10%'],['BAJFINANCE.NS','Bajaj Finance','8%'],['ASIANPAINT.NS','Asian Paints','8%'],['HCLTECH.NS','HCL Tech','7%']] },
                 { k:'value 30',          idx:'Nifty200 Value 30',     s:[['ONGC.NS','ONGC','14%'],['COALINDIA.NS','Coal India','12%'],['NMDC.NS','NMDC','10%'],['POWERGRID.NS','Power Grid','10%'],['GAIL.NS','GAIL','8%']] },
                 { k:'200 momentum 30',   idx:'Nifty200 Momentum 30',  s:[['RELIANCE.NS','Reliance','15%'],['HDFCBANK.NS','HDFC Bank','12%'],['TCS.NS','TCS','10%'],['INFY.NS','Infosys','9%'],['ICICIBANK.NS','ICICI Bank','8%']] },
-                // LD246UAI: BSE 500 Momentum 50 must precede generic '500 momentum' to avoid mismatch
+                // LD246VAI: BSE 500 Momentum 50 must precede generic '500 momentum' to avoid mismatch
                 { k:'bse 500 momentum',  idx:'BSE 500 Momentum 50',   s:[['RELIANCE.NS','Reliance','9%'],['HDFCBANK.NS','HDFC Bank','8%'],['TCS.NS','TCS','7%'],['ICICIBANK.NS','ICICI Bank','6%'],['INFY.NS','Infosys','5%']] },
                 { k:'500 momentum',      idx:'Nifty500 Momentum 50',  s:[['RELIANCE.NS','Reliance','10%'],['HDFCBANK.NS','HDFC Bank','8%'],['TCS.NS','TCS','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
                 { k:'midcap 150 mom',    idx:'Nifty Midcap150 Mom50', s:[['PERSISTENT.NS','Persistent','3%'],['COFORGE.NS','Coforge','2.5%'],['INDHOTEL.NS','Indian Hotels','2%'],['VOLTAS.NS','Voltas','2%'],['TUBEINVEST.NS','Tube Investments','1.8%']] },
@@ -13280,11 +13371,11 @@ categories.forEach(cat => {
                 { k:'fin serv ex',       idx:'Nifty Fin Serv Ex-Bank',s:[['BAJFINANCE.NS','Bajaj Finance','22%'],['SBILIFE.NS','SBI Life','14%'],['HDFCAMC.NS','HDFC AMC','12%'],['ICICIGI.NS','ICICI Lombard','10%'],['MUTHOOTFIN.NS','Muthoot Finance','8%']] },
                 { k:'500 multicap',      idx:'Nifty500 Multicap',     s:[['RELIANCE.NS','Reliance','8%'],['TCS.NS','TCS','7%'],['HDFCBANK.NS','HDFC Bank','6%'],['INFY.NS','Infosys','5%'],['ICICIBANK.NS','ICICI Bank','4%']] },
                 // ── Broad Market / Active Equity ──────────────────────────────────────────────
-                // LD246UAI NEW: Nifty 500 (HDFC/Kotak Flexi Cap) — must precede 'nifty 50' to avoid substring trap
+                // LD246VAI NEW: Nifty 500 (HDFC/Kotak Flexi Cap) — must precede 'nifty 50' to avoid substring trap
                 { k:'nifty 500',         idx:'Nifty 500',             s:[['RELIANCE.NS','Reliance','9%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
-                // LD246UAI NEW: Flexi Cap / Flexicap funds (HDFC, ICICI, Kotak) — BSE 500 & Nifty 500 proxied via Nifty 500 top-5
+                // LD246VAI NEW: Flexi Cap / Flexicap funds (HDFC, ICICI, Kotak) — BSE 500 & Nifty 500 proxied via Nifty 500 top-5
                 { k:'flexi',             idx:'Nifty 500 (Flexi Cap)',  s:[['RELIANCE.NS','Reliance','9%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
-                // LD246UAI NEW: BSE 500 (explicit key for any future BSE-500-named funds)
+                // LD246VAI NEW: BSE 500 (explicit key for any future BSE-500-named funds)
                 { k:'bse 500',           idx:'BSE 500',               s:[['RELIANCE.NS','Reliance','8%'],['TCS.NS','TCS','7%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
                 { k:'nifty 50',          idx:'Nifty 50',              s:[['RELIANCE.NS','Reliance','10%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','7%'],['ICICIBANK.NS','ICICI Bank','6%']] },
             ];
@@ -14188,6 +14279,27 @@ Return a JSON object with this exact structure:
                     💾 Save K2
                 </button>
             </div>
+            <!-- API Scan Timeout row -->
+            <div style="font-size:0.5rem;color:#404060;font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;">
+                API Scan Timing Mode
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+                <select id="ld-api-gap-select" style="flex:1;font-size:0.52rem;padding:5px 8px;border-radius:5px;
+                        border:1.5px solid #b0bece;background:#f2f5f9;color:#000;outline:none;font-family:var(--mono);">
+                    <option value="100">🐢 Slow Access — 100s gap (default, quota-safe)</option>
+                    <option value="60">Medium — 60s gap</option>
+                    <option value="30">⚡ Testing Fast — 30s gap</option>
+                    <option value="15">⚡ Testing Fast — 15s gap</option>
+                    <option value="10">⚡ Testing Fast — 10s gap</option>
+                    <option value="5">⚡ Testing Fast — 5s gap</option>
+                    <option value="3">⚡ Testing Fast — 3s gap (risk quota hit)</option>
+                </select>
+                <button id="ld-gap-save" style="background:#ffffff;color:#000;border:1.5px solid #b0bece;
+                        border-radius:5px;padding:6px 11px;font-size:0.5rem;cursor:pointer;
+                        font-family:var(--mono);font-weight:600;white-space:nowrap;">
+                    💾 Save
+                </button>
+            </div>
             <!-- Status + close row -->
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
                 <div id="ld-ai-key-status" style="font-size:0.48rem;color:#404060;flex:1;line-height:1.5;"></div>
@@ -14244,6 +14356,27 @@ Return a JSON object with this exact structure:
                 }
             });
         }
+
+        // ── API gap selector ───────────────────────────────────────
+        (function() {
+            const gapSel  = document.getElementById('ld-api-gap-select');
+            const gapSave = document.getElementById('ld-gap-save');
+            if (gapSel) {
+                const saved = localStorage.getItem('ld_api_gap_sec') || '100';
+                gapSel.value = saved;
+            }
+            if (gapSave && gapSel) {
+                gapSave.addEventListener('click', () => {
+                    localStorage.setItem('ld_api_gap_sec', gapSel.value);
+                    gapSave.textContent = '✅ Saved';
+                    gapSave.style.borderColor = '#009e70';
+                    gapSave.style.color = '#009e70';
+                    setTimeout(() => { gapSave.textContent = '💾 Save'; gapSave.style.borderColor='#b0bece'; gapSave.style.color='#000'; }, 2000);
+                    const ks = document.getElementById('ld-ai-key-status');
+                    if (ks) ks.innerHTML = `<span style="color:#fbbf24">⏱ Gap → ${gapSel.value}s. Applies on next BG scan.</span>`;
+                });
+            }
+        })();
 
         function getGeminiModel() {
             return localStorage.getItem('ld_gemini_model') || GEMINI_MODEL_DEFAULT;
@@ -15634,7 +15767,7 @@ Return a JSON object with this exact structure:
     })();
     </script>
     <!-- ═══════════════════════════════════════════════════════════════════
-         LD246UAI — BACKGROUND BREADTH PRE-FETCH ADD-ON
+         LD246VAI — BACKGROUND BREADTH PRE-FETCH ADD-ON
          ─────────────────────────────────────────────────────────────────
          Purpose : On first app-open each IST day, silently scan all 58
                    funds, identify Regime A (W-RSI ≥ 50) equity funds,
@@ -15654,11 +15787,11 @@ Return a JSON object with this exact structure:
     'use strict';
 
     // ── Constants ─────────────────────────────────────────────────────
-    const GAP_MS        = 100_000;          // 100 seconds between Gemini calls
+    const GAP_MS = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'100'); return (v>=3&&v<=100?v:100)*1000; } catch(e) { return 100000; } })();  // reads from settings
     const BOOT_DELAY_MS =   6_000;          // wait 6s for app to settle
     // RSI_PERIOD is NOT hardcoded — always reads window.userRsiLength (set on page 1 by user).
     // Falls back to 4 (app default) if not yet initialised.
-    const ADDON_VER     = 'LD246UAI-BG-v1';    const RUN_FLAG_KEY  = 'bgbreadth_ran_'; // + YYYYMMDD_IST
+    const ADDON_VER     = 'LD246VAI-BG-v1';    const RUN_FLAG_KEY  = 'bgbreadth_ran_'; // + YYYYMMDD_IST
 
     // ── IST date string ────────────────────────────────────────────────
     function _istDate() {

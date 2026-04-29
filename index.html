@@ -2144,7 +2144,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD246SAI</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD246TAI</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2566,369 +2566,13 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="sop-part sop-part-green">PART 10 — LD244W/X PHASE 1 + PHASE 2 NEW FEATURES</div>
-                <table class="sop-gap-table">
-                    <thead>
-                        <tr><th>FEATURE</th><th>WHAT CHANGED / HOW TO USE</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Regime Label Sync (Phase 1 · Fix 1)</td>
-                            <td>The RRG Alpha Dashboard now displays <strong>Hope / Watch / Fear</strong> (matching Live Cockpit and RRG Scanner). Previous versions showed A/B/C only in the dashboard box, causing confusion when cross-checking screens. All three surfaces — RRG Scanner, RRG Alpha Dashboard, Live Cockpit — are now consistent.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">C3 Momentum Swap Highlight (Phase 1 · Fix 2)</td>
-                            <td>
-                                In the Asset Allocator Trigger Monitor (Condition 3), fund names that are <em>new swap candidates</em> now appear in <strong style="color:#009e70;">bold green</strong> and are <strong>tappable</strong> — tapping opens the Live Cockpit directly for that fund.<br><br>
-                                On the home screen, the Asset Allocator button shows a <strong style="color:#009e70;">(N)</strong> counter badge when new C3 swap-candidate funds are detected on startup (e.g. "(2)" = 2 new funds to consider swapping into). The scan runs silently 4 seconds after the app loads using cached/live data.<br><br>
-                                <strong>Action:</strong> When the badge shows a number, open Asset Allocator → run Trigger Monitor → review C3 → tap the highlighted fund → execute swap per SOP (Step 4 — Switch SOP).
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">BAF Gate for NPS Tier 1 &amp; Tier 2 (Phase 1 · Fix 3)</td>
-                            <td>
-                                Condition 2 (the BAF Gate) now works correctly for <strong>NPS Tier I</strong> and <strong>NPS Tier II</strong> modes. Previously the BAF benchmark was not found for NPS funds (since they use the npsnav.in API, not mfapi.in), so C2 silently showed N/A or failed.<br><br>
-                                Fix: when you run Asset Allocator in NPS mode, the app now separately fetches the <em>same AMC's MF Balanced Advantage Fund</em> from mfapi.in and uses its 1-month return as the C2 hurdle benchmark. This gives a proper apples-to-apples comparison even though the NPS fund universe is different.<br><br>
-                                <strong>How C2 works:</strong> The selected NPS fund's 1M return must exceed the AMC's MF BAF 1M return. If BAF is outperforming your NPS equity fund, it signals the equity risk premium may not be sufficient — C2 fails, and the Trigger Monitor flags it.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Shortlisted Investments Box (Phase 1 · Fix 4)</td>
-                            <td>
-                                At the bottom of the <strong>Alert Summary page</strong>, a new section titled <em>"Shortlisted Investments — Buy as per SOP"</em> appears after every full scan.<br><br>
-                                It shows up to <strong>4 AMC boxes</strong> (one per major AMC). Each box displays the top-qualifying fund that meets <strong>all</strong> of:<br>
-                                &nbsp;&nbsp;• Regime Hope (W-RSI ≥ 50)<br>
-                                &nbsp;&nbsp;• 1-Month return &gt; BAF 1M return + 2% hurdle<br>
-                                &nbsp;&nbsp;• Not an NPS/SMTP fund<br><br>
-                                The box shows the fund name, 1M return, hurdle rate, and W-RSI / D-RSI. <strong>Tapping the box opens the Live Cockpit</strong> for that fund so you can verify signals before buying.<br><br>
-                                If no fund from an AMC qualifies, the box shows "— No qualifying fund". This section is intended as your final shortlist — verify Condition 1 (Regime), Condition 2 (BAF gate), and signal confirmation in Live Cockpit before executing.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#3b82f6;">AMC Filter Pills (Phase 2 · X-1)</td>
-                            <td>
-                                The Compare 2 Funds modal now has <strong>AMC filter pills</strong> (ALL / HDFC / ICICI / KOTAK / ABSL) above both fund dropdowns. Selecting an AMC instantly narrows both Fund A and Fund B dropdowns to that AMC's universe only — no scrolling through 58 funds.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#3b82f6;">Fund Type Filter C2 / C3 (Phase 2 · X-2)</td>
-                            <td>
-                                Three type pills in the Compare modal: <strong>ALL</strong> | <strong>C2 Asset Alloc</strong> (BAF / Balanced Advantage funds only) | <strong>C3 Momentum</strong> (equity / sectoral non-BAF, non-NPS — swap candidates). Selecting C2 with a specific AMC auto-loads that AMC's BAF as Fund A and its Flexicap as Fund B — one tap for an asset allocation comparison.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#3b82f6;">Weekly RSI Period Selector (Phase 2 · X-3)</td>
-                            <td>
-                                Three RSI-period pills in the Compare filter bar: <strong>4 / 8 / 14</strong> (default 4). The active period drives the D-RSI shown in the snapshot. All three weekly RSI values (4 / 8 / 14) are displayed simultaneously in a dedicated Go/No-Go row: <span style="color:#009e70;">●</span> filled green = W-RSI ≥ 50 (Go) · <span style="color:#c8102e;">○</span> hollow red = W-RSI &lt; 50 (No-Go).
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#3b82f6;">Date Range Growth Section (Phase 2 · X-4)</td>
-                            <td>
-                                A second section below the snapshot table accepts a <strong>From / To date range</strong>. Clicking GO renders a table showing Start NAV, End NAV, and Growth % for each fund. The winner (higher growth) is highlighted in red. Dates are snapped to the nearest actual trading day. Running GO auto-triggers the date range calc if dates are filled.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#3b82f6;">NAV Data Cache — _cmpCache (Phase 2 · X-5)</td>
-                            <td>
-                                Fund NAV data is cached in <code>_cmpCache</code> after first fetch within the Compare modal session. Switching RSI periods, re-running date range, or re-running GO does not re-fetch from the API — zero extra network calls once the fund is loaded.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#3b82f6;">6M Return Row Added (Phase 2 · X-6)</td>
-                            <td>
-                                The snapshot comparison table now shows <strong>6M %</strong> in addition to 1D / 1W / 1M / 3M / 1Y, giving a more complete momentum picture between the 3M and 1Y timeframes.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="sop-part sop-part-amber">PART 11 — LD244Y CODE AUDIT FIXES</div>
-                <table class="sop-gap-table">
-                    <thead>
-                        <tr><th>FIX ID</th><th>WHAT WAS FIXED</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="font-weight:700;color:var(--red);">FIX-Y1 · Crash Bug</td>
-                            <td>
-                                <strong>Compare Modal — _fetchCmpFund() null crash.</strong> If mfapi.in returned an error response without a <code>data</code> field (e.g. <code>{"status":"ERROR"}</code>), calling <code>.map()</code> on <code>raw.data</code> threw a TypeError and crashed the modal silently. Added null guard: <code>if (!raw?.data || !Array.isArray(raw.data)) throw new Error(…)</code> — consistent with all other fetch sites in the app.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent2);">FIX-Y2 · Code Quality</td>
-                            <td>
-                                <strong>BATCH_SIZE local shadow removed (2 scanner functions).</strong> Both <code>runRRGScanner()</code> and <code>runRegimeChangeScanner()</code> declared a local <code>const BATCH_SIZE = 6</code> that shadowed the global <code>SCANNER_BATCH_SIZE</code> constant (§3). Changing the global would have had no effect on these scanners. Both local declarations removed; all scanner loops now reference <code>SCANNER_BATCH_SIZE</code> directly.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent2);">FIX-Y3 · Robustness</td>
-                            <td>
-                                <strong>initGame() TF button — positional index replaced with text/data match.</strong> <code>tfBtns.children[6].classList.add('active')</code> was hard-coded to activate the 7th button as the 1Y default. This extends the Q-03 fix (already applied to <code>initLiveChart()</code> in LD244N) to the Simulator. Now uses <code>Array.from(tfBtns.children).find(b =&gt; b.dataset.days === '250' || b.textContent.trim() === '1Y')</code> with a positional fallback retained for safety.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent2);">FIX-Y4 · Code Quality</td>
-                            <td>
-                                <strong>openCompareModal() — redundant RSI pill reset loop removed.</strong> A second <code>rsiPills.forEach(b =&gt; b.classList.remove('cmp-pill-active'))</code> duplicated the remove that had already been executed by the loop immediately above it. Dead iteration removed.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--red);">FIX-Y5 · Security</td>
-                            <td>
-                                <strong>Compare Modal — fund names now sanitized with _s() before innerHTML.</strong> <code>nameA</code> and <code>nameB</code> were read from <code>options[selectedIndex].text</code> (which originates partly from <code>raw.meta?.fund_name</code> — an API string) and interpolated directly into <code>resEl.innerHTML</code> without escaping. Applied <code>_s()</code> wrapper at both call sites (snapshot table and date-range table) — consistent with SEC-01 applied throughout the app.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--red);">FIX-Y6 · Security</td>
-                            <td>
-                                <strong>Trigger Monitor — held2.name now sanitized with _s() before innerHTML.</strong> In <code>renderTriggerMonitor()</code>, <code>held1?.name</code> was correctly wrapped in <code>_s()</code> but <code>held2?.name</code> on the same line was not. Fixed — both held fund names are now sanitized consistently (SEC-01 extension).
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">FIX-Y7 · Performance</td>
-                            <td>
-                                <strong>ensureLiveData() — LOWESS not rebuilt on RSI-period-only change.</strong> When the user changed the RSI length input without switching funds, <code>ensureLiveData()</code> was rebuilding <code>globalLowessCache</code> unnecessarily — LOWESS is computed purely from NAV prices and is completely independent of the RSI period. The <code>buildLowessGaussianFast()</code> call is now correctly placed only in the fresh-fetch path. This eliminates one full Gaussian kernel pass (~5000 iterations) on every RSI period switch.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">FIX-Y8 · Version Hygiene</td>
-                            <td>
-                                <strong>All 6 version string surfaces updated to LD244Y.</strong> Surfaces patched: HTML header comment, File/Version line, SOP modal header badge, SOP footer note, Setup Screen clickable badge, end-of-file HTML comment. Previously 4 surfaces still read LD244W and 2 read LD244X. SOP Part 10 retitled to reflect W+X cumulative phases. SOP Part 11 (this section) added.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="sop-part sop-part-green">PART 12 — LD244z NEW FEATURES &amp; ARCHITECTURE (see Part 13 for LD245)</div>
-                <table class="sop-gap-table">
-                    <thead><tr><th>FEATURE</th><th>WHAT IT DOES &amp; HOW TO USE IT</th></tr></thead>
-                    <tbody>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Home Screen Hero Grid</td>
-                            <td>Four primary actions occupy the top of Page 1 in a 2×2 grid: 🚨 <strong>ALERTS</strong> · 📌 <strong>WATCHLIST</strong> · 📈 <strong>LIVE MARKET</strong> · 🎮 <strong>SIMULATION</strong>. Equal height and visual weight — these are the daily-use actions.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">SIP Config Modal</td>
-                            <td>Tapping <em>📅 START SIP SIMULATION</em> on Page 1 opens a setup modal: Amount (₹) · Mode (Weekly / AutoBuy Slingshot) · Day of Week (1–5, hidden in AutoBuy mode). AutoBuy purchases on every Slingshot signal (Δ &lt; −15); Weekly purchases a fixed amount on the chosen weekday.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#a855f7;">📌 Investment Switch Bridge</td>
-                            <td>
-                                New section at the bottom of the Watchlist modal. Six boxes in three rows:<br>
-                                <strong>Row 1:</strong> ABSL | Kotak &nbsp;&nbsp; <strong>Row 2:</strong> ICICI | HDFC &nbsp;&nbsp; <em>── NPS Schemes ──</em> &nbsp;&nbsp; <strong>Row 3:</strong> NPS Tier 1 | NPS Tier 2<br><br>
-                                Populated when you run the Asset Allocator for that AMC / account type. Each box shows fund name, switch date, 1M return, wRSI, regime, latest simulator alert, and P&amp;L since switch. <strong>Tapping a box</strong> launches a custom simulation from the recorded switch date, positioned at the latest bar in 3M view on a clean analytics slate.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#a855f7;">Live Bridge (was Max DD)</td>
-                            <td>The simulator header centre box is now <strong>Live Bridge</strong> (purple, tappable). Tap to open Watchlist / Switch Bridge. Value = aggregate P&amp;L % across all active AMC positions, refreshed every 5 minutes. Falls back to Max Drawdown display when no positions are active.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#00916e;">Switch Journal — Mobile Backup</td>
-                            <td>All switch entries, alerts, and P&amp;L data persist in <code>ld_switch_journal</code>. <strong>⬇ EXPORT JSON</strong> downloads a dated backup file. <strong>⬆ IMPORT JSON</strong> restores it — all six bridge boxes repopulate immediately. Use after clearing browser storage or switching devices.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--gold);">NPS PFM Recommendation</td>
-                            <td>Each NPS bridge box shows a <strong>PFM Target</strong> derived from the current live regime (no polling): <span style="color:#00916e;">Hope → HDFC Pension</span> · <span style="color:#b45309;">Watch → Kotak Pension</span> · <span style="color:#c8102e;">Fear → ICICI Pension</span>. Updates every time the Watchlist modal opens.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--gold);">Decoupled State Architecture</td>
-                            <td>
-                                <strong>AllocatorState</strong> (<code>ld_v3_last_alloc_top2</code>) is written only by the month-end backtest loop — never by SWITCH NOW. M-box performance history is a pure mechanical record, free of hindsight bias.<br><br>
-                                <strong>LivePortfolioState</strong> (<code>ld_live_portfolio</code>) is written by SWITCH NOW. The Trigger Monitor's C3 comparison uses this state — not the backtest — so C3 correctly measures whether an unowned fund outperforms what you actually hold today.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent2);">T+2 Settlement Cycle</td>
-                            <td>
-                                SWITCH NOW sets status = <code>pending_settlement</code>. Settle date = today + 2 trading days (Sat/Sun skipped). During settlement: C3 badge suppressed for that slot; Trigger Monitor shows <em>⏳ T+2 SETTLING: {Fund} — clears {date}</em>. On the settle date the app auto-promotes the slot to <code>active</code> — no manual action needed. Prevents immediate C3 re-trigger for a fund still in transit.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--red);">C3 Threshold 3% → 2%</td>
-                            <td>Conditions C3a and C3b now trigger when an unowned fund outperforms the held fund by more than <strong>2%</strong> on 1M return (reduced from 3%). This makes the Momentum Swap signal more responsive to early trend divergence.</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="sop-part sop-part-green">PART 13 — LD245 FIXES &amp; IMPROVEMENTS</div>
-                <table class="sop-table">
-                    <thead>
-                        <tr>
-                            <th style="width:38%">Change</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Alert Summary — NPS Boxes Visible</td>
-                            <td>NPS TIER 1 and NPS TIER 2 Shortlisted boxes now appear below the 4 AMC boxes in the Shortlisted Investments section. Previously these were absent, giving the impression the bottom of the list was cut off on mobile. NPS equity funds in Regime Hope are now correctly surfaced. Gap between the 9 accordion alert buttons reduced from 6px to 3px for tighter layout on small screens.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Watchlist — Refresh All / Clear Button Size</td>
-                            <td>The REFRESH ALL and CLEAR buttons at the bottom of the Watchlist modal now have equal flex (1:1), matching the width of the AMC and NPS bridge boxes above them. Height set to min-height 44px for easier thumb-tap on mobile. CLEAR button now shows 🗑 icon for clarity.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--red);">Regime Sync — Live Market ↔ RRG Scanner</td>
-                            <td>RRG Leading / Improving Scanner now stores regime as <strong>A / B / C</strong> (same as Live Market engine) instead of 'Hope / Watch / Fear'. The <code>makeRow()</code> renderer was already checking for A/B/C, so previously every fund in the scanner showed 'Fear' regime badge regardless of actual regime. Now correctly colour-coded: Hope = green, Watch = gold, Fear = red.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Fund Comparison — Dropdown Filters</td>
-                            <td>AMC filter and Fund Type filter converted from pill buttons to <code>&lt;select&gt;</code> dropdowns for compact mobile layout. Default AMC = All, Default Type = <strong>C3 Momentum</strong>. An <strong>NPS Only</strong> option added to AMC dropdown to filter exclusively NPS schemes.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Fund Comparison — NPS in C2 &amp; C3 Lists</td>
-                            <td>NPS funds are now included in both C2 and C3 comparison pools. C3 filter no longer excludes <code>[NPS]</code>-tagged funds — all NPS equity and bond schemes appear as momentum swap candidates. C2 additionally includes NPS Scheme E (Equity) funds as Asset Allocation equivalents. Final verification: all C2 and C3 NPS funds are available for comparison in both dropdowns.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--muted);">Version Updated to LD245</td>
-                            <td>All 6 visible version surfaces updated: HTML header comment, File/Version line, SOP modal badge, SOP footer note, Setup Screen clickable badge, end-of-file comment.</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="sop-part sop-part-green">PART 14 — LD246SAI: AI BREADTH CONFIRMATION (UPDATED)</div>
-                <table class="sop-table">
-                    <thead><tr><th>Feature</th><th>What Changed / How to Use</th></tr></thead>
-                    <tbody>
-                        <tr>
-                            <td style="font-weight:700;color:#7c3aed;">✨ AI Breadth Button — Alert Summary (per fund)</td>
-                            <td>Each qualifying fund box in the <strong>Shortlisted Investments</strong> section (both AMC and NPS boxes) now has a one-tap <strong>✨ AI Breadth Check</strong> button. Tapping it opens the AI Breadth Confirmation panel pre-loaded with that fund's name, W-RSI, D-RSI, and regime — no manual entry required. The AI query is scoped exclusively to the selected fund.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#7c3aed;">✨ AI CHECK — Live Cockpit Header</td>
-                            <td>A <strong>✨ AI CHECK</strong> button now appears in the Live Cockpit header bar (next to ANALYTICS). It reads the fund currently loaded in the cockpit — name from the fund selector, W-RSI and D-RSI from the live indicator cells — and opens the AI Breadth panel pre-populated for that exact fund. No context switching required.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#7c3aed;">AI Breadth Modal — Fund-Scoped Analysis</td>
-                            <td>The bottom-sheet modal shows the fund's regime, W-RSI, and D-RSI at the top for quick gate-check verification. The AI assesses the <strong>top 5 Nifty 50 stocks by weightage</strong> (Reliance, HDFC Bank, ICICI Bank, Infosys, TCS) on 14-day price trend and MA20 position. Verdict: <strong>≥3/5 BULL = CONFIRMED</strong> · 2/5 = CAUTION (halve tranche) · ≤1/5 = WEAK (do not deploy). Individual stock cards show trend, MA20 status, and a one-line note. AI reasoning is calibrated to the specific fund's regime context.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#7c3aed;">Token Architecture — Zero Waste</td>
-                            <td>The AI is called <strong>once per tap</strong> with a compact, fund-specific prompt (~400 tokens). The app handles all gate analysis (W-RSI, TSL, NC, Concentration Guard, signal confirmation) before the AI is invoked. AI role is confirmation only — macro breadth as a final deployment filter. Uses the existing Gemini API key stored in the app — no new key required. A <strong>Run Again</strong> button allows a fresh call without reopening the modal.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246SAI</td>
-                            <td>All 4 version surfaces updated: SOP modal header badge, SOP footer note, Setup Screen clickable badge, switch journal version string. SOP Part 14 (this section) added.</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="sop-part sop-part-green">PART 15 — LD246SAI: INDEX MAP EXPANSION + SACRED RSI PROMPT UPGRADE</div>
-                <table class="sop-table">
-                    <thead><tr><th>Feature</th><th>What Changed / How to Use</th></tr></thead>
-                    <tbody>
-                        <tr>
-                            <td style="font-weight:700;color:#7c3aed;">📋 Index Map — Full 58-Fund Coverage</td>
-                            <td>The <code>_abpGetStocks</code> index map now covers <strong>all 58 funds</strong> from the Official SEBI Benchmarks table (HDFC, ICICI, Kotak, ABSL — Active Equity, Index, NPS). New entries added: <strong>BSE India Infrastructure</strong> (L&T, NTPC, Power Grid, Adani Ports, BHEL), <strong>BSE 500 Momentum 50</strong> (explicit key before generic 500-momentum to prevent mismatch), <strong>BSE 500</strong> (broad market proxy), <strong>Nifty 500</strong> (added before Nifty 50 to prevent substring trap), and <strong>Flexi Cap</strong> key (catches HDFC Flexi Cap, ICICI Flexicap, Kotak Flexicap — all mapped to Nifty 500 top-5). Total unique index entries: 27.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#7c3aed;">🔍 Sacred RSI Lie Detector Prompt — Upgraded</td>
-                            <td>The AI Breadth prompt now embeds the full <strong>Sacred RSI Regime</strong> framework: Regime A/B/C definitions, the Sacred Rule (true compounders don't stay below W-RSI 40), the Divergence Lie Detector (rising price + falling RSI = Cosmetic Growth), and the Psychology Filter (price moves first). The AI is now explicitly instructed to flag RSI lies, earnings divergence, and cosmetic growth — not just interpret breadth. Weekly RSI method is stated (TradingView: 13 locked Friday closes + live price as 14th period). STRICT RULE: no hallucinations, actual data only.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#7c3aed;">🛡 Substring Collision Fix</td>
-                            <td>"Nifty 500" funds (HDFC Flexi Cap, Kotak Flexicap) were previously falling through to the default Nifty 50 proxy because 'nifty 50' matched first. Fixed by placing 'nifty 500' and 'flexi' entries <strong>above</strong> 'nifty 50' in the map. Similarly, 'bse 500 momentum' is placed above the generic '500 momentum' key to prevent BSE momentum funds from being classified as Nifty500 Momentum. Map order is now precision-first, broad-last.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#7c3aed;">🔄 3-Layer Data Pipeline — Yahoo → Stooq → Gemini Search</td>
-                            <td>
-                                <strong>Problem:</strong> Yahoo Finance CORS blocks browser fetches intermittently — leaving W-RSI as "unavailable" and breaking regime classification.<br><br>
-                                <strong>Pass 1 — Yahoo Finance</strong> (fast, direct): Fetches 22 weeks of weekly closes via <code>query1.finance.yahoo.com</code>. 14-week Wilder RSI calculated locally in browser. Timeout: 6s per stock.<br><br>
-                                <strong>Pass 1B — Stooq.com</strong> (CSV fallback): For any stock that fails Pass 1, Stooq is tried immediately. Stooq serves weekly OHLC as plain CSV with no Cloudflare protection and no API key. Ticker format: same as Yahoo (e.g. <code>reliance.ns</code>). CSV is newest-first so rows are reversed before RSI calc. Timeout: 8s.<br><br>
-                                <strong>Pass 2 — Gemini google_search</strong> (last resort): Only fires if ≥3 stocks are still unavailable after both Pass 1 and Pass 1B. Gemini is asked to search the web for current 14-week W-RSI, 2-week trend, and regime. Results merged back into stock array before final Sacred RSI analysis call.<br><br>
-                                <strong>Loading status</strong> updates at each pass so you can see exactly which layer is active and where data came from.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246SAI</td>
-                            <td>All 8 version surfaces updated: HTML header comment, File/Version line, SOP modal header badge, SOP footer note, Setup Screen clickable badge, JS version string, AI Breadth code comment, end-of-file HTML comment. SOP Parts 15 (this section) added.</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="sop-part sop-part-green">PART 18 — LD246SAI: LAZY LOAD + 24-HOUR BREADTH CACHE (QUOTA PROTECTION)</div>
-                <table class="sop-table">
-                    <thead><tr><th style="width:34%">Change</th><th>Detail</th></tr></thead>
-                    <tbody>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Why the "Every 2 Min" Pattern Was Fatal</td>
-                            <td>MF/NPS NAVs update once daily (9–11:30 PM IST). Weekly RSI cannot swing between regimes in minutes. Polling 5 funds every 2 min = 150 API calls/hour — instant Free Tier lockout. The app never had a background interval, but had no cache protection either: every tap fired a fresh Gemini call.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Lazy Load + 24-Hour Cache Architecture</td>
-                            <td>Cache key: <code>breadth_v1_{fundCode}_{YYYYMMDD}</code> (IST calendar day). On modal open: if today's cache exists → render instantly from localStorage, zero API tokens used. If no cache → show first-run CTA. Cache resets at IST midnight automatically (date embedded in key). Guaranteed: max 1 Gemini call per fund per calendar day.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Smart Button States</td>
-                            <td>First open (no cache): button shows <strong>▶ Run Breadth Analysis (1 API call)</strong> in green. After analysis: button changes to <strong>🔄 Refresh (uses 1 API token)</strong> in slate — visual friction to prevent accidental re-runs. Cache note line below button tells the user exactly what's happening (⚡ no cache / ✅ cached / ⏳ running).</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">prompt() Removed</td>
-                            <td>The old <code>prompt()</code> fallback for missing API key is gone. If no key is saved, the cache note shows a red message directing user to 🔐 in the System Brain Auditor. No browser dialogs anywhere.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#7c3aed;">Quota Maths Post-Fix</td>
-                            <td>With 10 funds in your universe and daily NAV updates: max 10 Gemini calls per day total, regardless of how many times you open the modal. Free Tier (1,500 calls/day on Gemini Flash) is never threatened. Refresh is always available but requires a conscious tap on the slate button.</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="sop-table">
-                    <thead><tr><th style="width:34%">Change</th><th>Detail</th></tr></thead>
-                    <tbody>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Full Audit Guidelines Preamble</td>
-                            <td>The AI Breadth prompt now opens with the complete Lie Detector ruleset: Sacred Rule (true compounders never stay below W-RSI 40), Divergence Check (price new high + lower RSI high = Cosmetic Growth), and Psychology Filter ("Price moves first; earnings explanations come later").</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Full 8-Column Stock Table (Section 1)</td>
-                            <td>AI now returns all planned columns per stock: Stock Name | NAV/Price (₹) | Daily RSI (14) | Weekly RSI (14) | WMA20 (₹) | Price vs 20WMA (ABOVE/BELOW) | Regime (A/B/C) | 2W Trend | Action | Recommendation. Previously, only W-RSI, Trend, and Regime were returned.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Divergence &amp; Psychology Alert (Section 3)</td>
-                            <td>AI now explicitly outputs a Divergence Alert flagging "Cosmetic Growth" (price rising + RSI diverging), and a Psychology Audit with a "Lookout for…" warning tailored to the current regime. Both render in the reasoning panel with distinct colour coding (amber for divergence, purple for psychology).</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Broad Market Regime A Scan (Section 4)</td>
-                            <td>AI now scans ALL major Nifty broad market, sectoral, and strategy indices (Nifty 50, Bank, IT, Auto, Pharma, Realty, Midcap 150, Smallcap 250, FMCG, Metal, Energy, Infra, PSU Bank, Fin Services, Defence, EV, Consumption, Quality 30, Value 30, Momentum 30, etc.) and lists only those in Regime A in a clean table: Index | W-RSI | 2W Trend | Signal.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Richer JSON Schema</td>
-                            <td>Response JSON now includes: <code>price</code>, <code>daily_rsi</code>, <code>weekly_rsi</code>, <code>wma20</code>, <code>price_vs_wma20</code>, <code>action</code>, <code>recommendation</code> per stock, plus top-level <code>divergence_alert</code>, <code>psychology_audit</code>, and <code>broad_market_regime_a[]</code> array.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Render Engine Upgraded</td>
-                            <td>_renderStocks() replaced card grid with a scrollable 11-column table. _renderReasoning() now renders three distinct panels: Divergence Alert, Psychology Audit, Breadth Context, and the full Broad Market Regime A scan table — all colour-coded (green/amber/red/purple).</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="sop-table">
-                    <thead><tr><th style="width:34%">Change</th><th>Detail</th></tr></thead>
-                    <tbody>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Dual API Key System</td>
-                            <td>Two Gemini API keys (K1 Primary + K2 Backup) can now be stored in localStorage. On any 429 quota error, the app automatically switches to K2 without user intervention. The loading indicator updates to show the key shift. Both keys are managed from a single panel.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">🔐 Key Manager Panel</td>
-                            <td>Tapping 🔐 in the System Brain Auditor header opens an inline panel (white background, black text) between the header and chat area. K1 and K2 each have a separate input and Save button. Buttons start white/black, turn solid green immediately on successful save. Re-opening the panel shows green buttons for any already-saved key — user can always paste a new key to replace.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">Removed Duplicate Key Buttons</td>
-                            <td>The "Change Gemini API Key" button and expandable box inside the AI Breadth Confirmation modal have been removed. All key management is now centralised in the 🔐 button in the System Brain Auditor panel. The JS functions <code>toggleAbpApiBox()</code> and <code>saveAbpApiKey()</code> have also been removed.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:var(--accent);">JS Execution Order Fix</td>
-                            <td>Previous versions had a silent ReferenceError: <code>window.openKeyBox</code> was assigned before <code>openKeyBox</code> was declared, causing the button to be frozen. All function definitions now precede their <code>window.*</code> exports and <code>addEventListener</code> wiring.</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:700;color:#7c3aed;">Version Updated to LD246SAI</td>
-                            <td>All version surfaces updated: SOP modal header badge, SOP footer note, Setup Screen clickable badge, JS version string, AI Breadth code comment. SOP Part 16 (this section) added.</td>
-                        </tr>
-                    </tbody>
-                </table>
                 <div class="sop-oneliner">
                     "Buy Regime Hope dips in the strongest RRG fund.&nbsp; Hold until TSL or Regime Fear.&nbsp;
                     Rotate via Asset Allocator Trigger Monitor.&nbsp; Never buy in B or C.&nbsp;
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD246SAI &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD246TAI &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2940,7 +2584,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246SAI 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246TAI 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -3251,6 +2895,11 @@ border-bottom:1px solid var(--border);"></div>
                         <span class="label-sm">Regime</span>
                         <div id="liveRegimeBlock" class="ind-val">--</div>
                         <div id="liveRegimeSince" style="font-size:0.44rem;color:var(--muted);margin-top:1px;font-family:var(--mono);letter-spacing:0.06em;">--</div>
+                    </div>
+                    <div class="ind-box" style="flex:1.0;" title="Triple RSI Confluence: W-RSI(4), W-RSI(8), W-RSI(14) — all ≥50 = High Conviction BUY">
+                        <span class="label-sm">Conviction</span>
+                        <div id="liveConviction" class="ind-val" style="font-size:0.65rem;">--</div>
+                        <div id="liveConvictionSub" style="font-size:0.40rem;color:var(--muted);margin-top:1px;font-family:var(--mono);">W4·W8·W14</div>
                     </div>
                 </div>
                 <div class="psy-box">
@@ -3689,6 +3338,11 @@ border-radius:var(--radius);padding:6px 9px;">
                         <div class="ind-box" style="flex:1.4;">
                             <span class="label-sm">Regime</span>
                             <div id="regimeBlock" class="ind-val">--</div>
+                        </div>
+                        <div class="ind-box" style="flex:1.0;" title="Triple RSI Confluence: W-RSI(4), W-RSI(8), W-RSI(14) — all ≥50 = High Conviction BUY">
+                            <span class="label-sm">Conviction</span>
+                            <div id="simConviction" class="ind-val" style="font-size:0.65rem;">--</div>
+                            <div id="simConvictionSub" style="font-size:0.40rem;color:var(--muted);margin-top:1px;font-family:var(--mono);">W4·W8·W14</div>
                         </div>
                     </div>
                     <div class="psy-box">
@@ -4819,7 +4473,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD246SAI', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD246TAI', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -5656,12 +5310,30 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const w8  = _w8arr.length  ? Math.round(_w8arr[_last])  : null;
                         const w14 = _w14arr.length ? Math.round(_w14arr[_last]) : null;
 
-                        // Conviction
+                        // Conviction — Triple RSI Confluence
                         const aligned = [w4, w8, w14].filter(v => v !== null && v >= 50).length;
                         const conviction = (w4 === null) ? 'N/A'
                             : aligned === 3 ? 'HIGH — all 3 periods ≥50'
                             : aligned === 2 ? 'MEDIUM — 2 of 3 ≥50'
                             : 'LOW — majority <50';
+                        // Update Conviction indicator box
+                        const _convEl  = document.getElementById('liveConviction');
+                        const _convSub = document.getElementById('liveConvictionSub');
+                        if (_convEl) {
+                            if (aligned === 3) {
+                                _convEl.textContent = '★★★ HIGH';
+                                _convEl.style.color = 'var(--accent)';
+                            } else if (aligned === 2) {
+                                _convEl.textContent = '★★☆ MED';
+                                _convEl.style.color = 'var(--accent2)';
+                            } else {
+                                _convEl.textContent = '★☆☆ LOW';
+                                _convEl.style.color = 'var(--red)';
+                            }
+                        }
+                        if (_convSub) _convSub.textContent = `W4:${w4??'?'} W8:${w8??'?'} W14:${w14??'?'}`;
+                        // Export to global LD_AUDITOR_STATE.tripleRsi for AI context
+                        window._tripleRsiAligned = aligned;
 
                         // Crossover (last 6 bars of w4)
                         let crossover = 'STABLE';
@@ -5706,6 +5378,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             tslVal, tslHit,
                             wma20: wma20 ? parseFloat(wma20.toFixed(2)) : null,
                             w4, w8, w14,
+                            tripleRsiAligned: aligned,       // 0-3: how many of W4/W8/W14 are ≥50
                             conviction,
                             crossover,
                             pcAlert: snap.pcAlert || false,
@@ -5798,7 +5471,10 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     alertText = '🚨 NC BREAKDOWN ➔ DO NOT BUY';
                     alertClass = 'alert-danger';
                 } else if (snap.regime === 'A') {
-                    if (snap.pcAlert) {
+                    if (window._tripleRsiAligned === 3) {
+                        alertText = `🔥 TRIPLE RSI CONFLUENCE W4·W8·W14 ≥50 ➔ HIGH CONVICTION BUY`;
+                        alertClass = 'alert-buy';
+                    } else if (snap.pcAlert) {
                         alertText = `🟢 PC BREAKOUT ➔ BUY TRANCHE`;
                         alertClass = 'alert-buy';
                     } else if (snap.drsi < 40) {
@@ -7298,6 +6974,27 @@ ${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' 
                 rB.className = 'ind-val ' +
                     (snap.regime === 'A' ? 'reg-A' : snap.regime === 'B' ? 'reg-B' : 'reg-C');
                 rB.textContent = snap.regime==='A'?'Regime Hope':snap.regime==='B'?'Regime Watch':'Regime Fear';
+                // Triple RSI Confluence — compute w4, w8, w14 from historical data at currentIdx
+                let _simAligned = 0;
+                try {
+                    const _simNavSlice  = _cachedSimNavs.slice(0, currentIdx + 1);
+                    const _simDateSlice = fullHistory.slice(0, currentIdx + 1).map(d => d.date);
+                    const _sw4  = window.buildWeeklyRsiFast ? window.buildWeeklyRsiFast(_simNavSlice, 4,  _simDateSlice) : [];
+                    const _sw8  = window.buildWeeklyRsiFast ? window.buildWeeklyRsiFast(_simNavSlice, 8,  _simDateSlice) : [];
+                    const _sw14 = window.buildWeeklyRsiFast ? window.buildWeeklyRsiFast(_simNavSlice, 14, _simDateSlice) : [];
+                    const _sv4  = _sw4.length  ? Math.round(_sw4[_sw4.length-1])   : null;
+                    const _sv8  = _sw8.length  ? Math.round(_sw8[_sw8.length-1])   : null;
+                    const _sv14 = _sw14.length ? Math.round(_sw14[_sw14.length-1]) : null;
+                    _simAligned = [_sv4, _sv8, _sv14].filter(v => v !== null && v >= 50).length;
+                    const _scEl  = document.getElementById('simConviction');
+                    const _scSub = document.getElementById('simConvictionSub');
+                    if (_scEl) {
+                        if (_simAligned === 3) { _scEl.textContent='★★★ HIGH'; _scEl.style.color='var(--accent)'; }
+                        else if (_simAligned === 2) { _scEl.textContent='★★☆ MED'; _scEl.style.color='var(--accent2)'; }
+                        else { _scEl.textContent='★☆☆ LOW'; _scEl.style.color='var(--red)'; }
+                    }
+                    if (_scSub) _scSub.textContent = `W4:${_sv4??'?'} W8:${_sv8??'?'} W14:${_sv14??'?'}`;
+                } catch(_tErr) {}
                 document.getElementById('cashVal').textContent =
                     `₹${Math.round(cash).toLocaleString('en-IN')}`;
                 document.getElementById('nwVal').textContent =
@@ -7325,7 +7022,10 @@ ${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' 
                         alertText = `🟢 REGIME WATCH BREAKOUT ➔ BUY ZONE`;
                         alertClass = 'alert-buy';
                     } else if (snap.regime === 'A') {
-                        if (snap.pcAlert) {
+                        if (_simAligned === 3) {
+                            alertText = `🔥 TRIPLE RSI CONFLUENCE W4·W8·W14 ≥50 ➔ HIGH CONVICTION BUY`;
+                            alertClass = 'alert-buy';
+                        } else if (snap.pcAlert) {
                             alertText = `🟢 PC BREAKOUT ➔ BUY TRANCHE`;
                             alertClass = 'alert-buy';
                         } else if (snap.drsi < 40) {
@@ -7374,7 +7074,11 @@ ${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' 
                         `<div class='psy-line'>1. SELL 20% to lock in partial discipline.</div>` +
                         `<div class='psy-line'>2. CANCEL all pending BUY orders.</div>`;
                 } else if (snap.regime === 'A') {
-                    if (snap.pcAlert || snap.drsi < 40 || snap.delta < BUY_DELTA_LEVEL) {
+                    if (_simAligned === 3) {
+                        psyText = `<div class='psy-line'>🔥 PROTOCOL: TRIPLE RSI CONFLUENCE</div>` +
+                            `<div class='psy-line'>1. W-RSI(4), W-RSI(8), W-RSI(14) all ≥50. Maximum conviction.</div>` +
+                            `<div class='psy-line'>2. Deploy maximum tranche size per SOP. Set TSL below entry.</div>`;
+                    } else if (snap.pcAlert || snap.drsi < 40 || snap.delta < BUY_DELTA_LEVEL) {
                         psyText = `<div class='psy-line'>🟢 PROTOCOL: CAPITAL DEPLOYMENT</div>` +
                             `<div class='psy-line'>1. Buy 10-25% tranche (Signal Confirmed).</div>` +
                             `<div class='psy-line'>2. Verify TSL floor is set below entry.</div>`;
@@ -12877,7 +12581,7 @@ categories.forEach(cat => {
     });
 </script>
     <!-- ════════════════ AI BREADTH CODE ════════════════ -->
-    <!-- LD246SAI: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
+    <!-- LD246TAI: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
     <style>
     #aiBreadthOverlay {
         position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,0.45);
@@ -12996,6 +12700,8 @@ categories.forEach(cat => {
     .abp-tbl tbody tr:nth-child(odd)  { background:#ffffff; }
     .abp-tbl tbody td { padding:7px 6px;text-align:center;color:#000;border-bottom:1px solid #e8edf2;font-size:0.68rem; }
     .abp-tbl tbody td:first-child { text-align:left;padding-left:8px;font-weight:700; }
+    .abp-tbl tbody tr.recommendation-row { background:#f8faff!important; }
+    .abp-tbl tbody tr.recommendation-row td { border-bottom:2px solid #e0e4f4;padding:4px 8px 5px 10px; }
     .abp-tbl-green { color:#009e70!important;font-weight:800; }
     .abp-tbl-orange{ color:#c97a00!important;font-weight:800; }
     .abp-tbl-red   { color:#c8102e!important;font-weight:800; }
@@ -13063,7 +12769,7 @@ categories.forEach(cat => {
 
     <script>
     // ════════════════════════════════════════════════════════════
-    // LD246SAI — AI BREADTH CONFIRMATION ENGINE
+    // LD246TAI — AI BREADTH CONFIRMATION ENGINE
     // Sections:
     //   1. IIFE: State + Modal API (open/close/populate)
     //   2. abpCleanAiResponse — JSON cleanup helper
@@ -13112,6 +12818,54 @@ categories.forEach(cat => {
         }
 
         // ════════════════════════════════════════════════════════════
+        // §2d  DAILY BA LOCK + PARTIAL COMPLETION TRACKING
+        //      BA_completed_today  → skip entire BA if all funds done
+        //      completed_funds[]   → resume from pending on partial run
+        // ════════════════════════════════════════════════════════════
+        function _istDateBA() {
+            const now = new Date(Date.now() + 5.5 * 60 * 60 * 1000);
+            return now.toISOString().slice(0,10).replace(/-/g,'');
+        }
+        const BA_LOCK_KEY       = () => `ba_completed_today_${_istDateBA()}`;
+        const BA_COMPLETED_KEY  = () => `ba_completed_funds_${_istDateBA()}`;
+        const BA_REGIMEA_KEY    = () => `ba_regimeA_funds_${_istDateBA()}`;
+
+        // True if ALL Regime A funds were processed today
+        function _baIsLockedToday()  {
+            try { return localStorage.getItem(BA_LOCK_KEY()) === 'true'; } catch { return false; }
+        }
+        function _baSetLock()        {
+            try { localStorage.setItem(BA_LOCK_KEY(), 'true'); } catch {}
+        }
+
+        // Save one completed fund code into the daily array
+        function _baMarkFundDone(fundCode) {
+            try {
+                const raw  = localStorage.getItem(BA_COMPLETED_KEY());
+                const list = raw ? JSON.parse(raw) : [];
+                if (!list.includes(fundCode)) { list.push(fundCode); }
+                localStorage.setItem(BA_COMPLETED_KEY(), JSON.stringify(list));
+            } catch {}
+        }
+        function _baGetCompleted() {
+            try {
+                const raw = localStorage.getItem(BA_COMPLETED_KEY());
+                return raw ? JSON.parse(raw) : [];
+            } catch { return []; }
+        }
+        function _baIsFundDone(fundCode) {
+            return _baGetCompleted().includes(fundCode);
+        }
+
+        // Store today's Regime A list from the BA side (used for on-open display)
+        function _baSaveRegimeA(fundList) {
+            try { localStorage.setItem(BA_REGIMEA_KEY(), JSON.stringify(fundList)); } catch {}
+        }
+        function _baLoadRegimeA() {
+            try { const r = localStorage.getItem(BA_REGIMEA_KEY()); return r ? JSON.parse(r) : null; } catch { return null; }
+        }
+
+        // ════════════════════════════════════════════════════════════
         // §2c  SMART OPEN — check cache, update button state
         // ════════════════════════════════════════════════════════════
         window.openAIBreadthModal = function(fund) {
@@ -13120,30 +12874,55 @@ categories.forEach(cat => {
             _populateFundMeta(fund);
             document.getElementById('abpFundTag').textContent = fund.name || fund.code;
 
-            // Check if today's cache exists
-            const cached = _cacheLoad(fund.code || fund.name);
-            const runBtn = document.getElementById('abpRunBtn');
-            const runLbl = document.getElementById('abpRunBtnLabel');
+            const fundCode  = fund.code || fund.name;
+            const cached    = _cacheLoad(fundCode);
+            const runBtn    = document.getElementById('abpRunBtn');
+            const runLbl    = document.getElementById('abpRunBtnLabel');
             const cacheNote = document.getElementById('abpCacheNote');
 
+            // ── DAILY LOCK: if all Regime A funds done today, disable Run btn ──
+            const isLocked   = _baIsLockedToday();
+            const isFundDone = _baIsFundDone(fundCode);
+
             if (cached) {
-                // Show cached result immediately — no API call
-                runLbl.textContent = '🔄 Refresh (uses 1 API token)';
-                runBtn.style.background = '#334155';
+                runLbl.textContent = isLocked
+                    ? '✅ All funds analysed today — no API calls needed'
+                    : '🔄 Refresh (uses 1 API token)';
+                runBtn.style.background = isLocked ? '#1e3a2f' : '#334155';
+                runBtn.disabled = isLocked;           // Lock Run button if daily BA done
+
                 if (cacheNote) {
                     cacheNote.style.display = 'block';
-                    cacheNote.textContent = '✅ Showing today\'s cached analysis — zero tokens used. Tap Refresh to re-run.';
+                    const lockNote  = isLocked  ? ' 🔒 Daily BA complete — no further calls today.' : '';
+                    const bgBadge   = cached._bgSource
+                        ? ' ⚡ Auto-cached (estimates) — Refresh for full analysis.'
+                        : '';
+                    cacheNote.textContent = '✅ Stored analysis — zero tokens used.' + bgBadge + lockNote;
+                    cacheNote.style.color = cached._bgSource ? '#c97a00' : '#64748b';
                 }
                 _renderVerdict(cached);
                 _renderStocks(cached.stocks);
                 _renderReasoning(cached.reasoning, cached);
                 document.getElementById('abpLoading').classList.remove('visible');
-            } else {
-                // No cache — show first-run CTA
-                runLbl.textContent = '▶ Run Breadth Analysis (1 API call)';
-                runBtn.style.background = '#009e70';
+
+            } else if (isLocked) {
+                // BA locked but no cache for this fund — it wasn't Regime A today
+                runBtn.disabled = true;
+                runBtn.style.background = '#1e293b';
+                runLbl.textContent = '🔒 Not in Regime A today';
                 if (cacheNote) {
                     cacheNote.style.display = 'block';
+                    cacheNote.textContent = '🔒 Daily BA complete. This fund was not in Regime A today — no analysis needed.';
+                    cacheNote.style.color = '#475569';
+                }
+            } else {
+                // No cache, no lock — first run CTA
+                runLbl.textContent = '▶ Run Breadth Analysis (1 API call)';
+                runBtn.style.background = '#009e70';
+                runBtn.disabled = false;
+                if (cacheNote) {
+                    cacheNote.style.display = 'block';
+                    cacheNote.style.color = '#64748b';
                     cacheNote.textContent = '⚡ No cache for today. Tap above to run — result saves for 24h.';
                 }
             }
@@ -13268,7 +13047,7 @@ categories.forEach(cat => {
                 return { equity: false, reason: 'Commodity fund — equity breadth not applicable.' };
             if (n.includes('[nps]') && n.includes('scheme c'))
                 return { equity: false, reason: 'NPS Scheme C is a bond fund — equity breadth not applicable.' };
-            // LD246SAI: Full 58-fund index map — covers all SEBI benchmarks in Official Benchmarks table
+            // LD246TAI: Full 58-fund index map — covers all SEBI benchmarks in Official Benchmarks table
             const map = [
                 // ── Sectoral / Thematic ──────────────────────────────────────────────────────
                 { k:'nifty it',          idx:'Nifty IT',              s:[['TCS.NS','TCS','20%'],['INFY.NS','Infosys','15%'],['HCLTECH.NS','HCL Tech','12%'],['WIPRO.NS','Wipro','10%'],['TECHM.NS','Tech Mahindra','8%']] },
@@ -13282,14 +13061,14 @@ categories.forEach(cat => {
                 { k:'india digital',     idx:'Nifty India Digital',   s:[['INFY.NS','Infosys','20%'],['TCS.NS','TCS','18%'],['PERSISTENT.NS','Persistent','14%'],['COFORGE.NS','Coforge','12%'],['MPHASIS.NS','Mphasis','10%']] },
                 { k:'india consumption', idx:'Nifty India Consumption',s:[['ITC.NS','ITC','18%'],['HINDUNILVR.NS','HUL','16%'],['NESTLEIND.NS','Nestle India','12%'],['TITAN.NS','Titan','12%'],['DMART.NS','Avenue Supermarts','10%']] },
                 { k:'india defence',     idx:'Nifty India Defence',   s:[['HAL.NS','HAL','25%'],['BEL.NS','BEL','20%'],['BDL.NS','Bharat Dynamics','18%'],['BEML.NS','BEML','14%'],['DATAPATTNS.NS','Data Patterns','10%']] },
-                // LD246SAI NEW: BSE India Infrastructure (ABSL BSE India Infrastructure - Direct)
+                // LD246TAI NEW: BSE India Infrastructure (ABSL BSE India Infrastructure - Direct)
                 { k:'india infra',       idx:'BSE India Infrastructure',s:[['LT.NS','L&T','18%'],['NTPC.NS','NTPC','14%'],['POWERGRID.NS','Power Grid','12%'],['ADANIPORTS.NS','Adani Ports','10%'],['BHEL.NS','BHEL','8%']] },
                 { k:'commodit',          idx:'Nifty Commodities',     s:[['COALINDIA.NS','Coal India','20%'],['ONGC.NS','ONGC','18%'],['HINDALCO.NS','Hindalco','14%'],['TATASTEEL.NS','Tata Steel','12%'],['JSWSTEEL.NS','JSW Steel','10%']] },
                 // ── Strategy / Factor ─────────────────────────────────────────────────────────
                 { k:'quality 30',        idx:'Nifty100 Quality 30',   s:[['TCS.NS','TCS','12%'],['INFY.NS','Infosys','10%'],['BAJFINANCE.NS','Bajaj Finance','8%'],['ASIANPAINT.NS','Asian Paints','8%'],['HCLTECH.NS','HCL Tech','7%']] },
                 { k:'value 30',          idx:'Nifty200 Value 30',     s:[['ONGC.NS','ONGC','14%'],['COALINDIA.NS','Coal India','12%'],['NMDC.NS','NMDC','10%'],['POWERGRID.NS','Power Grid','10%'],['GAIL.NS','GAIL','8%']] },
                 { k:'200 momentum 30',   idx:'Nifty200 Momentum 30',  s:[['RELIANCE.NS','Reliance','15%'],['HDFCBANK.NS','HDFC Bank','12%'],['TCS.NS','TCS','10%'],['INFY.NS','Infosys','9%'],['ICICIBANK.NS','ICICI Bank','8%']] },
-                // LD246SAI: BSE 500 Momentum 50 must precede generic '500 momentum' to avoid mismatch
+                // LD246TAI: BSE 500 Momentum 50 must precede generic '500 momentum' to avoid mismatch
                 { k:'bse 500 momentum',  idx:'BSE 500 Momentum 50',   s:[['RELIANCE.NS','Reliance','9%'],['HDFCBANK.NS','HDFC Bank','8%'],['TCS.NS','TCS','7%'],['ICICIBANK.NS','ICICI Bank','6%'],['INFY.NS','Infosys','5%']] },
                 { k:'500 momentum',      idx:'Nifty500 Momentum 50',  s:[['RELIANCE.NS','Reliance','10%'],['HDFCBANK.NS','HDFC Bank','8%'],['TCS.NS','TCS','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
                 { k:'midcap 150 mom',    idx:'Nifty Midcap150 Mom50', s:[['PERSISTENT.NS','Persistent','3%'],['COFORGE.NS','Coforge','2.5%'],['INDHOTEL.NS','Indian Hotels','2%'],['VOLTAS.NS','Voltas','2%'],['TUBEINVEST.NS','Tube Investments','1.8%']] },
@@ -13298,11 +13077,11 @@ categories.forEach(cat => {
                 { k:'fin serv ex',       idx:'Nifty Fin Serv Ex-Bank',s:[['BAJFINANCE.NS','Bajaj Finance','22%'],['SBILIFE.NS','SBI Life','14%'],['HDFCAMC.NS','HDFC AMC','12%'],['ICICIGI.NS','ICICI Lombard','10%'],['MUTHOOTFIN.NS','Muthoot Finance','8%']] },
                 { k:'500 multicap',      idx:'Nifty500 Multicap',     s:[['RELIANCE.NS','Reliance','8%'],['TCS.NS','TCS','7%'],['HDFCBANK.NS','HDFC Bank','6%'],['INFY.NS','Infosys','5%'],['ICICIBANK.NS','ICICI Bank','4%']] },
                 // ── Broad Market / Active Equity ──────────────────────────────────────────────
-                // LD246SAI NEW: Nifty 500 (HDFC/Kotak Flexi Cap) — must precede 'nifty 50' to avoid substring trap
+                // LD246TAI NEW: Nifty 500 (HDFC/Kotak Flexi Cap) — must precede 'nifty 50' to avoid substring trap
                 { k:'nifty 500',         idx:'Nifty 500',             s:[['RELIANCE.NS','Reliance','9%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
-                // LD246SAI NEW: Flexi Cap / Flexicap funds (HDFC, ICICI, Kotak) — BSE 500 & Nifty 500 proxied via Nifty 500 top-5
+                // LD246TAI NEW: Flexi Cap / Flexicap funds (HDFC, ICICI, Kotak) — BSE 500 & Nifty 500 proxied via Nifty 500 top-5
                 { k:'flexi',             idx:'Nifty 500 (Flexi Cap)',  s:[['RELIANCE.NS','Reliance','9%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
-                // LD246SAI NEW: BSE 500 (explicit key for any future BSE-500-named funds)
+                // LD246TAI NEW: BSE 500 (explicit key for any future BSE-500-named funds)
                 { k:'bse 500',           idx:'BSE 500',               s:[['RELIANCE.NS','Reliance','8%'],['TCS.NS','TCS','7%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
                 { k:'nifty 50',          idx:'Nifty 50',              s:[['RELIANCE.NS','Reliance','10%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','7%'],['ICICIBANK.NS','ICICI Bank','6%']] },
             ];
@@ -13311,6 +13090,16 @@ categories.forEach(cat => {
         }
 
         const idxInfo = _abpGetStocks(fundName);
+
+        // Track this as a known Regime A fund for today's BA completion tracking
+        if (idxInfo.equity && parseFloat(fundWrsi) >= 50) {
+            const _existing = _baLoadRegimeA() || [];
+            const _alreadyKnown = _existing.some(f => (f.code||f.name) === fundKey);
+            if (!_alreadyKnown) {
+                _existing.push({ code: fundKey, name: fundName });
+                _baSaveRegimeA(_existing);
+            }
+        }
 
         // Non-equity: skip entirely
         if (!idxInfo.equity) {
@@ -13329,19 +13118,20 @@ categories.forEach(cat => {
         //         Max Gemini calls per tap = 1 (never 2)
         // ════════════════════════════════════════════════════════
 
-        // ── Shared RSI calculator (Wilder smoothing, period=14) ──
-        function calcRSI(closes, period = 14) {
-            if (closes.length < period + 1) return null;
+        // ── Shared RSI calculator (Wilder smoothing — uses user-set period) ──
+        function calcRSI(closes, period) {
+            const p = period || window.userRsiLength || 14;
+            if (closes.length < p + 1) return null;
             let gains = 0, losses = 0;
-            for (let i = 1; i <= period; i++) {
+            for (let i = 1; i <= p; i++) {
                 const d = closes[i] - closes[i - 1];
                 if (d >= 0) gains += d; else losses -= d;
             }
-            let avgGain = gains / period, avgLoss = losses / period;
-            for (let i = period + 1; i < closes.length; i++) {
+            let avgGain = gains / p, avgLoss = losses / p;
+            for (let i = p + 1; i < closes.length; i++) {
                 const d = closes[i] - closes[i - 1];
-                avgGain = (avgGain * (period - 1) + (d > 0 ? d : 0)) / period;
-                avgLoss = (avgLoss * (period - 1) + (d < 0 ? -d : 0)) / period;
+                avgGain = (avgGain * (p - 1) + (d > 0 ? d : 0)) / p;
+                avgLoss = (avgLoss * (p - 1) + (d < 0 ? -d : 0)) / p;
             }
             if (avgLoss === 0) return 100;
             return Math.round(100 - 100 / (1 + avgGain / avgLoss));
@@ -13352,8 +13142,10 @@ categories.forEach(cat => {
             const last2  = closes.slice(-2);
             const trend  = last2[1] > last2[0] ? 'RISING' : 'FALLING';
             const regime = rsi >= 50 ? 'A' : rsi >= 40 ? 'B' : 'C';
-            const verdict = (regime === 'A' && trend === 'RISING') ? 'BULL' : 'BEAR';
-            return { ticker: name, weight, trend_14d: trend, regime, verdict, note: `W-RSI ${rsi}`, rsi };
+            // HOLD for Regime B (Watch zone) — not just BULL/BEAR
+            const verdict = regime === 'A' && trend === 'RISING' ? 'BULL'
+                          : regime === 'B' ? 'HOLD' : 'BEAR';
+            return { ticker: name, weight, trend_14d: trend, regime, verdict, note: rsi !== null ? String(rsi) : 'No data', rsi };
         }
 
         // ── PASS 1 — Yahoo Finance direct ─────────────────────────
@@ -13427,16 +13219,26 @@ categories.forEach(cat => {
             throw new Error('All sources failed');
         }
 
-        // ── Gemini endpoint helper ────────────────────────────────
-        const geminiModel = window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash';
-        const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${apiKey}`;
+        // ── Gemini model cascade (no dead endpoint variable) ──────────
+        const geminiModel = window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash-lite';
+
+        // ── Triple RSI Conviction context (from live cockpit state) ───
+        const _tripleAligned = typeof window._tripleRsiAligned === 'number' ? window._tripleRsiAligned : null;
+        const _convictionLabel = _tripleAligned === 3 ? 'HIGH (W4·W8·W14 all ≥50 — Triple Confluence)'
+            : _tripleAligned === 2 ? 'MEDIUM (2 of 3 periods ≥50)'
+            : _tripleAligned === 1 ? 'LOW (only 1 period ≥50)'
+            : _tripleAligned === 0 ? 'NONE (all periods <50)'
+            : 'N/A (not computed)';
 
         // ── callGemini: model cascade on 429 (no waiting — just switch model) ──
-        // gemini-2.5-flash = primary | gemini-2.0-flash = first fallback | gemini-2.0-flash-lite = second fallback
+        // Free-tier cascade (cheapest quota first — never starts with Pro)
+        // 1. Flash-Lite : 15 RPM / 1 000 RPD  ← primary (fastest quota)
+        // 2. Flash      : 10 RPM /   500 RPD  ← first fallback
+        // 3. Pro        :  5 RPM /   100 RPD  ← last resort (heavy tasks only)
         const GEMINI_CASCADE = [
-            geminiModel,                    // user's selected model (likely 2.5-flash)
-            'gemini-2.0-flash',             // first fallback
-            'gemini-2.0-flash-lite',        // second fallback
+            geminiModel,                                      // user's chosen model (default: Flash-Lite)
+            'gemini-2.5-flash',                               // fallback: standard Flash
+            'gemini-2.5-pro',                                 // last resort: Pro (heavy tasks only)
         ];
 
         async function callGemini(prompt, useSearch = false) {
@@ -13539,9 +13341,11 @@ categories.forEach(cat => {
             `${s.ticker} (${s.weight}): W-RSI=${s.note}, Trend=${s.trend_14d}, Regime=${s.regime}, Verdict=${s.verdict}`
         ).join('\n');
 
+        const userPeriod = window.userRsiLength || 14;
+
         const dataSection = stillMissing >= 3
-            ? `NOTE: Live data fetch was CORS-blocked. Use your training knowledge to ESTIMATE the recent 14-week Weekly RSI and 2-week trend for these NSE stocks in ${idxInfo.idx}: ${stockListStr}. Label as "Est. W-RSI ~XX". Apply Sacred RSI rules to your estimates.`
-            : `CONSTITUENT DATA (locally computed — 14-week Wilder RSI from weekly closes):\n${dataLines}`;
+            ? `NOTE: Live data fetch was CORS-blocked. Use your training knowledge to ESTIMATE the recent ${userPeriod}-week Weekly RSI and 2-week trend for these NSE stocks in ${idxInfo.idx}: ${stockListStr}. Label as "Est. W-RSI ~XX". Apply Sacred RSI rules to your estimates.`
+            : `CONSTITUENT DATA (locally computed — ${userPeriod}-week Wilder RSI from weekly closes):\n${dataLines}`;
 
         const promptText2 = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System — the "Lie Detector Auditor" for Indian NPS/MF funds.
 
@@ -13567,7 +13371,7 @@ Benchmark Index: ${idxInfo.idx}
 Fund W-RSI: ${fundWrsi} (${fundRegime}) | Fund D-RSI: ${fundDrsi} | 1M Return: ${fundR1m}
 
 ════════════════════════════════════════════════════════
-CONSTITUENT DATA (locally computed — 14-week Wilder RSI from live weekly closes)
+CONSTITUENT DATA (locally computed — ${userPeriod}-week Wilder RSI from live weekly closes)
 ════════════════════════════════════════════════════════
 ${dataSection}
 
@@ -13675,15 +13479,47 @@ Return a JSON object with this exact structure:
         _renderStocks(parsed.stocks);
         _renderReasoning(parsed.reasoning, parsed);
 
-        // ── Save to 24-hour cache ───────────────────────────────
+        // ── Save to 24-hour cache ──────────────────────────────
         _cacheSave(fundKey, parsed);
+
+        // ── Partial completion tracking ────────────────────────
+        // Mark this fund as done for today
+        _baMarkFundDone(fundKey);
+
+        // Check if ALL Regime A funds (from today's BG scan or known list) are now complete
+        const _todayRegimeA = _baLoadRegimeA() ||
+            (window.bgBreadthStatus ? window.bgBreadthStatus() : []);
+        const _totalRegimeA = _todayRegimeA.length;
+        const _completedToday = _baGetCompleted();
+        const _allDone = _totalRegimeA > 0 &&
+            _todayRegimeA.every(f => _completedToday.includes(f.code || f.name));
+
         const runBtn2 = document.getElementById('abpRunBtn');
         const runLbl2 = document.getElementById('abpRunBtnLabel');
-        runBtn2.style.background = '#334155';
-        runLbl2.textContent = '🔄 Refresh (uses 1 API token)';
-        if (cacheNote) {
-            cacheNote.style.color = '#009e70';
-            cacheNote.textContent = '✅ Analysis cached for today (IST). Tap Refresh only if needed — saves quota.';
+
+        if (_allDone) {
+            // ── DAILY LOCK: all Regime A funds processed — stop all further BA calls ──
+            _baSetLock();
+            runBtn2.disabled = true;
+            runBtn2.style.background = '#1e3a2f';
+            runLbl2.textContent = `✅ All ${_totalRegimeA} Regime A funds done — BA complete for today`;
+            if (cacheNote) {
+                cacheNote.style.color = '#009e70';
+                cacheNote.textContent = `🔒 Daily BA complete — all ${_totalRegimeA} Regime A funds analysed. Zero API calls on next open.`;
+            }
+        } else {
+            // Still pending funds — show progress
+            const _pending = _totalRegimeA - _completedToday.length;
+            runBtn2.disabled = false;
+            runBtn2.style.background = '#334155';
+            runLbl2.textContent = '🔄 Refresh (uses 1 API token)';
+            if (cacheNote) {
+                cacheNote.style.color = '#009e70';
+                const progNote = _totalRegimeA > 0
+                    ? ` ${_completedToday.length}/${_totalRegimeA} funds done today, ${_pending} pending.`
+                    : '';
+                cacheNote.textContent = '✅ Analysis cached for today (IST).' + progNote;
+            }
         }
 
     } catch(err) {
@@ -13693,7 +13529,7 @@ Return a JSON object with this exact structure:
     }
 
     document.getElementById('abpLoading').classList.remove('visible');
-    document.getElementById('abpRunBtn').disabled = false;
+    document.getElementById('abpRunBtn').disabled = _baIsLockedToday();
 };
 
     // ── Close on overlay tap ───────────────────────────────
@@ -13707,16 +13543,18 @@ Return a JSON object with this exact structure:
     // §5 RENDER — Verdict Box
     // ════════════════════════════════════════════════════════════
     function _renderVerdict(parsed) {
-    const bc = parsed.bull_count ?? 0;
+    const bc = typeof parsed.bull_count === 'number' ? parsed.bull_count : parseInt(parsed.bull_count) || 0;
     const bWeight = parsed.bull_weight_sum || '0%';
+    // Cross-check AI's confirmation field — take more conservative if they disagree
+    const aiConf = (parsed.confirmation || '').toUpperCase();
     let type, hl, sub, action;
 
-    if (bc >= 3) {
+    if (bc >= 3 && aiConf !== 'MARGINAL' && aiConf !== 'WEAK') {
         type='confirmed';
         hl='✅ INDEX BREADTH CONFIRMED';
         sub=`${bc}/5 top stocks in Regime A. ${bWeight} of index weight is BULL. Macro structure supports deployment per SOP.`;
         action='▶ PROCEED — Execute per SOP. ' + (parsed.sop_action||'');
-    } else if (bc === 2) {
+    } else if (bc === 2 || aiConf === 'MARGINAL' || (bc >= 3 && aiConf === 'MARGINAL')) {
         type='caution';
         hl='⚠ BREADTH MARGINAL';
         sub=`Only ${bc}/5 positive. ${bWeight} of index weight is BULL. Reduce tranche size — wait one session.`;
@@ -13753,30 +13591,6 @@ Return a JSON object with this exact structure:
     const wmaC = w => (w||'').toUpperCase()==='ABOVE'?'abp-tbl-green':'abp-tbl-red';
     const actC = a => { const u=(a||'').toUpperCase(); return u.includes('BUY')?'abp-tbl-green':u.includes('REDUCE')||u.includes('SELL')?'abp-tbl-red':'abp-tbl-orange'; };
 
-    // 10 data columns (Recommendation removed from header)
-    const rows = stocks.map(s => `
-        <tr>
-            <td style="font-weight:800;">${s.ticker}</td>
-            <td>${s.weight||'—'}</td>
-            <td>${s.price||'—'}</td>
-            <td>${s.daily_rsi||s.note||'—'}</td>
-            <td class="${regC(s.regime)}">${s.weekly_rsi||'—'}</td>
-            <td>${s.wma20||'—'}</td>
-            <td class="${wmaC(s.price_vs_wma20)}">${s.price_vs_wma20||'—'}</td>
-            <td class="${regC(s.regime)}">${s.regime||'—'}</td>
-            <td class="${trnC(s.trend_14d)}">${s.trend_14d||'—'}</td>
-            <td class="${actC(s.action||s.verdict)}">${s.action||s.verdict||'—'}</td>
-        </tr>
-        <tr class="recommendation-row">
-            <td colspan="10" style="
-                text-align:left;padding:5px 10px 8px;
-                font-size:0.66rem;color:#404060;font-style:italic;
-                background:#f8fafb;border-bottom:2px solid #e8edf2;
-                border-left:3px solid #009e70;line-height:1.5;">
-                <span style="font-weight:700;font-style:normal;color:#009e70;">Rec: </span>${s.recommendation||'—'}
-            </td>
-        </tr>`).join('');
-
     grid.innerHTML = `
         <div style="overflow-x:auto;margin-bottom:12px;">
         <table class="abp-tbl">
@@ -13794,7 +13608,29 @@ Return a JSON object with this exact structure:
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody>${rows}</tbody>
+            <tbody>
+                ${stocks.map(s => `<tr>
+                    <td style="font-weight:800;">${s.ticker}</td>
+                    <td>${s.weight||'—'}</td>
+                    <td>${s.price||'—'}</td>
+                    <td>${s.daily_rsi||s.note||'—'}</td>
+                    <td class="${regC(s.regime)}">${s.weekly_rsi||'—'}</td>
+                    <td>${s.wma20||'—'}</td>
+                    <td class="${wmaC(s.price_vs_wma20)}">${s.price_vs_wma20||'—'}</td>
+                    <td class="${regC(s.regime)}">${s.regime||'—'}</td>
+                    <td class="${trnC(s.trend_14d)}">${s.trend_14d||'—'}</td>
+                    <td class="${actC(s.action||s.verdict)}">${s.action||s.verdict||'—'}</td>
+                </tr>${s.recommendation ? `
+                <tr class="recommendation-row">
+                    <td colspan="10" style="text-align:left;font-size:0.62rem;
+                        color:#404060;background:#f8faff;
+                        border-left:3px solid #6366f1;
+                        padding:4px 8px 5px 10px;
+                        line-height:1.5;">
+                        <span style="font-weight:700;color:#6366f1;margin-right:4px;">Rec:</span>${s.recommendation}
+                    </td>
+                </tr>` : ''}`).join('')}
+            </tbody>
         </table>
         </div>`;
 }
@@ -14070,8 +13906,9 @@ Return a JSON object with this exact structure:
                     background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);
                     border-radius:4px;padding:2px 4px;font-size:0.55rem;font-family:var(--mono);
                     cursor:pointer;outline:none;max-width:110px;">
-                    <option value="gemini-2.5-flash">2.5 Flash</option>
-                    <option value="gemini-2.0-flash">2.0 Flash</option>
+                    <option value="gemini-2.5-flash-lite">2.5 Flash-Lite ⚡ (default — 1,000 RPD)</option>
+                    <option value="gemini-2.5-flash">2.5 Flash (500 RPD)</option>
+                    <option value="gemini-2.5-pro">2.5 Pro 🔬 (100 RPD — heavy tasks only)</option>
                 </select>
                 <button type="button" id="ld-ai-key-btn" title="Change API Key" style="
                     background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);
@@ -14156,7 +13993,7 @@ Return a JSON object with this exact structure:
         const input = document.getElementById('ld-ai-input');
         const submit = document.getElementById('ld-ai-submit');
         // ── Gemini API key management (PA.html pattern) ────────────
-        const GEMINI_MODEL_DEFAULT = 'gemini-2.5-flash';
+        const GEMINI_MODEL_DEFAULT = 'gemini-2.5-flash-lite'; // Free-tier primary: 15 RPM / 1 000 RPD
 
         // ── Model selector — persist choice ────────────────────────
         const modelSelect = document.getElementById('ld-gemini-model-select');
@@ -14846,7 +14683,7 @@ Return a JSON object with this exact structure:
             }
 
             const { fund, code, nav, drsi, wrsi, regime, delta, tslVal, tslHit, wma20,
-                    w4, w8, w14, conviction, crossover, pcAlert, ncAlert,
+                    w4, w8, w14, tripleRsiAligned, conviction, crossover, pcAlert, ncAlert,
                     macroVeto, niftyWrsi, ts } = S;
 
             // ── Regime flags ──
@@ -14885,6 +14722,10 @@ Return a JSON object with this exact structure:
                     signal = 'TRIM 20%'; tier = 'T3 — WMA BREACH';
                     reasons.push(`NAV ₹${nav.toFixed(2)} broke below WMA20 ₹${wma20.toFixed(2)} in Regime A — reduce exposure.`);
                     nextAction = 'Trim 20% of position. Re-enter on bounce above WMA20.';
+                } else if (regA && tripleRsiAligned === 3) {
+                    signal = 'BUY'; tier = 'T0 — TRIPLE RSI CONFLUENCE'; finalConv = 'HIGH';
+                    reasons.push(`Triple RSI Confluence — W-RSI(4)=${w4}, W-RSI(8)=${w8}, W-RSI(14)=${w14}: ALL ≥50. Strongest possible multi-timeframe confirmation.`);
+                    nextAction = `Maximum conviction BUY. Deploy maximum planned tranche size. Set TSL at ₹${tslVal > 0 ? tslVal.toFixed(2) : 'Lowess floor'}.`;
                 } else if (regA && drsi < 35) {
                     signal = 'BUY'; tier = 'T1 — DEEP OVERSOLD'; finalConv = convGrade;
                     reasons.push(`Regime A + D-RSI ${drsi} < 35 — Deep oversold dip in structural bull. High-probability entry.`);
@@ -15146,18 +14987,21 @@ Return a JSON object with this exact structure:
             async function dualKeyFetch(promptText) {
                 const model = getGeminiModel();
                 const payload = { contents: [{ parts: [{ text: promptText }] }] };
+                let k1Used = false;
                 const slots = [1, 2];
                 for (const slot of slots) {
                     const k = slot === 2
                         ? localStorage.getItem('ld_gemini_api_key2')
                         : localStorage.getItem('ld_gemini_api_key');
                     if (!k) continue;
-                    if (slot === 2) {
+                    // Only show "switching" message if K1 was actually called and got 429
+                    if (slot === 2 && k1Used) {
                         loadDiv.textContent = '⚡ Key 1 quota hit — switching to Key 2…';
                         chatArea.scrollTop = chatArea.scrollHeight;
                     }
                     const ep = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${k.trim()}`;
                     const res = await fetch(ep, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+                    if (slot === 1) k1Used = true;
                     if (res.status === 429 && slot === 1) continue; // try Key2
                     return res; // success, error, or Key2 429
                 }
@@ -15206,7 +15050,7 @@ Return a JSON object with this exact structure:
         // ── State ──────────────────────────────────────────────────────
         let _pdfBase64    = null;   // raw base64 of last uploaded PDF
         let _pdfFilename  = '';
-        const GEMINI_PDF_MODEL = (window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash');
+        const GEMINI_PDF_MODEL = (window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash-lite');
 
         // ── Defer until DOM is fully ready ─────────────────────────────
         function init() {
@@ -15269,16 +15113,10 @@ Return a JSON object with this exact structure:
             if (l) l.remove();
         }
 
-        // ── Get/prompt Gemini key — delegates to shared window.getGeminiKey ──
+        // ── Get Gemini key — delegates to shared window.getGeminiKey, never uses prompt() ──
         function getKey() {
-            return window.getGeminiKey ? window.getGeminiKey() : (function() {
-                let key = localStorage.getItem('ld_gemini_api_key');
-                if (!key) {
-                    key = prompt('Enter your Gemini API key:\n\nGet one free at: https://aistudio.google.com/apikey');
-                    if (key) localStorage.setItem('ld_gemini_api_key', key.trim());
-                }
-                return key ? key.trim() : null;
-            })();
+            const k = window.getGeminiKey ? window.getGeminiKey() : localStorage.getItem('ld_gemini_api_key');
+            return k ? k.trim() : null;
         }
 
         // ── fetchWithRetry (local copy, handles 429) ───────────────────
@@ -15492,7 +15330,7 @@ Return a JSON object with this exact structure:
             let liveSignal = 'HOLD', liveTier = '—', liveColor = '#f5a623';
             try {
                 const { wrsi, drsi, delta, tslHit, ncAlert, pcAlert,
-                        crossover, wma20, nav, macroVeto, niftyWrsi } = S;
+                        crossover, wma20, nav, macroVeto, niftyWrsi, tripleRsiAligned } = S;
                 const regA = wrsi >= 50, regB = wrsi >= 40 && wrsi < 50, regC = wrsi < 40;
                 if (macroVeto === true) {
                     liveSignal = 'WAIT'; liveTier = 'MACRO GATE'; liveColor = '#f04060';
@@ -15504,6 +15342,8 @@ Return a JSON object with this exact structure:
                     liveSignal = 'SELL ALL'; liveTier = 'REGIME C FEAR'; liveColor = '#f04060';
                 } else if (wma20 && nav < wma20 && regA) {
                     liveSignal = 'TRIM 20%'; liveTier = 'WMA BREACH'; liveColor = '#f5a623';
+                } else if (regA && tripleRsiAligned === 3) {
+                    liveSignal = 'BUY'; liveTier = 'TRIPLE CONFLUENCE'; liveColor = '#00e8a2';
                 } else if (regA && drsi < 40) {
                     liveSignal = 'BUY'; liveTier = drsi < 35 ? 'DEEP OVERSOLD' : 'OVERSOLD'; liveColor = '#00e8a2';
                 } else if (regA && delta < -15) {
@@ -15538,6 +15378,12 @@ Return a JSON object with this exact structure:
                 row('Crossover',   S.crossover || '—', S.crossover === 'BREAKOUT' ? '#00e8a2' : S.crossover === 'BREAKDOWN' ? '#f04060' : '#e0e0e0') +
                 '─────────────────────\n' +
                 row('Conviction',  S.conviction || '—', convColor) +
+                row('Triple RSI',  S.tripleRsiAligned === 3 ? '🔥 ALL 3 ≥50 (T0 BUY)'
+                                 : S.tripleRsiAligned === 2 ? '⚡ 2/3 ≥50 (Medium)'
+                                 : S.tripleRsiAligned === 1 ? '1/3 ≥50 (Low)'
+                                 : S.tripleRsiAligned === 0 ? 'None ≥50 (Bear)'
+                                 : '—',
+                    S.tripleRsiAligned === 3 ? '#00e8a2' : S.tripleRsiAligned === 2 ? '#f5a623' : '#f04060') +
                 row('PC Alert',    S.pcAlert ? '🟢 YES' : 'NO', S.pcAlert ? '#00e8a2' : '#888') +
                 row('NC Alert',    S.ncAlert ? '🚨 YES' : 'NO', S.ncAlert ? '#f04060' : '#888') +
                 '─────────────────────\n' +
@@ -15556,70 +15402,77 @@ Return a JSON object with this exact structure:
     })();
     </script>
     <!-- ═══════════════════════════════════════════════════════════════════
-         LD246SAI — BACKGROUND BREADTH ADD-ON (STRICT DAILY CACHE SYSTEM)
+         LD246TAI — BACKGROUND BREADTH PRE-FETCH ADD-ON
          ─────────────────────────────────────────────────────────────────
-         RULES (strictly enforced):
-         • Regime A scan: once per IST day, stored, never re-scans on open
-         • BA processing: only pending funds, stops when all done
-         • On app open: show stored data ONLY — zero API calls
-         • Daily lock: BA_completed_today flag stops all processing
-         • Quota: 1 Gemini call per fund per day maximum
-         • Trigger: MANUAL ONLY via bgBreadthForceRun() — NOT on app open
+         Purpose : On first app-open each IST day, silently scan all 58
+                   funds, identify Regime A (W-RSI ≥ 50) equity funds,
+                   then fetch + run breadth analysis for each — one at a
+                   time, 100-second gap between calls — and store results
+                   in localStorage for 24 hours (same key as manual tap).
+         Trigger : Runs once per IST calendar day, 6 seconds after load.
+         Guard   : Skips if API key missing. Skips any fund already cached
+                   today. Skips bond/commodity funds. Stops if tab hidden.
+         UI      : Floating status pill (bottom-left) shows progress.
+                   Can be dismissed. Toggled via window.bgBreadthStatus().
+         Add-on  : Completely standalone. Removing this block has zero
+                   effect on the rest of the app.
     ═══════════════════════════════════════════════════════════════════ -->
     <script>
     (function() {
     'use strict';
 
-    const ADDON_VER  = 'LD246SAI-BG-v2';
-    const GAP_MS     = 100_000;                    // 100s between Gemini calls
-    const MODEL      = 'gemini-1.5-flash-latest';  // stable, not discontinued
+    // ── Constants ─────────────────────────────────────────────────────
+    const GAP_MS        = 100_000;          // 100 seconds between Gemini calls
+    const BOOT_DELAY_MS =   6_000;          // wait 6s for app to settle
+    // RSI_PERIOD is NOT hardcoded — always reads window.userRsiLength (set on page 1 by user).
+    // Falls back to 4 (app default) if not yet initialised.
+    const ADDON_VER     = 'LD246TAI-BG-v1';    const RUN_FLAG_KEY  = 'bgbreadth_ran_'; // + YYYYMMDD_IST
 
-    // ── IST calendar date string (resets at IST midnight) ────────────
+    // ── IST date string ────────────────────────────────────────────────
     function _istDate() {
-        return new Date(Date.now() + 5.5 * 3600_000)
-               .toISOString().slice(0, 10).replace(/-/g, '');
+        const now = new Date(Date.now() + 5.5 * 3600_000);
+        return now.toISOString().slice(0, 10).replace(/-/g, '');
     }
 
-    // ── localStorage keys (all date-scoped) ──────────────────────────
-    const _K = {
-        regimeA   : () => `bgb_regimeA_${_istDate()}`,       // Regime A fund list
-        completed : () => `bgb_completed_${_istDate()}`,     // completed fund codes[]
-        baLock    : () => `bgb_BA_done_${_istDate()}`,       // BA_completed_today flag
-        breadth   : c  => `breadth_v1_${(c||'').replace(/\W/g,'_')}_${_istDate()}`,
-    };
-
-    // ── Safe localStorage helpers ─────────────────────────────────────
-    const _ls = {
-        get : k => { try { return localStorage.getItem(k); } catch { return null; } },
-        set : (k,v) => { try { localStorage.setItem(k, v); } catch {} },
-        del : k => { try { localStorage.removeItem(k); } catch {} },
-        getJ: k => { try { const r=localStorage.getItem(k); return r?JSON.parse(r):null; } catch { return null; } },
-        setJ: (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
-    };
-
-    // ── State queries ─────────────────────────────────────────────────
-    function _getRegimeAFunds()   { return _ls.getJ(_K.regimeA())   || []; }
-    function _getCompleted()      { return _ls.getJ(_K.completed())  || []; }
-    function _isBADoneToday()     { return _ls.get(_K.baLock()) === '1'; }
-    function _markBADone()        { _ls.set(_K.baLock(), '1'); }
-    function _markCompleted(code) {
-        const arr = _getCompleted();
-        if (!arr.includes(code)) { arr.push(code); _ls.setJ(_K.completed(), arr); }
+    // ── Same cache key format as manual breadth panel ─────────────────
+    function _cacheKey(fundCode) {
+        return `breadth_v1_${(fundCode||'').replace(/\W/g,'_')}_${_istDate()}`;
     }
 
-    // ── Equity-only filter ────────────────────────────────────────────
-    function _isEquity(fund) {
-        const n = (fund.name || '').toLowerCase();
-        return !['scheme c','gold','silver','bharatbond'].some(x => n.includes(x));
+    function _cacheExists(fundCode) {
+        try { return !!localStorage.getItem(_cacheKey(fundCode)); } catch { return false; }
     }
 
-    // ── All 58 funds flat ─────────────────────────────────────────────
+    function _cacheSave(fundCode, parsed) {
+        try { localStorage.setItem(_cacheKey(fundCode), JSON.stringify(parsed)); } catch(e) {}
+    }
+
+    // ── Run-flag: one full scan per IST day ───────────────────────────
+    function _hasRanToday() {
+        try { return !!localStorage.getItem(RUN_FLAG_KEY + _istDate()); } catch { return false; }
+    }
+    function _markRanToday() {
+        try { localStorage.setItem(RUN_FLAG_KEY + _istDate(), '1'); } catch {}
+    }
+
+    // ── Build flat fund list from window.amcFunds ─────────────────────
     function _allFunds() {
         const af = window.amcFunds;
-        return af ? Object.values(af).flat() : [];
+        if (!af) return [];
+        return Object.values(af).flat();   // all 58 funds flat
     }
 
-    // ── NAV fetch ─────────────────────────────────────────────────────
+    // ── Equity-only filter (skip bond / Scheme C / gold / silver) ─────
+    function _isEquity(fund) {
+        const n = (fund.name || '').toLowerCase();
+        if (n.includes('scheme c'))  return false;
+        if (n.includes('gold'))      return false;
+        if (n.includes('silver'))    return false;
+        if (n.includes('bharatbond'))return false;
+        return true;
+    }
+
+    // ── Fetch NAV data (same pattern as app's fetchFundData) ──────────
     async function _fetchNav(code) {
         const url = code.startsWith('SM')
             ? `https://npsnav.in/api/historical/${code}`
@@ -15630,32 +15483,45 @@ Return a JSON object with this exact structure:
             const res  = await fetch(url, { signal: ctrl.signal });
             const json = await res.json();
             clearTimeout(tid);
+            // Normalise to [{date, nav}] descending
             if (code.startsWith('SM')) {
-                return Array.isArray(json)
-                    ? json.map(r=>({date:r.date,nav:parseFloat(r.nav)}))
-                          .filter(r=>!isNaN(r.nav))
-                          .sort((a,b)=>new Date(b.date)-new Date(a.date))
-                    : [];
+                if (!Array.isArray(json)) return [];
+                return json.map(r => ({ date: r.date, nav: parseFloat(r.nav) }))
+                           .filter(r => !isNaN(r.nav))
+                           .sort((a, b) => new Date(b.date) - new Date(a.date));
+            } else {
+                const rows = json?.data;
+                if (!Array.isArray(rows)) return [];
+                return rows.map(r => ({ date: r.date, nav: parseFloat(r.nav) }))
+                           .filter(r => !isNaN(r.nav));
             }
-            const rows = json?.data;
-            return Array.isArray(rows)
-                ? rows.map(r=>({date:r.date,nav:parseFloat(r.nav)})).filter(r=>!isNaN(r.nav))
-                : [];
         } catch { clearTimeout(tid); return []; }
     }
 
-    // ── Compute W-RSI ─────────────────────────────────────────────────
+    // ── Compute W-RSI from NAV array (descending date order) ──────────
     function _computeWrsi(navRows) {
-        if (!navRows || navRows.length < 30 || !window.buildWeeklyRsiFast) return null;
+        if (!navRows || navRows.length < 30) return null;
+        const fn = window.buildWeeklyRsiFast;
+        if (!fn) return null;
+        // Use the same RSI period the user set on page 1 — never hardcode
+        const period = window.userRsiLength || 4;
+        // App expects ascending order for the builder
         const asc   = [...navRows].reverse();
-        const arr   = window.buildWeeklyRsiFast(asc.map(r=>r.nav), 4, asc.map(r=>r.date));
-        return arr.length ? arr[arr.length-1] : null;
+        const navs  = asc.map(r => r.nav);
+        const dates = asc.map(r => r.date);
+        const arr = fn(navs, period, dates);
+        return arr.length ? arr[arr.length - 1] : null;
     }
 
-    // ── Gemini breadth call (unchanged prompt, model fixed to 1.5-flash) ─
-    async function _callGemini(fund, wrsi, apiKey) {
-        const n = (fund.name||'').toLowerCase();
-        let idx = 'Nifty 50';
+    // ── Fire ONE Gemini breadth call (uses pre-resolved apiKey) ──────
+    async function _callGeminiBreadth(fund, wrsi, resolvedApiKey) {
+        const getKey2 = () => localStorage.getItem('ld_gemini_api_key2');
+        const getModel= window.getGeminiModel || (() => 'gemini-2.5-flash-lite');
+
+        // Reuse the same index map helper from the breadth modal
+        // We inline a minimal version to stay standalone
+        const n = (fund.name || '').toLowerCase();
+        let idxName = 'Nifty 50 (proxy)';
         const MAP = [
             ['nifty it','Nifty IT'],['private bank','Nifty Private Bank'],
             ['nifty bank','Nifty Bank'],['nifty auto','Nifty Auto'],
@@ -15663,311 +15529,456 @@ Return a JSON object with this exact structure:
             ['bse housing','BSE Housing'],['ev','Nifty EV & New Age Auto'],
             ['india digital','Nifty India Digital'],['india consumption','Nifty India Consumption'],
             ['india defence','Nifty India Defence'],['india infra','BSE India Infrastructure'],
-            ['quality 30','Nifty100 Quality 30'],['value 30','Nifty200 Value 30'],
-            ['200 momentum 30','Nifty200 Momentum 30'],['500 momentum','Nifty500 Momentum 50'],
-            ['midcap 150','Nifty Midcap 150'],['smallcap 250','Nifty SmallCap 250'],
-            ['nifty 500','Nifty 500'],['flexi','Nifty 500'],['bse 500','BSE 500'],
+            ['commodit','Nifty Commodities'],['quality 30','Nifty100 Quality 30'],
+            ['value 30','Nifty200 Value 30'],['200 momentum 30','Nifty200 Momentum 30'],
+            ['bse 500 momentum','BSE 500 Momentum 50'],['500 momentum','Nifty500 Momentum 50'],
+            ['midcap 150 mom','Nifty Midcap150 Mom50'],['midcap 150','Nifty Midcap 150'],
+            ['smallcap 250','Nifty SmallCap 250'],['fin serv ex','Nifty Fin Serv Ex-Bank'],
+            ['500 multicap','Nifty500 Multicap'],['nifty 500','Nifty 500'],
+            ['flexi','Nifty 500 (Flexi Cap)'],['bse 500','BSE 500'],['nifty 50','Nifty 50'],
         ];
-        for (const [k,v] of MAP) { if (n.includes(k)) { idx=v; break; } }
+        for (const [k, v] of MAP) { if (n.includes(k)) { idxName = v; break; } }
 
-        const regime = wrsi>=50?'A (Hope)':wrsi>=40?'B (Watch)':'C (Fear)';
-        const prompt = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System.
+        const regime = wrsi >= 50 ? 'A (Hope)' : wrsi >= 40 ? 'B (Watch)' : 'C (Fear)';
+        const prompt = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System — the Lie Detector Auditor.
 
-FUND: ${fund.name} | Benchmark: ${idx} | Fund W-RSI: ${Math.round(wrsi)} (${regime})
+FUND: ${fund.name} | Benchmark: ${idxName}
+Fund W-RSI: ${Math.round(wrsi)} (${regime})
+
 SACRED RULE: True compounders never stay below W-RSI 40.
-DIVERGENCE: Price RISING + W-RSI falling = Cosmetic Growth. Flag it.
+DIVERGENCE: Price RISING + W-RSI falling/below 50 = Cosmetic Growth. Flag it.
+PSYCHOLOGY: Price moves first; earnings explanations come later.
 
-TASK: Top 5 stocks of ${idx} by weight. For each: W-RSI(14), 2W trend, regime (A/B/C), action.
-Return ONLY valid JSON — no markdown, no explanation:
-{"stocks":[{"ticker":"Name","weight":"X%","price":"₹XXXX","daily_rsi":"XX","weekly_rsi":"XX","wma20":"₹XXXX","price_vs_wma20":"ABOVE or BELOW","trend_14d":"RISING or FALLING","regime":"A or B or C","verdict":"BULL or HOLD or BEAR","action":"Buy or Hold or Reduce","recommendation":"One sentence."}],"bull_count":0,"bull_weight_sum":"X%","confirmation":"CONFIRMED or MARGINAL or WEAK","sop_action":"max 12 words","divergence_alert":"text or No divergence detected.","psychology_audit":"Lookout for… text","broad_market_regime_a":[{"index":"Name","wrsi":"XX","trend":"RISING or FALLING","signal":"BUY or WATCH"}],"reasoning":"2-3 sentences."}`;
+TASK: Perform Constituent X-Ray on top 5 stocks of ${idxName} by index weight.
+For each stock return current W-RSI(14), 2-week trend (RISING/FALLING), regime (A/B/C), action.
+Count BULL stocks (regime A + RISING). Sum weights.
+Return ONLY valid JSON:
+{
+  "stocks":[{"ticker":"Name","weight":"X%","price":"₹XXXX","daily_rsi":"XX","weekly_rsi":"XX","wma20":"₹XXXX","price_vs_wma20":"ABOVE or BELOW","trend_14d":"RISING or FALLING","regime":"A or B or C","verdict":"BULL or HOLD or BEAR","action":"Buy or Hold or Reduce","recommendation":"One sentence."}],
+  "bull_count":0,"bull_weight_sum":"X%",
+  "confirmation":"CONFIRMED or MARGINAL or WEAK",
+  "sop_action":"max 12 words",
+  "divergence_alert":"text or No divergence detected.",
+  "psychology_audit":"Lookout for… text",
+  "broad_market_regime_a":[{"index":"Name","wrsi":"XX","trend":"RISING or FALLING","signal":"BUY or WATCH"}],
+  "reasoning":"2-3 sentences on ${idxName} breadth."
+}`;
 
-        // Try K1 then K2 on 429
-        const keys = [apiKey, localStorage.getItem('ld_gemini_api_key2')].filter(Boolean);
-        for (const k of keys) {
-            const ep  = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${k.trim()}`;
+        const payload = { contents:[{ parts:[{ text: prompt }] }] };
+        const model   = getModel();
+
+        // Try K1 (resolved at scan start) then K2 on 429
+        for (const slot of [1, 2]) {
+            const k = slot === 1 ? resolvedApiKey : getKey2();
+            if (!k) continue;
+            const ep  = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${k.trim()}`;
             const res = await fetch(ep, {
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
-            if (res.status === 429 && k === keys[0] && keys.length > 1) continue;
+            if (res.status === 429 && slot === 1) continue; // try K2
             const data = await res.json();
             if (data.error) throw new Error(`Gemini ${data.error.code}: ${data.error.message}`);
-            let raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
-            raw = raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
-            return JSON.parse(raw);
+            let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            raw = raw.trim();
+            // Strip markdown code fence (handles ```json\n{...}\n``` and trailing \n```)
+            const fenceEnd = raw.indexOf('\n');
+            if (raw.startsWith('```') && fenceEnd !== -1) raw = raw.substring(fenceEnd + 1);
+            if (raw.trimEnd().endsWith('```')) raw = raw.trimEnd().slice(0, -3);
+            raw = raw.trim();
+            // Extract outermost JSON object
+            const js = raw.indexOf('{'), je = raw.lastIndexOf('}');
+            if (js !== -1 && je > js) raw = raw.slice(js, je + 1);
+            // First parse attempt
+            try { return JSON.parse(raw); } catch(_) {}
+            // Repair: close unterminated strings, arrays, objects
+            let rep = raw.trimEnd();
+            const qc = (rep.match(/(?<!\\)"/g) || []).length;
+            if (qc % 2 !== 0) rep += '"';
+            const ao = (rep.match(/\[/g)||[]).length - (rep.match(/\]/g)||[]).length;
+            const oo = (rep.match(/\{/g)||[]).length - (rep.match(/\}/g)||[]).length;
+            for (let i = 0; i < ao; i++) rep += ']';
+            for (let i = 0; i < oo; i++) rep += '}';
+            try { return JSON.parse(rep); } catch(e2) {
+                throw new Error('BG JSON repair failed — response truncated. Will retry next run.');
+            }
         }
-        throw new Error('No valid API key or both keys exhausted.');
+        throw new Error('No API key available or both keys at quota.');
+    }
+    // Wrap _cacheSave in BG to tag results as auto-cached (lower quality — no live stock data)
+    function _bgCacheSave(fundCode, parsed) {
+        try {
+            const tagged = Object.assign({}, parsed, { _bgSource: true });
+            localStorage.setItem(_cacheKey(fundCode), JSON.stringify(tagged));
+        } catch(e) {}
     }
 
-    // ── Sleep ─────────────────────────────────────────────────────────
+    // ── Status pill UI ────────────────────────────────────────────────
+    function _makePill() {
+        const el = document.createElement('div');
+        el.id = 'bgBreadthPill';
+        el.style.cssText = `
+            position:fixed;bottom:14px;left:12px;z-index:25000;
+            background:#1a2332;color:#e2e8f0;font-size:0.62rem;
+            font-family:'Space Mono',monospace;font-weight:600;
+            padding:7px 12px 7px 10px;border-radius:20px;
+            border:1.5px solid #009e70;box-shadow:0 3px 14px rgba(0,0,0,0.35);
+            max-width:260px;line-height:1.4;cursor:pointer;
+            display:flex;align-items:center;gap:8px;transition:opacity 0.3s;`;
+        el.innerHTML = `
+            <span id="bgBreadthDot" style="width:8px;height:8px;border-radius:50%;
+                background:#009e70;flex-shrink:0;
+                animation:bgPillPulse 1.2s ease-in-out infinite;"></span>
+            <span id="bgBreadthMsg">⏳ Background breadth scan starting…</span>
+            <span onclick="document.getElementById('bgBreadthPill').style.display='none'"
+                style="margin-left:4px;opacity:0.5;font-size:0.8rem;flex-shrink:0;">✕</span>`;
+        const style = document.createElement('style');
+        style.textContent = `@keyframes bgPillPulse{0%,100%{opacity:1}50%{opacity:0.3}}`;
+        document.head.appendChild(style);
+        document.body.appendChild(el);
+        return el;
+    }
+
+    function _setPillMsg(msg, colour) {
+        const m = document.getElementById('bgBreadthMsg');
+        const d = document.getElementById('bgBreadthDot');
+        if (m) m.textContent = msg;
+        if (d) d.style.background = colour || '#009e70';
+    }
+
+    function _donePill(msg) {
+        _setPillMsg(msg, '#009e70');
+        const d = document.getElementById('bgBreadthDot');
+        if (d) d.style.animation = 'none';
+        setTimeout(() => {
+            const p = document.getElementById('bgBreadthPill');
+            if (p) { p.style.opacity = '0'; setTimeout(() => p.remove(), 800); }
+        }, 6000);
+    }
+
+    // ── Sleep helper ──────────────────────────────────────────────────
     const _sleep = ms => new Promise(r => setTimeout(r, ms));
 
-    // ── Status pill ───────────────────────────────────────────────────
-    let _pill = null;
-    function _showPill(msg, colour) {
-        if (!_pill) {
-            _pill = document.createElement('div');
-            _pill.style.cssText = 'position:fixed;bottom:14px;left:12px;z-index:99999;'+
-                'background:#1a2332;color:#e2e8f0;font-size:0.62rem;'+
-                'font-family:monospace;font-weight:600;padding:8px 14px;'+
-                'border-radius:20px;border:1.5px solid #009e70;'+
-                'box-shadow:0 3px 14px rgba(0,0,0,0.35);max-width:300px;'+
-                'display:flex;align-items:center;gap:8px;line-height:1.4;';
-            _pill.innerHTML = '<span id="_bgDot" style="width:8px;height:8px;border-radius:50%;'+
-                'background:#009e70;flex-shrink:0;"></span>'+
-                '<span id="_bgMsg"></span>'+
-                '<span onclick="this.parentElement.remove()" style="margin-left:4px;'+
-                'opacity:0.4;cursor:pointer;flex-shrink:0;">✕</span>';
-            document.body.appendChild(_pill);
+    // ── Key resolution helper — single source of truth ────────────────
+    function _resolveApiKey() {
+        // 1. Use window.getGeminiKey() — the main app's authoritative source
+        //    (initialised before BG runs due to BOOT_DELAY_MS)
+        if (typeof window.getGeminiKey === 'function') {
+            const k = window.getGeminiKey();
+            if (k && k.trim().length > 20) return k.trim();
         }
-        const msg_el = document.getElementById('_bgMsg');
-        const dot_el = document.getElementById('_bgDot');
-        if (msg_el) msg_el.textContent = msg;
-        if (dot_el) dot_el.style.background = colour || '#009e70';
-    }
-    function _donePill(msg) {
-        _showPill(msg, '#009e70');
-        setTimeout(() => { if (_pill) { _pill.style.opacity='0'; setTimeout(()=>{ _pill&&_pill.remove(); _pill=null; },600); } }, 6000);
-    }
-    function _removePill() { if (_pill) { _pill.remove(); _pill=null; } }
-
-    // ── Key entry panel (shown only when no key found) ────────────────
-    function _showKeyPanel(onKey) {
-        const p = document.createElement('div');
-        p.id = 'bgKeyPanel';
-        p.style.cssText = 'position:fixed;bottom:16px;left:12px;z-index:99999;'+
-            'background:#0f172a;color:#e2e8f0;border:2px solid #c97a00;'+
-            'border-radius:12px;padding:14px 16px;width:280px;'+
-            'font-family:monospace;font-size:0.62rem;box-shadow:0 4px 24px rgba(0,0,0,0.5);line-height:1.5;';
-        p.innerHTML =
-            '<div style="color:#fbbf24;font-weight:700;margin-bottom:6px;">🔑 BG Breadth — API Key Required</div>'+
-            '<div style="color:#94a3b8;font-size:0.54rem;margin-bottom:8px;">'+
-              'Each HTML filename has its own localStorage.<br>Paste your Gemini key once to activate:</div>'+
-            '<input id="bgKpIn" type="password" placeholder="AIza… (39 chars)"'+
-              ' style="width:100%;box-sizing:border-box;padding:6px 8px;border-radius:6px;'+
-              'border:1px solid #475569;background:#1e293b;color:#e2e8f0;'+
-              'font-family:monospace;font-size:0.6rem;outline:none;margin-bottom:8px;" />'+
-            '<div style="display:flex;gap:8px;">'+
-              '<button id="bgKpSave" style="flex:1;background:#009e70;color:#fff;border:none;'+
-                'border-radius:6px;padding:7px;font-size:0.6rem;font-weight:700;cursor:pointer;">'+
-                '✅ Save &amp; Start Scan</button>'+
-              '<button id="bgKpClose" style="background:#334155;color:#94a3b8;border:none;'+
-                'border-radius:6px;padding:7px 10px;font-size:0.6rem;cursor:pointer;">✕</button>'+
-            '</div>'+
-            '<div id="bgKpSt" style="margin-top:6px;font-size:0.52rem;color:#64748b;min-height:14px;"></div>';
-        document.body.appendChild(p);
-        document.getElementById('bgKpClose').onclick = () => p.remove();
-        document.getElementById('bgKpSave').onclick  = () => {
-            const val = (document.getElementById('bgKpIn').value||'').trim();
-            const st  = document.getElementById('bgKpSt');
-            if (!val || val.length < 20) { st.style.color='#f87171'; st.textContent='⚠ Too short'; return; }
-            localStorage.setItem('ld_gemini_api_key', val);
-            st.style.color='#6ee7b7'; st.textContent='✅ Saved — starting in 3s…';
-            setTimeout(() => { p.remove(); onKey(val); }, 3000);
-        };
-        const inp = document.getElementById('bgKpIn');
-        if (inp) inp.addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('bgKpSave').click(); });
-    }
-
-    // ════════════════════════════════════════════════════════════════
-    // PHASE 1 — REGIME A SCAN (NAV fetch only, no Gemini)
-    // Runs once per day. On second call: returns stored data immediately.
-    // ════════════════════════════════════════════════════════════════
-    async function _scanRegimeA() {
-        const stored = _getRegimeAFunds();
-        if (stored.length) {
-            console.log(`[BG] Regime A: using stored data (${stored.length} funds)`);
-            return stored;
+        // 2. Fallback: direct localStorage scan (covers legacy / renamed files)
+        const KEY_NAMES = [
+            'ld_gemini_api_key',
+            'ld_gemini_api_key2',
+            'gemini_api_key',
+            'apiKey',
+            'geminiKey',
+        ];
+        for (const kn of KEY_NAMES) {
+            const v = localStorage.getItem(kn);
+            if (v && v.trim().length > 20) return v.trim();
         }
+        return null;
+    }
 
-        const equity = _allFunds().filter(_isEquity);
-        _showPill(`🔍 Scanning ${equity.length} equity funds for Regime A…`);
-
-        const regimeA = [];
-        for (let i = 0; i < equity.length; i++) {
-            while (document.hidden) await _sleep(2000);
-            const fund = equity[i];
-            try {
-                const navs = await _fetchNav(fund.code);
-                const wrsi = _computeWrsi(navs);
-                if (wrsi !== null && wrsi >= 50) {
-                    regimeA.push({ code: fund.code, name: fund.name, wrsi: Math.round(wrsi * 10) / 10 });
+    // ── Storage listener — auto-start BG scan when 🔐 key is saved ───
+    // This fires if the user enters the key via the main app's 🔐 button
+    // AFTER the BG scan has already returned with "no key found".
+    let _bgListenerAttached = false;
+    function _attachStorageListener() {
+        if (_bgListenerAttached) return;
+        _bgListenerAttached = true;
+        window.addEventListener('storage', function _onKeyStored(e) {
+            if (e.key === 'ld_gemini_api_key' && e.newValue && e.newValue.length > 20) {
+                window.removeEventListener('storage', _onKeyStored);
+                const panel = document.getElementById('bgKeyPanel');
+                if (panel) panel.remove();
+                console.log('[BG Breadth] Key detected via 🔐 modal — auto-starting scan.');
+                setTimeout(_runBackgroundScan, 800);
+            }
+        });
+        // Also poll every 10 s (catches same-tab saves which don't fire 'storage')
+        const _pollTimer = setInterval(() => {
+            const k = _resolveApiKey();
+            if (k) {
+                clearInterval(_pollTimer);
+                const panel = document.getElementById('bgKeyPanel');
+                if (panel) {
+                    panel.querySelector('#bgKeyPanelStatus').textContent = '✅ Key found via 🔐 — starting scan…';
+                    setTimeout(() => { panel.remove(); _runBackgroundScan(); }, 1200);
                 }
-            } catch {}
-            _showPill(`🔍 ${i+1}/${equity.length} scanned — ${regimeA.length} Regime A`);
+            }
+        }, 10_000);
+        // Stop polling after 5 minutes to avoid memory leak
+        setTimeout(() => clearInterval(_pollTimer), 300_000);
+    }
+
+    // ── Main orchestrator ─────────────────────────────────────────────
+    async function _runBackgroundScan() {
+        // Guard: run once per IST day only
+        if (_hasRanToday()) {
+            console.log(`[BG Breadth] Already ran today (${_istDate()}) — skipping.`);
+            return;
+        }
+
+        // Resolve API key via authoritative source
+        const _mask = k => k ? `${k.slice(0,6)}…${k.slice(-4)}(${k.length}c)` : 'none';
+        const _k1 = localStorage.getItem('ld_gemini_api_key');
+        const _k2 = localStorage.getItem('ld_gemini_api_key2');
+        let apiKey = _resolveApiKey();
+        console.log(`[BG Breadth] Key scan — K1:${_mask(_k1)} K2:${_mask(_k2)} resolved:${_mask(apiKey)}`);
+
+        if (!apiKey) {
+            // Attach listener so BG auto-starts when user enters key via 🔐
+            _attachStorageListener();
+            // Show a minimal key-entry panel as fast path
+            const panel = document.createElement('div');
+            panel.id = 'bgKeyPanel';
+            panel.style.cssText = [
+                'position:fixed','bottom:16px','left:12px','z-index:99999',
+                'background:#0f172a','color:#e2e8f0',
+                'border:2px solid #c97a00','border-radius:12px',
+                'padding:14px 16px','width:280px',
+                'font-family:monospace','font-size:0.62rem',
+                'box-shadow:0 4px 24px rgba(0,0,0,0.5)',
+                'line-height:1.5'
+            ].join(';');
+            panel.innerHTML = [
+                '<div style="color:#fbbf24;font-weight:700;margin-bottom:6px;">',
+                '  🔑 BG Breadth — API Key Needed',
+                '</div>',
+                '<div style="color:#94a3b8;font-size:0.54rem;margin-bottom:8px;">',
+                '  <b style="color:#e2e8f0;">Option A (recommended):</b> Tap the <b style="color:#fbbf24;">🔐 button</b> in the top bar,',
+                '  enter your key there — BG scan will auto-start. This panel will close automatically.<br><br>',
+                '  <b style="color:#e2e8f0;">Option B (fast path):</b> Paste key directly below:',
+                '</div>',
+                '<input id="bgKeyPanelInput" type="password" placeholder="AIza… (39 chars)"',
+                '  style="width:100%;box-sizing:border-box;padding:6px 8px;',
+                '         border-radius:6px;border:1px solid #475569;',
+                '         background:#1e293b;color:#e2e8f0;font-family:monospace;',
+                '         font-size:0.6rem;outline:none;margin-bottom:8px;" />',
+                '<div style="display:flex;gap:8px;">',
+                '  <button id="bgKeyPanelSave"',
+                '    style="flex:1;background:#009e70;color:#fff;border:none;',
+                '           border-radius:6px;padding:7px;font-size:0.6rem;',
+                '           font-weight:700;cursor:pointer;">',
+                '    ✅ Save &amp; Start Scan',
+                '  </button>',
+                '  <button id="bgKeyPanelClose"',
+                '    style="background:#334155;color:#94a3b8;border:none;',
+                '           border-radius:6px;padding:7px 10px;font-size:0.6rem;cursor:pointer;">',
+                '    ✕',
+                '  </button>',
+                '</div>',
+                '<div id="bgKeyPanelStatus" style="margin-top:6px;font-size:0.52rem;',
+                '     color:#64748b;min-height:14px;"></div>',
+            ].join('\n');
+
+            document.body.appendChild(panel);
+
+            document.getElementById('bgKeyPanelClose').onclick = () => panel.remove();
+
+            document.getElementById('bgKeyPanelSave').onclick = function() {
+                const inp = document.getElementById('bgKeyPanelInput');
+                const st  = document.getElementById('bgKeyPanelStatus');
+                const val = (inp ? inp.value : '').trim();
+                if (!val || val.length < 20) {
+                    st.style.color = '#f87171';
+                    st.textContent = '⚠ Too short — paste full AIza… key (39 chars)';
+                    return;
+                }
+                localStorage.setItem('ld_gemini_api_key', val);
+                if (inp) inp.value = '';
+                st.style.color = '#6ee7b7';
+                st.textContent = '✅ Key saved — starting scan in 3 seconds…';
+                console.log('[BG Breadth] Key saved via panel — restarting scan.');
+                setTimeout(() => {
+                    panel.remove();
+                    _runBackgroundScan();
+                }, 3000);
+            };
+
+            const inp = document.getElementById('bgKeyPanelInput');
+            if (inp) inp.addEventListener('keydown', e => {
+                if (e.key === 'Enter') document.getElementById('bgKeyPanelSave').click();
+            });
+
+            console.log('[BG Breadth] Key panel shown — paste your Gemini API key to start.');
+            return;
+        }
+
+        // Guard: need RSI builder
+        if (!window.buildWeeklyRsiFast) {
+            console.log('[BG Breadth] buildWeeklyRsiFast not ready — retrying in 5s.');
+            await _sleep(5000);
+            if (!window.buildWeeklyRsiFast) return;
+        }
+
+        const pill = _makePill();
+
+        // Step 1: Scan all equity funds for Regime A
+        const allFunds   = _allFunds();
+        const equityFunds = allFunds.filter(_isEquity);
+        _setPillMsg(`🔍 Scanning ${equityFunds.length} equity funds for Regime A…`);
+
+        const regimeAFunds = [];
+        let scanned = 0;
+
+        for (const fund of equityFunds) {
+            // If tab is hidden, pause scanning — don't waste bandwidth
+            if (document.hidden) await _sleep(2000);
+
+            // Skip Scheme C bond funds already caught by _isEquity, but double-check
+            if (!_isEquity(fund)) continue;
+
+            try {
+                const navRows = await _fetchNav(fund.code);
+                if (navRows.length < 30) { scanned++; continue; }
+                const wrsi = _computeWrsi(navRows);
+                scanned++;
+                _setPillMsg(`🔍 ${scanned}/${equityFunds.length} scanned — ${regimeAFunds.length} Regime A so far`);
+                if (wrsi !== null && wrsi >= 50) {
+                    regimeAFunds.push({ ...fund, wrsi: Math.round(wrsi * 10) / 10 });
+                    console.log(`[BG Breadth] Regime A: ${fund.name} (W-RSI ${Math.round(wrsi)})`);
+                }
+            } catch(e) {
+                console.warn(`[BG Breadth] Nav fetch failed for ${fund.code}:`, e.message);
+                scanned++;
+            }
+
+            // Small gap between NAV fetches (not Gemini) — 800ms is courteous
             await _sleep(800);
         }
 
-        // Store for the day
-        _ls.setJ(_K.regimeA(), regimeA);
-        console.log(`[BG] Regime A scan done: ${regimeA.length} funds stored.`);
-        return regimeA;
-    }
-
-    // ════════════════════════════════════════════════════════════════
-    // PHASE 2 — BA PROCESSING (Gemini, pending only, daily lock)
-    // ════════════════════════════════════════════════════════════════
-    async function _runBA(regimeAFunds, apiKey) {
-        // ── Daily lock: if all done, stop immediately ─────────────
-        if (_isBADoneToday()) {
-            _showPill('✅ BA complete for today — all funds processed.', '#009e70');
-            setTimeout(_donePill, 2000, '✅ BA already complete today.');
-            console.log('[BG] BA_completed_today=true — skipping all BA logic.');
+        if (!regimeAFunds.length) {
+            _donePill(`✅ Scan complete — 0 funds in Regime A today.`);
+            _markRanToday();
             return;
         }
 
-        const completed = _getCompleted();
-        const pending   = regimeAFunds.filter(f => !completed.includes(f.code) && !_ls.get(_K.breadth(f.code)));
+        // Step 2: Filter out already-cached funds
+        const needsBreadth = regimeAFunds.filter(f => !_cacheExists(f.code));
 
-        console.log(`[BG] BA: ${regimeAFunds.length} Regime A | ${completed.length} completed | ${pending.length} pending`);
+        _setPillMsg(
+            `🟢 ${regimeAFunds.length} Regime A funds found. ` +
+            `${needsBreadth.length} need breadth (${regimeAFunds.length - needsBreadth.length} cached).`
+        );
 
-        if (!pending.length) {
-            _markBADone();
-            _donePill(`✅ BA complete — all ${regimeAFunds.length} Regime A funds cached.`);
-            console.log('[BG] All funds processed — BA_completed_today set.');
+        console.log(`[BG Breadth] Regime A funds:`, regimeAFunds.map(f => f.name));
+        console.log(`[BG Breadth] Needs breadth fetch: ${needsBreadth.length}`);
+
+        if (!needsBreadth.length) {
+            _donePill(`✅ All ${regimeAFunds.length} Regime A funds already cached today.`);
+            _markRanToday();
             return;
         }
 
+        // Store the Regime A list for both BG status and BA completion tracking
+        try {
+            const _rAData = regimeAFunds.map(f => ({ code: f.code, name: f.name, wrsi: f.wrsi }));
+            localStorage.setItem(`bgbreadth_regimeA_${_istDate()}`, JSON.stringify(_rAData));
+            // Share with BA lock system (ba_regimeA_funds_YYYYMMDD) — same date format
+            const _istD = _istDate();
+            localStorage.setItem(`ba_regimeA_funds_${_istD}`, JSON.stringify(_rAData));
+        } catch(e) {}
+
+        // Step 3: Fire Gemini breadth for each — 100s gap between calls
         let done = 0, failed = 0;
 
-        for (let i = 0; i < pending.length; i++) {
-            // ── Stop condition check before each fund ──────────────
-            if (_isBADoneToday()) {
-                console.log('[BG] BA lock set externally — stopping.');
-                break;
-            }
+        for (let i = 0; i < needsBreadth.length; i++) {
+            const fund = needsBreadth[i];
 
-            while (document.hidden) await _sleep(3000);
+            // Pause if tab hidden
+            while (document.hidden) { await _sleep(3000); }
 
-            const fund = pending[i];
-            _showPill(`✨ BA ${i+1}/${pending.length}: ${fund.name.slice(0,26)}…`);
+            _setPillMsg(
+                `✨ Breadth ${i + 1}/${needsBreadth.length}: ${fund.name.replace(/\[NPS\] /,'').slice(0, 28)}…` +
+                (i > 0 ? ` (${Math.round(GAP_MS/1000)}s gap)` : '')
+            );
 
             try {
-                const parsed = await _callGemini(fund, fund.wrsi, apiKey);
-                _ls.setJ(_K.breadth(fund.code), parsed);   // save immediately after each fund
-                _markCompleted(fund.code);                  // track in completed[]
+                const parsed = await _callGeminiBreadth(fund, fund.wrsi, apiKey);
+                _bgCacheSave(fund.code, parsed);
                 done++;
-                console.log(`[BG] ✅ ${fund.name} → ${parsed.confirmation}`);
+                // Sync with BA partial-completion tracker
+                try {
+                    const _baCKey = `ba_completed_funds_${_istDate()}`;
+                    const _baDone = JSON.parse(localStorage.getItem(_baCKey) || '[]');
+                    if (!_baDone.includes(fund.code)) _baDone.push(fund.code);
+                    localStorage.setItem(_baCKey, JSON.stringify(_baDone));
+                    // If all Regime A funds done — set BA daily lock
+                    if (_baDone.length >= regimeAFunds.length) {
+                        localStorage.setItem(`ba_completed_today_${_istDate()}`, 'true');
+                        console.log(`[BG Breadth] BA daily lock set — all ${regimeAFunds.length} funds complete.`);
+                    }
+                } catch {}
+                console.log(`[BG Breadth] ✅ Cached: ${fund.name} → ${parsed.confirmation}`);
             } catch(e) {
                 failed++;
-                console.warn(`[BG] ❌ ${fund.name}:`, e.message);
-                _showPill(`⚠ ${fund.name.slice(0,22)} failed — continuing…`, '#c97a00');
-                await _sleep(3000);
+                console.warn(`[BG Breadth] ❌ Failed: ${fund.name}:`, e.message);
+                _setPillMsg(`⚠ ${fund.name.slice(0,22)} failed — continuing…`, '#c97a00');
+                await _sleep(3000); // short pause then continue
             }
 
-            // 100s gap — skip after last fund
-            if (i < pending.length - 1) {
+            // 100-second gap before next Gemini call (skip gap after last one)
+            if (i < needsBreadth.length - 1) {
                 for (let s = GAP_MS / 1000; s > 0; s -= 5) {
-                    while (document.hidden) await _sleep(3000);
-                    _showPill(`⏱ Next in ${s}s — (${done} done${failed?', '+failed+' failed':''})`, '#6366f1');
+                    if (document.hidden) { await _sleep(3000); continue; }
+                    _setPillMsg(
+                        `⏱ Next breadth in ${s}s — (${done} done${failed ? ', ' + failed + ' failed' : ''})`,
+                        '#6366f1'
+                    );
                     await _sleep(Math.min(5000, s * 1000));
                 }
             }
         }
 
-        // ── Check if all Regime A funds are now complete ────────────
-        const allCompleted = regimeAFunds.every(f =>
-            _getCompleted().includes(f.code) || _ls.get(_K.breadth(f.code))
+        _markRanToday();
+        _donePill(
+            `✅ BG Breadth done — ${done}/${needsBreadth.length} cached` +
+            (failed ? ` (${failed} failed)` : '') +
+            `. ${regimeAFunds.length} Regime A funds today.`
         );
-        if (allCompleted) {
-            _markBADone();
-            _donePill(`✅ BA complete — ${done} cached, ${regimeAFunds.length} Regime A funds done.`);
-            console.log('[BG] All Regime A funds processed — BA_completed_today set.');
-        } else {
-            _donePill(`⏸ BA partial — ${done} done, ${failed} failed. Resume tomorrow or bgBreadthForceRun().`);
-        }
+        console.log(`[BG Breadth] Complete. ${done} cached, ${failed} failed.`);
     }
 
-    // ════════════════════════════════════════════════════════════════
-    // MAIN — _runBackgroundScan()
-    // Called MANUALLY only (bgBreadthForceRun). NOT on app open.
-    // On app open: stored data shown by manual breadth panel (zero API).
-    // ════════════════════════════════════════════════════════════════
-    async function _runBackgroundScan() {
-        // ── Show stored results and stop if BA already complete ────
-        const stored = _getRegimeAFunds();
-        if (_isBADoneToday()) {
-            console.log(`[BG] Today complete. Regime A: ${stored.length} funds, BA: all done.`);
-            console.log('[BG] Tap bgBreadthStatus() to see results. bgBreadthClearAll() to reset.');
-            return;
-        }
-
-        // ── API key resolution ─────────────────────────────────────
-        const KEY_NAMES = ['ld_gemini_api_key','ld_gemini_api_key2','gemini_api_key','apiKey'];
-        let apiKey = null;
-        for (const k of KEY_NAMES) {
-            const v = localStorage.getItem(k);
-            if (v && v.trim().length > 20) { apiKey = v.trim(); break; }
-        }
-
-        const _mask = k => k ? `${k.slice(0,6)}…${k.slice(-4)}(${k.length}c)` : 'none';
-        console.log(`[BG] Key: ${_mask(apiKey)}`);
-
-        if (!apiKey) {
-            _showKeyPanel(savedKey => _runBackgroundScan());
-            return;
-        }
-
-        // ── Phase 1: Regime A scan (instant if already stored) ────
-        let regimeA;
-        try {
-            regimeA = await _scanRegimeA();
-        } catch(e) {
-            console.error('[BG] Regime A scan failed:', e.message);
-            _removePill();
-            return;
-        }
-
-        if (!regimeA.length) {
-            _donePill('✅ Scan complete — 0 funds in Regime A today.');
-            return;
-        }
-
-        console.log(`[BG] Regime A funds (${regimeA.length}):`, regimeA.map(f=>f.name));
-
-        // ── Phase 2: BA processing ─────────────────────────────────
-        await _runBA(regimeA, apiKey);
-    }
-
-    // ════════════════════════════════════════════════════════════════
-    // PUBLIC API
-    // ════════════════════════════════════════════════════════════════
-
-    // Show today's status (no API calls)
+    // ── Public API ────────────────────────────────────────────────────
+    // window.bgBreadthStatus() → returns today's Regime A list from cache
     window.bgBreadthStatus = function() {
-        const d     = _istDate();
-        const rA    = _getRegimeAFunds();
-        const done  = _getCompleted();
-        const baOk  = _isBADoneToday();
-        console.log(`[BG Status] Date: ${d} | Regime A: ${rA.length} | Completed: ${done.length} | BA done: ${baOk}`);
-        if (rA.length) console.table(rA);
-        return { regimeA: rA, completed: done, baComplete: baOk };
+        try {
+            const raw = localStorage.getItem(`bgbreadth_regimeA_${_istDate()}`);
+            const list = raw ? JSON.parse(raw) : [];
+            console.table(list);
+            return list;
+        } catch { return []; }
     };
 
-    // Force run (for testing — clears locks then runs)
+    // window.bgBreadthForceRun() → clear run flag and restart (for testing)
     window.bgBreadthForceRun = function() {
-        const d = _istDate();
-        _ls.del(_K.baLock());
-        _ls.del(_K.completed());
-        console.log('[BG] Locks cleared — starting scan…');
+        try { localStorage.removeItem(RUN_FLAG_KEY + _istDate()); } catch {}
         _runBackgroundScan();
     };
 
-    // Reset everything for today (full clear)
+    // window.bgBreadthClearAll() → wipe all breadth caches for today
     window.bgBreadthClearAll = function() {
-        const d    = _istDate();
-        const keys = Object.keys(localStorage).filter(k => k.includes(d));
+        const d = _istDate();
+        const keys = Object.keys(localStorage).filter(k => k.includes(d) && k.startsWith('breadth_v1_'));
         keys.forEach(k => localStorage.removeItem(k));
-        _pill && _pill.remove(); _pill = null;
-        console.log(`[BG] Cleared ${keys.length} entries for ${d}.`);
+        localStorage.removeItem(RUN_FLAG_KEY + d);
+        localStorage.removeItem(`bgbreadth_regimeA_${d}`);
+        console.log(`[BG Breadth] Cleared ${keys.length} cache entries + run flag for ${d}.`);
     };
 
-    // ── NOT auto-started on app open — manual only ─────────────────
-    console.log(`[BG Breadth] ${ADDON_VER} ready.`);
-    console.log('[BG Breadth] Commands: bgBreadthForceRun() | bgBreadthStatus() | bgBreadthClearAll()');
-    console.log('[BG Breadth] On app open: stored BA shown in manual breadth panel (zero API calls).');
+    // ── Auto-start: 6 seconds after page load ─────────────────────────
+    window.addEventListener('load', () => {
+        setTimeout(_runBackgroundScan, BOOT_DELAY_MS);
+    });
+
+    console.log(`[BG Breadth] Add-on ${ADDON_VER} loaded. Starts in ${BOOT_DELAY_MS/1000}s.`);
+    console.log('[BG Breadth] Debug: bgBreadthStatus() | bgBreadthForceRun() | bgBreadthClearAll()');
 
     })();
     </script>
     <!-- ═══════════════ END BG BREADTH ADD-ON ═══════════════ -->
-

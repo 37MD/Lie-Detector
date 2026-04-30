@@ -2793,7 +2793,6 @@
                     <span style="font-size:0.48rem;color:var(--muted);margin-top:1px;">Pinned funds — live Regime · D-RSI · Alert</span>
                 </div>
                 <div style="display:flex;gap:6px;align-items:center;">
-                    <button class="setup-btn" style="border-color:#7c3aed;color:#7c3aed;padding:4px 8px;font-size:0.55rem;" onclick="_openBAFromWatchlist()" title="Run Breadth Analysis for selected fund">✨ BA</button>
                     <button class="setup-btn" style="border-color:#a855f7;color:#a855f7;padding:4px 8px;font-size:0.55rem;" onclick="addCurrentToWatchlist()">+ PIN THIS FUND</button>
                     <span class="modal-close-btn" onclick="document.getElementById('watchlistModal').style.display='none';document.getElementById('setupScreen').style.display='flex';">[ X ]</span>
                 </div>
@@ -3930,98 +3929,6 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     {
                         name: '[NPS] KOTAK Scheme C - Tier II',
                         code: 'SM005005'
-                    },
-                ],
-                SBI: [
-                    {
-                        name: 'SBI Bluechip - Growth',
-                        code: '119592'
-                    },
-                    {
-                        name: 'SBI Balanced Advantage - Growth',
-                        code: '151067'
-                    },
-                    {
-                        name: '[NPS] SBI Scheme E - Tier I',
-                        code: 'SM001001'
-                    },
-                    {
-                        name: '[NPS] SBI Scheme C - Tier I',
-                        code: 'SM001002'
-                    },
-                    {
-                        name: '[NPS] SBI Scheme E - Tier II',
-                        code: 'SM001004'
-                    },
-                    {
-                        name: '[NPS] SBI Scheme C - Tier II',
-                        code: 'SM001005'
-                    },
-                ],
-                UTI: [
-                    {
-                        name: 'UTI Nifty 50 Index - Direct',
-                        code: '120716'
-                    },
-                    {
-                        name: 'UTI Balanced Advantage - Growth',
-                        code: '130503'
-                    },
-                    {
-                        name: '[NPS] UTI Scheme E - Tier I',
-                        code: 'SM003001'
-                    },
-                    {
-                        name: '[NPS] UTI Scheme C - Tier I',
-                        code: 'SM003002'
-                    },
-                    {
-                        name: '[NPS] UTI Scheme E - Tier II',
-                        code: 'SM003004'
-                    },
-                    {
-                        name: '[NPS] UTI Scheme C - Tier II',
-                        code: 'SM003005'
-                    },
-                ],
-                LIC: [
-                    {
-                        name: 'LIC MF Large Cap - Growth',
-                        code: '119015'
-                    },
-                    {
-                        name: '[NPS] LIC Scheme E - Tier I',
-                        code: 'SM002001'
-                    },
-                    {
-                        name: '[NPS] LIC Scheme C - Tier I',
-                        code: 'SM002002'
-                    },
-                    {
-                        name: '[NPS] LIC Scheme E - Tier II',
-                        code: 'SM002004'
-                    },
-                    {
-                        name: '[NPS] LIC Scheme C - Tier II',
-                        code: 'SM002005'
-                    },
-                ],
-                MAX: [
-                    {
-                        name: '[NPS] MAX Life Scheme E - Tier I',
-                        code: 'SM009001'
-                    },
-                    {
-                        name: '[NPS] MAX Life Scheme C - Tier I',
-                        code: 'SM009002'
-                    },
-                    {
-                        name: '[NPS] MAX Life Scheme E - Tier II',
-                        code: 'SM009004'
-                    },
-                    {
-                        name: '[NPS] MAX Life Scheme C - Tier II',
-                        code: 'SM009005'
                     },
                 ],
                 ABSL: [{
@@ -9123,22 +9030,6 @@ This is exactly how the system is meant to be played.
                 document.getElementById('watchlistModal').style.display = 'none';
                 initLiveChart();
             }
-            // ── BA button in Watchlist: open BA panel for first watchlisted fund ──
-            function _openBAFromWatchlist() {
-                if (!_watchlist || _watchlist.length === 0) {
-                    alert('No funds in Watchlist. Add a fund first.');
-                    return;
-                }
-                const w = _watchlist[0];
-                const allFunds = Object.values(amcFunds).flat();
-                const fund = allFunds.find(f => f.code === w.code) || { code: w.code, name: w.name };
-                if (window.openAIBreadthModal) {
-                    const fundForBA = Object.assign({}, fund, { wrsi: 50, drsi: 50, r1m: 0 });
-                    window.openAIBreadthModal(fundForBA);
-                } else {
-                    alert('BA engine not loaded. Ensure API key is set.');
-                }
-            }
             function _initWatchlistCloseBtn() {
                 const wm = document.getElementById('watchlistModal');
                 if (!wm) return;
@@ -12103,89 +11994,82 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
             function renderAlertSummaryUI(res) {
                 const content = document.getElementById('alertSummaryContent');
                 const sub = document.getElementById('alertSummarySub');
+                content.innerHTML = '';
+
                 const allFunds = Object.values(window.amcFunds).flat();
                 const actionableAlerts = ['TSL','REGIME_CRASH','REGIME_C','NC','REGIME_BREAKOUT','PC','RSI_DIP','SLINGSHOT'];
                 const totalAlerts = actionableAlerts.reduce((s, k) => s + (res[k]||[]).length, 0);
                 const holdCount = (res.HOLD || []).length;
                 if (sub) sub.textContent = `${totalAlerts} actionable alerts · ${holdCount} funds waiting · ${allFunds.length} total`;
-                content.innerHTML = '';
+
                 const categories = [
-                    { id: 'tsl',      label: '🚨 TSL FLOOR BREACH',              list: res.TSL,             color: 'var(--red)'    },
-                    { id: 'crash',    label: '🚨 REGIME CRASH (NEW → FEAR)',      list: res.REGIME_CRASH,    color: 'var(--red)'    },
-                    { id: 'regc',     label: '🚨 REGIME FEAR (BEAR)',             list: res.REGIME_C,        color: 'var(--red)'    },
-                    { id: 'nc',       label: '🚨 NC BREAKDOWN',                   list: res.NC,              color: '#f59e0b'       },
-                    { id: 'brk',      label: '🟢 REGIME BREAKOUT (NEW → HOPE)',   list: res.REGIME_BREAKOUT, color: 'var(--accent)' },
-                    { id: 'pc',       label: '🟢 PC BREAKOUT',                    list: res.PC,              color: 'var(--accent)' },
-                    { id: 'rsi',      label: '🟢 RSI OVERSOLD (<40)',             list: res.RSI_DIP,         color: 'var(--accent)' },
-                    { id: 'sling',    label: '🟢 SLINGSHOT SIGNAL',               list: res.SLINGSHOT,       color: 'var(--accent)' },
-                    { id: 'hold',     label: '⏸ HOLD — WAITING FOR SIGNAL',      list: res.HOLD,            color: 'var(--muted)'  }
+                    { label: '🚨 TSL FLOOR BREACH',              list: res.TSL,             color: '#c8102e'       },
+                    { label: '🚨 REGIME CRASH (NEW → FEAR)',      list: res.REGIME_CRASH,    color: '#c8102e'       },
+                    { label: '🚨 REGIME FEAR (BEAR)',             list: res.REGIME_C,        color: '#c8102e'       },
+                    { label: '🚨 NC BREAKDOWN',                   list: res.NC,              color: '#f59e0b'       },
+                    { label: '🟢 REGIME BREAKOUT (NEW → HOPE)',   list: res.REGIME_BREAKOUT, color: '#009e70'       },
+                    { label: '🟢 PC BREAKOUT',                    list: res.PC,              color: '#009e70'       },
+                    { label: '🟢 RSI OVERSOLD (<40)',             list: res.RSI_DIP,         color: '#009e70'       },
+                    { label: '🟢 SLINGSHOT SIGNAL',               list: res.SLINGSHOT,       color: '#009e70'       },
+                    { label: '⏸ HOLD — WAITING FOR SIGNAL',      list: res.HOLD,            color: '#64748b'       }
                 ];
+
                 categories.forEach(cat => {
-                    const listLength = cat.list ? cat.list.length : 0;
-                    // ── Section header button (always visible) ──
+                    const listLength = (cat.list && cat.list.length) ? cat.list.length : 0;
+
+                    // Header button
                     const btn = document.createElement('button');
                     btn.className = 'alert-cat-btn';
                     btn.style.color = cat.color;
-                    // Start expanded if has funds; collapsed if empty
-                    const startOpen = listLength > 0;
-                    btn.innerHTML = `<span>${cat.label}</span><span>${listLength} ${startOpen ? '▾' : '▸'}</span>`;
+                    btn.innerHTML = `<span>${cat.label}</span><span style="font-weight:700;">${listLength > 0 ? listLength + ' ▾' : '0'}</span>`;
 
-                    // ── Fund list pane — visible by default if has funds ──
+                    // Pane — OPEN by default if has funds
                     const pane = document.createElement('div');
-                    pane.style.cssText = `
-                        display:${startOpen ? 'block' : 'none'};
-                        background:var(--surface);
-                        margin-bottom:3px;
-                        border-radius:var(--radius-sm);
-                        overflow:hidden;
-                    `;
+                    pane.style.cssText = `display:${listLength > 0 ? 'block' : 'none'};background:var(--surface);margin-bottom:3px;border-radius:4px;overflow:hidden;`;
 
                     if (listLength > 0) {
-                        cat.list.forEach(item => {
-                            const regimeColor = item.regime === 'A' ? 'var(--accent)' : item.regime === 'B' ? 'var(--gold)' : 'var(--red)';
+                        cat.list.forEach(function(item) {
+                            const regimeColor = item.regime === 'A' ? '#009e70' : item.regime === 'B' ? '#b07a00' : '#c8102e';
                             const regimeLabel = item.regime === 'A' ? 'Hope' : item.regime === 'B' ? 'Watch' : 'Fear';
                             const row = document.createElement('div');
                             row.className = 'alert-item-row';
-                            row.style.cursor = 'pointer';
-                            // ── CLICK: close alert modal, open Live Cockpit ──
-                            row.addEventListener('click', function() {
-                                launchLiveFromAlert(item.code);
-                            });
+                            row.style.cssText = 'display:flex;align-items:center;padding:9px 12px;border-bottom:1px solid rgba(0,0,0,0.07);cursor:pointer;gap:8px;';
                             row.innerHTML = `
                                 <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
-                                    <span class="alert-item-name">${item.name}</span>
-                                    <span style="font-size:0.52rem;color:var(--muted2);font-family:var(--mono);margin-top:1px;">
-                                        W-RSI: ${item.wrsi} &nbsp;|&nbsp; D-RSI: ${item.drsi} &nbsp;|&nbsp; Δ: ${item.delta} &nbsp;|&nbsp;
-                                        Regime: <strong style="color:${regimeColor};">${regimeLabel}</strong>
+                                    <span style="font-size:0.72rem;font-weight:400;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.name}</span>
+                                    <span style="font-size:0.52rem;color:#64748b;font-family:var(--mono);margin-top:2px;">
+                                        W-RSI: ${item.wrsi} &nbsp;|&nbsp; D-RSI: ${item.drsi} &nbsp;|&nbsp; Δ: ${item.delta} &nbsp;|&nbsp; Regime: <strong style="color:${regimeColor};">${regimeLabel}</strong>
                                     </span>
                                 </div>
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;">
-                                    <span class="alert-item-val" style="color:${cat.color};">${item.val}</span>
-                                    <span style="font-size:0.46rem;color:var(--muted);font-family:var(--mono);">TAP → LIVE ▶</span>
+                                    <span style="font-size:0.62rem;font-weight:700;color:${cat.color};">${item.val}</span>
+                                    <span style="font-size:0.44rem;color:#64748b;font-family:var(--mono);">TAP → LIVE ▶</span>
                                 </div>`;
+                            // Click → navigate to Live Market
+                            row.addEventListener('click', function() { launchLiveFromAlert(item.code); });
                             pane.appendChild(row);
                         });
                     } else {
-                        const emptyRow = document.createElement('div');
-                        emptyRow.className = 'alert-item-row';
-                        emptyRow.style.cssText = 'justify-content:center;cursor:default;';
-                        emptyRow.innerHTML = `<span style="font-size:0.6rem;color:var(--muted);">No funds in this category</span>`;
-                        pane.appendChild(emptyRow);
+                        const empty = document.createElement('div');
+                        empty.style.cssText = 'padding:8px 12px;font-size:0.6rem;color:#64748b;text-align:center;';
+                        empty.textContent = 'No funds in this category';
+                        pane.appendChild(empty);
                     }
 
-                    // ── Toggle on header click ──
+                    // Toggle on header click
                     btn.addEventListener('click', function() {
-                        const isOpen = pane.style.display === 'block';
-                        pane.style.display = isOpen ? 'none' : 'block';
-                        btn.querySelector('span:last-child').textContent = listLength + (isOpen ? ' ▸' : ' ▾');
+                        const open = pane.style.display === 'block';
+                        pane.style.display = open ? 'none' : 'block';
+                        btn.querySelector('span:last-child').textContent = listLength > 0 ? listLength + (open ? ' ▸' : ' ▾') : '0';
                     });
 
                     content.appendChild(btn);
                     content.appendChild(pane);
                 });
+
                 if (totalAlerts === 0 && holdCount === 0) {
                     const emptyMsg = document.createElement('div');
-                    emptyMsg.style.cssText = 'text-align:center;padding:60px 20px;color:var(--accent);font-size:0.7rem;';
+                    emptyMsg.style.cssText = 'text-align:center;padding:60px 20px;color:#009e70;font-size:0.7rem;';
                     emptyMsg.innerHTML = '✓ UNIVERSE IS CLEAN<br>No critical alerts detected.';
                     content.appendChild(emptyMsg);
                 }
@@ -12412,36 +12296,33 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 _setBadge(`(${count})`);
             }
             function launchLiveFromAlert(code) {
-                // ── Step 1: Close ALL modals ──
-                ['alertSummaryModal','assetAllocatorModal','watchlistModal','compareModal'].forEach(id => {
-                    const m = document.getElementById(id);
+                // Close all modals
+                ['alertSummaryModal','assetAllocatorModal','watchlistModal','compareModal'].forEach(function(id) {
+                    var m = document.getElementById(id);
                     if (m) m.style.display = 'none';
                 });
-                // ── Step 2: Show the main setup screen ──
-                const ss = document.getElementById('setupScreen');
+                // Show setup screen
+                var ss = document.getElementById('setupScreen');
                 if (ss) ss.style.display = 'flex';
-                // ── Step 3: Select the correct AMC ──
-                let amcMatch = null;
-                for (const amc in window.amcFunds) {
-                    if (window.amcFunds[amc].some(f => f.code === code)) {
+                // Find and select the AMC
+                var amcMatch = null;
+                for (var amc in window.amcFunds) {
+                    if (window.amcFunds[amc].some(function(f) { return f.code === code; })) {
                         amcMatch = amc;
                         break;
                     }
                 }
                 if (amcMatch) {
-                    const amcBtns = document.querySelectorAll('#fundGrid .fund-box');
-                    amcBtns.forEach(b => {
-                        if (b.textContent.trim() === amcMatch) {
-                            selectAMC(amcMatch, b);
-                        }
+                    document.querySelectorAll('#fundGrid .fund-box').forEach(function(b) {
+                        if (b.textContent.trim() === amcMatch) selectAMC(amcMatch, b);
                     });
                 }
-                // ── Step 4: Select the fund ──
-                const fundSel = document.getElementById('fundSelect');
+                // Set fund dropdown
+                var fundSel = document.getElementById('fundSelect');
                 if (fundSel) fundSel.value = code;
                 saveFundSelection();
-                // ── Step 5: Launch Live Cockpit ──
-                setTimeout(() => initLiveChart(), 80);
+                // Small delay so DOM is ready before chart initialises
+                setTimeout(function() { initLiveChart(); }, 100);
             }
             let _pausedSipAmount  = 0;   
             let _pausedSipCount   = 0;   
@@ -13055,15 +12936,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
             <div class="abp-title">✨ AI Breadth Confirmation</div>
             <div class="abp-fund-tag" id="abpFundTag">—</div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <button id="abpAddToWatchlistBtn" onclick="window._abpAddToWatchlist()" title="Pin this fund to Watchlist"
-              style="background:transparent;border:1.5px solid #a855f7;color:#a855f7;border-radius:6px;
-                     font-size:0.6rem;font-family:var(--mono,'Space Mono',monospace);font-weight:700;
-                     padding:5px 10px;cursor:pointer;letter-spacing:0.05em;white-space:nowrap;">
-              📌 ADD TO WATCHLIST
-            </button>
-            <button class="abp-close" onclick="closeAIBreadthModal()">✕</button>
-          </div>
+          <button class="abp-close" onclick="closeAIBreadthModal()">✕</button>
         </div>
         <div class="abp-body">
           <!-- Fund meta row -->
@@ -13173,11 +13046,9 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
 
         // True if ALL Regime A funds were processed today
         function _baIsLockedToday()  {
-            try { if (sessionStorage.getItem(BA_LOCK_KEY()) === 'true') return true; } catch(e) {}
             try { return localStorage.getItem(BA_LOCK_KEY()) === 'true'; } catch(e) { return false; }
         }
         function _baSetLock()        {
-            try { sessionStorage.setItem(BA_LOCK_KEY(), 'true'); } catch(e) {}
             try { localStorage.setItem(BA_LOCK_KEY(), 'true'); } catch(e) {}
         }
 
@@ -13188,7 +13059,6 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const list = raw ? JSON.parse(raw) : [];
                 if (!list.includes(fundCode)) { list.push(fundCode); }
                 localStorage.setItem(BA_COMPLETED_KEY(), JSON.stringify(list));
-                try { sessionStorage.setItem(BA_COMPLETED_KEY(), JSON.stringify(list)); } catch(e) {}
             } catch(e) {}
         }
         function _baGetCompleted() {
@@ -13214,19 +13084,6 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
         // ════════════════════════════════════════════════════════════
         window.openAIBreadthModal = function(fund) {
             _abpFund = fund;
-            window._abpCurrentFund = fund;
-            // Reset watchlist button
-            const _wlBtn = document.getElementById('abpAddToWatchlistBtn');
-            if (_wlBtn) {
-                const key = 'ld_watchlist';
-                let wl = [];
-                try { wl = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
-                const alreadyIn = !!(wl.find(w => w.code === (fund.code || fund.name)));
-                _wlBtn.textContent = alreadyIn ? '✅ ALREADY PINNED' : '📌 ADD TO WATCHLIST';
-                _wlBtn.style.color = alreadyIn ? '#009e70' : '#a855f7';
-                _wlBtn.style.borderColor = alreadyIn ? '#009e70' : '#a855f7';
-                _wlBtn.disabled = alreadyIn;
-            }
             _resetPanel();
             _populateFundMeta(fund);
             document.getElementById('abpFundTag').textContent = fund.name || fund.code;
@@ -13900,26 +13757,6 @@ Return a JSON object with this exact structure:
     document.getElementById('aiBreadthOverlay').addEventListener('click', function(e){
         if (e.target === this) window.closeAIBreadthModal();
     });
-
-    // ── Add to Watchlist from BA panel ────────────────────
-    window._abpAddToWatchlist = function() {
-        const fund = window._abpCurrentFund;
-        if (!fund || !fund.code) { alert('No fund loaded in BA panel.'); return; }
-        const key = 'ld_watchlist';
-        let wl = [];
-        try { wl = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
-        if (wl.find(w => w.code === fund.code)) {
-            const btn = document.getElementById('abpAddToWatchlistBtn');
-            if (btn) { btn.textContent = '✅ ALREADY PINNED'; btn.style.color = '#009e70'; btn.style.borderColor = '#009e70'; btn.disabled = true; }
-            return;
-        }
-        if (wl.length >= 20) { alert('Watchlist full (max 20). Remove a fund first.'); return; }
-        wl.push({ code: fund.code, name: fund.name || fund.code, portfolio: false });
-        localStorage.setItem(key, JSON.stringify(wl));
-        const btn = document.getElementById('abpAddToWatchlistBtn');
-        if (btn) { btn.textContent = '✅ PINNED!'; btn.style.color = '#009e70'; btn.style.borderColor = '#009e70'; btn.disabled = true; }
-        if (typeof renderWatchlistStubs === 'function') { try { renderWatchlistStubs(); } catch(_) {} }
-    };
 
     })(); // ── END AI BREADTH IIFE ──────────────────────────
 
@@ -15904,14 +15741,10 @@ Return a JSON object with this exact structure:
 
     // ── Run-flag: one full scan per IST day ───────────────────────────
     function _hasRanToday() {
-        const key = RUN_FLAG_KEY + _istDate();
-        try { if (sessionStorage.getItem(key) === '1') return true; } catch(e) {}
-        try { return !!localStorage.getItem(key); } catch(e) { return false; }
+        try { return !!localStorage.getItem(RUN_FLAG_KEY + _istDate()); } catch(e) { return false; }
     }
     function _markRanToday() {
-        const key = RUN_FLAG_KEY + _istDate();
-        try { sessionStorage.setItem(key, '1'); } catch(e) {}
-        try { localStorage.setItem(key, '1'); } catch(e) {}
+        try { localStorage.setItem(RUN_FLAG_KEY + _istDate(), '1'); } catch(e) {}
     }
 
     // ── Build flat fund list from window.amcFunds ─────────────────────
@@ -16351,9 +16184,6 @@ Return ONLY valid JSON:
             const _istD = _istDate();
             localStorage.setItem(`ba_regimeA_funds_${_istD}`, JSON.stringify(_rAData));
         } catch(e) {}
-
-        // ── Mark ran-today NOW so app re-opens never re-run NAV scan even if Gemini calls are interrupted ──
-        _markRanToday();
 
         // Step 3: Fire Gemini breadth for each — 100s gap between calls
         let done = 0, failed = 0;

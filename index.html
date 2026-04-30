@@ -3940,98 +3940,6 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         code: 'SM005005'
                     },
                 ],
-                SBI: [
-                    {
-                        name: 'SBI Bluechip - Growth',
-                        code: '119592'
-                    },
-                    {
-                        name: 'SBI Balanced Advantage - Growth',
-                        code: '151067'
-                    },
-                    {
-                        name: '[NPS] SBI Scheme E - Tier I',
-                        code: 'SM001001'
-                    },
-                    {
-                        name: '[NPS] SBI Scheme C - Tier I',
-                        code: 'SM001002'
-                    },
-                    {
-                        name: '[NPS] SBI Scheme E - Tier II',
-                        code: 'SM001004'
-                    },
-                    {
-                        name: '[NPS] SBI Scheme C - Tier II',
-                        code: 'SM001005'
-                    },
-                ],
-                UTI: [
-                    {
-                        name: 'UTI Nifty 50 Index - Direct',
-                        code: '120716'
-                    },
-                    {
-                        name: 'UTI Balanced Advantage - Growth',
-                        code: '130503'
-                    },
-                    {
-                        name: '[NPS] UTI Scheme E - Tier I',
-                        code: 'SM003001'
-                    },
-                    {
-                        name: '[NPS] UTI Scheme C - Tier I',
-                        code: 'SM003002'
-                    },
-                    {
-                        name: '[NPS] UTI Scheme E - Tier II',
-                        code: 'SM003004'
-                    },
-                    {
-                        name: '[NPS] UTI Scheme C - Tier II',
-                        code: 'SM003005'
-                    },
-                ],
-                LIC: [
-                    {
-                        name: 'LIC MF Large Cap - Growth',
-                        code: '119015'
-                    },
-                    {
-                        name: '[NPS] LIC Scheme E - Tier I',
-                        code: 'SM002001'
-                    },
-                    {
-                        name: '[NPS] LIC Scheme C - Tier I',
-                        code: 'SM002002'
-                    },
-                    {
-                        name: '[NPS] LIC Scheme E - Tier II',
-                        code: 'SM002004'
-                    },
-                    {
-                        name: '[NPS] LIC Scheme C - Tier II',
-                        code: 'SM002005'
-                    },
-                ],
-                MAX: [
-                    {
-                        name: '[NPS] MAX Life Scheme E - Tier I',
-                        code: 'SM009001'
-                    },
-                    {
-                        name: '[NPS] MAX Life Scheme C - Tier I',
-                        code: 'SM009002'
-                    },
-                    {
-                        name: '[NPS] MAX Life Scheme E - Tier II',
-                        code: 'SM009004'
-                    },
-                    {
-                        name: '[NPS] MAX Life Scheme C - Tier II',
-                        code: 'SM009005'
-                    },
-                ],
                 ABSL: [{
                         name: 'ABSL Hybrid 95 - Growth',
                         code: '120517'
@@ -4454,7 +4362,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     banner.innerHTML = html;
                 };
                 _setBanner('🌅 Morning scan starting — fetching data for all AMCs + NPS…', '#f59e0b');
-                // Include all AMCs — SBI, UTI, LIC, MAX are now in amcFunds
+                // Process all 4 AMCs: HDFC, ICICI, KOTAK, ABSL
                 const amcKeys  = Object.keys(window.amcFunds).filter(a => a !== 'NPS');
                 const types    = ['MF', 'NPS_T1', 'NPS_T2'];
                 const months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -13892,7 +13800,7 @@ Return a JSON object with this exact structure:
 
         // Check if ALL Regime A funds (from today's BG scan or known list) are now complete
         const _todayRegimeA = _baLoadRegimeA() ||
-            (window.bgBreadthStatus ? window.bgBreadthStatus() : []);
+            (window.bgBreadthStatus ? (window.bgBreadthStatus().list || []) : []);
         const _totalRegimeA = _todayRegimeA.length;
         const _completedToday = _baGetCompleted();
         const _allDone = _totalRegimeA > 0 &&
@@ -15888,77 +15796,88 @@ Return a JSON object with this exact structure:
     })();
     </script>
     <!-- ═══════════════════════════════════════════════════════════════════
-         LD246VAI — BACKGROUND BREADTH PRE-FETCH ADD-ON
+         LD246VAI3 — BACKGROUND BA ENGINE v2
          ─────────────────────────────────────────────────────────────────
-         Purpose : On first app-open each IST day, silently scan all 58
-                   funds, identify Regime A (W-RSI ≥ 50) equity funds,
-                   then fetch + run breadth analysis for each — one at a
-                   time, 100-second gap between calls — and store results
-                   in localStorage for 24 hours (same key as manual tap).
-         Trigger : Runs once per IST calendar day, 6 seconds after load.
-         Guard   : Skips if API key missing. Skips any fund already cached
-                   today. Skips bond/commodity funds. Stops if tab hidden.
-         UI      : Floating status pill (bottom-left) shows progress.
-                   Can be dismissed. Toggled via window.bgBreadthStatus().
-         Add-on  : Completely standalone. Removing this block has zero
-                   effect on the rest of the app.
+         Priority Order:
+           1. Watchlist funds (in order) — check Regime A, run BA, store.
+           2. Global Regime A funds from 4 AMCs (HDFC/ICICI/KOTAK/ABSL).
+         Queue persisted per IST day → crash-safe resume on relaunch.
+         BA counter tracked per day. Each result date-stamped on store.
+         Skips any fund with BA already stored today. Skips Regime B/C.
+         100-second gap between Gemini calls (configurable via settings).
     ═══════════════════════════════════════════════════════════════════ -->
     <script>
     (function() {
     'use strict';
 
     // ── Constants ─────────────────────────────────────────────────────
-    const GAP_MS = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'100'); return (v>=3&&v<=100?v:100)*1000; } catch(e) { return 100000; } })();  // reads from settings
-    const BOOT_DELAY_MS =   6_000;          // wait 6s for app to settle
-    // RSI_PERIOD is NOT hardcoded — always reads window.userRsiLength (set on page 1 by user).
-    // Falls back to 4 (app default) if not yet initialised.
-    const ADDON_VER     = 'LD246VAI-BG-v1';    const RUN_FLAG_KEY  = 'bgbreadth_ran_'; // + YYYYMMDD_IST
+    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'100'); return (v>=3&&v<=100?v:100)*1000; } catch(e){ return 100_000; } })();
+    const BOOT_DELAY_MS = 6_000;
+    const ADDON_VER     = 'LD246VAI3-BG-v2';
+    const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
-    // ── IST date string ────────────────────────────────────────────────
+    // ── IST date string (YYYYMMDD) ────────────────────────────────────
     function _istDate() {
-        const now = new Date(Date.now() + 5.5 * 3600_000);
+        const now = new Date(Date.now() + 5.5 * 3_600_000);
         return now.toISOString().slice(0, 10).replace(/-/g, '');
     }
 
-    // ── Same cache key format as manual breadth panel ─────────────────
-    function _cacheKey(fundCode) {
-        return `breadth_v1_${(fundCode||'').replace(/\W/g,'_')}_${_istDate()}`;
+    // ── BA cache key — same format as manual BA panel ────────────────
+    function _cacheKey(code) {
+        return `breadth_v1_${(code||'').replace(/\W/g,'_')}_${_istDate()}`;
+    }
+    function _cacheExists(code) {
+        try { return !!localStorage.getItem(_cacheKey(code)); } catch(e){ return false; }
+    }
+    // Store BA result with date + source tags (matches manual BA cache schema)
+    function _bgCacheSave(code, parsed) {
+        try {
+            const _ist = new Date(Date.now() + 5.5 * 3_600_000);
+            const _tsDisplay = _ist.toISOString().replace('T', ' ').slice(0, 16) + ' IST';
+            localStorage.setItem(_cacheKey(code), JSON.stringify(
+                Object.assign({}, parsed, {
+                    _bgSource:         true,
+                    _storedDate:       _istDate(),
+                    _storedTs:         Date.now(),
+                    _cachedAt:         new Date().toISOString(),
+                    _cachedAtDisplay:  _tsDisplay
+                })
+            ));
+        } catch(e) {}
     }
 
-    function _cacheExists(fundCode) {
-        try { return !!localStorage.getItem(_cacheKey(fundCode)); } catch(e) { return false; }
-    }
+    // ── Run-flag: marks the full scan as complete for today ───────────
+    function _hasRanToday()  { try { return !!localStorage.getItem(RUN_FLAG_KEY + _istDate()); } catch(e){ return false; } }
+    function _markRanToday() { try { localStorage.setItem(RUN_FLAG_KEY + _istDate(), '1');      } catch(e){} }
 
-    function _cacheSave(fundCode, parsed) {
-        try { localStorage.setItem(_cacheKey(fundCode), JSON.stringify(parsed)); } catch(e) {}
-    }
+    // ── Queue persistence (per IST day) ───────────────────────────────
+    // Item: { code, name, wrsi, source:'watchlist'|'global', done, skipReason }
+    // wrsi=null means Regime check not yet done.
+    // done=true means BA stored today. skipReason='...' means intentionally skipped.
+    function _qKey()   { return `bg_ba_queue_${_istDate()}`; }
+    function _loadQ()  { try { return JSON.parse(localStorage.getItem(_qKey())||'[]'); } catch(e){ return []; } }
+    function _saveQ(q) { try { localStorage.setItem(_qKey(), JSON.stringify(q));        } catch(e){} }
 
-    // ── Run-flag: one full scan per IST day ───────────────────────────
-    function _hasRanToday() {
-        try { return !!localStorage.getItem(RUN_FLAG_KEY + _istDate()); } catch(e) { return false; }
-    }
-    function _markRanToday() {
-        try { localStorage.setItem(RUN_FLAG_KEY + _istDate(), '1'); } catch(e) {}
-    }
+    // ── BA stored counter (per IST day) ───────────────────────────────
+    function _cntKey()  { return `bg_ba_counter_${_istDate()}`; }
+    function _getCnt()  { try { return parseInt(localStorage.getItem(_cntKey())||'0');  } catch(e){ return 0; } }
+    function _incCnt()  { try { localStorage.setItem(_cntKey(), String(_getCnt()+1));   } catch(e){} }
 
-    // ── Build flat fund list from window.amcFunds ─────────────────────
+    // ── All 58 funds from our 4 AMCs ──────────────────────────────────
     function _allFunds() {
         const af = window.amcFunds;
         if (!af) return [];
-        return Object.values(af).flat();   // all 58 funds flat
+        return Object.values(af).flat(); // HDFC 14 + ICICI 13 + KOTAK 18 + ABSL 13 = 58
     }
 
-    // ── Equity-only filter (skip bond / Scheme C / gold / silver) ─────
+    // ── Equity-only filter ────────────────────────────────────────────
     function _isEquity(fund) {
-        const n = (fund.name || '').toLowerCase();
-        if (n.includes('scheme c'))  return false;
-        if (n.includes('gold'))      return false;
-        if (n.includes('silver'))    return false;
-        if (n.includes('bharatbond'))return false;
-        return true;
+        const n = (fund.name||'').toLowerCase();
+        return !n.includes('scheme c') && !n.includes('gold') &&
+               !n.includes('silver')   && !n.includes('bharatbond');
     }
 
-    // ── Fetch NAV data (same pattern as app's fetchFundData) ──────────
+    // ── Fetch NAV data ────────────────────────────────────────────────
     async function _fetchNav(code) {
         const url = code.startsWith('SM')
             ? `https://npsnav.in/api/historical/${code}`
@@ -15969,43 +15888,34 @@ Return a JSON object with this exact structure:
             const res  = await fetch(url, { signal: ctrl.signal });
             const json = await res.json();
             clearTimeout(tid);
-            // Normalise to [{date, nav}] descending
             if (code.startsWith('SM')) {
                 if (!Array.isArray(json)) return [];
                 return json.map(r => ({ date: r.date, nav: parseFloat(r.nav) }))
                            .filter(r => !isNaN(r.nav))
                            .sort((a, b) => new Date(b.date) - new Date(a.date));
-            } else {
-                const rows = json?.data;
-                if (!Array.isArray(rows)) return [];
-                return rows.map(r => ({ date: r.date, nav: parseFloat(r.nav) }))
-                           .filter(r => !isNaN(r.nav));
             }
+            const rows = json?.data;
+            if (!Array.isArray(rows)) return [];
+            return rows.map(r => ({ date: r.date, nav: parseFloat(r.nav) }))
+                       .filter(r => !isNaN(r.nav));
         } catch(e) { clearTimeout(tid); return []; }
     }
 
-    // ── Compute W-RSI from NAV array (descending date order) ──────────
+    // ── Compute W-RSI (uses same RSI period as main app) ─────────────
     function _computeWrsi(navRows) {
         if (!navRows || navRows.length < 30) return null;
         const fn = window.buildWeeklyRsiFast;
         if (!fn) return null;
-        // Use the same RSI period the user set on page 1 — never hardcode
         const period = window.userRsiLength || 4;
-        // App expects ascending order for the builder
-        const asc   = [...navRows].reverse();
-        const navs  = asc.map(r => r.nav);
-        const dates = asc.map(r => r.date);
-        const arr = fn(navs, period, dates);
+        const asc    = [...navRows].reverse();
+        const arr    = fn(asc.map(r => r.nav), period, asc.map(r => r.date));
         return arr.length ? arr[arr.length - 1] : null;
     }
 
-    // ── Fire ONE Gemini breadth call (uses pre-resolved apiKey) ──────
+    // ── Fire ONE Gemini BA call ────────────────────────────────────────
     async function _callGeminiBreadth(fund, wrsi, resolvedApiKey) {
-        const getKey2 = () => localStorage.getItem('ld_gemini_api_key2');
-        const getModel= window.getGeminiModel || (() => 'gemini-2.5-flash-lite');
-
-        // Reuse the same index map helper from the breadth modal
-        // We inline a minimal version to stay standalone
+        const getKey2  = () => localStorage.getItem('ld_gemini_api_key2');
+        const getModel = window.getGeminiModel || (() => 'gemini-2.5-flash-lite');
         const n = (fund.name || '').toLowerCase();
         let idxName = 'Nifty 50 (proxy)';
         const MAP = [
@@ -16024,61 +15934,26 @@ Return a JSON object with this exact structure:
             ['flexi','Nifty 500 (Flexi Cap)'],['bse 500','BSE 500'],['nifty 50','Nifty 50'],
         ];
         for (const [k, v] of MAP) { if (n.includes(k)) { idxName = v; break; } }
-
-        const regime = wrsi >= 50 ? 'A (Hope)' : wrsi >= 40 ? 'B (Watch)' : 'C (Fear)';
-        const prompt = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System — the Lie Detector Auditor.
-
-FUND: ${fund.name} | Benchmark: ${idxName}
-Fund W-RSI: ${Math.round(wrsi)} (${regime})
-
-SACRED RULE: True compounders never stay below W-RSI 40.
-DIVERGENCE: Price RISING + W-RSI falling/below 50 = Cosmetic Growth. Flag it.
-PSYCHOLOGY: Price moves first; earnings explanations come later.
-
-TASK: Perform Constituent X-Ray on top 5 stocks of ${idxName} by index weight.
-For each stock return current W-RSI(14), 2-week trend (RISING/FALLING), regime (A/B/C), action.
-Count BULL stocks (regime A + RISING). Sum weights.
-Return ONLY valid JSON:
-{
-  "stocks":[{"ticker":"Name","weight":"X%","price":"₹XXXX","daily_rsi":"XX","weekly_rsi":"XX","wma20":"₹XXXX","price_vs_wma20":"ABOVE or BELOW","trend_14d":"RISING or FALLING","regime":"A or B or C","verdict":"BULL or HOLD or BEAR","action":"Buy or Hold or Reduce","recommendation":"One sentence."}],
-  "bull_count":0,"bull_weight_sum":"X%",
-  "confirmation":"CONFIRMED or MARGINAL or WEAK",
-  "sop_action":"max 12 words",
-  "divergence_alert":"text or No divergence detected.",
-  "psychology_audit":"Lookout for… text",
-  "broad_market_regime_a":[{"index":"Name","wrsi":"XX","trend":"RISING or FALLING","signal":"BUY or WATCH"}],
-  "reasoning":"2-3 sentences on ${idxName} breadth."
-}`;
-
-        const payload = { contents:[{ parts:[{ text: prompt }] }] };
+        const regime  = wrsi >= 50 ? 'A (Hope)' : wrsi >= 40 ? 'B (Watch)' : 'C (Fear)';
+        const prompt  = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System — the Lie Detector Auditor.\n\nFUND: ${fund.name} | Benchmark: ${idxName}\nFund W-RSI: ${Math.round(wrsi)} (${regime})\n\nSACRED RULE: True compounders never stay below W-RSI 40.\nDIVERGENCE: Price RISING + W-RSI falling/below 50 = Cosmetic Growth. Flag it.\nPSYCHOLOGY: Price moves first; earnings explanations come later.\n\nTASK: Perform Constituent X-Ray on top 5 stocks of ${idxName} by index weight.\nFor each stock return current W-RSI(14), 2-week trend (RISING/FALLING), regime (A/B/C), action.\nCount BULL stocks (regime A + RISING). Sum weights.\nReturn ONLY valid JSON:\n{\n  "stocks":[{"ticker":"Name","weight":"X%","price":"\u20b9XXXX","daily_rsi":"XX","weekly_rsi":"XX","wma20":"\u20b9XXXX","price_vs_wma20":"ABOVE or BELOW","trend_14d":"RISING or FALLING","regime":"A or B or C","verdict":"BULL or HOLD or BEAR","action":"Buy or Hold or Reduce","recommendation":"One sentence."}],\n  "bull_count":0,"bull_weight_sum":"X%",\n  "confirmation":"CONFIRMED or MARGINAL or WEAK",\n  "sop_action":"max 12 words",\n  "divergence_alert":"text or No divergence detected.",\n  "psychology_audit":"Lookout for\u2026 text",\n  "broad_market_regime_a":[{"index":"Name","wrsi":"XX","trend":"RISING or FALLING","signal":"BUY or WATCH"}],\n  "reasoning":"2-3 sentences on ${idxName} breadth."\n}`;
+        const payload = { contents: [{ parts: [{ text: prompt }] }] };
         const model   = getModel();
-
-        // Try K1 (resolved at scan start) then K2 on 429
         for (const slot of [1, 2]) {
             const k = slot === 1 ? resolvedApiKey : getKey2();
             if (!k) continue;
             const ep  = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${k.trim()}`;
-            const res = await fetch(ep, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (res.status === 429 && slot === 1) continue; // try K2
+            const res = await fetch(ep, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (res.status === 429 && slot === 1) continue;
             const data = await res.json();
             if (data.error) throw new Error(`Gemini ${data.error.code}: ${data.error.message}`);
-            let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            raw = raw.trim();
-            // Strip markdown code fence (handles ```json\n{...}\n``` and trailing \n```)
-            const fenceEnd = raw.indexOf('\n');
-            if (raw.startsWith('```') && fenceEnd !== -1) raw = raw.substring(fenceEnd + 1);
+            let raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+            const fe = raw.indexOf('\n');
+            if (raw.startsWith('```') && fe !== -1) raw = raw.substring(fe + 1);
             if (raw.trimEnd().endsWith('```')) raw = raw.trimEnd().slice(0, -3);
             raw = raw.trim();
-            // Extract outermost JSON object
             const js = raw.indexOf('{'), je = raw.lastIndexOf('}');
             if (js !== -1 && je > js) raw = raw.slice(js, je + 1);
-            // First parse attempt
             try { return JSON.parse(raw); } catch(_) {}
-            // Repair: close unterminated strings, arrays, objects
             let rep = raw.trimEnd();
             const qc = (rep.match(/(?<!\\)"/g) || []).length;
             if (qc % 2 !== 0) rep += '"';
@@ -16092,16 +15967,10 @@ Return ONLY valid JSON:
         }
         throw new Error('No API key available or both keys at quota.');
     }
-    // Wrap _cacheSave in BG to tag results as auto-cached (lower quality — no live stock data)
-    function _bgCacheSave(fundCode, parsed) {
-        try {
-            const tagged = Object.assign({}, parsed, { _bgSource: true });
-            localStorage.setItem(_cacheKey(fundCode), JSON.stringify(tagged));
-        } catch(e) {}
-    }
 
     // ── Status pill UI ────────────────────────────────────────────────
     function _makePill() {
+        if (document.getElementById('bgBreadthPill')) return;
         const el = document.createElement('div');
         el.id = 'bgBreadthPill';
         el.style.cssText = `
@@ -16110,20 +15979,19 @@ Return ONLY valid JSON:
             font-family:'Space Mono',monospace;font-weight:600;
             padding:7px 12px 7px 10px;border-radius:20px;
             border:1.5px solid #009e70;box-shadow:0 3px 14px rgba(0,0,0,0.35);
-            max-width:260px;line-height:1.4;cursor:pointer;
+            max-width:280px;line-height:1.4;cursor:pointer;
             display:flex;align-items:center;gap:8px;transition:opacity 0.3s;`;
         el.innerHTML = `
             <span id="bgBreadthDot" style="width:8px;height:8px;border-radius:50%;
                 background:#009e70;flex-shrink:0;
                 animation:bgPillPulse 1.2s ease-in-out infinite;"></span>
-            <span id="bgBreadthMsg">⏳ Background breadth scan starting…</span>
+            <span id="bgBreadthMsg">⏳ BA engine starting…</span>
             <span onclick="document.getElementById('bgBreadthPill').style.display='none'"
                 style="margin-left:4px;opacity:0.5;font-size:0.8rem;flex-shrink:0;">✕</span>`;
         const style = document.createElement('style');
         style.textContent = `@keyframes bgPillPulse{0%,100%{opacity:1}50%{opacity:0.3}}`;
         document.head.appendChild(style);
         document.body.appendChild(el);
-        return el;
     }
 
     function _setPillMsg(msg, colour) {
@@ -16140,28 +16008,31 @@ Return ONLY valid JSON:
         setTimeout(() => {
             const p = document.getElementById('bgBreadthPill');
             if (p) { p.style.opacity = '0'; setTimeout(() => p.remove(), 800); }
-        }, 6000);
+        }, 7000);
     }
 
-    // ── Sleep helper ──────────────────────────────────────────────────
+    // ── Morning banner helper ─────────────────────────────────────────
+    function _updateBanner(text, color) {
+        try {
+            const mb = document.getElementById('morningScanBanner');
+            if (mb) {
+                mb.style.display = 'block';
+                mb.style.color   = color || '#f59e0b';
+                mb.textContent   = text;
+            }
+        } catch(_) {}
+    }
+
+    // ── Sleep ─────────────────────────────────────────────────────────
     const _sleep = ms => new Promise(r => setTimeout(r, ms));
 
-    // ── Key resolution helper — single source of truth ────────────────
+    // ── API key resolution ────────────────────────────────────────────
     function _resolveApiKey() {
-        // 1. Use window.getGeminiKey() — the main app's authoritative source
-        //    (initialised before BG runs due to BOOT_DELAY_MS)
         if (typeof window.getGeminiKey === 'function') {
             const k = window.getGeminiKey();
             if (k && k.trim().length > 20) return k.trim();
         }
-        // 2. Fallback: direct localStorage scan (covers legacy / renamed files)
-        const KEY_NAMES = [
-            'ld_gemini_api_key',
-            'ld_gemini_api_key2',
-            'gemini_api_key',
-            'apiKey',
-            'geminiKey',
-        ];
+        const KEY_NAMES = ['ld_gemini_api_key','ld_gemini_api_key2','gemini_api_key','apiKey','geminiKey'];
         for (const kn of KEY_NAMES) {
             const v = localStorage.getItem(kn);
             if (v && v.trim().length > 20) return v.trim();
@@ -16169,9 +16040,7 @@ Return ONLY valid JSON:
         return null;
     }
 
-    // ── Storage listener — auto-start BG scan when 🔐 key is saved ───
-    // This fires if the user enters the key via the main app's 🔐 button
-    // AFTER the BG scan has already returned with "no key found".
+    // ── Storage listener — auto-start when key is saved via 🔐 ───────
     let _bgListenerAttached = false;
     function _attachStorageListener() {
         if (_bgListenerAttached) return;
@@ -16181,94 +16050,58 @@ Return ONLY valid JSON:
                 window.removeEventListener('storage', _onKeyStored);
                 const panel = document.getElementById('bgKeyPanel');
                 if (panel) panel.remove();
-                console.log('[BG Breadth] Key detected via 🔐 modal — auto-starting scan.');
+                console.log('[BG BA] Key detected via 🔐 modal — auto-starting.');
                 setTimeout(_runBackgroundScan, 800);
             }
         });
-        // Also poll every 10 s (catches same-tab saves which don't fire 'storage')
         const _pollTimer = setInterval(() => {
             const k = _resolveApiKey();
             if (k) {
                 clearInterval(_pollTimer);
                 const panel = document.getElementById('bgKeyPanel');
                 if (panel) {
-                    panel.querySelector('#bgKeyPanelStatus').textContent = '✅ Key found via 🔐 — starting scan…';
+                    panel.querySelector('#bgKeyPanelStatus').textContent = '✅ Key found — starting BA engine…';
                     setTimeout(() => { panel.remove(); _runBackgroundScan(); }, 1200);
                 }
             }
         }, 10_000);
-        // Stop polling after 5 minutes to avoid memory leak
         setTimeout(() => clearInterval(_pollTimer), 300_000);
     }
 
-    // ── Main orchestrator ─────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════════════
+    //  MAIN ORCHESTRATOR
+    //
+    //  Flow each IST day:
+    //    1. Build queue: Watchlist funds (equity, 4 AMCs, in order)
+    //    2. Watchlist phase: Regime A check + BA + store + counter
+    //    3. Global scan: scan all 58 equity funds from 4 AMCs for Regime A
+    //    4. Global phase: BA + store + counter for non-watchlist Regime A funds
+    //    5. Mark complete when all pending items done.
+    //
+    //  Crash recovery: Queue + done-flags persist in localStorage.
+    //  On relaunch _hasRanToday()=false → load queue → resume from pending.
+    // ════════════════════════════════════════════════════════════════════
     async function _runBackgroundScan() {
-        // Guard: run once per IST day only
-        // ── If all BA done today, skip entirely ────────────────────────
+        const today = _istDate();
+
+        // ── Guard: fully done today ───────────────────────────────────
         if (_hasRanToday()) {
-            console.log(`[BG Breadth] Fully complete today (${_istDate()}) — skipping.`);
-            _donePill('✅ All analyses complete for today.');
+            const cnt = _getCnt();
+            _donePill(`✅ BA complete today — ${cnt} stored.`);
+            console.log(`[BG BA] Fully complete for ${today} — ${cnt} BA stored.`);
             return;
         }
 
-        // ── If Regime A scan done today, skip scan → run only pending BA ────
-        const _regimeADoneKey = `bgbreadth_regimeA_scanned_${_istDate()}`;
-        const _regimeADoneToday = localStorage.getItem(_regimeADoneKey) === 'true';
-        if (_regimeADoneToday) {
-            console.log('[BG Breadth] Regime A scan already done today — loading cached list, running pending BA only.');
-            try {
-                const _saved = JSON.parse(localStorage.getItem(`bgbreadth_regimeA_${_istDate()}`) || '[]');
-                if (_saved.length) {
-                    const _pending = _saved.filter(f => !_cacheExists(f.code));
-                    if (!_pending.length) {
-                        _donePill(`✅ All Regime A funds already cached today.`);
-                        _markRanToday();
-                        return;
-                    }
-                    _setPillMsg(`⏭ Regime A already scanned. Running ${_pending.length} pending BA…`);
-                    // Jump straight to BA calls with the pending list
-                    let done = 0, failed = 0;
-                    for (let i = 0; i < _pending.length; i++) {
-                        const fund = _pending[i];
-                        if (i > 0) {
-                            for (let s = GAP_MS / 1000; s > 0; s -= 5) {
-                                _setPillMsg(`⏳ ${s}s until next BA call…`);
-                                await _sleep(5000);
-                                if (s <= 5) break;
-                            }
-                        }
-                        try {
-                            const parsed = await _callGeminiBreadth(fund, fund.wrsi, _resolveApiKey());
-                            _bgCacheSave(fund.code, parsed);
-                            done++;
-                            // Sync BA completed tracker
-                            try {
-                                const _baCKey = `ba_completed_funds_${_istDate()}`;
-                                const _baDone = JSON.parse(localStorage.getItem(_baCKey)||'[]');
-                                if (!_baDone.includes(fund.code)) _baDone.push(fund.code);
-                                localStorage.setItem(_baCKey, JSON.stringify(_baDone));
-                            } catch(e2) {}
-                        } catch(e) { failed++; }
-                        _setPillMsg(`✨ BA resume ${i+1}/${_pending.length}: ${fund.name.slice(0,28)}`);
-                    }
-                    _markRanToday();
-                    _donePill(`✅ BA resume done — ${done} cached, ${failed} failed.`);
-                    return;
-                }
-            } catch(e) { console.warn('[BG Breadth] Resume load error:', e.message); }
-        }
-
-        // Resolve API key via authoritative source
+        // ── Resolve API key ───────────────────────────────────────────
         const _mask = k => k ? `${k.slice(0,6)}…${k.slice(-4)}(${k.length}c)` : 'none';
-        const _k1 = localStorage.getItem('ld_gemini_api_key');
-        const _k2 = localStorage.getItem('ld_gemini_api_key2');
-        let apiKey = _resolveApiKey();
-        console.log(`[BG Breadth] Key scan — K1:${_mask(_k1)} K2:${_mask(_k2)} resolved:${_mask(apiKey)}`);
+        const _k1   = localStorage.getItem('ld_gemini_api_key');
+        const _k2   = localStorage.getItem('ld_gemini_api_key2');
+        let apiKey  = _resolveApiKey();
+        console.log(`[BG BA] Key scan — K1:${_mask(_k1)} K2:${_mask(_k2)} resolved:${_mask(apiKey)}`);
 
         if (!apiKey) {
-            // Attach listener so BG auto-starts when user enters key via 🔐
             _attachStorageListener();
-            // Show a minimal key-entry panel as fast path
+            // Fast-path key entry panel
             const panel = document.createElement('div');
             panel.id = 'bgKeyPanel';
             panel.style.cssText = [
@@ -16277,44 +16110,30 @@ Return ONLY valid JSON:
                 'border:2px solid #c97a00','border-radius:12px',
                 'padding:14px 16px','width:280px',
                 'font-family:monospace','font-size:0.62rem',
-                'box-shadow:0 4px 24px rgba(0,0,0,0.5)',
-                'line-height:1.5'
+                'box-shadow:0 4px 24px rgba(0,0,0,0.5)','line-height:1.5'
             ].join(';');
             panel.innerHTML = [
-                '<div style="color:#fbbf24;font-weight:700;margin-bottom:6px;">',
-                '  🔑 BG Breadth — API Key Needed',
-                '</div>',
+                '<div style="color:#fbbf24;font-weight:700;margin-bottom:6px;">🔑 BA Engine — API Key Needed</div>',
                 '<div style="color:#94a3b8;font-size:0.54rem;margin-bottom:8px;">',
-                '  <b style="color:#e2e8f0;">Option A (recommended):</b> Tap the <b style="color:#fbbf24;">🔐 button</b> in the top bar,',
-                '  enter your key there — BG scan will auto-start. This panel will close automatically.<br><br>',
-                '  <b style="color:#e2e8f0;">Option B (fast path):</b> Paste key directly below:',
+                '  <b style="color:#e2e8f0;">Option A:</b> Tap the <b style="color:#fbbf24;">🔐 button</b> in the top bar — BA engine auto-starts.<br><br>',
+                '  <b style="color:#e2e8f0;">Option B:</b> Paste key directly below:',
                 '</div>',
                 '<input id="bgKeyPanelInput" type="password" placeholder="AIza… (39 chars)"',
-                '  style="width:100%;box-sizing:border-box;padding:6px 8px;',
-                '         border-radius:6px;border:1px solid #475569;',
-                '         background:#1e293b;color:#e2e8f0;font-family:monospace;',
-                '         font-size:0.6rem;outline:none;margin-bottom:8px;" />',
+                '  style="width:100%;box-sizing:border-box;padding:6px 8px;border-radius:6px;',
+                '         border:1px solid #475569;background:#1e293b;color:#e2e8f0;',
+                '         font-family:monospace;font-size:0.6rem;outline:none;margin-bottom:8px;" />',
                 '<div style="display:flex;gap:8px;">',
-                '  <button id="bgKeyPanelSave"',
-                '    style="flex:1;background:#009e70;color:#fff;border:none;',
-                '           border-radius:6px;padding:7px;font-size:0.6rem;',
-                '           font-weight:700;cursor:pointer;">',
-                '    ✅ Save &amp; Start Scan',
+                '  <button id="bgKeyPanelSave" style="flex:1;background:#009e70;color:#fff;border:none;',
+                '    border-radius:6px;padding:7px;font-size:0.6rem;font-weight:700;cursor:pointer;">',
+                '    ✅ Save &amp; Start',
                 '  </button>',
-                '  <button id="bgKeyPanelClose"',
-                '    style="background:#334155;color:#94a3b8;border:none;',
-                '           border-radius:6px;padding:7px 10px;font-size:0.6rem;cursor:pointer;">',
-                '    ✕',
-                '  </button>',
+                '  <button id="bgKeyPanelClose" style="background:#334155;color:#94a3b8;border:none;',
+                '    border-radius:6px;padding:7px 10px;font-size:0.6rem;cursor:pointer;">✕</button>',
                 '</div>',
-                '<div id="bgKeyPanelStatus" style="margin-top:6px;font-size:0.52rem;',
-                '     color:#64748b;min-height:14px;"></div>',
+                '<div id="bgKeyPanelStatus" style="margin-top:6px;font-size:0.52rem;color:#64748b;min-height:14px;"></div>',
             ].join('\n');
-
             document.body.appendChild(panel);
-
             document.getElementById('bgKeyPanelClose').onclick = () => panel.remove();
-
             document.getElementById('bgKeyPanelSave').onclick = function() {
                 const inp = document.getElementById('bgKeyPanelInput');
                 const st  = document.getElementById('bgKeyPanelStatus');
@@ -16327,216 +16146,357 @@ Return ONLY valid JSON:
                 localStorage.setItem('ld_gemini_api_key', val);
                 if (inp) inp.value = '';
                 st.style.color = '#6ee7b7';
-                st.textContent = '✅ Key saved — starting scan in 3 seconds…';
-                console.log('[BG Breadth] Key saved via panel — restarting scan.');
-                setTimeout(() => {
-                    panel.remove();
-                    _runBackgroundScan();
-                }, 3000);
+                st.textContent = '✅ Key saved — starting BA engine in 3s…';
+                setTimeout(() => { panel.remove(); _runBackgroundScan(); }, 3000);
             };
-
             const inp = document.getElementById('bgKeyPanelInput');
-            if (inp) inp.addEventListener('keydown', e => {
-                if (e.key === 'Enter') document.getElementById('bgKeyPanelSave').click();
-            });
-
-            console.log('[BG Breadth] Key panel shown — paste your Gemini API key to start.');
+            if (inp) inp.addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('bgKeyPanelSave').click(); });
+            console.log('[BG BA] Key panel shown.');
             return;
         }
 
-        // Guard: need RSI builder
+        // ── Guard: RSI builder ready ──────────────────────────────────
         if (!window.buildWeeklyRsiFast) {
-            console.log('[BG Breadth] buildWeeklyRsiFast not ready — retrying in 5s.');
-            await _sleep(5000);
+            console.log('[BG BA] buildWeeklyRsiFast not ready — retrying in 5s.');
+            await _sleep(5_000);
             if (!window.buildWeeklyRsiFast) return;
         }
 
-        const pill = _makePill();
+        _makePill();
 
-        // Step 1: Scan all equity funds for Regime A
-        const allFunds   = _allFunds();
-        const equityFunds = allFunds.filter(_isEquity);
-        _setPillMsg(`🔍 Scanning ${equityFunds.length} equity funds for Regime A…`);
+        // ════════════════════════════════════════════════════════════
+        // STEP 1 — Build today's work queue (persisted, crash-safe)
+        //   Phase 1 items: watchlist funds (equity, from 4 AMCs, in order)
+        //   Phase 2 items: added after global Regime A scan (Step 3)
+        // ════════════════════════════════════════════════════════════
+        let queue = _loadQ();
 
-        const regimeAFunds = [];
-        let scanned = 0;
+        if (!queue.length) {
+            // Build watchlist section of queue
+            const allF     = _allFunds();
+            const allCodes = new Set(allF.map(f => f.code));
+            let wl = [];
+            try { wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(e) {}
+            for (const wf of (Array.isArray(wl) ? wl : [])) {
+                if (!wf.code || !allCodes.has(wf.code)) continue; // not in 4 AMCs — skip
+                const found = allF.find(f => f.code === wf.code);
+                if (!found || !_isEquity(found)) continue;
+                queue.push({
+                    code: wf.code,
+                    name: wf.name || found.name,
+                    wrsi: null,          // will be computed on-demand
+                    source: 'watchlist',
+                    done: false,
+                    skipReason: null
+                });
+            }
+            _saveQ(queue);
+            console.log(`[BG BA] Queue built: ${queue.length} watchlist funds.`);
+        } else {
+            console.log(`[BG BA] Loaded existing queue: ${queue.length} items (crash resume).`);
+        }
 
-        for (const fund of equityFunds) {
-            // If tab is hidden, pause scanning — don't waste bandwidth
-            if (document.hidden) await _sleep(2000);
+        // ════════════════════════════════════════════════════════════
+        // STEP 2 — WATCHLIST PHASE: Regime A check + BA for each fund
+        // ════════════════════════════════════════════════════════════
+        const wlTotal   = queue.filter(q => q.source === 'watchlist').length;
+        const wlPending = queue.filter(q => q.source === 'watchlist' && !q.done && !q.skipReason);
 
-            // Skip Scheme C bond funds already caught by _isEquity, but double-check
-            if (!_isEquity(fund)) continue;
+        _setPillMsg(`📋 Watchlist: ${wlPending.length}/${wlTotal} funds to process…`);
+        _updateBanner(`📋 BA Engine: processing ${wlTotal} watchlist funds…`, '#f59e0b');
+        console.log(`[BG BA] Watchlist phase: ${wlPending.length} pending, ${wlTotal - wlPending.length} done/skipped.`);
 
-            try {
-                const navRows = await _fetchNav(fund.code);
-                if (navRows.length < 30) { scanned++; continue; }
-                const wrsi = _computeWrsi(navRows);
-                scanned++;
-                _setPillMsg(`🔍 ${scanned}/${equityFunds.length} scanned — ${regimeAFunds.length} Regime A so far`);
-                // Also update the morning banner on setup screen for visibility
-                try {
-                    const _mb = document.getElementById('morningScanBanner');
-                    if (_mb) {
-                        _mb.style.display = 'block';
-                        _mb.style.color = '#f59e0b';
-                        _mb.textContent = `🔍 Regime A Scan: ${scanned}/${equityFunds.length} funds scanned — ${regimeAFunds.length} in Regime A`;
-                    }
-                } catch(_) {}
-                if (wrsi !== null && wrsi >= 50) {
-                    regimeAFunds.push({ ...fund, wrsi: Math.round(wrsi * 10) / 10 });
-                    console.log(`[BG Breadth] Regime A: ${fund.name} (W-RSI ${Math.round(wrsi)})`);
-                }
-            } catch(e) {
-                console.warn(`[BG Breadth] Nav fetch failed for ${fund.code}:`, e.message);
-                scanned++;
+        let lastBARan = false; // tracks whether last iteration ran a Gemini BA call
+
+        for (const snapshot of wlPending) {
+            // Always reload queue for crash-safety
+            let q  = _loadQ();
+            let it = q.find(x => x.code === snapshot.code && x.source === 'watchlist');
+            if (!it || it.done || it.skipReason) continue; // already handled since snapshot
+
+            // ── Already has BA stored today? ─────────────────────────
+            if (_cacheExists(it.code)) {
+                it.done = true;
+                _saveQ(q);
+                _incCnt();
+                _setPillMsg(`✅ WL: ${it.name.replace(/\[NPS\] /,'').slice(0,28)} — BA cached today (${_getCnt()} stored)`);
+                console.log(`[BG BA] WL fund already BA-cached today: ${it.name}`);
+                lastBARan = false;
+                continue;
             }
 
-            // Small gap between NAV fetches (not Gemini) — 800ms is courteous
-            await _sleep(800);
-        }
-
-        if (!regimeAFunds.length) {
-            _donePill(`✅ Scan complete — 0 funds in Regime A today.`);
-            _markRanToday();
-            return;
-        }
-
-        // ── Mark Regime A scan done NOW (before any Gemini calls) ────
-        // This means if app closes mid-BA, next launch skips Regime A scan.
-        const REGIME_A_DONE_KEY = `bgbreadth_regimeA_scanned_${_istDate()}`;
-        try { localStorage.setItem(REGIME_A_DONE_KEY, 'true'); } catch(e) {}
-
-        // Step 2: Filter out already-cached funds
-        const needsBreadth = regimeAFunds.filter(f => !_cacheExists(f.code));
-
-        _setPillMsg(
-            `🟢 ${regimeAFunds.length} Regime A funds found. ` +
-            `${needsBreadth.length} need breadth (${regimeAFunds.length - needsBreadth.length} cached).`
-        );
-
-        console.log(`[BG Breadth] Regime A funds:`, regimeAFunds.map(f => f.name));
-        console.log(`[BG Breadth] Needs breadth fetch: ${needsBreadth.length}`);
-
-        if (!needsBreadth.length) {
-            _donePill(`✅ All ${regimeAFunds.length} Regime A funds already cached today.`);
-            _markRanToday();
-            return;
-        }
-
-        // Store the Regime A list for both BG status and BA completion tracking
-        try {
-            const _rAData = regimeAFunds.map(f => ({ code: f.code, name: f.name, wrsi: f.wrsi }));
-            localStorage.setItem(`bgbreadth_regimeA_${_istDate()}`, JSON.stringify(_rAData));
-            // Share with BA lock system (ba_regimeA_funds_YYYYMMDD) — same date format
-            const _istD = _istDate();
-            localStorage.setItem(`ba_regimeA_funds_${_istD}`, JSON.stringify(_rAData));
-        } catch(e) {}
-
-        // Step 3: Fire Gemini breadth for each — 100s gap between calls
-        let done = 0, failed = 0;
-
-        for (let i = 0; i < needsBreadth.length; i++) {
-            const fund = needsBreadth[i];
-
-            // Pause if tab hidden
-            while (document.hidden) { await _sleep(3000); }
-
-            _setPillMsg(
-                `✨ Breadth ${i + 1}/${needsBreadth.length}: ${fund.name.replace(/\[NPS\] /,'').slice(0, 28)}…` +
-                (i > 0 ? ` (${Math.round(GAP_MS/1000)}s gap)` : '')
-            );
-            // Update morning banner with BA progress
-            try {
-                const _mb = document.getElementById('morningScanBanner');
-                if (_mb) {
-                    _mb.style.display = 'block';
-                    _mb.style.color = '#7c3aed';
-                    _mb.textContent = `🤖 BA Analysis: ${i + 1}/${needsBreadth.length} funds completed`;
-                }
-            } catch(_) {}
-
-            try {
-                const parsed = await _callGeminiBreadth(fund, fund.wrsi, apiKey);
-                _bgCacheSave(fund.code, parsed);
-                done++;
-                // Sync with BA partial-completion tracker
+            // ── Compute W-RSI if not yet done ─────────────────────────
+            if (it.wrsi === null) {
+                _setPillMsg(`🔍 WL Regime check: ${it.name.replace(/\[NPS\] /,'').slice(0,26)}…`);
                 try {
-                    const _baCKey = `ba_completed_funds_${_istDate()}`;
-                    const _baDone = JSON.parse(localStorage.getItem(_baCKey) || '[]');
-                    if (!_baDone.includes(fund.code)) _baDone.push(fund.code);
-                    localStorage.setItem(_baCKey, JSON.stringify(_baDone));
-                    // If all Regime A funds done — set BA daily lock
-                    if (_baDone.length >= regimeAFunds.length) {
-                        localStorage.setItem(`ba_completed_today_${_istDate()}`, 'true');
-                        console.log(`[BG Breadth] BA daily lock set — all ${regimeAFunds.length} funds complete.`);
+                    const navRows = await _fetchNav(it.code);
+                    if (navRows.length < 30) {
+                        it.skipReason = 'insufficient_nav_data';
+                        _saveQ(q);
+                        console.log(`[BG BA] WL skip (no data): ${it.name}`);
+                        continue;
                     }
-                } catch(e) {}
-                console.log(`[BG Breadth] ✅ Cached: ${fund.name} → ${parsed.confirmation}`);
-            } catch(e) {
-                failed++;
-                console.warn(`[BG Breadth] ❌ Failed: ${fund.name}:`, e.message);
-                _setPillMsg(`⚠ ${fund.name.slice(0,22)} failed — continuing…`, '#c97a00');
-                await _sleep(3000); // short pause then continue
+                    const w = _computeWrsi(navRows);
+                    it.wrsi = w !== null ? Math.round(w * 10) / 10 : 0;
+                    _saveQ(q);
+                } catch(e) {
+                    console.warn(`[BG BA] WL NAV fetch error for ${it.code}:`, e.message);
+                    continue; // wrsi stays null — will retry on next app launch
+                }
+                await _sleep(400); // small polite gap after NAV fetch
             }
 
-            // 100-second gap before next Gemini call (skip gap after last one)
-            if (i < needsBreadth.length - 1) {
+            // ── Regime check ──────────────────────────────────────────
+            if (!it.wrsi || it.wrsi < 50) {
+                it.skipReason = `regime_bc_wrsi_${it.wrsi}`;
+                _saveQ(q);
+                _setPillMsg(`⏭ WL: ${it.name.slice(0,26)} — Regime B/C (W-RSI ${it.wrsi}) — skipped`);
+                console.log(`[BG BA] WL not Regime A: ${it.name} (W-RSI ${it.wrsi})`);
+                continue;
+            }
+
+            // ── Regime A confirmed → apply gap if previous BA was run ─
+            if (lastBARan) {
                 for (let s = GAP_MS / 1000; s > 0; s -= 5) {
-                    if (document.hidden) { await _sleep(3000); continue; }
-                    _setPillMsg(
-                        `⏱ Next breadth in ${s}s — (${done} done${failed ? ', ' + failed + ' failed' : ''})`,
-                        '#6366f1'
-                    );
-                    await _sleep(Math.min(5000, s * 1000));
+                    if (document.hidden) { await _sleep(3_000); continue; }
+                    _setPillMsg(`⏱ WL next BA in ${s}s — ${_getCnt()} BA stored today`, '#6366f1');
+                    await _sleep(Math.min(5_000, s * 1_000));
                 }
+            }
+            while (document.hidden) await _sleep(3_000);
+
+            _setPillMsg(`✨ WL BA: ${it.name.replace(/\[NPS\] /,'').slice(0,30)}… (W-RSI ${it.wrsi})`);
+            _updateBanner(`🤖 WL BA: ${it.name.replace(/\[NPS\] /,'').slice(0,32)}…`, '#7c3aed');
+
+            try {
+                const parsed = await _callGeminiBreadth(it, it.wrsi, apiKey);
+                _bgCacheSave(it.code, parsed);
+                // Reload queue and mark done (avoids stale reference)
+                q  = _loadQ();
+                it = q.find(x => x.code === snapshot.code && x.source === 'watchlist');
+                if (it) { it.done = true; _saveQ(q); }
+                _incCnt();
+                // Keep ba_completed_funds in sync → watchlist panel counter reads this
+                try {
+                    const _bcKey  = `ba_completed_funds_${today}`;
+                    const _bcList = JSON.parse(localStorage.getItem(_bcKey) || '[]');
+                    if (!_bcList.includes(snapshot.code)) _bcList.push(snapshot.code);
+                    localStorage.setItem(_bcKey, JSON.stringify(_bcList));
+                } catch(e2) {}
+                lastBARan = true;
+                console.log(`[BG BA] ✅ WL BA stored: ${snapshot.name} → ${parsed.confirmation} (${_getCnt()} today)`);
+                _setPillMsg(`✅ WL BA stored: ${snapshot.name.slice(0,28)} (${_getCnt()} total today)`);
+            } catch(e) {
+                console.warn(`[BG BA] ❌ WL BA failed: ${snapshot.name}:`, e.message);
+                _setPillMsg(`⚠ WL ${snapshot.name.slice(0,20)} failed — will retry on relaunch`, '#c97a00');
+                await _sleep(3_000);
+                lastBARan = false;
+                // Note: done stays false → will retry on next app launch
             }
         }
 
-        _markRanToday();
-        _donePill(
-            `✅ BG Breadth done — ${done}/${needsBreadth.length} cached` +
-            (failed ? ` (${failed} failed)` : '') +
-            `. ${regimeAFunds.length} Regime A funds today.`
-        );
-        // Update morning banner with final completion status
-        try {
-            const _mb = document.getElementById('morningScanBanner');
-            if (_mb) {
-                const _ts = new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
-                _mb.style.display = 'block';
-                _mb.style.color = '#009e70';
-                _mb.textContent = `✅ Daily scan complete at ${_ts} IST — ${done}/${regimeAFunds.length} BA analyses done`;
+        // ════════════════════════════════════════════════════════════
+        // STEP 3 — GLOBAL REGIME A SCAN (all 58 equity funds, 4 AMCs)
+        //   Skipped if already done today (crash-safe flag).
+        //   Results added to queue as source='global' items.
+        // ════════════════════════════════════════════════════════════
+        const AMC_SCAN_KEY = `bg_amc_scan_done_${today}`;
+        const amcScanDone  = localStorage.getItem(AMC_SCAN_KEY) === 'true';
+
+        if (!amcScanDone) {
+            const equityFunds = _allFunds().filter(_isEquity);
+            _setPillMsg(`🔍 Global scan: ${equityFunds.length} equity funds for Regime A…`);
+            _updateBanner(`🔍 Global Regime A scan: 0/${equityFunds.length} funds…`, '#f59e0b');
+            console.log(`[BG BA] Starting global Regime A scan: ${equityFunds.length} equity funds.`);
+
+            const regimeAGlobal = [];
+            let scanned = 0;
+
+            for (const fund of equityFunds) {
+                if (document.hidden) await _sleep(2_000);
+                try {
+                    const navRows = await _fetchNav(fund.code);
+                    if (navRows.length >= 30) {
+                        const w = _computeWrsi(navRows);
+                        if (w !== null && w >= 50) {
+                            regimeAGlobal.push({ ...fund, wrsi: Math.round(w * 10) / 10 });
+                        }
+                    }
+                } catch(e) {
+                    console.warn(`[BG BA] Scan error ${fund.code}:`, e.message);
+                }
+                scanned++;
+                if (scanned % 5 === 0 || scanned === equityFunds.length) {
+                    _setPillMsg(`🔍 Global: ${scanned}/${equityFunds.length} scanned — ${regimeAGlobal.length} Regime A`);
+                    _updateBanner(`🔍 Global scan: ${scanned}/${equityFunds.length} — ${regimeAGlobal.length} Regime A`, '#f59e0b');
+                }
+                await _sleep(800);
             }
-        } catch(_) {}
-        console.log(`[BG Breadth] Complete. ${done} cached, ${failed} failed.`);
+
+            // Persist scan results + mark done
+            try {
+                localStorage.setItem(AMC_SCAN_KEY, 'true');
+                const rAData = regimeAGlobal.map(f => ({ code: f.code, name: f.name, wrsi: f.wrsi }));
+                localStorage.setItem(`bgbreadth_regimeA_${today}`,   JSON.stringify(rAData));
+                localStorage.setItem(`ba_regimeA_funds_${today}`,     JSON.stringify(rAData));
+            } catch(e) {}
+
+            // Add global Regime A funds to queue — skip watchlist duplicates
+            let q = _loadQ();
+            const existingCodes = new Set(q.map(x => x.code));
+            let added = 0;
+            for (const gf of regimeAGlobal) {
+                if (existingCodes.has(gf.code)) continue;
+                q.push({ code: gf.code, name: gf.name, wrsi: gf.wrsi,
+                         source: 'global', done: false, skipReason: null });
+                added++;
+            }
+            _saveQ(q);
+            console.log(`[BG BA] Global scan done: ${regimeAGlobal.length} Regime A funds, ${added} added to queue.`);
+
+        } else {
+            // Crash resume: reload saved global list and fill any queue gaps
+            try {
+                const saved = JSON.parse(localStorage.getItem(`bgbreadth_regimeA_${today}`) || '[]');
+                let q = _loadQ();
+                const existingCodes = new Set(q.map(x => x.code));
+                let added = 0;
+                for (const gf of saved) {
+                    if (existingCodes.has(gf.code)) continue;
+                    q.push({ code: gf.code, name: gf.name, wrsi: gf.wrsi,
+                             source: 'global', done: false, skipReason: null });
+                    added++;
+                }
+                if (added) { _saveQ(q); console.log(`[BG BA] Crash resume: filled ${added} global queue gaps.`); }
+            } catch(e) {}
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // STEP 4 — GLOBAL PHASE: BA for Regime A funds (non-watchlist)
+        // ════════════════════════════════════════════════════════════
+        const freshQ       = _loadQ();
+        const gTotal       = freshQ.filter(q => q.source === 'global').length;
+        const globalPending = freshQ.filter(q => q.source === 'global' && !q.done && !q.skipReason);
+
+        _setPillMsg(`🌐 Global BA: ${globalPending.length}/${gTotal} Regime A funds pending…`);
+        _updateBanner(`🌐 Global BA phase: ${globalPending.length} funds to analyse…`, '#a855f7');
+        console.log(`[BG BA] Global BA phase: ${globalPending.length} pending.`);
+
+        for (const snapshot of globalPending) {
+            let q  = _loadQ();
+            let it = q.find(x => x.code === snapshot.code && x.source === 'global');
+            if (!it || it.done || it.skipReason) continue;
+
+            // ── Already has BA stored today? ─────────────────────────
+            if (_cacheExists(it.code)) {
+                it.done = true;
+                _saveQ(q);
+                _incCnt();
+                _setPillMsg(`✅ Global: ${it.name.replace(/\[NPS\] /,'').slice(0,28)} — BA cached (${_getCnt()} stored)`);
+                lastBARan = false;
+                continue;
+            }
+
+            // ── Apply gap if previous BA was run ──────────────────────
+            if (lastBARan) {
+                for (let s = GAP_MS / 1000; s > 0; s -= 5) {
+                    if (document.hidden) { await _sleep(3_000); continue; }
+                    _setPillMsg(`⏱ Global next BA in ${s}s — ${_getCnt()} BA stored today`, '#6366f1');
+                    await _sleep(Math.min(5_000, s * 1_000));
+                }
+            }
+            while (document.hidden) await _sleep(3_000);
+
+            _setPillMsg(`✨ Global BA: ${it.name.replace(/\[NPS\] /,'').slice(0,30)}… (W-RSI ${it.wrsi})`);
+            _updateBanner(`🤖 Global BA: ${it.name.replace(/\[NPS\] /,'').slice(0,32)}…`, '#7c3aed');
+
+            try {
+                const parsed = await _callGeminiBreadth(it, it.wrsi, apiKey);
+                _bgCacheSave(it.code, parsed);
+                q  = _loadQ();
+                it = q.find(x => x.code === snapshot.code && x.source === 'global');
+                if (it) { it.done = true; _saveQ(q); }
+                _incCnt();
+                lastBARan = true;
+                console.log(`[BG BA] ✅ Global BA stored: ${snapshot.name} → ${parsed.confirmation} (${_getCnt()} today)`);
+                _setPillMsg(`✅ Global BA stored: ${snapshot.name.slice(0,26)} (${_getCnt()} total today)`);
+            } catch(e) {
+                console.warn(`[BG BA] ❌ Global BA failed: ${snapshot.name}:`, e.message);
+                _setPillMsg(`⚠ Global ${snapshot.name.slice(0,20)} failed — will retry on relaunch`, '#c97a00');
+                await _sleep(3_000);
+                lastBARan = false;
+                // done stays false → retried on next restart
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // STEP 5 — COMPLETION CHECK
+        //   Only mark "ran today" if ALL queue items are done or skipped.
+        //   If any failed (no skipReason, not done), leave flag unset
+        //   so next app launch resumes from the pending items.
+        // ════════════════════════════════════════════════════════════
+        const finalQ      = _loadQ();
+        const stillPending = finalQ.filter(q => !q.done && !q.skipReason);
+        const finalCnt    = _getCnt();
+
+        if (!stillPending.length) {
+            _markRanToday();
+            _donePill(`✅ All BA done — ${finalCnt} analyses stored today.`);
+            _updateBanner(`✅ BA Engine complete — ${finalCnt} analyses stored today`, '#009e70');
+            // Also set compatibility keys used by other app components
+            try {
+                localStorage.setItem(`ba_completed_today_${today}`, 'true');
+                localStorage.setItem(`bg_ba_counter_${today}`, String(finalCnt));
+            } catch(e) {}
+            console.log(`[BG BA] ✅ All complete. ${finalCnt} BA stored today.`);
+        } else {
+            // Partial run — do NOT mark complete
+            const pendingNames = stillPending.slice(0, 3).map(q => q.name.split(' ')[0]).join(', ');
+            _donePill(`⚠ ${finalCnt} stored, ${stillPending.length} pending — relaunch to retry (${pendingNames}…)`);
+            _updateBanner(`⚠ BA partial: ${finalCnt} stored, ${stillPending.length} pending — relaunch app to retry`, '#c97a00');
+            console.log(`[BG BA] Partial. ${finalCnt} stored, ${stillPending.length} still pending.`);
+        }
     }
 
     // ── Public API ────────────────────────────────────────────────────
-    // window.bgBreadthStatus() → returns today's Regime A list from cache
+    // bgBreadthStatus() → today's Regime A list + BA counter
     window.bgBreadthStatus = function() {
         try {
-            const raw = localStorage.getItem(`bgbreadth_regimeA_${_istDate()}`);
-            const list = raw ? JSON.parse(raw) : [];
-            console.table(list);
-            return list;
-        } catch(e) { return []; }
+            const today = _istDate();
+            const list  = JSON.parse(localStorage.getItem(`bgbreadth_regimeA_${today}`) || '[]');
+            const queue = _loadQ();
+            const cnt   = _getCnt();
+            console.log(`[BG BA] Today (${today}): ${cnt} BA stored | ${list.length} Regime A funds`);
+            console.table(queue.map(q => ({
+                source: q.source, fund: q.name.slice(0, 35),
+                wrsi: q.wrsi, done: q.done, skip: q.skipReason
+            })));
+            return { list, queue, counter: cnt };
+        } catch(e) { return {}; }
     };
 
-    // window.bgBreadthForceRun() → clear run flag and restart (for testing)
+    // bgBreadthForceRun() → clear all flags and restart
     window.bgBreadthForceRun = function() {
-        try { localStorage.removeItem(RUN_FLAG_KEY + _istDate()); } catch(e) {}
+        const d = _istDate();
+        try { localStorage.removeItem(RUN_FLAG_KEY + d); } catch(e) {}
+        try { localStorage.removeItem(_qKey()); } catch(e) {}
+        try { localStorage.removeItem(_cntKey()); } catch(e) {}
+        try { localStorage.removeItem(`bg_amc_scan_done_${d}`); } catch(e) {}
+        console.log('[BG BA] Flags cleared — restarting.');
         _runBackgroundScan();
     };
 
-    // window.bgBreadthClearAll() → wipe all breadth caches for today
+    // bgBreadthClearAll() → wipe all BA caches and flags for today
     window.bgBreadthClearAll = function() {
         const d = _istDate();
-        const keys = Object.keys(localStorage).filter(k => k.includes(d) && k.startsWith('breadth_v1_'));
+        const keys = Object.keys(localStorage).filter(k =>
+            (k.startsWith('breadth_v1_') || k.startsWith('bg_ba_') ||
+             k.startsWith('bgbreadth_')  || k.startsWith('ba_regimeA_') ||
+             k.startsWith('ba_completed_')) && k.includes(d)
+        );
         keys.forEach(k => localStorage.removeItem(k));
         localStorage.removeItem(RUN_FLAG_KEY + d);
-        localStorage.removeItem(`bgbreadth_regimeA_${d}`);
-        console.log(`[BG Breadth] Cleared ${keys.length} cache entries + run flag for ${d}.`);
+        console.log(`[BG BA] Cleared ${keys.length} entries + run flag for ${d}.`);
     };
 
     // ── Auto-start: 6 seconds after page load ─────────────────────────
@@ -16544,9 +16504,10 @@ Return ONLY valid JSON:
         setTimeout(_runBackgroundScan, BOOT_DELAY_MS);
     });
 
-    console.log(`[BG Breadth] Add-on ${ADDON_VER} loaded. Starts in ${BOOT_DELAY_MS/1000}s.`);
-    console.log('[BG Breadth] Debug: bgBreadthStatus() | bgBreadthForceRun() | bgBreadthClearAll()');
+    console.log(`[BG BA] ${ADDON_VER} loaded. Starts in ${BOOT_DELAY_MS/1000}s.`);
+    console.log('[BG BA] Debug: bgBreadthStatus() | bgBreadthForceRun() | bgBreadthClearAll()');
 
     })();
     </script>
     <!-- ═══════════════ END BG BREADTH ADD-ON ═══════════════ -->
+

@@ -797,7 +797,6 @@
                 background: var(--bg);
                 z-index: 600;
                 flex-direction: column;
-                overflow: hidden;
             }
             .modal-close {
                 padding: 11px 14px;
@@ -2145,7 +2144,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD246VAI2</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD246VAI</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2573,7 +2572,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD246VAI2 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD246VAI &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2585,7 +2584,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI2 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -3931,6 +3930,98 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         code: 'SM005005'
                     },
                 ],
+                SBI: [
+                    {
+                        name: 'SBI Bluechip - Growth',
+                        code: '119592'
+                    },
+                    {
+                        name: 'SBI Balanced Advantage - Growth',
+                        code: '151067'
+                    },
+                    {
+                        name: '[NPS] SBI Scheme E - Tier I',
+                        code: 'SM001001'
+                    },
+                    {
+                        name: '[NPS] SBI Scheme C - Tier I',
+                        code: 'SM001002'
+                    },
+                    {
+                        name: '[NPS] SBI Scheme E - Tier II',
+                        code: 'SM001004'
+                    },
+                    {
+                        name: '[NPS] SBI Scheme C - Tier II',
+                        code: 'SM001005'
+                    },
+                ],
+                UTI: [
+                    {
+                        name: 'UTI Nifty 50 Index - Direct',
+                        code: '120716'
+                    },
+                    {
+                        name: 'UTI Balanced Advantage - Growth',
+                        code: '130503'
+                    },
+                    {
+                        name: '[NPS] UTI Scheme E - Tier I',
+                        code: 'SM003001'
+                    },
+                    {
+                        name: '[NPS] UTI Scheme C - Tier I',
+                        code: 'SM003002'
+                    },
+                    {
+                        name: '[NPS] UTI Scheme E - Tier II',
+                        code: 'SM003004'
+                    },
+                    {
+                        name: '[NPS] UTI Scheme C - Tier II',
+                        code: 'SM003005'
+                    },
+                ],
+                LIC: [
+                    {
+                        name: 'LIC MF Large Cap - Growth',
+                        code: '119015'
+                    },
+                    {
+                        name: '[NPS] LIC Scheme E - Tier I',
+                        code: 'SM002001'
+                    },
+                    {
+                        name: '[NPS] LIC Scheme C - Tier I',
+                        code: 'SM002002'
+                    },
+                    {
+                        name: '[NPS] LIC Scheme E - Tier II',
+                        code: 'SM002004'
+                    },
+                    {
+                        name: '[NPS] LIC Scheme C - Tier II',
+                        code: 'SM002005'
+                    },
+                ],
+                MAX: [
+                    {
+                        name: '[NPS] MAX Life Scheme E - Tier I',
+                        code: 'SM009001'
+                    },
+                    {
+                        name: '[NPS] MAX Life Scheme C - Tier I',
+                        code: 'SM009002'
+                    },
+                    {
+                        name: '[NPS] MAX Life Scheme E - Tier II',
+                        code: 'SM009004'
+                    },
+                    {
+                        name: '[NPS] MAX Life Scheme C - Tier II',
+                        code: 'SM009005'
+                    },
+                ],
                 ABSL: [{
                         name: 'ABSL Hybrid 95 - Growth',
                         code: '120517'
@@ -4514,7 +4605,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD246VAI2', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD246VAI', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -11993,83 +12084,73 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
             }
             function renderAlertSummaryUI(res) {
                 const content = document.getElementById('alertSummaryContent');
+                // Call helper (also used by cache path)
+                _renderAlertResults(results, content);
                 const sub = document.getElementById('alertSummarySub');
-                content.innerHTML = '';
-
                 const allFunds = Object.values(window.amcFunds).flat();
                 const actionableAlerts = ['TSL','REGIME_CRASH','REGIME_C','NC','REGIME_BREAKOUT','PC','RSI_DIP','SLINGSHOT'];
                 const totalAlerts = actionableAlerts.reduce((s, k) => s + (res[k]||[]).length, 0);
                 const holdCount = (res.HOLD || []).length;
-                if (sub) sub.textContent = `${totalAlerts} actionable alerts · ${holdCount} funds waiting · ${allFunds.length} total`;
-
+                sub.textContent = `${totalAlerts} actionable alerts · ${holdCount} funds waiting · ${allFunds.length} total`;
+                content.innerHTML = '';
                 const categories = [
-                    { label: '🚨 TSL FLOOR BREACH',              list: res.TSL,             color: '#c8102e'       },
-                    { label: '🚨 REGIME CRASH (NEW → FEAR)',      list: res.REGIME_CRASH,    color: '#c8102e'       },
-                    { label: '🚨 REGIME FEAR (BEAR)',             list: res.REGIME_C,        color: '#c8102e'       },
-                    { label: '🚨 NC BREAKDOWN',                   list: res.NC,              color: '#f59e0b'       },
-                    { label: '🟢 REGIME BREAKOUT (NEW → HOPE)',   list: res.REGIME_BREAKOUT, color: '#009e70'       },
-                    { label: '🟢 PC BREAKOUT',                    list: res.PC,              color: '#009e70'       },
-                    { label: '🟢 RSI OVERSOLD (<40)',             list: res.RSI_DIP,         color: '#009e70'       },
-                    { label: '🟢 SLINGSHOT SIGNAL',               list: res.SLINGSHOT,       color: '#009e70'       },
-                    { label: '⏸ HOLD — WAITING FOR SIGNAL',      list: res.HOLD,            color: '#64748b'       }
+                    { id: 'tsl',      label: '🚨 TSL FLOOR BREACH',           list: res.TSL,             color: 'var(--red)'    },
+                    { id: 'crash',    label: '🚨 REGIME CRASH (NEW → FEAR)',      list: res.REGIME_CRASH,    color: 'var(--red)'    },
+                    { id: 'regc',     label: '🚨 REGIME FEAR (BEAR)',             list: res.REGIME_C,        color: 'var(--red)'    },
+                    { id: 'nc',       label: '🚨 NC BREAKDOWN',                list: res.NC,              color: '#f59e0b'        },
+                    { id: 'brk',      label: '🟢 REGIME WATCH BREAKOUT (NEW → HOPE)',   list: res.REGIME_BREAKOUT, color: 'var(--accent)'  },
+                    { id: 'pc',       label: '🟢 PC BREAKOUT',                 list: res.PC,              color: 'var(--accent)'  },
+                    { id: 'rsi',      label: '🟢 RSI OVERSOLD (<40)',          list: res.RSI_DIP,         color: 'var(--accent)'  },
+                    { id: 'sling',    label: '🟢 SLINGSHOT SIGNAL',            list: res.SLINGSHOT,       color: 'var(--accent)'  },
+                    { id: 'hold',     label: '⏸ WAITING FOR SIGNS : HOLD',    list: res.HOLD,            color: 'var(--muted)'   }
                 ];
-
-                categories.forEach(cat => {
-                    const listLength = (cat.list && cat.list.length) ? cat.list.length : 0;
-
-                    // Header button
+categories.forEach(cat => {
+                    const listLength = cat.list ? cat.list.length : 0;
                     const btn = document.createElement('button');
                     btn.className = 'alert-cat-btn';
                     btn.style.color = cat.color;
-                    btn.innerHTML = `<span>${cat.label}</span><span style="font-weight:700;">${listLength > 0 ? listLength + ' ▾' : '0'}</span>`;
-
-                    // Pane — OPEN by default if has funds
+                    btn.innerHTML = `<span>${cat.label}</span><span>${listLength} ▸</span>`;
                     const pane = document.createElement('div');
-                    pane.style.cssText = `display:${listLength > 0 ? 'block' : 'none'};background:var(--surface);margin-bottom:3px;border-radius:4px;overflow:hidden;`;
-
+                    pane.style.display = 'none';
+                    pane.style.background = 'var(--surface)';
+                    pane.style.marginBottom = '2px';
+                    pane.style.borderRadius = 'var(--radius-sm)';
                     if (listLength > 0) {
-                        cat.list.forEach(function(item) {
-                            const regimeColor = item.regime === 'A' ? '#009e70' : item.regime === 'B' ? '#b07a00' : '#c8102e';
+                        cat.list.forEach(item => {
+                            const regimeColor = item.regime === 'A' ? 'var(--accent)' : item.regime === 'B' ? 'var(--gold)' : 'var(--red)';
                             const regimeLabel = item.regime === 'A' ? 'Hope' : item.regime === 'B' ? 'Watch' : 'Fear';
                             const row = document.createElement('div');
                             row.className = 'alert-item-row';
-                            row.style.cssText = 'display:flex;align-items:center;padding:9px 12px;border-bottom:1px solid rgba(0,0,0,0.07);cursor:pointer;gap:8px;';
+                            row.onclick = () => launchLiveFromAlert(item.code);
                             row.innerHTML = `
                                 <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
-                                    <span style="font-size:0.72rem;font-weight:400;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.name}</span>
-                                    <span style="font-size:0.52rem;color:#64748b;font-family:var(--mono);margin-top:2px;">
-                                        W-RSI: ${item.wrsi} &nbsp;|&nbsp; D-RSI: ${item.drsi} &nbsp;|&nbsp; Δ: ${item.delta} &nbsp;|&nbsp; Regime: <strong style="color:${regimeColor};">${regimeLabel}</strong>
+                                    <span class="alert-item-name">${item.name}</span>
+                                    <span style="font-size:0.55rem;color:var(--muted2);font-family:var(--mono);">
+                                        D-RSI: ${item.drsi} | W-RSI: ${item.wrsi} | Δ: ${item.delta} | Regime: <strong style="color:${regimeColor};">${regimeLabel}</strong>
                                     </span>
                                 </div>
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;">
-                                    <span style="font-size:0.62rem;font-weight:700;color:${cat.color};">${item.val}</span>
-                                    <span style="font-size:0.44rem;color:#64748b;font-family:var(--mono);">TAP → LIVE ▶</span>
-                                </div>`;
-                            // Click → navigate to Live Market
-                            row.addEventListener('click', function() { launchLiveFromAlert(item.code); });
+                                <span class="alert-item-val" style="color:${cat.color};">${item.val}</span>`;
                             pane.appendChild(row);
                         });
                     } else {
-                        const empty = document.createElement('div');
-                        empty.style.cssText = 'padding:8px 12px;font-size:0.6rem;color:#64748b;text-align:center;';
-                        empty.textContent = 'No funds in this category';
-                        pane.appendChild(empty);
+                        const emptyRow = document.createElement('div');
+                        emptyRow.className = 'alert-item-row';
+                        emptyRow.style.justifyContent = 'center';
+                        emptyRow.style.cursor = 'default';
+                        emptyRow.innerHTML = `<span style="font-size:0.6rem;color:var(--muted);">No funds in this category</span>`;
+                        pane.appendChild(emptyRow);
                     }
-
-                    // Toggle on header click
-                    btn.addEventListener('click', function() {
-                        const open = pane.style.display === 'block';
-                        pane.style.display = open ? 'none' : 'block';
-                        btn.querySelector('span:last-child').textContent = listLength > 0 ? listLength + (open ? ' ▸' : ' ▾') : '0';
-                    });
-
+                    btn.onclick = () => {
+                        const isOpen = pane.style.display === 'block';
+                        pane.style.display = isOpen ? 'none' : 'block';
+                        btn.querySelector('span:last-child').textContent = listLength + (isOpen ? ' ▸' : ' ▾');
+                    };
                     content.appendChild(btn);
                     content.appendChild(pane);
                 });
-
                 if (totalAlerts === 0 && holdCount === 0) {
                     const emptyMsg = document.createElement('div');
-                    emptyMsg.style.cssText = 'text-align:center;padding:60px 20px;color:#009e70;font-size:0.7rem;';
+                    emptyMsg.style.cssText = 'text-align:center;padding:60px 20px;color:var(--accent);font-size:0.7rem;';
                     emptyMsg.innerHTML = '✓ UNIVERSE IS CLEAN<br>No critical alerts detected.';
                     content.appendChild(emptyMsg);
                 }
@@ -12296,33 +12377,25 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 _setBadge(`(${count})`);
             }
             function launchLiveFromAlert(code) {
-                // Close all modals
-                ['alertSummaryModal','assetAllocatorModal','watchlistModal','compareModal'].forEach(function(id) {
-                    var m = document.getElementById(id);
+                ['alertSummaryModal','assetAllocatorModal','watchlistModal','compareModal'].forEach(id => {
+                    const m = document.getElementById(id);
                     if (m) m.style.display = 'none';
                 });
-                // Show setup screen
-                var ss = document.getElementById('setupScreen');
-                if (ss) ss.style.display = 'flex';
-                // Find and select the AMC
-                var amcMatch = null;
-                for (var amc in window.amcFunds) {
-                    if (window.amcFunds[amc].some(function(f) { return f.code === code; })) {
+                document.getElementById('setupScreen').style.display = 'flex';
+                let amcMatch = "HDFC";
+                for (const amc in window.amcFunds) {
+                    if (window.amcFunds[amc].some(f => f.code === code)) {
                         amcMatch = amc;
                         break;
                     }
                 }
-                if (amcMatch) {
-                    document.querySelectorAll('#fundGrid .fund-box').forEach(function(b) {
-                        if (b.textContent.trim() === amcMatch) selectAMC(amcMatch, b);
-                    });
-                }
-                // Set fund dropdown
-                var fundSel = document.getElementById('fundSelect');
-                if (fundSel) fundSel.value = code;
+                const amcBtns = document.querySelectorAll('#fundGrid .fund-box');
+                amcBtns.forEach(b => {
+                    if (b.textContent.trim() === amcMatch) selectAMC(amcMatch, b);
+                });
+                document.getElementById('fundSelect').value = code;
                 saveFundSelection();
-                // Small delay so DOM is ready before chart initialises
-                setTimeout(function() { initLiveChart(); }, 100);
+                initLiveChart();
             }
             let _pausedSipAmount  = 0;   
             let _pausedSipCount   = 0;   
@@ -15718,7 +15791,7 @@ Return a JSON object with this exact structure:
     const BOOT_DELAY_MS =   6_000;          // wait 6s for app to settle
     // RSI_PERIOD is NOT hardcoded — always reads window.userRsiLength (set on page 1 by user).
     // Falls back to 4 (app default) if not yet initialised.
-    const ADDON_VER     = 'LD246VAI2-BG-v1';    const RUN_FLAG_KEY  = 'bgbreadth_ran_'; // + YYYYMMDD_IST
+    const ADDON_VER     = 'LD246VAI-BG-v1';    const RUN_FLAG_KEY  = 'bgbreadth_ran_'; // + YYYYMMDD_IST
 
     // ── IST date string ────────────────────────────────────────────────
     function _istDate() {

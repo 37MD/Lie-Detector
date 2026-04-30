@@ -794,6 +794,8 @@
                 display: none;
                 position: fixed;
                 inset: 0;
+                height: 100vh;          /* fix: bound height so flex child can scroll */
+                overflow: hidden;       /* fix: clip at edges, child handles scroll */
                 background: var(--bg);
                 z-index: 600;
                 flex-direction: column;
@@ -2791,15 +2793,23 @@
                     <span class="modal-title" style="color:#a855f7;">📌 WATCHLIST</span>
                     <span style="font-size:0.48rem;color:var(--muted);margin-top:1px;">Pinned funds — live Regime · D-RSI · Alert</span>
                 </div>
-                <div style="display:flex;gap:6px;align-items:center;">
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
                     <button class="setup-btn" style="border-color:#a855f7;color:#a855f7;padding:4px 8px;font-size:0.55rem;" onclick="addCurrentToWatchlist()">+ PIN THIS FUND</button>
+                    <button class="setup-btn" id="wlBaViewBtn" style="border-color:#009e70;color:#009e70;padding:4px 8px;font-size:0.55rem;" onclick="_openWatchlistBaView()">📊 BA Results</button>
                     <span class="modal-close-btn" onclick="document.getElementById('watchlistModal').style.display='none';document.getElementById('setupScreen').style.display='flex';">[ X ]</span>
                 </div>
             </div>
             <div style="padding:6px 8px;font-size:0.5rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
                 Auto-refreshes every 60s · Tap row to open Live Cockpit
             </div>
-            <div id="watchlistBody" style="flex-grow:1;overflow-y:auto;padding:4px 6px;display:flex;flex-direction:column;gap:4px;"></div>
+            <!-- BA Results view (toggles with watchlist body) -->
+            <div id="wlBaView" style="display:none;flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 8px;flex-direction:column;gap:6px;">
+                <div style="font-size:0.52rem;color:var(--muted);padding:4px 0 6px;border-bottom:1px solid var(--border);flex-shrink:0;">
+                    Tap a fund below to open its full BA Analysis · <span id="wlBaCount" style="color:var(--accent);"></span>
+                </div>
+                <div id="wlBaList" style="display:flex;flex-direction:column;gap:4px;padding-top:4px;"></div>
+            </div>
+            <div id="watchlistBody" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 6px;display:flex;flex-direction:column;gap:4px;"></div>
             <div id="switchBridgeSection" style="padding:8px 8px 4px;border-top:1px solid var(--border);flex-shrink:0;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
                     <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.09em;color:#a855f7;text-transform:uppercase;">🔀 Investment Switch Bridge</span>
@@ -2989,7 +2999,7 @@ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:65%;"></span
                 </div>
             </div>
             <div id="liveAlertBanner">WAITING FOR SIGNS : HOLD ...</div>
-            <div style="flex-grow:1;overflow-y:auto;padding:3px 7px 24px;
+            <div style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:3px 7px 24px;
 display:flex;flex-direction:column;gap:4px;min-height:0;">
                 <div id="laVerdict" style="border-radius:var(--radius);padding:3px 10px;background:var(--surface2);
 border:2px solid var(--border);display:flex;align-items:center;
@@ -3121,7 +3131,7 @@ border-radius:var(--radius);padding:6px 9px;">
                 <span class="modal-title" style="color:var(--text);">Trade History</span>
                 <span class="modal-close-btn" onclick="closeLog()">[ X ] CLOSE</span>
             </div>
-            <div style="flex-grow:1;overflow-y:auto;padding:12px;">
+            <div style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;">
                 <table class="log-table">
                     <thead>
                         <tr>
@@ -3508,7 +3518,7 @@ letter-spacing:0.1em;border-bottom:1px solid var(--border);">
                 Qualified Funds
                 <span id="rrgScanCount" style="color:var(--text);font-weight:400;">(0)</span>
             </div>
-            <div id="rrgScanList" style="flex-grow:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;"></div>
+            <div id="rrgScanList" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px;display:flex;flex-direction:column;gap:6px;"></div>
         </div>
         <div id="regimeChangeModal" class="modal-overlay">
             <div class="modal-close">
@@ -3522,7 +3532,7 @@ letter-spacing:0.1em;border-bottom:1px solid var(--border);">
                 Regime Changes (Last 5 Trading Days)
                 <span id="regimeChangeCount" style="color:var(--text);font-weight:400;">(0)</span>
             </div>
-            <div id="regimeChangeList" style="flex-grow:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;"></div>
+            <div id="regimeChangeList" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px;display:flex;flex-direction:column;gap:6px;"></div>
         </div>
         <div id="regimeA2ScannerModal" class="modal-overlay">
             <div class="modal-close">
@@ -3539,7 +3549,7 @@ letter-spacing:0.1em;border-bottom:1px solid var(--border);">
                 Qualified Funds
                 <span id="regimeA2Count" style="color:var(--text);font-weight:400;">(0)</span>
             </div>
-            <div id="regimeA2List" style="flex-grow:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;"></div>
+            <div id="regimeA2List" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px;display:flex;flex-direction:column;gap:6px;"></div>
         </div>
         <div id="rrgDetailModal" class="modal-overlay">
             <div class="modal-close">
@@ -8122,7 +8132,7 @@ This is exactly how the system is meant to be played.
         <div style="padding:8px 10px;font-size:0.58rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
             ${transitions.length} transition points found — practice the hardest moments
         </div>
-        <div id="drillList" style="flex-grow:1;overflow-y:auto;padding:6px 8px;display:flex;flex-direction:column;gap:5px;"></div>`;
+        <div id="drillList" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 8px;display:flex;flex-direction:column;gap:5px;"></div>`;
                     document.body.appendChild(m);
                 }
                 const list = document.getElementById('drillList');
@@ -11842,7 +11852,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 </div>
                 <span class="modal-close-btn" onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';">[ CLOSE ]</span>
             </div>
-            <div id="alertSummaryContent" style="flex-grow:1;overflow-y:auto;padding:8px 10px;display:flex;flex-direction:column;gap:3px;">
+            <div id="alertSummaryContent" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px;display:flex;flex-direction:column;gap:3px;">
             </div>
         </div>
         <script>
@@ -13009,7 +13019,13 @@ categories.forEach(cat => {
             <div class="abp-title">✨ AI Breadth Confirmation</div>
             <div class="abp-fund-tag" id="abpFundTag">—</div>
           </div>
-          <button class="abp-close" onclick="closeAIBreadthModal()">✕</button>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button id="abpAddWatchBtn" style="display:none;background:none;
+                border:1px solid #a855f7;color:#a855f7;border-radius:5px;
+                padding:3px 8px;font-size:0.48rem;cursor:pointer;font-family:var(--mono);"
+                onclick="_abpAddToWatchlist()">📌 Watchlist</button>
+            <button class="abp-close" onclick="closeAIBreadthModal()">✕</button>
+          </div>
         </div>
         <div class="abp-body">
           <!-- Fund meta row -->
@@ -13155,7 +13171,84 @@ categories.forEach(cat => {
         // ════════════════════════════════════════════════════════════
         // §2c  SMART OPEN — check cache, update button state
         // ════════════════════════════════════════════════════════════
-        window.openAIBreadthModal = function(fund) {
+
+        // ── Watchlist BA view ──────────────────────────────────────────
+        function _openWatchlistBaView() {
+            const baView  = document.getElementById('wlBaView');
+            const wlBody  = document.getElementById('watchlistBody');
+            const btn     = document.getElementById('wlBaViewBtn');
+            if (!baView || !wlBody) return;
+            const isOpen = baView.style.display !== 'none';
+            baView.style.display = isOpen ? 'none' : 'flex';
+            wlBody.style.display = isOpen ? 'flex' : 'none';
+            btn.textContent      = isOpen ? '📊 BA Results' : '📌 Watchlist';
+            btn.style.color      = isOpen ? '#009e70' : '#a855f7';
+            btn.style.borderColor= isOpen ? '#009e70' : '#a855f7';
+            if (!isOpen) _buildWlBaList();
+        }
+        function _buildWlBaList() {
+            const list = document.getElementById('wlBaList');
+            const cnt  = document.getElementById('wlBaCount');
+            if (!list) return;
+            const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+            const _allFundsFlat = Object.values(window.amcFunds || {}).flat();
+            // Show all Regime A funds from today's BA list + watchlist
+            const _baRegimeA  = JSON.parse(localStorage.getItem(`ba_regimeA_funds_${(() => {
+                const n = new Date(Date.now()+5.5*3600000);
+                return n.toISOString().slice(0,10).replace(/-/g,'');
+            })()}`) || '[]');
+            const _baCompleted = JSON.parse(localStorage.getItem(`ba_completed_funds_${(() => {
+                const n = new Date(Date.now()+5.5*3600000);
+                return n.toISOString().slice(0,10).replace(/-/g,'');
+            })()}`) || '[]');
+            // Merge watchlist + regime A list (dedupe)
+            const showFunds = [..._baRegimeA];
+            _wl.forEach(w => { if (!showFunds.find(f => f.code === w.code)) showFunds.push(w); });
+            if (cnt) cnt.textContent = `${_baCompleted.length}/${_baRegimeA.length} BA analyses done today`;
+            if (!showFunds.length) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No Regime A funds found today. Run a BA scan or open a fund.</div>'; return; }
+            list.innerHTML = showFunds.map(f => {
+                const _dateKey = (() => { const n=new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
+                const _ck = `breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dateKey}`;
+                const _cached = (() => { try { const r=localStorage.getItem(_ck); return r?JSON.parse(r):null; } catch(e2){return null;} })();
+                const _done = !!_cached;
+                const _ts   = _cached?._cachedAtDisplay || '';
+                const _verdict = _cached?.overall_verdict || _cached?.confirmation || '';
+                const _vColor  = _verdict==='CONFIRMED'?'#009e70':_verdict==='MARGINAL'?'#f59e0b':'#888';
+                return `<div style="display:flex;align-items:center;gap:6px;padding:6px 4px;
+                    border-bottom:1px solid var(--border);cursor:pointer;font-size:0.54rem;"
+                    onclick="_launchBaFromWatchlist('${f.code}','${(f.name||'').replace(/'/g,'')}')">
+                    <div style="flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">
+                        ${(f.name||'').replace(/\[NPS\] | - Growth| - Direct/gi,'').trim().slice(0,32)}
+                    </div>
+                    ${_done
+                        ? `<span style="font-size:0.44rem;color:${_vColor};border:1px solid ${_vColor};padding:1px 5px;border-radius:3px;">${_verdict||'Cached'}</span>
+                           <span style="font-size:0.42rem;color:var(--muted);">${_ts.slice(11,16)}</span>`
+                        : `<span style="font-size:0.44rem;color:var(--muted);border:1px solid var(--border);padding:1px 5px;border-radius:3px;">No cache</span>`
+                    }
+                </div>`;
+            }).join('');
+        }
+        function _launchBaFromWatchlist(code, name) {
+            // Open BA modal for this fund — find it in amcFunds
+            const _allFlat = Object.values(window.amcFunds||{}).flat();
+            const _fund = _allFlat.find(f => f.code === code) || { code, name };
+            if (window.openAIBreadthModal) window.openAIBreadthModal(_fund);
+        }
+        function _abpAddToWatchlist() {
+            if (!window._abpFund) return;
+            const f = window._abpFund;
+            const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+            if (_wl.length >= 20) { alert('Watchlist full (max 20 funds)'); return; }
+            if (_wl.some(w => (w.code||w.name) === (f.code||f.name))) { alert('Already in watchlist'); return; }
+            const _isPortfolio = confirm(`Add "${(f.name||'').replace(/\[NPS\] | - Growth| - Direct/gi,'').trim()}" to Portfolio as well?\n\nOK = In Portfolio ✓   Cancel = Watchlist only`);
+            _wl.push({ code: f.code, name: f.name, portfolio: _isPortfolio });
+            localStorage.setItem('ld_watchlist', JSON.stringify(_wl));
+            const _btn = document.getElementById('abpAddWatchBtn');
+            if (_btn) { _btn.style.display = 'none'; }
+            if (window._watchlist) { window._watchlist = _wl; if (window.renderWatchlistStubs) window.renderWatchlistStubs(); }
+        }
+
+                window.openAIBreadthModal = function(fund) {
             _abpFund = fund;
             _resetPanel();
             _populateFundMeta(fund);
@@ -13222,6 +13315,14 @@ categories.forEach(cat => {
             }
 
             document.getElementById('aiBreadthOverlay').classList.add('open');
+            // Show "Add to Watchlist" button if fund not already pinned
+            const _awBtn = document.getElementById('abpAddWatchBtn');
+            if (_awBtn) {
+                const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+                const _alreadyPinned = _wl.some(w => (w.code||w.name) === (fund.code||fund.name));
+                _awBtn.style.display = _alreadyPinned ? 'none' : 'inline-block';
+                _awBtn.title = _alreadyPinned ? 'Already in watchlist' : 'Add this fund to watchlist';
+            }
         };
 
         window.closeAIBreadthModal = function() {
@@ -16088,6 +16189,53 @@ Return ONLY valid JSON:
             return;
         }
 
+        // ── If Regime A scan already done today, skip it and only run pending BA ─
+        const _regimeADoneKey = `bgbreadth_regimeA_scanned_${_istDate()}`;
+        const _regimeADoneToday = localStorage.getItem(_regimeADoneKey) === 'true';
+        if (_regimeADoneToday) {
+            console.log('[BG Breadth] Regime A scan already done today — loading cached list, running pending BA only.');
+            try {
+                const _saved = JSON.parse(localStorage.getItem(`bgbreadth_regimeA_${_istDate()}`) || '[]');
+                if (_saved.length) {
+                    const _pending = _saved.filter(f => !_cacheExists(f.code));
+                    if (!_pending.length) {
+                        _donePill(`✅ All Regime A funds already cached today.`);
+                        _markRanToday();
+                        return;
+                    }
+                    _setPillMsg(`⏭ Regime A already scanned. Running ${_pending.length} pending BA…`);
+                    // Jump straight to BA calls with the pending list
+                    let done = 0, failed = 0;
+                    for (let i = 0; i < _pending.length; i++) {
+                        const fund = _pending[i];
+                        if (i > 0) {
+                            for (let s = GAP_MS / 1000; s > 0; s -= 5) {
+                                _setPillMsg(`⏳ ${s}s until next BA call…`);
+                                await _sleep(5000);
+                                if (s <= 5) break;
+                            }
+                        }
+                        try {
+                            const parsed = await _callGeminiBreadth(fund, fund.wrsi, _resolveApiKey());
+                            _bgCacheSave(fund.code, parsed);
+                            done++;
+                            // Sync BA completed tracker
+                            try {
+                                const _baCKey = `ba_completed_funds_${_istDate()}`;
+                                const _baDone = JSON.parse(localStorage.getItem(_baCKey)||'[]');
+                                if (!_baDone.includes(fund.code)) _baDone.push(fund.code);
+                                localStorage.setItem(_baCKey, JSON.stringify(_baDone));
+                            } catch(e2) {}
+                        } catch(e) { failed++; }
+                        _setPillMsg(`✨ BA resume ${i+1}/${_pending.length}: ${fund.name.slice(0,28)}`);
+                    }
+                    _markRanToday();
+                    _donePill(`✅ BA resume done — ${done} cached, ${failed} failed.`);
+                    return;
+                }
+            } catch(e) { console.warn('[BG Breadth] Resume load error:', e.message); }
+        }
+
         // Resolve API key via authoritative source
         const _mask = k => k ? `${k.slice(0,6)}…${k.slice(-4)}(${k.length}c)` : 'none';
         const _k1 = localStorage.getItem('ld_gemini_api_key');
@@ -16231,6 +16379,11 @@ Return ONLY valid JSON:
             _markRanToday();
             return;
         }
+
+        // ── Mark Regime A scan done NOW (before any Gemini calls) ────
+        // This means if app closes mid-BA, next launch skips Regime A scan.
+        const REGIME_A_DONE_KEY = `bgbreadth_regimeA_scanned_${_istDate()}`;
+        try { localStorage.setItem(REGIME_A_DONE_KEY, 'true'); } catch(e) {}
 
         // Step 2: Filter out already-cached funds
         const needsBreadth = regimeAFunds.filter(f => !_cacheExists(f.code));

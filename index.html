@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD246VAI5M</title>
+        <title>Lie Detector — NPS NAV Chart · LD246VAI5</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -16008,19 +16008,39 @@ Return a JSON object with this exact structure:
             font-family:'Space Mono',monospace;font-weight:600;
             padding:7px 12px 7px 10px;border-radius:20px;
             border:1.5px solid #009e70;box-shadow:0 3px 14px rgba(0,0,0,0.35);
-            max-width:280px;line-height:1.4;cursor:pointer;
-            display:flex;align-items:center;gap:8px;transition:opacity 0.3s;`;
+            max-width:300px;line-height:1.4;cursor:pointer;
+            display:flex;align-items:center;gap:6px;transition:opacity 0.3s;`;
         el.innerHTML = `
             <span id="bgBreadthDot" style="width:8px;height:8px;border-radius:50%;
                 background:#009e70;flex-shrink:0;
                 animation:bgPillPulse 1.2s ease-in-out infinite;"></span>
-            <span id="bgBreadthMsg">⏳ BA engine starting…</span>
+            <span id="bgBreadthCounter" style="font-size:0.58rem;color:#009e70;
+                white-space:nowrap;flex-shrink:0;min-width:36px;"></span>
+            <span id="bgBreadthMsg" style="flex:1;overflow:hidden;text-overflow:ellipsis;
+                white-space:nowrap;">⏳ BA engine starting…</span>
             <span onclick="document.getElementById('bgBreadthPill').style.display='none'"
-                style="margin-left:4px;opacity:0.5;font-size:0.8rem;flex-shrink:0;">✕</span>`;
+                style="opacity:0.4;font-size:0.8rem;flex-shrink:0;">✕</span>`;
         const style = document.createElement('style');
         style.textContent = `@keyframes bgPillPulse{0%,100%{opacity:1}50%{opacity:0.3}}`;
         document.head.appendChild(style);
         document.body.appendChild(el);
+    }
+
+    // Update counter badge — called every time pill msg changes
+    function _updatePillCounter() {
+        const el = document.getElementById('bgBreadthCounter');
+        if (!el) return;
+        try {
+            const q = _loadQ();
+            const total = q.length;
+            const done  = q.filter(x => x.done || x.skipReason).length;
+            const cnt   = _getCnt();
+            if (total > 0) {
+                el.textContent = `${cnt}/${total}`;
+            } else {
+                el.textContent = cnt > 0 ? `${cnt}` : '';
+            }
+        } catch(e) { el.textContent = ''; }
     }
 
     function _setPillMsg(msg, colour) {
@@ -16028,12 +16048,15 @@ Return a JSON object with this exact structure:
         const d = document.getElementById('bgBreadthDot');
         if (m) m.textContent = msg;
         if (d) d.style.background = colour || '#009e70';
+        _updatePillCounter();
     }
 
     function _donePill(msg) {
         _setPillMsg(msg, '#009e70');
         const d = document.getElementById('bgBreadthDot');
+        const c = document.getElementById('bgBreadthCounter');
         if (d) d.style.animation = 'none';
+        if (c) c.style.color = '#009e70';
         setTimeout(() => {
             const p = document.getElementById('bgBreadthPill');
             if (p) { p.style.opacity = '0'; setTimeout(() => p.remove(), 800); }
@@ -16254,7 +16277,7 @@ Return a JSON object with this exact structure:
                 it.done = true;
                 _saveQ(q);
                 _incCnt();
-                _setPillMsg(`✅ WL: ${it.name.replace(/\[NPS\] /,'').slice(0,28)} — BA cached today (${_getCnt()} stored)`);
+                _setPillMsg(`✅ WL: ${it.name.replace(/\[NPS\] /,'').slice(0,28)} — cached`);
                 console.log(`[BG BA] WL fund already BA-cached today: ${it.name}`);
                 lastBARan = false;
                 continue;
@@ -16294,7 +16317,7 @@ Return a JSON object with this exact structure:
             if (lastBARan) {
                 for (let s = GAP_MS / 1000; s > 0; s -= 5) {
                     if (document.hidden) { await _sleep(3_000); continue; }
-                    _setPillMsg(`⏱ WL next BA in ${s}s — ${_getCnt()} BA stored today`, '#6366f1');
+                    _setPillMsg(`⏱ WL next BA in ${s}s `, '#6366f1');
                     await _sleep(Math.min(5_000, s * 1_000));
                 }
             }
@@ -16320,7 +16343,7 @@ Return a JSON object with this exact structure:
                 } catch(e2) {}
                 lastBARan = true;
                 console.log(`[BG BA] ✅ WL BA stored: ${snapshot.name} → ${parsed.confirmation} (${_getCnt()} today)`);
-                _setPillMsg(`✅ WL BA stored: ${snapshot.name.slice(0,28)} (${_getCnt()} total today)`);
+                _setPillMsg(`✅ WL BA stored: ${snapshot.name.slice(0,28)} `);
             } catch(e) {
                 console.warn(`[BG BA] ❌ WL BA failed: ${snapshot.name}:`, e.message);
                 _setPillMsg(`⚠ WL ${snapshot.name.slice(0,20)} failed — will retry on relaunch`, '#c97a00');
@@ -16429,7 +16452,7 @@ Return a JSON object with this exact structure:
                 it.done = true;
                 _saveQ(q);
                 _incCnt();
-                _setPillMsg(`✅ Global: ${it.name.replace(/\[NPS\] /,'').slice(0,28)} — BA cached (${_getCnt()} stored)`);
+                _setPillMsg(`✅ Global: ${it.name.replace(/\[NPS\] /,'').slice(0,28)} — cached`);
                 lastBARan = false;
                 continue;
             }
@@ -16438,7 +16461,7 @@ Return a JSON object with this exact structure:
             if (lastBARan) {
                 for (let s = GAP_MS / 1000; s > 0; s -= 5) {
                     if (document.hidden) { await _sleep(3_000); continue; }
-                    _setPillMsg(`⏱ Global next BA in ${s}s — ${_getCnt()} BA stored today`, '#6366f1');
+                    _setPillMsg(`⏱ Global next BA in ${s}s `, '#6366f1');
                     await _sleep(Math.min(5_000, s * 1_000));
                 }
             }
@@ -16456,7 +16479,7 @@ Return a JSON object with this exact structure:
                 _incCnt();
                 lastBARan = true;
                 console.log(`[BG BA] ✅ Global BA stored: ${snapshot.name} → ${parsed.confirmation} (${_getCnt()} today)`);
-                _setPillMsg(`✅ Global BA stored: ${snapshot.name.slice(0,26)} (${_getCnt()} total today)`);
+                _setPillMsg(`✅ Global BA stored: ${snapshot.name.slice(0,26)} `);
             } catch(e) {
                 console.warn(`[BG BA] ❌ Global BA failed: ${snapshot.name}:`, e.message);
                 _setPillMsg(`⚠ Global ${snapshot.name.slice(0,20)} failed — will retry on relaunch`, '#c97a00');
@@ -16531,28 +16554,61 @@ Return a JSON object with this exact structure:
         } catch(e) { return {}; }
     };
 
-    // bgBreadthForceRun() → cancel any in-flight scan, clear all flags, restart clean
+    // bgBreadthForceRun() → cancel in-flight scan, reset only FAILED items, restart
     window.bgBreadthForceRun = function() {
         const d = _istDate();
 
-        // 1. Cancel any in-flight async scan immediately via token
+        // 1. Cancel any in-flight async scan via token
         _scanToken++;
-        console.log('[BG BA] ⚡ Force-run: cancelled prior scan (token now ' + _scanToken + ')');
+        console.log('[BG BA] ⚡ Force-run: cancelled prior scan (token=' + _scanToken + ')');
 
         // 2. Remove stale pill so _makePill() creates a fresh one
         const _oldPill = document.getElementById('bgBreadthPill');
         if (_oldPill) _oldPill.remove();
 
-        // 3. Clear all today's flags so scan restarts fully
+        // 3. Clear run-flag and AMC-scan-flag so scan proceeds
         try { localStorage.removeItem(RUN_FLAG_KEY + d); } catch(e) {}
-        try { localStorage.removeItem(_qKey()); } catch(e) {}
-        try { localStorage.removeItem(_cntKey()); } catch(e) {}
         try { localStorage.removeItem(`bg_amc_scan_done_${d}`); } catch(e) {}
         try { localStorage.removeItem(`ba_completed_funds_${d}`); } catch(e) {}
 
-        console.log('[BG BA] All flags cleared — restarting scan.');
+        // 4. Reset ONLY failed queue items (not done:true or cached ones)
+        //    Items that have BA cached → keep done:true (no need to re-run Gemini)
+        //    Items with skipReason (regime B/C) → keep skipped
+        //    Items with done:false and no skipReason → these FAILED → reset so they retry
+        try {
+            const q = _loadQ();
+            let resetCount = 0;
+            q.forEach(item => {
+                if (!item.done && !item.skipReason) {
+                    // Already pending — leave as-is
+                } else if (item.done) {
+                    // Check if BA cache still exists; if not (e.g. storage cleared), reset it
+                    if (!_cacheExists(item.code)) {
+                        item.done = false;
+                        item.wrsi = null;
+                        resetCount++;
+                    }
+                }
+                // skipReason items: leave as-is (regime B/C won't change intraday)
+            });
+            if (resetCount > 0 || q.length > 0) {
+                _saveQ(q);
+                console.log('[BG BA] Queue reset: ' + resetCount + ' items un-done (cache missing).');
+            } else {
+                // No queue yet — will be built fresh
+                console.log('[BG BA] No queue to reset — will build fresh.');
+            }
+        } catch(e) { try { localStorage.removeItem(_qKey()); } catch(_) {} }
 
-        // 4. Small delay so any suspended awaits can see the new token before we start
+        // 5. Reset counter to reflect only what's actually cached now
+        try {
+            const q = _loadQ();
+            const cachedNow = q.filter(item => item.done || _cacheExists(item.code)).length;
+            localStorage.setItem(_cntKey(), String(cachedNow));
+            console.log('[BG BA] Counter reset to ' + cachedNow + ' (actual cached items).');
+        } catch(e) { try { localStorage.removeItem(_cntKey()); } catch(_) {} }
+
+        console.log('[BG BA] Restarting scan in 300ms…');
         setTimeout(() => _runBackgroundScan(), 300);
     };
 

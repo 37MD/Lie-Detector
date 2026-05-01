@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector LD246VAI5P — NPS NAV Chart</title>
+        <title>Lie Detector — NPS NAV Chart · LD246VAI5</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2146,7 +2146,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD246VAI5P</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD246VAI</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2574,7 +2574,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD246VAI5P &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD246VAI5 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2586,7 +2586,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI5P 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI5 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -2804,8 +2804,22 @@
             </div>
             <!-- BA Results view (toggles with watchlist body) -->
             <div id="wlBaView" style="display:none;flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 8px;flex-direction:column;gap:6px;">
-                <div style="font-size:0.52rem;color:var(--muted);padding:4px 0 6px;border-bottom:1px solid var(--border);flex-shrink:0;">
-                    Fund name → Live Cockpit &nbsp;|&nbsp; Badge → BA Analysis &nbsp;·&nbsp; <span id="wlBaCount" style="color:var(--accent);"></span>
+                <div style="font-size:0.52rem;color:var(--muted);padding:4px 0 6px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:6px;">
+                    <span>Tap fund for BA · <span id="wlBaCount" style="color:var(--accent);"></span></span>
+                    <button id="wlBaRestartBtn" onclick="
+                        var btn=document.getElementById('wlBaRestartBtn');
+                        if(!btn||btn.disabled)return;
+                        btn.textContent='↺ Starting…';
+                        btn.disabled=true;
+                        btn.style.opacity='0.5';
+                        if(window.bgBreadthForceRun){ window.bgBreadthForceRun(); }
+                        setTimeout(function(){ 
+                            var b=document.getElementById('wlBaRestartBtn');
+                            if(b){b.textContent='↺ RESTART BA';b.disabled=false;b.style.opacity='1';}
+                            _buildWlBaList();
+                        }, 4000);"
+                    style="font-size:0.5rem;padding:3px 8px;border:1px solid #f59e0b;border-radius:8px;
+                    background:transparent;color:#f59e0b;cursor:pointer;flex-shrink:0;font-family:var(--mono);">↺ RESTART BA</button>
                 </div>
                 <div id="wlBaList" style="display:flex;flex-direction:column;gap:4px;padding-top:4px;"></div>
             </div>
@@ -4361,13 +4375,6 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     banner.style.color = color || 'var(--muted)';
                     banner.innerHTML = html;
                 };
-                // ── Clear yesterday's auto-added (morningAdd) entries before scan ──
-                // User-pinned funds (morningAdd !== true) always survive.
-                const _prevLen = _watchlist.length;
-                _watchlist = _watchlist.filter(w => w.morningAdd !== true);
-                if (_watchlist.length !== _prevLen) {
-                    localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
-                }
                 _setBanner('🌅 Morning scan starting — fetching data for all AMCs + NPS…', '#f59e0b');
                 // Process all 4 AMCs: HDFC, ICICI, KOTAK, ABSL
                 const amcKeys  = Object.keys(window.amcFunds).filter(a => a !== 'NPS');
@@ -4530,7 +4537,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD246VAI', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD246VAI5', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -9046,32 +9053,6 @@ This is exactly how the system is meant to be played.
                 document.getElementById('watchlistModal').style.display = 'none';
                 initLiveChart();
             }
-
-            // ── Shared: navigate any modal → Live Cockpit for a given code ──
-            window.loadFundLive = function(code, _name) {
-                // Close any open modal first
-                ['watchlistModal','alertSummaryModal','assetAllocatorModal','compareModal'].forEach(id => {
-                    const m = document.getElementById(id);
-                    if (m) m.style.display = 'none';
-                });
-                const allFunds = Object.values(amcFunds).flat();
-                const fund = allFunds.find(f => f.code === code);
-                if (fund) {
-                    for (const [amc, funds] of Object.entries(amcFunds)) {
-                        if (funds.find(f => f.code === code)) {
-                            document.querySelectorAll('#fundGrid .fund-box').forEach(b => {
-                                if (b.textContent.trim() === amc) selectAMC(amc, b);
-                            });
-                            break;
-                        }
-                    }
-                    document.getElementById('fundSelect').value = code;
-                }
-                clearInterval(_watchlistRefreshTimer);
-                document.getElementById('setupScreen').style.display = 'none';
-                initLiveChart();
-            };
-            }
             function _initWatchlistCloseBtn() {
                 const wm = document.getElementById('watchlistModal');
                 if (!wm) return;
@@ -11793,7 +11774,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 </div>
                 <span class="modal-close-btn" onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';">[ CLOSE ]</span>
             </div>
-            <div id="alertSummaryContent" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px;display:flex;flex-direction:column;gap:3px;">
+            <div id="alertSummaryContent" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 96px;display:block;">
             </div>
         </div>
         <script>
@@ -11822,13 +11803,13 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                             <div style="font-size:0.52rem;color:${color};min-width:50px;text-align:right;">${it.val}</div>
                         </div>`;
                     }).join('');
-                    return `<div style="border:1px solid ${color}55;border-radius:8px;margin-bottom:6px;overflow:hidden;">
+                    return `<div style="border:1px solid ${color}55;border-radius:8px;margin-bottom:6px;">
                         <div onclick="(function(){var b=document.getElementById('${sid}');if(b){var open=b.style.display!=='none';b.style.display=open?'none':'block';this.querySelector('span.arr').textContent=open?'▶':'▼';}}).call(this)"
-                            style="background:${color}20;padding:7px 10px;font-size:0.6rem;color:${color};letter-spacing:0.06em;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+                            style="background:${color}20;padding:7px 10px;font-size:0.6rem;color:${color};letter-spacing:0.06em;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;border-radius:7px 7px 0 0;">
                             <span>${icon} ${title} <span style="opacity:0.7;font-size:0.52rem;">(${arr.length} fund${arr.length>1?'s':''})</span></span>
                             <span class="arr" style="font-size:0.55rem;">▶</span>
                         </div>
-                        <div id="${sid}" style="display:none;">${rows}</div>
+                        <div id="${sid}" style="display:none;overflow:visible;">${rows}</div>
                     </div>`;
                 };
                 const sectHTML =
@@ -13141,137 +13122,63 @@ categories.forEach(cat => {
             const cnt  = document.getElementById('wlBaCount');
             if (!list) return;
 
-            // ── IST date key ──────────────────────────────────────────
-            const _dk = (() => { const n=new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
-
-            // ── User's persistent watchlist (never resets) ────────────
+            // ── Always show ALL stored watchlist funds — no daily reset ──
             const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+            const _dateKey = (() => { const n = new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
 
-            // ── Today's additional Regime A funds from BG scan ────────
-            const _baRegimeA = JSON.parse(localStorage.getItem(`ba_regimeA_funds_${_dk}`) || '[]');
-            // Global funds not already in watchlist
-            const _wlCodes = new Set(_wl.map(w => w.code));
-            const _extraRA = _baRegimeA.filter(f => !_wlCodes.has(f.code));
+            // Sort: portfolio funds first, then alphabetical
+            const _portfolioFunds  = _wl.filter(w => w.portfolio);
+            const _watchlistOnly   = _wl.filter(w => !w.portfolio);
+            const showFunds = [..._portfolioFunds, ..._watchlistOnly];
 
-            // ── Accurate counter: always 00/YY on new day, increments as BG runs ──
-            if (cnt) {
-                try {
-                    const _q = JSON.parse(localStorage.getItem(`bg_ba_queue_${_dk}`) || '[]');
-                    // If queue is already built for today, use it for exact count
-                    if (_q.length > 0) {
-                        const _done  = _q.filter(x => x.done).length;
-                        const _total = _q.length;
-                        cnt.textContent = `${String(_done).padStart(2,'0')}/${_total} BA stored today`;
-                    } else {
-                        // Queue not built yet — estimate YY from known priority sources
-                        let _estTotal = 0;
-                        try {
-                            const _wlLen = JSON.parse(localStorage.getItem('ld_watchlist') || '[]').length;
-                            _estTotal += _wlLen;
-                        } catch(e2) {}
-                        try {
-                            const lp = JSON.parse(localStorage.getItem('ld_live_portfolio') || '{}');
-                            if (lp.slot1?.code) _estTotal++;
-                            if (lp.slot2?.code) _estTotal++;
-                        } catch(e2) {}
-                        try {
-                            const _alertRaw = localStorage.getItem(`ld_alerts_${_dk}`);
-                            if (_alertRaw) {
-                                const _alertData = JSON.parse(_alertRaw);
-                                _estTotal += (_alertData?.results?.TRIPLE_RSI || []).length;
-                            }
-                        } catch(e2) {}
-                        // Dedupe estimate is approximate — show 00/~YY
-                        cnt.textContent = _estTotal > 0
-                            ? `00/${_estTotal} BA stored today (engine starting…)`
-                            : '00/? BA stored today (engine starting…)';
-                    }
-                } catch(e) { cnt.textContent = '00/? BA stored today'; }
+            // ── Counter: count actual cached BA analyses for today ──
+            let _cachedCount = 0;
+            showFunds.forEach(f => {
+                const _ck = `breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dateKey}`;
+                try { if (localStorage.getItem(_ck)) _cachedCount++; } catch(e2) {}
+            });
+            if (cnt) cnt.textContent = `${_cachedCount}/${showFunds.length} BA done today`;
+
+            if (!showFunds.length) {
+                list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No funds pinned. Open any fund → tap + PIN THIS FUND.</div>';
+                return;
             }
 
-            // ── Row builder — fund name navigates to Live Market ──────
-            function _makeRow(f, isPinned) {
-                const _ck     = `breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dk}`;
-                const _cached = (() => { try { const r=localStorage.getItem(_ck); return r?JSON.parse(r):null; } catch(e){return null;} })();
-                const _done   = !!_cached;
-                const _ts     = _cached?._cachedAtDisplay || '';
+            list.innerHTML = showFunds.map(f => {
+                const _ck = `breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dateKey}`;
+                const _cached = (() => { try { const r=localStorage.getItem(_ck); return r?JSON.parse(r):null; } catch(e2){return null;} })();
+                const _done = !!_cached;
+                const _ts   = _cached?._cachedAtDisplay || '';
                 const _verdict = _cached?.overall_verdict || _cached?.confirmation || '';
-                const _vColor  = _verdict==='CONFIRMED'?'#009e70':_verdict==='MARGINAL'?'#f59e0b':'#c97a00';
-                const _safeName = (f.name||'').replace(/'/g,'').replace(/"/g,'');
+                const _vColor  = _verdict==='CONFIRMED'?'#009e70':_verdict==='MARGINAL'?'#f59e0b':'#888';
                 const _safeCode = (f.code||'').replace(/'/g,'');
-                const _displayName = (f.name||'').replace(/\[NPS\] | - Growth| - Direct/gi,'').trim().slice(0,30);
-                const _pinDot = isPinned
-                    ? `<span style="color:#a855f7;font-size:0.5rem;margin-right:2px;" title="Pinned by you">📌</span>`
-                    : `<span style="color:#009e70;font-size:0.5rem;margin-right:2px;" title="Global Regime A">🟢</span>`;
+                const _safeName = (f.name||'').replace(/'/g,'');
+                const _portBadge = f.portfolio
+                    ? `<span style="font-size:0.4rem;color:var(--accent);border:1px solid var(--accent);padding:1px 4px;border-radius:3px;flex-shrink:0;">PORT</span>`
+                    : '';
                 return `<div style="display:flex;align-items:center;gap:5px;padding:6px 4px;
                     border-bottom:1px solid var(--border);font-size:0.54rem;">
-                    ${_pinDot}
-                    <div style="flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
-                        cursor:pointer;color:var(--text);"
-                        onclick="window.loadFundLive && window.loadFundLive('${_safeCode}','${_safeName}')"
-                        title="Open Live Cockpit for ${_displayName}">
-                        ${_displayName}
+                    <div style="flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;"
+                         onclick="_launchBaFromWatchlist('${_safeCode}','${_safeName}')">
+                        ${(f.name||'').replace(/\[NPS\] | - Growth| - Direct/gi,'').trim().slice(0,28)}
                     </div>
+                    ${_portBadge}
                     ${_done
-                        ? `<span style="font-size:0.42rem;color:var(--muted);">${_ts.slice(11,16)}</span>
-                           <span style="font-size:0.44rem;color:${_vColor};border:1px solid ${_vColor};
-                               padding:1px 5px;border-radius:3px;cursor:pointer;white-space:nowrap;"
-                               onclick="_launchBaFromWatchlist('${_safeCode}','${_safeName}')"
-                               title="Open BA Analysis">
-                               ${_verdict||'✅'}
-                           </span>`
-                        : `<span style="font-size:0.44rem;color:var(--muted);border:1px solid var(--border);
-                               padding:1px 5px;border-radius:3px;cursor:pointer;"
-                               onclick="_launchBaFromWatchlist('${_safeCode}','${_safeName}')"
-                               title="Run BA Analysis">
-                               Run BA
-                           </span>`
+                        ? `<span style="font-size:0.44rem;color:${_vColor};border:1px solid ${_vColor};padding:1px 5px;border-radius:3px;cursor:pointer;flex-shrink:0;"
+                               onclick="_launchBaFromWatchlist('${_safeCode}','${_safeName}')">${_verdict||'✓'}</span>
+                           <span style="font-size:0.4rem;color:var(--muted);flex-shrink:0;">${_ts.slice(11,16)}</span>`
+                        : `<span style="font-size:0.44rem;color:var(--muted);border:1px solid var(--border);padding:1px 5px;border-radius:3px;flex-shrink:0;">No BA</span>`
                     }
+                    <span onclick="(function(){document.getElementById('watchlistModal').style.display='none';launchLiveFromAlert('${_safeCode}');})()"
+                          style="font-size:0.5rem;color:var(--border2);cursor:pointer;padding:2px 5px;border:1px solid var(--border);border-radius:3px;flex-shrink:0;" title="Live Market">📈</span>
                 </div>`;
-            }
-
-            let html = '';
-
-            // Section 1 — User's persistent watchlist
-            if (_wl.length > 0) {
-                html += `<div style="font-size:0.48rem;font-weight:700;color:#a855f7;
-                    letter-spacing:0.08em;padding:5px 2px 3px;text-transform:uppercase;">
-                    📌 Your Watchlist (${_wl.length} pinned — persists until you remove)
-                </div>`;
-                html += _wl.map(f => _makeRow(f, true)).join('');
-            } else {
-                html += `<div style="padding:10px 4px;font-size:0.54rem;color:var(--muted);">
-                    No funds pinned yet. Tap <strong>+ PIN THIS FUND</strong> in the watchlist to add.
-                </div>`;
-            }
-
-            // Section 2 — Today's additional Global Regime A funds
-            if (_extraRA.length > 0) {
-                html += `<div style="font-size:0.48rem;font-weight:700;color:#009e70;
-                    letter-spacing:0.08em;padding:8px 2px 3px;text-transform:uppercase;
-                    border-top:1px solid var(--border);margin-top:4px;">
-                    🌐 Today's Regime A Funds (${_extraRA.length} from BG scan)
-                </div>`;
-                html += _extraRA.map(f => _makeRow(f, false)).join('');
-            }
-
-            if (!html) {
-                html = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">
-                    No funds found. Pin a fund from the watchlist or run the morning scan.
-                </div>`;
-            }
-
-            list.innerHTML = html;
+            }).join('');
         }
         function _launchBaFromWatchlist(code, name) {
-            // Open BA modal for this fund — find in amcFunds or use passed name
+            // Open BA modal for this fund — find it in amcFunds
             const _allFlat = Object.values(window.amcFunds||{}).flat();
-            const _fund = _allFlat.find(f => f.code === code) || { code, name: name || code };
-            if (window.openAIBreadthModal) {
-                window.openAIBreadthModal(_fund);
-            } else {
-                console.warn('[BA] openAIBreadthModal not ready — try again in a moment.');
-            }
+            const _fund = _allFlat.find(f => f.code === code) || { code, name };
+            if (window.openAIBreadthModal) window.openAIBreadthModal(_fund);
         }
         function _abpAddToWatchlist() {
             if (!window._abpFund) return;
@@ -13320,11 +13227,9 @@ categories.forEach(cat => {
                     const _stale = _ts ? ` Last updated: ${_ts}.` : '';
                     const _baComp = _baGetCompleted();
                     const _baRgmA = _baLoadRegimeA() || [];
-                    const _bgCntFallback = parseInt(localStorage.getItem(`bg_ba_counter_${_istDateBA()}`) || '0');
-                    const _baCount = _baComp.length || _bgCntFallback;
+                    const _baCount = _baComp.length;
                     const _baTotal = _baRgmA.length;
-                    const _baCountStr = String(_baCount).padStart(2,'0');
-                    const _baCounter = _baTotal > 0 ? ` Storage: ${_baCountStr}/${_baTotal} BA done today.` : '';
+                    const _baCounter = _baTotal > 0 ? ` Storage: ${_baCount}/${_baTotal} BA done today.` : '';
                     cacheNote.textContent = '✅ Stored analysis — zero tokens used.' + bgBadge + lockNote + _stale + _baCounter;
                     cacheNote.style.color = cached._bgSource ? '#c97a00' : '#64748b';
                 }
@@ -13978,7 +13883,6 @@ Return a JSON object with this exact structure:
     window._buildWlBaList        = _buildWlBaList;
     window._launchBaFromWatchlist= _launchBaFromWatchlist;
     window._abpAddToWatchlist    = _abpAddToWatchlist;
-    window._abpAddToWatchlist    = _abpAddToWatchlist;
     })(); // ── END AI BREADTH IIFE ──────────────────────────
 
     // ════════════════════════════════════════════════════════════
@@ -14447,21 +14351,6 @@ Return a JSON object with this exact structure:
                         font-family:var(--mono);font-weight:600;white-space:nowrap;">
                     💾 Save
                 </button>
-            </div>
-            <!-- ── Quota Advisory ─────────────────────────────────────── -->
-            <div style="background:#0f172a;border:1px solid #334155;border-radius:7px;padding:8px 10px;
-                        margin-bottom:8px;font-size:0.48rem;color:#94a3b8;line-height:1.6;">
-                <div style="color:#fbbf24;font-weight:700;font-size:0.5rem;margin-bottom:4px;">
-                    💡 API Quota Saver — How LD246VAI5P reduces calls
-                </div>
-                <div style="display:grid;grid-template-columns:auto 1fr;gap:2px 8px;">
-                    <span style="color:#009e70;">✅</span><span><b style="color:#e2e8f0;">Benchmark dedup</b> — funds sharing the same index (e.g. Nifty 50) share ONE Gemini call. Saves ~40-50% calls.</span>
-                    <span style="color:#009e70;">✅</span><span><b style="color:#e2e8f0;">Daily cache</b> — BA already stored today is never re-fetched. Date change = fresh run next day.</span>
-                    <span style="color:#009e70;">✅</span><span><b style="color:#e2e8f0;">Token cap</b> — BG calls capped at 1500 tokens (vs 8000 manual). Saves ~6500 tokens per call.</span>
-                    <span style="color:#009e70;">✅</span><span><b style="color:#e2e8f0;">Flash-Lite first</b> — 1000 RPD free. Flash fallback (500 RPD). Pro only for manual deep calls.</span>
-                    <span style="color:#fbbf24;">⚠</span><span><b style="color:#e2e8f0;">Quota tip</b> — Keep gap ≥ 60s with one key. Add K2 in the key slot above to double your daily quota (2000 RPD total with Flash-Lite).</span>
-                    <span style="color:#6366f1;">🔑</span><span><b style="color:#e2e8f0;">Two-key mode</b> — K1 runs Portfolio + Watchlist. K2 handles Global Regime A. No waiting between keys.</span>
-                </div>
             </div>
             <!-- Status + close row -->
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
@@ -15936,7 +15825,7 @@ Return a JSON object with this exact structure:
     })();
     </script>
     <!-- ═══════════════════════════════════════════════════════════════════
-         LD246VAI5P — BACKGROUND BA ENGINE v3
+         LD246VAI3 — BACKGROUND BA ENGINE v2
          ─────────────────────────────────────────────────────────────────
          Priority Order:
            1. Watchlist funds (in order) — check Regime A, run BA, store.
@@ -15951,17 +15840,9 @@ Return a JSON object with this exact structure:
     'use strict';
 
     // ── Constants ─────────────────────────────────────────────────────
-    // _getGapMs() is a FUNCTION (not a frozen const) so changes saved via
-    // the API Scan Timing dropdown take effect IMMEDIATELY on the next
-    // inter-call gap — no relaunch needed.
-    function _getGapMs() {
-        try {
-            const v = parseInt(localStorage.getItem('ld_api_gap_sec') || '100');
-            return (v >= 3 && v <= 300 ? v : 100) * 1000;
-        } catch(e) { return 100_000; }
-    }
+    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'100'); return (v>=3&&v<=100?v:100)*1000; } catch(e){ return 100_000; } })();
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD246VAI5P-BG-v3';
+    const ADDON_VER     = 'LD246VAI5-BG-v2';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
     // ── IST date string (YYYYMMDD) ────────────────────────────────────
@@ -16060,41 +15941,9 @@ Return a JSON object with this exact structure:
         return arr.length ? arr[arr.length - 1] : null;
     }
 
-    // ── Benchmark dedup cache (per IST day) ──────────────────────────
-    // Key: benchmark index name → stored breadth result.
-    // When fund A and fund B share the same benchmark (e.g. Nifty 50),
-    // only ONE Gemini call is made; subsequent funds reuse the cached result.
-    // This is the single biggest quota saver — many HDFC/ICICI/KOTAK/ABSL
-    // funds share the same 8-10 benchmarks across 58 funds.
-    // Savings: ~40-50% fewer calls on a typical day.
-    function _bmCacheKey(idxName) { return `bg_bm_cache_${_istDate()}_${idxName.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}`; }
-    function _bmCacheGet(idxName)  { try { const r=localStorage.getItem(_bmCacheKey(idxName)); return r?JSON.parse(r):null; } catch(e){ return null; } }
-    function _bmCacheSet(idxName, result) {
-        try {
-            // Store the benchmark result (stocks + confirmation only — not fund-specific fields)
-            const slim = {
-                stocks:               result.stocks,
-                bull_count:           result.bull_count,
-                bull_weight_sum:      result.bull_weight_sum,
-                confirmation:         result.confirmation,
-                divergence_alert:     result.divergence_alert,
-                broad_market_regime_a:result.broad_market_regime_a,
-                reasoning:            result.reasoning,
-                _bmSource:            idxName,
-                _bmCachedAt:          _istDate()
-            };
-            localStorage.setItem(_bmCacheKey(idxName), JSON.stringify(slim));
-        } catch(e) {}
-    }
-
     // ── Fire ONE Gemini BA call ────────────────────────────────────────
-    // 429 handling:
-    //   K1 429 + K2 exists  → immediately try K2
-    //   K1 429 + no K2      → wait 90s then retry K1 once
-    //   K2 429              → wait 60s then retry K1 once more
-    //   All retries fail    → throw descriptive error (NOT generic "failed")
     async function _callGeminiBreadth(fund, wrsi, resolvedApiKey) {
-        const getKey2  = () => { try { return localStorage.getItem('ld_gemini_api_key2'); } catch(e){ return null; } };
+        const getKey2  = () => localStorage.getItem('ld_gemini_api_key2');
         const getModel = window.getGeminiModel || (() => 'gemini-2.5-flash-lite');
         const n = (fund.name || '').toLowerCase();
         let idxName = 'Nifty 50 (proxy)';
@@ -16115,111 +15964,90 @@ Return a JSON object with this exact structure:
         ];
         for (const [k, v] of MAP) { if (n.includes(k)) { idxName = v; break; } }
         const regime  = wrsi >= 50 ? 'A (Hope)' : wrsi >= 40 ? 'B (Watch)' : 'C (Fear)';
-        const prompt  = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System — the Lie Detector Auditor.\n\nFUND: ${fund.name} | Benchmark: ${idxName}\nFund W-RSI: ${Math.round(wrsi)} (${regime})\n\nSACRED RULE: True compounders never stay below W-RSI 40.\nDIVERGENCE: Price RISING + W-RSI falling/below 50 = Cosmetic Growth. Flag it.\nPSYCHOLOGY: Price moves first; earnings explanations come later.\n\nTASK: Perform Constituent X-Ray on top 5 stocks of ${idxName} by index weight.\nFor each stock return current W-RSI(14), 2-week trend (RISING/FALLING), regime (A/B/C), action.\nCount BULL stocks (regime A + RISING). Sum weights.\nReturn ONLY valid JSON:\n{\n  "stocks":[{"ticker":"Name","weight":"X%","price":"\u20b9XXXX","daily_rsi":"XX","weekly_rsi":"XX","wma20":"\u20b9XXXX","price_vs_wma20":"ABOVE or BELOW","trend_14d":"RISING or FALLING","regime":"A or B or C","verdict":"BULL or HOLD or BEAR","action":"Buy or Hold or Reduce","recommendation":"One sentence."}],\n  "bull_count":0,"bull_weight_sum":"X%",\n  "confirmation":"CONFIRMED or MARGINAL or WEAK",\n  "sop_action":"max 12 words",\n  "divergence_alert":"text or No divergence detected.",\n  "psychology_audit":"Lookout for\u2026 text",\n  "broad_market_regime_a":[{"index":"Name","wrsi":"XX","trend":"RISING or FALLING","signal":"BUY or WATCH"}],\n  "reasoning":"2-3 sentences on ${idxName} breadth."\n}`;
+        const prompt  = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System — the Lie Detector Auditor.\n\nFUND: ${fund.name} | Benchmark: ${idxName}\nFund W-RSI: ${Math.round(wrsi)} (${regime})\n\nSACRED RULE: True compounders never stay below W-RSI 40.\nDIVERGENCE: Price RISING + W-RSI falling/below 50 = Cosmetic Growth. Flag it.\nPSYCHOLOGY: Price moves first; earnings explanations come later.\n\nTASK: Perform Constituent X-Ray on top 5 stocks of ${idxName} by index weight.\nFor each stock return current W-RSI(14), 2-week trend (RISING/FALLING), regime (A/B/C), action.\nCount BULL stocks (regime A + RISING). Sum weights.\nReturn ONLY valid JSON:\n{\n  "stocks":[{"ticker":"Name","weight":"X%","price":"₹XXXX","daily_rsi":"XX","weekly_rsi":"XX","wma20":"₹XXXX","price_vs_wma20":"ABOVE or BELOW","trend_14d":"RISING or FALLING","regime":"A or B or C","verdict":"BULL or HOLD or BEAR","action":"Buy or Hold or Reduce","recommendation":"One sentence."}],\n  "bull_count":0,"bull_weight_sum":"X%",\n  "confirmation":"CONFIRMED or MARGINAL or WEAK",\n  "sop_action":"max 12 words",\n  "divergence_alert":"text or No divergence detected.",\n  "psychology_audit":"Lookout for… text",\n  "broad_market_regime_a":[{"index":"Name","wrsi":"XX","trend":"RISING or FALLING","signal":"BUY or WATCH"}],\n  "reasoning":"2-3 sentences on ${idxName} breadth."\n}`;
         const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
-        // ── Inner fetch helper: one attempt at a given key ──────────
-        // maxOutputTokens capped at 1500 for BG calls — JSON responses
-        // are typically 800-1100 tokens. Saving ~6500 tokens per call
-        // vs the manual BA panel (8000). With 20 priority funds this
-        // saves ~130k tokens/day = ~60% quota reduction.
-        async function _attempt(key) {
-            const model = getModel();
-            const ep    = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key.trim()}`;
-            const res   = await fetch(ep, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...payload,
-                    generationConfig: { temperature: 0.05, maxOutputTokens: 1500 }
-                })
-            });
-            return res;
-        }
+        // ── Model cascade: Flash-Lite (default) → Flash → Pro ───────────
+        // Mirrors the interactive BA cascade so BG scan upgrades automatically on 429
+        const userModel = getModel(); // user-selected model (default: flash-lite)
+        const MODEL_CASCADE = (() => {
+            // Always start from user-selected model, then escalate
+            const ALL = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-pro'];
+            const startIdx = ALL.indexOf(userModel);
+            return startIdx === -1 ? ALL : ALL.slice(startIdx);
+        })();
+        const API_KEYS = [resolvedApiKey, getKey2()].filter(Boolean);
 
-        // ── Parse + repair JSON from response ───────────────────────
-        async function _parseRes(res) {
-            const data = await res.json();
-            if (data.error) throw new Error(`Gemini ${data.error.code}: ${data.error.message}`);
-            let raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
-            const fe = raw.indexOf('\n');
-            if (raw.startsWith('```') && fe !== -1) raw = raw.substring(fe + 1);
-            if (raw.trimEnd().endsWith('```')) raw = raw.trimEnd().slice(0, -3);
-            raw = raw.trim();
-            const js = raw.indexOf('{'), je = raw.lastIndexOf('}');
-            if (js !== -1 && je > js) raw = raw.slice(js, je + 1);
-            let parsed = null;
-            try { parsed = JSON.parse(raw); } catch(_) {}
-            if (!parsed) {
-                // Repair: close unclosed strings/arrays/objects
-                let rep = raw.trimEnd();
-                const qc = (rep.match(/(?<!\\)"/g) || []).length;
-                if (qc % 2 !== 0) rep += '"';
-                const ao = (rep.match(/\[/g)||[]).length - (rep.match(/\]/g)||[]).length;
-                const oo = (rep.match(/\{/g)||[]).length - (rep.match(/\}/g)||[]).length;
-                for (let i = 0; i < ao; i++) rep += ']';
-                for (let i = 0; i < oo; i++) rep += '}';
-                try { parsed = JSON.parse(rep); } catch(e2) {
-                    throw new Error('BG JSON truncated — Gemini cut response. Will retry next run.');
+        let lastErr = null;
+
+        for (const model of MODEL_CASCADE) {
+            for (const k of API_KEYS) {
+                const ep = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${k.trim()}`;
+                try {
+                    const res = await fetch(ep, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.status === 429) {
+                        console.warn(`[BG BA] 429 on ${model} key${API_KEYS.indexOf(k)+1} — trying next`);
+                        lastErr = new Error(`429 quota on ${model}`);
+                        continue; // try next key or model
+                    }
+
+                    const data = await res.json();
+                    if (data.error) {
+                        lastErr = new Error(`Gemini ${data.error.code}: ${data.error.message}`);
+                        if (data.error.code === 429 || data.error.status === 'RESOURCE_EXHAUSTED') continue;
+                        throw lastErr; // non-quota error — don't cascade
+                    }
+
+                    // ── Parse response ────────────────────────────────────
+                    let raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+                    const fe = raw.indexOf('\n');
+                    if (raw.startsWith('```') && fe !== -1) raw = raw.substring(fe + 1);
+                    if (raw.trimEnd().endsWith('```')) raw = raw.trimEnd().slice(0, -3);
+                    raw = raw.trim();
+                    const js = raw.indexOf('{'), je = raw.lastIndexOf('}');
+                    if (js !== -1 && je > js) raw = raw.slice(js, je + 1);
+                    try { 
+                        const result = JSON.parse(raw);
+                        result._modelUsed = model; // tag which model succeeded
+                        console.log(`[BG BA] ✅ ${fund.name} — BA via ${model}`);
+                        return result;
+                    } catch(_) {}
+                    // JSON repair attempt
+                    let rep = raw.trimEnd();
+                    const qc = (rep.match(/(?<!\\)"/g) || []).length;
+                    if (qc % 2 !== 0) rep += '"';
+                    const ao = (rep.match(/\[/g)||[]).length - (rep.match(/\]/g)||[]).length;
+                    const oo = (rep.match(/\{/g)||[]).length - (rep.match(/\}/g)||[]).length;
+                    for (let i = 0; i < ao; i++) rep += ']';
+                    for (let i = 0; i < oo; i++) rep += '}';
+                    try { 
+                        const result = JSON.parse(rep);
+                        result._modelUsed = model;
+                        return result;
+                    } catch(e2) {
+                        lastErr = new Error('JSON repair failed — response truncated.');
+                        continue; // try next key/model
+                    }
+                } catch(fetchErr) {
+                    lastErr = fetchErr;
+                    console.warn(`[BG BA] Fetch error on ${model}:`, fetchErr.message);
+                    continue;
                 }
             }
-            // Cache the benchmark result for dedup (saves future calls today)
-            if (parsed && !parsed._bmReused) _bmCacheSet(idxName, parsed);
-            return parsed;
-        }
-
-        const k1 = resolvedApiKey;
-        const k2 = getKey2();
-
-        // ── Benchmark dedup: if same index already fetched today, reuse ──
-        // Saves a full Gemini call when multiple funds share a benchmark.
-        const _bmHit = _bmCacheGet(idxName);
-        if (_bmHit) {
-            console.log(`[BG BA] BM dedup hit: ${idxName} — skipping API call for ${fund.name}`);
-            // Merge benchmark data with fund-specific fields
-            return Object.assign({}, _bmHit, {
-                sop_action:      `Breadth for ${idxName} already confirmed today — reused.`,
-                psychology_audit:`Benchmark ${idxName} breadth cached today. Check fund-specific W-RSI ${Math.round(wrsi)}.`,
-                _bmReused:       true,
-                _bmSource:       idxName
-            });
-        }
-
-        // ── Attempt 1: K1 ───────────────────────────────────────────
-        const res1 = await _attempt(k1);
-        if (res1.status !== 429) return await _parseRes(res1);
-
-        // ── K1 hit 429 ──────────────────────────────────────────────
-        console.warn(`[BG BA] K1 429 on ${fund.name}`);
-
-        // Attempt 2: K2 if available
-        if (k2) {
-            _setPillMsg(`⚡ K1 quota — switching to K2 for ${fund.name.slice(0,22)}…`, '#c97a00');
-            const res2 = await _attempt(k2);
-            if (res2.status !== 429) return await _parseRes(res2);
-
-            // K2 also 429 — both keys at quota
-            console.warn(`[BG BA] K2 also 429. Waiting 90s before retrying K1…`);
-            for (let s = 90; s > 0; s -= 10) {
-                if (document.hidden) { await _sleep(10_000); continue; }
-                _setPillMsg(`⏳ Both keys at quota — retrying K1 in ${s}s…`, '#c97a00');
-                await _sleep(10_000);
+            // All keys exhausted for this model — brief pause before escalating
+            if (MODEL_CASCADE.indexOf(model) < MODEL_CASCADE.length - 1) {
+                const nextModel = MODEL_CASCADE[MODEL_CASCADE.indexOf(model) + 1];
+                console.log(`[BG BA] ${model} quota exhausted — escalating to ${nextModel}…`);
+                _setPillMsg(`⬆ Quota limit — escalating to ${nextModel.replace('gemini-2.5-','')}…`, '#f59e0b');
+                await _sleep(2000); // brief pause between model tiers
             }
-            const res3 = await _attempt(k1);
-            if (res3.status !== 429) return await _parseRes(res3);
-            throw new Error('Both API keys at quota (429). Fund will retry on next launch.');
         }
-
-        // No K2 — wait and retry K1
-        console.warn(`[BG BA] K1 429, no K2. Waiting 90s before retry…`);
-        for (let s = 90; s > 0; s -= 10) {
-            if (document.hidden) { await _sleep(10_000); continue; }
-            _setPillMsg(`⏳ K1 quota hit — retrying in ${s}s (add K2 via 🔐 to avoid waits)`, '#c97a00');
-            await _sleep(10_000);
-        }
-        const res4 = await _attempt(k1);
-        if (res4.status !== 429) return await _parseRes(res4);
-        throw new Error('API quota still at limit after 90s wait. Fund will retry on next launch. Consider adding K2 via 🔐.');
+        throw lastErr || new Error('All Gemini models and keys exhausted.');
     }
 
     // ── Status pill UI ────────────────────────────────────────────────
@@ -16233,19 +16061,42 @@ Return a JSON object with this exact structure:
             font-family:'Space Mono',monospace;font-weight:600;
             padding:7px 12px 7px 10px;border-radius:20px;
             border:1.5px solid #009e70;box-shadow:0 3px 14px rgba(0,0,0,0.35);
-            max-width:280px;line-height:1.4;cursor:pointer;
-            display:flex;align-items:center;gap:8px;transition:opacity 0.3s;`;
+            max-width:300px;line-height:1.4;cursor:pointer;
+            display:flex;align-items:center;gap:6px;transition:opacity 0.3s;`;
         el.innerHTML = `
             <span id="bgBreadthDot" style="width:8px;height:8px;border-radius:50%;
                 background:#009e70;flex-shrink:0;
                 animation:bgPillPulse 1.2s ease-in-out infinite;"></span>
-            <span id="bgBreadthMsg">⏳ BA engine starting…</span>
+            <span id="bgBreadthCounter" style="font-size:0.58rem;color:#009e70;
+                white-space:nowrap;flex-shrink:0;min-width:36px;"></span>
+            <span id="bgBreadthMsg" style="flex:1;overflow:hidden;text-overflow:ellipsis;
+                white-space:nowrap;">⏳ BA engine starting…</span>
             <span onclick="document.getElementById('bgBreadthPill').style.display='none'"
-                style="margin-left:4px;opacity:0.5;font-size:0.8rem;flex-shrink:0;">✕</span>`;
+                style="opacity:0.4;font-size:0.8rem;flex-shrink:0;">✕</span>`;
         const style = document.createElement('style');
         style.textContent = `@keyframes bgPillPulse{0%,100%{opacity:1}50%{opacity:0.3}}`;
         document.head.appendChild(style);
         document.body.appendChild(el);
+    }
+
+    // Update counter badge — counts actual cached BA analyses for today
+    function _updatePillCounter() {
+        const el = document.getElementById('bgBreadthCounter');
+        if (!el) return;
+        try {
+            const _dateKey = _istDate();
+            // Total = today's queue length (funds queued for BA today)
+            const q = _loadQ();
+            const total = q.length;
+            if (total === 0) { el.textContent = ''; return; }
+            // Done = funds that actually have a BA cache for today
+            let cached = 0;
+            q.forEach(item => {
+                const ck = `breadth_v1_${(item.code||'').replace(/\W/g,'_')}_${_dateKey}`;
+                try { if (localStorage.getItem(ck)) cached++; } catch(_) {}
+            });
+            el.textContent = `${cached}/${total}`;
+        } catch(e) { el.textContent = ''; }
     }
 
     function _setPillMsg(msg, colour) {
@@ -16253,12 +16104,15 @@ Return a JSON object with this exact structure:
         const d = document.getElementById('bgBreadthDot');
         if (m) m.textContent = msg;
         if (d) d.style.background = colour || '#009e70';
+        _updatePillCounter();
     }
 
     function _donePill(msg) {
         _setPillMsg(msg, '#009e70');
         const d = document.getElementById('bgBreadthDot');
+        const c = document.getElementById('bgBreadthCounter');
         if (d) d.style.animation = 'none';
+        if (c) c.style.color = '#009e70';
         setTimeout(() => {
             const p = document.getElementById('bgBreadthPill');
             if (p) { p.style.opacity = '0'; setTimeout(() => p.remove(), 800); }
@@ -16326,17 +16180,22 @@ Return a JSON object with this exact structure:
     //  MAIN ORCHESTRATOR
     //
     //  Flow each IST day:
-    //    0. Build queue: Portfolio (slot1+slot2) + Triple RSI + Watchlist — NO regime gate
-    //    1. Priority phase: BA for all 3 sources regardless of W-RSI
-    //    2. Global scan: scan all 58 equity funds from 4 AMCs for Regime A
-    //    3. Global phase: BA for non-priority Regime A funds
-    //    4. Mark complete when all pending items done.
+    //    1. Build queue: Watchlist funds (equity, 4 AMCs, in order)
+    //    2. Watchlist phase: Regime A check + BA + store + counter
+    //    3. Global scan: scan all 58 equity funds from 4 AMCs for Regime A
+    //    4. Global phase: BA + store + counter for non-watchlist Regime A funds
+    //    5. Mark complete when all pending items done.
     //
     //  Crash recovery: Queue + done-flags persist in localStorage.
     //  On relaunch _hasRanToday()=false → load queue → resume from pending.
     // ════════════════════════════════════════════════════════════════════
+    // ── Cancellation token — incremented to kill any in-flight scan ──
+    let _scanToken = 0;
+
     async function _runBackgroundScan() {
+        const myToken = ++_scanToken;   // claim this invocation's token
         const today = _istDate();
+        const isCancelled = () => _scanToken !== myToken;
 
         // ── Guard: fully done today ───────────────────────────────────
         if (_hasRanToday()) {
@@ -16420,143 +16279,118 @@ Return a JSON object with this exact structure:
 
         // ════════════════════════════════════════════════════════════
         // STEP 1 — Build today's work queue (persisted, crash-safe)
-        //   Priority Phase 0 : Portfolio funds (slot1 + slot2) — no regime gate
-        //   Priority Phase 0b: Triple RSI confluence funds — no regime gate
-        //   Phase 1 : Watchlist funds (all equity, 4 AMCs) — no regime gate
-        //   Phase 2 : Global Regime A (added after scan in Step 3)
+        //   Phase 1 items: watchlist funds (equity, from 4 AMCs, in order)
+        //   Phase 2 items: added after global Regime A scan (Step 3)
         // ════════════════════════════════════════════════════════════
         let queue = _loadQ();
 
         if (!queue.length) {
+            // Build watchlist section of queue
             const allF     = _allFunds();
             const allCodes = new Set(allF.map(f => f.code));
-            const queued   = new Set();
-
-            // ── Phase 0: Portfolio funds (always BA, no regime gate) ──
-            try {
-                const lp = JSON.parse(localStorage.getItem('ld_live_portfolio') || '{}');
-                for (const slotKey of ['slot1', 'slot2']) {
-                    const s = lp[slotKey];
-                    if (!s || !s.code) continue;
-                    if (!allCodes.has(s.code) || queued.has(s.code)) continue;
-                    const found = allF.find(f => f.code === s.code);
-                    if (!found || !_isEquity(found)) continue;
-                    queue.push({ code: s.code, name: s.name || found.name,
-                        wrsi: null, source: 'portfolio', done: false, skipReason: null });
-                    queued.add(s.code);
-                }
-            } catch(e) {}
-
-            // ── Phase 0b: Triple RSI confluence funds ─────────────────
-            try {
-                const _alertRaw = localStorage.getItem(`ld_alerts_${today}`);
-                if (_alertRaw) {
-                    const _alertData = JSON.parse(_alertRaw);
-                    const tripleList = _alertData?.results?.TRIPLE_RSI || [];
-                    for (const tf of tripleList) {
-                        if (!tf.code || !allCodes.has(tf.code) || queued.has(tf.code)) continue;
-                        const found = allF.find(f => f.code === tf.code);
-                        if (!found || !_isEquity(found)) continue;
-                        queue.push({ code: tf.code, name: tf.name || found.name,
-                            wrsi: tf.wrsi || null, source: 'triple_rsi', done: false, skipReason: null });
-                        queued.add(tf.code);
-                    }
-                }
-            } catch(e) {}
-
-            // ── Phase 1: Watchlist funds (ALL equity — no regime gate) ─
             let wl = [];
             try { wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(e) {}
             for (const wf of (Array.isArray(wl) ? wl : [])) {
-                if (!wf.code || !allCodes.has(wf.code) || queued.has(wf.code)) continue;
+                if (!wf.code || !allCodes.has(wf.code)) continue; // not in 4 AMCs — skip
                 const found = allF.find(f => f.code === wf.code);
                 if (!found || !_isEquity(found)) continue;
-                queue.push({ code: wf.code, name: wf.name || found.name,
-                    wrsi: null, source: 'watchlist', done: false, skipReason: null });
-                queued.add(wf.code);
+                queue.push({
+                    code: wf.code,
+                    name: wf.name || found.name,
+                    wrsi: null,          // will be computed on-demand
+                    source: 'watchlist',
+                    done: false,
+                    skipReason: null
+                });
             }
-
             _saveQ(queue);
-            console.log(`[BG BA] Queue built: ${queue.length} priority funds (portfolio+triple+watchlist).`);
+            console.log(`[BG BA] Queue built: ${queue.length} watchlist funds.`);
         } else {
             console.log(`[BG BA] Loaded existing queue: ${queue.length} items (crash resume).`);
         }
 
         // ════════════════════════════════════════════════════════════
-        // STEP 2 — PRIORITY PHASE: BA for Portfolio + Triple RSI + Watchlist
-        //   No regime gate — ALL these funds get BA regardless of W-RSI
-        //   W-RSI still computed (for prompt context) but never skips
+        // STEP 2 — WATCHLIST PHASE: Regime A check + BA for each fund
         // ════════════════════════════════════════════════════════════
-        const prioritySources = ['portfolio', 'triple_rsi', 'watchlist'];
-        const wlTotal   = queue.filter(q => prioritySources.includes(q.source)).length;
-        const wlPending = queue.filter(q => prioritySources.includes(q.source) && !q.done && !q.skipReason);
+        const wlTotal   = queue.filter(q => q.source === 'watchlist').length;
+        const wlPending = queue.filter(q => q.source === 'watchlist' && !q.done && !q.skipReason);
 
-        _setPillMsg(`📋 Priority BA: ${wlPending.length}/${wlTotal} funds (Portfolio+Triple+Watchlist)…`);
-        _updateBanner(`📋 BA Engine: ${wlTotal} priority funds (Portfolio · Triple RSI · Watchlist)…`, '#f59e0b');
-        console.log(`[BG BA] Priority phase: ${wlPending.length} pending of ${wlTotal}.`);
+        _setPillMsg(`📋 Watchlist: ${wlPending.length}/${wlTotal} funds to process…`);
+        _updateBanner(`📋 BA Engine: processing ${wlTotal} watchlist funds…`, '#f59e0b');
+        console.log(`[BG BA] Watchlist phase: ${wlPending.length} pending, ${wlTotal - wlPending.length} done/skipped.`);
 
         let lastBARan = false; // tracks whether last iteration ran a Gemini BA call
 
         for (const snapshot of wlPending) {
+            if (isCancelled()) { console.log('[BG BA] ⚡ Watchlist phase cancelled — new scan started.'); return; }
+            // Always reload queue for crash-safety
             let q  = _loadQ();
-            let it = q.find(x => x.code === snapshot.code && prioritySources.includes(x.source));
-            if (!it || it.done || it.skipReason) continue;
+            let it = q.find(x => x.code === snapshot.code && x.source === 'watchlist');
+            if (!it || it.done || it.skipReason) continue; // already handled since snapshot
 
             // ── Already has BA stored today? ─────────────────────────
             if (_cacheExists(it.code)) {
                 it.done = true;
                 _saveQ(q);
                 _incCnt();
-                _setPillMsg(`✅ ${it.source.toUpperCase()}: ${it.name.replace(/\[NPS\] /,'').slice(0,26)} — cached (${String(_getCnt()).padStart(2,'0')} stored)`);
-                console.log(`[BG BA] ${it.source} fund BA-cached today: ${it.name}`);
+                _setPillMsg(`✅ WL: ${it.name.replace(/\[NPS\] /,'').slice(0,28)} — cached`);
+                console.log(`[BG BA] WL fund already BA-cached today: ${it.name}`);
                 lastBARan = false;
                 continue;
             }
 
-            // ── Compute W-RSI if not yet done (for prompt context only) ──
+            // ── Compute W-RSI if not yet done ─────────────────────────
             if (it.wrsi === null) {
-                _setPillMsg(`🔍 ${it.source.toUpperCase()} W-RSI: ${it.name.replace(/\[NPS\] /,'').slice(0,24)}…`);
+                _setPillMsg(`🔍 WL Regime check: ${it.name.replace(/\[NPS\] /,'').slice(0,26)}…`);
                 try {
                     const navRows = await _fetchNav(it.code);
                     if (navRows.length < 30) {
-                        it.wrsi = 0; // no data — use 0 as context, still run BA
-                    } else {
-                        const w = _computeWrsi(navRows);
-                        it.wrsi = w !== null ? Math.round(w * 10) / 10 : 0;
+                        it.skipReason = 'insufficient_nav_data';
+                        _saveQ(q);
+                        console.log(`[BG BA] WL skip (no data): ${it.name}`);
+                        continue;
                     }
+                    const w = _computeWrsi(navRows);
+                    it.wrsi = w !== null ? Math.round(w * 10) / 10 : 0;
                     _saveQ(q);
                 } catch(e) {
-                    it.wrsi = 0; // fallback — still run BA
-                    _saveQ(q);
+                    console.warn(`[BG BA] WL NAV fetch error for ${it.code}:`, e.message);
+                    continue; // wrsi stays null — will retry on next app launch
                 }
-                await _sleep(400);
+                await _sleep(400); // small polite gap after NAV fetch
             }
 
-            // ── NO regime gate — run BA regardless of W-RSI ──────────
-            // Apply gap if previous BA was run
+            // ── Regime check ──────────────────────────────────────────
+            if (!it.wrsi || it.wrsi < 50) {
+                it.skipReason = `regime_bc_wrsi_${it.wrsi}`;
+                _saveQ(q);
+                _setPillMsg(`⏭ WL: ${it.name.slice(0,26)} — Regime B/C (W-RSI ${it.wrsi}) — skipped`);
+                console.log(`[BG BA] WL not Regime A: ${it.name} (W-RSI ${it.wrsi})`);
+                continue;
+            }
+
+            // ── Regime A confirmed → apply gap if previous BA was run ─
             if (lastBARan) {
-                const gapSec = Math.round(_getGapMs() / 1000);
-                for (let s = gapSec; s > 0; s -= 5) {
+                for (let s = GAP_MS / 1000; s > 0; s -= 5) {
                     if (document.hidden) { await _sleep(3_000); continue; }
-                    _setPillMsg(`⏱ Next BA in ${s}s (gap: ${gapSec}s) — ${String(_getCnt()).padStart(2,"0")} stored today`, '#6366f1');
+                    _setPillMsg(`⏱ WL next BA in ${s}s `, '#6366f1');
                     await _sleep(Math.min(5_000, s * 1_000));
                 }
             }
             while (document.hidden) await _sleep(3_000);
 
-            const _srcLabel = it.source === 'portfolio' ? '💼 Portfolio'
-                            : it.source === 'triple_rsi' ? '🔥 Triple RSI'
-                            : '📌 Watchlist';
-            _setPillMsg(`✨ ${_srcLabel} BA: ${it.name.replace(/\[NPS\] /,'').slice(0,28)}… (W-RSI ${it.wrsi||'?'})`);
-            _updateBanner(`🤖 ${_srcLabel} BA: ${it.name.replace(/\[NPS\] /,'').slice(0,30)}…`, '#7c3aed');
+            _setPillMsg(`✨ WL BA: ${it.name.replace(/\[NPS\] /,'').slice(0,30)}… (W-RSI ${it.wrsi})`);
+            _updateBanner(`🤖 WL BA: ${it.name.replace(/\[NPS\] /,'').slice(0,32)}…`, '#7c3aed');
 
             try {
-                const parsed = await _callGeminiBreadth(it, it.wrsi || 50, apiKey);
+                const parsed = await _callGeminiBreadth(it, it.wrsi, apiKey);
                 _bgCacheSave(it.code, parsed);
+                // Reload queue and mark done (avoids stale reference)
                 q  = _loadQ();
-                it = q.find(x => x.code === snapshot.code && prioritySources.includes(x.source));
+                it = q.find(x => x.code === snapshot.code && x.source === 'watchlist');
                 if (it) { it.done = true; _saveQ(q); }
                 _incCnt();
+                // Keep ba_completed_funds in sync → watchlist panel counter reads this
                 try {
                     const _bcKey  = `ba_completed_funds_${today}`;
                     const _bcList = JSON.parse(localStorage.getItem(_bcKey) || '[]');
@@ -16564,17 +16398,14 @@ Return a JSON object with this exact structure:
                     localStorage.setItem(_bcKey, JSON.stringify(_bcList));
                 } catch(e2) {}
                 lastBARan = true;
-                console.log(`[BG BA] ✅ ${snapshot.source} BA stored: ${snapshot.name} → ${parsed.confirmation} (${String(_getCnt()).padStart(2,"0")} today)`);
-                _setPillMsg(`✅ WL BA stored: ${snapshot.name.slice(0,28)} (${String(_getCnt()).padStart(2,"0")} total today)`);
+                console.log(`[BG BA] ✅ WL BA stored: ${snapshot.name} → ${parsed.confirmation} (${_getCnt()} today)`);
+                _setPillMsg(`✅ WL: ${snapshot.name.slice(0,22)} [${parsed._modelUsed?.replace('gemini-2.5-','')||'ok'}]`);
             } catch(e) {
-                console.warn(`[BG BA] ❌ ${snapshot.source} BA failed: ${snapshot.name}:`, e.message);
-                const _isQuota = e.message.includes('quota') || e.message.includes('429');
-                _setPillMsg(
-                    `⚠ ${snapshot.source.toUpperCase()} ${snapshot.name.slice(0,20)}: ${_isQuota ? '⏳ quota — retry on relaunch' : '❌ ' + e.message.slice(0,38)}`,
-                    _isQuota ? '#c97a00' : '#c8102e'
-                );
+                console.warn(`[BG BA] ❌ WL BA failed: ${snapshot.name}:`, e.message);
+                _setPillMsg(`⚠ WL ${snapshot.name.slice(0,20)} — all models at quota, queued`, '#c97a00');
                 await _sleep(3_000);
                 lastBARan = false;
+                // Note: done stays false → will retry on next app launch
             }
         }
 
@@ -16596,6 +16427,7 @@ Return a JSON object with this exact structure:
             let scanned = 0;
 
             for (const fund of equityFunds) {
+                if (isCancelled()) { console.log('[BG BA] ⚡ Global scan cancelled — new scan started.'); return; }
                 if (document.hidden) await _sleep(2_000);
                 try {
                     const navRows = await _fetchNav(fund.code);
@@ -16655,12 +16487,10 @@ Return a JSON object with this exact structure:
         }
 
         // ════════════════════════════════════════════════════════════
-        // STEP 4 — GLOBAL PHASE: BA for Regime A funds (non-priority)
-        //   These are funds NOT already in portfolio/triple/watchlist
-        //   that were found in Regime A during the global scan.
+        // STEP 4 — GLOBAL PHASE: BA for Regime A funds (non-watchlist)
         // ════════════════════════════════════════════════════════════
-        const freshQ        = _loadQ();
-        const gTotal        = freshQ.filter(q => q.source === 'global').length;
+        const freshQ       = _loadQ();
+        const gTotal       = freshQ.filter(q => q.source === 'global').length;
         const globalPending = freshQ.filter(q => q.source === 'global' && !q.done && !q.skipReason);
 
         _setPillMsg(`🌐 Global BA: ${globalPending.length}/${gTotal} Regime A funds pending…`);
@@ -16668,6 +16498,7 @@ Return a JSON object with this exact structure:
         console.log(`[BG BA] Global BA phase: ${globalPending.length} pending.`);
 
         for (const snapshot of globalPending) {
+            if (isCancelled()) { console.log('[BG BA] ⚡ Global BA phase cancelled — new scan started.'); return; }
             let q  = _loadQ();
             let it = q.find(x => x.code === snapshot.code && x.source === 'global');
             if (!it || it.done || it.skipReason) continue;
@@ -16677,17 +16508,16 @@ Return a JSON object with this exact structure:
                 it.done = true;
                 _saveQ(q);
                 _incCnt();
-                _setPillMsg(`✅ Global: ${it.name.replace(/\[NPS\] /,'').slice(0,28)} — BA cached (${String(_getCnt()).padStart(2,"0")} stored)`);
+                _setPillMsg(`✅ Global: ${it.name.replace(/\[NPS\] /,'').slice(0,28)} — cached`);
                 lastBARan = false;
                 continue;
             }
 
             // ── Apply gap if previous BA was run ──────────────────────
             if (lastBARan) {
-                const gapSec = Math.round(_getGapMs() / 1000);
-                for (let s = gapSec; s > 0; s -= 5) {
+                for (let s = GAP_MS / 1000; s > 0; s -= 5) {
                     if (document.hidden) { await _sleep(3_000); continue; }
-                    _setPillMsg(`⏱ Global next BA in ${s}s (gap: ${gapSec}s) — ${String(_getCnt()).padStart(2,"0")} stored today`, '#6366f1');
+                    _setPillMsg(`⏱ Global next BA in ${s}s `, '#6366f1');
                     await _sleep(Math.min(5_000, s * 1_000));
                 }
             }
@@ -16703,23 +16533,12 @@ Return a JSON object with this exact structure:
                 it = q.find(x => x.code === snapshot.code && x.source === 'global');
                 if (it) { it.done = true; _saveQ(q); }
                 _incCnt();
-                // Keep ba_completed_funds in sync → watchlist panel counter reads this
-                try {
-                    const _bcKey  = `ba_completed_funds_${today}`;
-                    const _bcList = JSON.parse(localStorage.getItem(_bcKey) || '[]');
-                    if (!_bcList.includes(snapshot.code)) _bcList.push(snapshot.code);
-                    localStorage.setItem(_bcKey, JSON.stringify(_bcList));
-                } catch(e2) {}
                 lastBARan = true;
-                console.log(`[BG BA] ✅ Global BA stored: ${snapshot.name} → ${parsed.confirmation} (${String(_getCnt()).padStart(2,"0")} today)`);
-                _setPillMsg(`✅ Global BA stored: ${snapshot.name.slice(0,26)} (${String(_getCnt()).padStart(2,"0")} total today)`);
+                console.log(`[BG BA] ✅ Global BA stored: ${snapshot.name} → ${parsed.confirmation} (${_getCnt()} today)`);
+                _setPillMsg(`✅ Global: ${snapshot.name.slice(0,20)} [${parsed._modelUsed?.replace('gemini-2.5-','')||'ok'}]`);
             } catch(e) {
                 console.warn(`[BG BA] ❌ Global BA failed: ${snapshot.name}:`, e.message);
-                const _isQuota = e.message.includes('quota') || e.message.includes('429');
-                _setPillMsg(
-                    `⚠ Global ${snapshot.name.slice(0,20)}: ${_isQuota ? '⏳ quota — retry on relaunch' : '❌ ' + e.message.slice(0,38)}`,
-                    _isQuota ? '#c97a00' : '#c8102e'
-                );
+                _setPillMsg(`⚠ Global ${snapshot.name.slice(0,20)} — all models at quota, queued`, '#c97a00');
                 await _sleep(3_000);
                 lastBARan = false;
                 // done stays false → retried on next restart
@@ -16749,50 +16568,99 @@ Return a JSON object with this exact structure:
         } else {
             // Partial run — do NOT mark complete
             const pendingNames = stillPending.slice(0, 3).map(q => q.name.split(' ')[0]).join(', ');
-            _donePill(`⚠ ${finalCnt} stored, ${stillPending.length} pending — relaunch to retry (${pendingNames}…)`);
-            _updateBanner(`⚠ BA partial: ${finalCnt} stored, ${stillPending.length} pending — relaunch app to retry`, '#c97a00');
+            // Show pill with inline restart button (no console needed)
+            _setPillMsg(`⚠ ${finalCnt} stored · ${stillPending.length} pending`, '#f59e0b');
+            const _pillEl = document.getElementById('bgBreadthPill');
+            if (_pillEl) {
+                // Remove any previously added restart btn
+                const _oldBtn = _pillEl.querySelector('.bg-restart-btn');
+                if (_oldBtn) _oldBtn.remove();
+                const _restartBtn = document.createElement('span');
+                _restartBtn.className = 'bg-restart-btn';
+                _restartBtn.textContent = '↺ RESTART';
+                _restartBtn.style.cssText =
+                    'margin-left:4px;padding:2px 7px;border-radius:10px;border:1px solid #f59e0b;' +
+                    'color:#f59e0b;font-size:0.55rem;cursor:pointer;flex-shrink:0;white-space:nowrap;';
+                _restartBtn.onclick = function() {
+                    _restartBtn.textContent = '↺ …';
+                    _restartBtn.style.opacity = '0.5';
+                    if (window.bgBreadthForceRun) window.bgBreadthForceRun();
+                };
+                _pillEl.appendChild(_restartBtn);
+            }
+            _updateBanner(`⚠ BA partial: ${finalCnt} stored · ${stillPending.length} pending — tap ↺ RESTART pill`, '#c97a00');
             console.log(`[BG BA] Partial. ${finalCnt} stored, ${stillPending.length} still pending.`);
         }
     }
 
     // ── Public API ────────────────────────────────────────────────────
-    // bgBreadthStatus() → today's queue status + BA counter
+    // bgBreadthStatus() → today's Regime A list + BA counter
     window.bgBreadthStatus = function() {
         try {
             const today = _istDate();
             const list  = JSON.parse(localStorage.getItem(`bgbreadth_regimeA_${today}`) || '[]');
             const queue = _loadQ();
             const cnt   = _getCnt();
-            const bySource = {};
-            queue.forEach(q => {
-                if (!bySource[q.source]) bySource[q.source] = { total:0, done:0, skipped:0 };
-                bySource[q.source].total++;
-                if (q.done) bySource[q.source].done++;
-                else if (q.skipReason) bySource[q.source].skipped++;
-            });
-            console.log(`[BG BA] Today (${today}): ${cnt} BA stored | Queue breakdown:`);
-            Object.entries(bySource).forEach(([src, s]) =>
-                console.log(`  ${src}: ${s.done}/${s.total} done, ${s.skipped} skipped`)
-            );
+            console.log(`[BG BA] Today (${today}): ${cnt} BA stored | ${list.length} Regime A funds`);
             console.table(queue.map(q => ({
                 source: q.source, fund: q.name.slice(0, 35),
                 wrsi: q.wrsi, done: q.done, skip: q.skipReason
             })));
-            return { list, queue, counter: cnt, bySource };
+            return { list, queue, counter: cnt };
         } catch(e) { return {}; }
     };
 
-    // bgBreadthForceRun() → clear all flags and restart
+    // bgBreadthForceRun() → cancel in-flight scan, reset only FAILED items, restart
     window.bgBreadthForceRun = function() {
         const d = _istDate();
+
+        // 1. Cancel any in-flight async scan via token
+        _scanToken++;
+        console.log('[BG BA] ⚡ Force-run: cancelled prior scan (token=' + _scanToken + ')');
+
+        // 2. Remove stale pill so _makePill() creates a fresh one
+        const _oldPill = document.getElementById('bgBreadthPill');
+        if (_oldPill) _oldPill.remove();
+
+        // 3. Clear run-flag and AMC-scan-flag so scan proceeds
         try { localStorage.removeItem(RUN_FLAG_KEY + d); } catch(e) {}
-        try { localStorage.removeItem(_qKey()); } catch(e) {}
-        try { localStorage.removeItem(_cntKey()); } catch(e) {}
         try { localStorage.removeItem(`bg_amc_scan_done_${d}`); } catch(e) {}
         try { localStorage.removeItem(`ba_completed_funds_${d}`); } catch(e) {}
-        try { localStorage.removeItem(`ba_completed_today_${d}`); } catch(e) {}
-        console.log('[BG BA] Flags cleared — restarting.');
-        _runBackgroundScan();
+
+        // 4. Reset ONLY failed queue items (not done:true or cached ones)
+        //    Items that have BA cached → keep done:true (no need to re-run Gemini)
+        //    Items with skipReason (regime B/C) → keep skipped
+        //    Items with done:false and no skipReason → these FAILED → reset so they retry
+        try {
+            const q = _loadQ();
+            let resetCount = 0;
+            q.forEach(item => {
+                if (!item.done && !item.skipReason) {
+                    // Already pending — leave as-is
+                } else if (item.done) {
+                    // Check if BA cache still exists; if not (e.g. storage cleared), reset it
+                    if (!_cacheExists(item.code)) {
+                        item.done = false;
+                        item.wrsi = null;
+                        resetCount++;
+                    }
+                }
+                // skipReason items: leave as-is (regime B/C won't change intraday)
+            });
+            if (resetCount > 0 || q.length > 0) {
+                _saveQ(q);
+                console.log('[BG BA] Queue reset: ' + resetCount + ' items un-done (cache missing).');
+            } else {
+                // No queue yet — will be built fresh
+                console.log('[BG BA] No queue to reset — will build fresh.');
+            }
+        } catch(e) { try { localStorage.removeItem(_qKey()); } catch(_) {} }
+
+        // 5. Clear internal counter — pill will recount from actual cache hits via _updatePillCounter
+        try { localStorage.removeItem(_cntKey()); } catch(e) {}
+
+        console.log('[BG BA] Restarting scan in 300ms…');
+        setTimeout(() => _runBackgroundScan(), 300);
     };
 
     // bgBreadthClearAll() → wipe all BA caches and flags for today
@@ -16805,8 +16673,6 @@ Return a JSON object with this exact structure:
         );
         keys.forEach(k => localStorage.removeItem(k));
         localStorage.removeItem(RUN_FLAG_KEY + d);
-        // Also clear the manual BA completed-funds array for today
-        try { localStorage.removeItem(`ba_completed_funds_${d}`); } catch(e) {}
         console.log(`[BG BA] Cleared ${keys.length} entries + run flag for ${d}.`);
     };
 

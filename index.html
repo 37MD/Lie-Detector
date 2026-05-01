@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector LD246VAI5P — NPS NAV Chart</title>
+        <title>Lie Detector LD246VAI6P — NPS NAV Chart</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2146,7 +2146,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD246VAI5P</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD246VAI6P</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2574,7 +2574,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD246VAI5P &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD246VAI6P &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2586,7 +2586,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI5P 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI6P 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -2816,12 +2816,6 @@
                     <span id="switchBridgeLastUpdate" style="font-size:0.42rem;color:var(--muted);font-family:var(--mono);"></span>
                 </div>
                 <div id="switchBridgeGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
-                <div style="display:flex;align-items:center;gap:8px;margin:10px 0 8px;">
-                    <div style="flex:1;height:1px;background:var(--border);"></div>
-                    <span style="font-size:0.46rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;font-family:var(--mono);flex-shrink:0;">NPS Schemes</span>
-                    <div style="flex:1;height:1px;background:var(--border);"></div>
-                </div>
-                <div id="switchBridgeNpsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
             </div>
             <div style="padding:6px 8px 4px;border-top:1px solid var(--border);flex-shrink:0;">
                 <div style="font-size:0.48rem;color:var(--muted);margin-bottom:5px;text-align:center;letter-spacing:0.06em;">SWITCH JOURNAL BACKUP (JSON ← Mobile Storage)</div>
@@ -8737,8 +8731,9 @@ This is exactly how the system is meant to be played.
                 });
             }
             function renderSwitchBridgeNpsGrid() {
-                const grid = document.getElementById('switchBridgeNpsGrid');
-                if (!grid) return;
+                // NPS scheme boxes removed from watchlist bottom (already shown as watchlist rows above)
+                return;
+
                 let bridge = {};
                 try {
                     const j = _SJ.get();
@@ -13266,6 +13261,29 @@ categories.forEach(cat => {
             // Open BA modal for this fund — find in amcFunds or use passed name
             const _allFlat = Object.values(window.amcFunds||{}).flat();
             const _fund = _allFlat.find(f => f.code === code) || { code, name: name || code };
+
+            // ── Enrich with live wrsi/drsi from BG queue (most accurate) ──
+            try {
+                const _dk = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                const _q  = JSON.parse(localStorage.getItem(`bg_ba_queue_${_dk}`) || '[]');
+                const _qi = _q.find(x => x.code === code);
+                if (_qi && _qi.wrsi != null) {
+                    _fund.wrsi = _qi.wrsi;
+                }
+            } catch(e) {}
+
+            // ── Fallback: enrich from today's BA cache if BG queue has no wrsi ──
+            if (_fund.wrsi == null || _fund.wrsi === 0) {
+                try {
+                    const _dk = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                    const _ck = `breadth_v1_${code.replace(/\W/g,'_')}_${_dk}`;
+                    const _cached = JSON.parse(localStorage.getItem(_ck) || 'null');
+                    // The BG cache stores wrsi at scan time in some cases via prompt context
+                    // Try to back-compute from the stored wrsi field
+                    if (_cached?._wrsiAtScan != null) _fund.wrsi = _cached._wrsiAtScan;
+                } catch(e) {}
+            }
+
             if (window.openAIBreadthModal) {
                 window.openAIBreadthModal(_fund);
             } else {
@@ -13401,14 +13419,48 @@ categories.forEach(cat => {
 
         // ── Fund Meta ──────────────────────────────────────────
         function _populateFundMeta(fund) {
-            const regime = parseFloat(fund.wrsi) >= 50 ? 'A — HOPE'
-                         : parseFloat(fund.wrsi) >= 40 ? 'B — WATCH' : 'C — FEAR';
-            const regimeClass = parseFloat(fund.wrsi) >= 50 ? 'regime-a'
-                              : parseFloat(fund.wrsi) >= 40 ? 'regime-b' : 'regime-c';
+            // ── Attempt to recover wrsi/drsi from BG queue if not passed ──
+            let _wrsi = fund.wrsi;
+            let _drsi = fund.drsi;
+
+            if ((_wrsi == null || _wrsi === '—' || _wrsi === 0) && fund.code) {
+                try {
+                    const _dk = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                    // Try BG queue first (has computed wrsi)
+                    const _q  = JSON.parse(localStorage.getItem(`bg_ba_queue_${_dk}`) || '[]');
+                    const _qi = _q.find(x => x.code === fund.code);
+                    if (_qi?.wrsi != null && _qi.wrsi > 0) _wrsi = _qi.wrsi;
+                    // Try cached BA result (has _wrsiAtScan)
+                    if (!_wrsi || _wrsi === '—') {
+                        const _ck = `breadth_v1_${fund.code.replace(/\W/g,'_')}_${_dk}`;
+                        const _c  = JSON.parse(localStorage.getItem(_ck) || 'null');
+                        if (_c?._wrsiAtScan != null) _wrsi = _c._wrsiAtScan;
+                    }
+                } catch(e) {}
+            }
+            // D-RSI: try Live Cockpit display if fund is currently loaded
+            if ((_drsi == null || _drsi === '—') && fund.code) {
+                try {
+                    const fsCode = document.getElementById('fundSelect')?.value;
+                    if (fsCode === fund.code) {
+                        const _d = document.getElementById('liveDRsi')?.textContent?.replace(/[^\d.]/g,'');
+                        const _w = document.getElementById('liveWRsi')?.textContent?.replace(/[^\d.]/g,'');
+                        if (_d && _d !== '--') _drsi = parseFloat(_d);
+                        if ((!_wrsi || _wrsi === '—') && _w && _w !== '--') _wrsi = parseFloat(_w);
+                    }
+                } catch(e) {}
+            }
+
+            const _wrsiNum  = parseFloat(_wrsi);
+            const regime    = !isNaN(_wrsiNum) ? (_wrsiNum >= 50 ? 'A — HOPE' : _wrsiNum >= 40 ? 'B — WATCH' : 'C — FEAR') : '— UNKNOWN';
+            const regCls    = !isNaN(_wrsiNum) ? (_wrsiNum >= 50 ? 'regime-a' : _wrsiNum >= 40 ? 'regime-b' : 'regime-c') : '';
+            const _wrsiDisp = !isNaN(_wrsiNum) ? Math.round(_wrsiNum) : '—';
+            const _drsiDisp = (_drsi != null && _drsi !== '—' && !isNaN(parseFloat(_drsi))) ? Math.round(parseFloat(_drsi)) : '—';
+
             const cells = [
-                { label: 'Regime', val: regime, cls: regimeClass },
-                { label: 'W-RSI', val: fund.wrsi ?? '—', cls: '' },
-                { label: 'D-RSI', val: fund.drsi ?? '—', cls: '' },
+                { label: 'Regime', val: regime,    cls: regCls },
+                { label: 'W-RSI',  val: _wrsiDisp, cls: '' },
+                { label: 'D-RSI',  val: _drsiDisp, cls: '' },
             ];
             const meta = document.getElementById('abpFundMeta');
             meta.innerHTML = cells.map(c => `
@@ -13416,6 +13468,10 @@ categories.forEach(cat => {
                   <span class="abp-meta-label">${c.label}</span>
                   <span class="abp-meta-val ${c.cls}">${c.val}</span>
                 </div>`).join('');
+
+            // Write resolved values back so the Gemini prompt has correct context
+            if (_wrsi == null || _wrsi === '—') fund.wrsi = _wrsiNum || fund.wrsi;
+            if (_drsi == null || _drsi === '—') fund.drsi = parseFloat(_drsiDisp) || fund.drsi;
         }
 
         // ── §3 JSON CLEANUP HELPER ─────────────────────────────
@@ -14451,7 +14507,7 @@ Return a JSON object with this exact structure:
             <div style="background:#0f172a;border:1px solid #334155;border-radius:7px;padding:8px 10px;
                         margin-bottom:8px;font-size:0.48rem;color:#94a3b8;line-height:1.6;">
                 <div style="color:#fbbf24;font-weight:700;font-size:0.5rem;margin-bottom:4px;">
-                    💡 API Quota Saver — How LD246VAI5P reduces calls
+                    💡 API Quota Saver — How LD246VAI6P reduces calls
                 </div>
                 <div style="display:grid;grid-template-columns:auto 1fr;gap:2px 8px;">
                     <span style="color:#009e70;">✅</span><span><b style="color:#e2e8f0;">Benchmark dedup</b> — funds sharing the same index (e.g. Nifty 50) share ONE Gemini call. Saves ~40-50% calls.</span>
@@ -15935,7 +15991,7 @@ Return a JSON object with this exact structure:
     })();
     </script>
     <!-- ═══════════════════════════════════════════════════════════════════
-         LD246VAI5P — BACKGROUND BA ENGINE v3
+         LD246VAI6P — BACKGROUND BA ENGINE v3
          ─────────────────────────────────────────────────────────────────
          Priority Order:
            1. Watchlist funds (in order) — check Regime A, run BA, store.
@@ -15960,7 +16016,7 @@ Return a JSON object with this exact structure:
         } catch(e) { return 100_000; }
     }
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD246VAI5P-BG-v3';
+    const ADDON_VER     = 'LD246VAI6P-BG-v3';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
     // ── IST date string (YYYYMMDD) ────────────────────────────────────
@@ -15977,7 +16033,7 @@ Return a JSON object with this exact structure:
         try { return !!localStorage.getItem(_cacheKey(code)); } catch(e){ return false; }
     }
     // Store BA result with date + source tags (matches manual BA cache schema)
-    function _bgCacheSave(code, parsed) {
+    function _bgCacheSave(code, parsed, wrsiAtScan) {
         try {
             const _ist = new Date(Date.now() + 5.5 * 3_600_000);
             const _tsDisplay = _ist.toISOString().replace('T', ' ').slice(0, 16) + ' IST';
@@ -15987,7 +16043,8 @@ Return a JSON object with this exact structure:
                     _storedDate:       _istDate(),
                     _storedTs:         Date.now(),
                     _cachedAt:         new Date().toISOString(),
-                    _cachedAtDisplay:  _tsDisplay
+                    _cachedAtDisplay:  _tsDisplay,
+                    _wrsiAtScan:       wrsiAtScan ?? null   // stored so BA panel can show correct W-RSI
                 })
             ));
         } catch(e) {}
@@ -16551,7 +16608,7 @@ Return a JSON object with this exact structure:
 
             try {
                 const parsed = await _callGeminiBreadth(it, it.wrsi || 50, apiKey);
-                _bgCacheSave(it.code, parsed);
+                _bgCacheSave(it.code, parsed, it.wrsi);
                 q  = _loadQ();
                 it = q.find(x => x.code === snapshot.code && prioritySources.includes(x.source));
                 if (it) { it.done = true; _saveQ(q); }
@@ -16697,7 +16754,7 @@ Return a JSON object with this exact structure:
 
             try {
                 const parsed = await _callGeminiBreadth(it, it.wrsi, apiKey);
-                _bgCacheSave(it.code, parsed);
+                _bgCacheSave(it.code, parsed, it.wrsi);
                 q  = _loadQ();
                 it = q.find(x => x.code === snapshot.code && x.source === 'global');
                 if (it) { it.done = true; _saveQ(q); }

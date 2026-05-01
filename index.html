@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD246VAI5</title>
+        <title>Lie Detector — NPS NAV Chart · LD246VAI6M</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2574,7 +2574,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD246VAI5 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD246VAI6M &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2586,7 +2586,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI5 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI6M 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -4521,11 +4521,22 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             function _getPfmRecommendation() {
                 try {
                     const regime = typeof currentRegimeLog !== 'undefined' ? currentRegimeLog : 'B';
-                    if (regime === 'A') return { pfm: 'HDFC Pension',  color: '#00916e', regime: 'Hope',  rationale: 'Aggressive Equity Capture'     };
-                    if (regime === 'C') return { pfm: 'ICICI Pension', color: '#c8102e', regime: 'Fear',  rationale: 'Maximum Downside Protection'    };
-                    return              { pfm: 'Kotak Pension',        color: '#b45309', regime: 'Watch', rationale: 'Tactical / Sideways Market'     };
+                    // Equity: follow regime aggressively
+                    const equity = regime === 'A'
+                        ? { pfm: 'HDFC Pension',  color: '#00916e', rationale: 'Regime Hope — max equity capture' }
+                        : regime === 'C'
+                        ? { pfm: 'ICICI Pension', color: '#c8102e', rationale: 'Regime Fear — equity downside protection' }
+                        : { pfm: 'Kotak Pension', color: '#b45309', rationale: 'Regime Watch — tactical allocation' };
+                    // Corp Debt: conservative — HDFC/ICICI for stability; switch only on regime extremes
+                    const corpDebt = regime === 'C'
+                        ? { pfm: 'HDFC Pension',  color: '#00916e', rationale: 'Fear regime — shift to best debt quality' }
+                        : regime === 'A'
+                        ? { pfm: 'ICICI Pension', color: '#009e70', rationale: 'Hope regime — corp debt as anchor' }
+                        : { pfm: 'HDFC Pension',  color: '#b45309', rationale: 'Watch — maintain stable debt position' };
+                    return { equity, corpDebt, regime };
                 } catch(_) {
-                    return { pfm: '—', color: 'var(--muted)', regime: '—', rationale: 'Load a fund first' };
+                    const na = { pfm: '—', color: 'var(--muted)', rationale: 'Load a fund first' };
+                    return { equity: na, corpDebt: na, regime: '—' };
                 }
             }
             window._getPfmRecommendation = _getPfmRecommendation;
@@ -4537,7 +4548,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD246VAI5', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD246VAI6M', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -8753,116 +8764,157 @@ This is exactly how the system is meant to be played.
                            : JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}');
                 } catch(_) {}
                 const npsTiers = [
-                    { key: 'NPS_T1', label: 'NPS TIER 1', accent: '#7c3aed', icon: '🏛' },
-                    { key: 'NPS_T2', label: 'NPS TIER 2', accent: '#0ea5e9', icon: '🏦' }
+                    { key: 'NPS_T1', label: 'NPS TIER 1', accent: '#7c3aed', icon: '🏛', tierStr: 'Tier I',  tierRoman: 'I'  },
+                    { key: 'NPS_T2', label: 'NPS TIER 2', accent: '#0ea5e9', icon: '🏦', tierStr: 'Tier II', tierRoman: 'II' }
                 ];
+
+                // PFM display names keyed by SM prefix
+                const PFM_MAP = {
+                    SM008: 'HDFC', SM007: 'ICICI', SM005: 'KOTAK', SM010: 'ABSL'
+                };
+                function _pfmFromCode(code) {
+                    const pfx = code.slice(0,5);
+                    return PFM_MAP[pfx] || code.slice(0,5);
+                }
+                function _fundTypeFromCode(code) {
+                    // last digit: 1/4=Equity, 2/5=Corp Debt
+                    const last = code.slice(-1);
+                    return (last==='1'||last==='4') ? 'E' : 'C';
+                }
+
+                // Helper: get live W-RSI from cached morning scan for a fund code
+                function _getNpsLiveData(code) {
+                    // Try today's morning scan cache first
+                    const today = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                    try {
+                        const mKey = `ld_morning_${code}_${today}`;
+                        const m = JSON.parse(localStorage.getItem(mKey)||'null');
+                        if (m) return m;
+                    } catch(_) {}
+                    // Try switch bridge entry
+                    try {
+                        const bridge = JSON.parse(localStorage.getItem('ld_switch_bridge')||'{}');
+                        for (const k of Object.keys(bridge)) {
+                            if (bridge[k]?.code === code) return bridge[k];
+                        }
+                    } catch(_) {}
+                    return null;
+                }
+
                 grid.innerHTML = '';
-                npsTiers.forEach(({ key, label, accent, icon }) => {
-                    const entry   = bridge[key];
-                    const hasData = !!(entry?.code);
-                    const pfmRec = typeof _getPfmRecommendation === 'function'
-                        ? _getPfmRecommendation()
-                        : { pfm: '—', color: 'var(--muted)', rationale: '' };
+                const pfmRec = typeof _getPfmRecommendation === 'function'
+                    ? _getPfmRecommendation()
+                    : { equity: { pfm:'—', color:'var(--muted)', rationale:'' }, corpDebt: { pfm:'—', color:'var(--muted)', rationale:'' }, regime:'—' };
+
+                npsTiers.forEach(({ key, label, accent, icon, tierStr, tierRoman }) => {
+
+                    // All funds for this tier: both E and C, all 4 PFMs = 8 funds
+                    const allFundsFlat = Object.values(window.amcFunds||{}).flat();
+                    const tierFunds = allFundsFlat.filter(f =>
+                        f.code.startsWith('SM') &&
+                        f.name.includes(`Tier ${tierRoman}`) &&
+                        (tierRoman === 'I' ? !f.name.includes('Tier II') : true)
+                    );
+                    const equityFunds = tierFunds.filter(f => _fundTypeFromCode(f.code) === 'E');
+                    const debtFunds   = tierFunds.filter(f => _fundTypeFromCode(f.code) === 'C');
+
+                    // Get switch bridge entry for this tier (current holding)
+                    let bridgeEntry = null;
+                    try { bridgeEntry = bridge[key]; } catch(_) {}
+
                     const box = document.createElement('div');
                     box.style.cssText = `
                         background:var(--surface2);
-                        border:1.5px solid ${hasData ? accent : 'var(--border)'};
+                        border:1.5px solid ${accent};
                         border-radius:var(--radius-sm);
                         padding:9px 8px 8px;
-                        display:flex;flex-direction:column;gap:3px;
-                        cursor:${hasData ? 'pointer' : 'default'};
-                        min-height:100px;
-                        transition:border-color 0.2s,background 0.2s;
+                        display:flex;flex-direction:column;gap:4px;
+                        min-height:120px;
                     `;
-                    if (hasData) {
-                        box.onmouseenter = () => { box.style.background = 'var(--surface3)'; };
-                        box.onmouseleave = () => { box.style.background = 'var(--surface2)'; };
-                        box.onclick = () => launchBridgeSimulation(entry.code, entry.switchDate || null);
+
+                    // ── Header ──
+                    const hdr = document.createElement('div');
+                    hdr.style.cssText = `display:flex;align-items:center;justify-content:space-between;`;
+                    const hdrLbl = document.createElement('div');
+                    hdrLbl.style.cssText = `font-size:0.46rem;font-weight:700;color:${accent};letter-spacing:0.12em;text-transform:uppercase;font-family:var(--mono);`;
+                    hdrLbl.textContent = `${icon} ${label}`;
+                    hdr.appendChild(hdrLbl);
+                    if (bridgeEntry?.regime) {
+                        const regBadge = document.createElement('span');
+                        const rc = bridgeEntry.regime==='A'?'#00916e':bridgeEntry.regime==='C'?'#c8102e':'#f59e0b';
+                        const rl = bridgeEntry.regime==='A'?'Hope':bridgeEntry.regime==='C'?'Fear':'Watch';
+                        regBadge.style.cssText = `font-size:0.42rem;color:${rc};border:1px solid ${rc};padding:1px 5px;border-radius:3px;font-family:var(--mono);`;
+                        regBadge.textContent = rl;
+                        hdr.appendChild(regBadge);
                     }
-                    const tierLbl = document.createElement('div');
-                    tierLbl.style.cssText = `font-size:0.46rem;font-weight:400;color:${hasData ? accent : 'var(--muted)'};letter-spacing:0.12em;text-transform:uppercase;font-family:var(--mono);`;
-                    tierLbl.textContent = `${icon} ${label}`;
-                    box.appendChild(tierLbl);
-                    if (hasData) {
-                        // === FIX 1b: Alert badge — top-right red pill if alert exists ===
-                        if (entry.latestAlert) {
-                            const isRed   = (entry.latestAlertClass || '').includes('danger');
-                            const isGreen = (entry.latestAlertClass || '').includes('buy');
-                            const badgeBg = isRed ? '#c8102e' : isGreen ? '#00916e' : '#c97a00';
-                            const badge = document.createElement('div');
-                            badge.style.cssText = `
-                                position:absolute;top:6px;right:6px;
-                                background:${badgeBg};color:#fff;
-                                font-size:0.38rem;font-weight:700;
-                                padding:2px 5px;border-radius:3px;
-                                letter-spacing:0.06em;text-transform:uppercase;
-                                line-height:1.4;pointer-events:none;
+                    box.appendChild(hdr);
+
+                    // ── Equity sub-section ──
+                    const makeSubSection = (funds, typeLabel, typeColor, pfmTarget) => {
+                        const sec = document.createElement('div');
+                        sec.style.cssText = `background:var(--surface3,#111827);border-radius:5px;padding:5px 6px;display:flex;flex-direction:column;gap:2px;`;
+                        const secHdr = document.createElement('div');
+                        secHdr.style.cssText = `display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;`;
+                        const secLbl = document.createElement('span');
+                        secLbl.style.cssText = `font-size:0.44rem;font-weight:700;color:${typeColor};letter-spacing:0.08em;text-transform:uppercase;font-family:var(--mono);`;
+                        secLbl.textContent = typeLabel;
+                        secHdr.appendChild(secLbl);
+                        // PFM Target badge
+                        const pfmBadge = document.createElement('span');
+                        pfmBadge.style.cssText = `font-size:0.4rem;color:${pfmTarget.color};border:1px solid ${pfmTarget.color}55;padding:1px 5px;border-radius:3px;`;
+                        pfmBadge.textContent = `▶ ${pfmTarget.pfm}`;
+                        pfmBadge.title = pfmTarget.rationale;
+                        secHdr.appendChild(pfmBadge);
+                        sec.appendChild(secHdr);
+
+                        // Fund rows — one per PFM
+                        funds.forEach(f => {
+                            const pfm = _pfmFromCode(f.code);
+                            const live = _getNpsLiveData(f.code);
+                            const wrsi = live?.wrsi ?? '—';
+                            const regime = live?.regime ?? '—';
+                            const rc = regime==='A'?'#00916e':regime==='C'?'#c8102e':regime==='B'?'#f59e0b':'var(--muted)';
+                            const isTarget = pfmTarget.pfm.toUpperCase().includes(pfm.toUpperCase());
+                            const row = document.createElement('div');
+                            row.style.cssText = `
+                                display:flex;align-items:center;gap:4px;padding:2px 0;
+                                border-bottom:1px solid var(--border);cursor:pointer;
+                                ${isTarget ? `background:${pfmTarget.color}15;border-radius:3px;padding:2px 3px;` : ''}
                             `;
-                            badge.textContent = isRed ? '🚨 Alert' : isGreen ? '🟢 Alert' : '⚠ Alert';
-                            box.appendChild(badge);
-                        }
-                        // === FIX 1c: Line 2 — fund name font +50% (0.64 → 0.96rem) ===
-                        const nm = document.createElement('div');
-                        nm.style.cssText = 'font-size:0.96rem;font-weight:400;color:var(--text);line-height:1.3;';
-                        nm.textContent = (entry.name || '')
-                            .replace(/\[NPS\]\s*/gi, '')
-                            .replace(/Scheme\s+/gi, 'Sch ')
-                            .replace(/Tier\s+(I|II)/gi, '')
-                            .trim().slice(0, 28);
-                        box.appendChild(nm);
-                        if (entry.switchDate || entry.ts) {
-                            // === FIX 1c: Line 3 — date font +50% (0.44 → 0.66rem) ===
-                            const dtEl = document.createElement('div');
-                            dtEl.style.cssText = 'font-size:0.66rem;font-weight:400;color:var(--muted);';
-                            const dtStr = new Date(entry.switchDate || entry.ts).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' });
-                            dtEl.textContent = `📅 Switched: ${dtStr}`;
-                            box.appendChild(dtEl);
-                        }
-                        const stats = document.createElement('div');
-                        stats.style.cssText = 'font-size:0.48rem;font-weight:400;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;';
-                        const r1mVal = typeof entry.r1m === 'number' ? entry.r1m.toFixed(1) + '%' : '--';
-                        const r1mCol = typeof entry.r1m === 'number' ? (entry.r1m >= 0 ? '#00916e' : 'var(--red)') : 'var(--muted)';
-                        const regimeCol = entry.regime==='A'?'#00916e':entry.regime==='B'?'#f59e0b':'var(--red)';
-                        const regimeTxt = entry.regime==='A'?'Hope':entry.regime==='B'?'Watch':entry.regime==='C'?'Fear':'—';
-                        stats.innerHTML = `<span>1M: <span style="color:${r1mCol}">${r1mVal}</span></span>`
-                            + `<span>wRSI: ${entry.wrsi ?? '--'}</span>`
-                            + `<span style="color:${regimeCol};">${regimeTxt}</span>`;
-                        box.appendChild(stats);
-                        if (typeof entry.switchNav === 'number' && entry.switchNav > 0 && typeof entry.currentNav === 'number') {
-                            const pnl   = (entry.currentNav - entry.switchNav) / entry.switchNav * 100;
-                            const pnlEl = document.createElement('div');
-                            pnlEl.style.cssText = `font-size:0.52rem;font-weight:400;color:${pnl>=0?'#00916e':'var(--red)'};margin-top:auto;padding-top:3px;`;
-                            pnlEl.textContent = `P&L: ${pnl >= 0 ? '+' : ''}${pnl.toFixed(1)}%`;
-                            box.appendChild(pnlEl);
-                        }
-                        const hint = document.createElement('div');
-                        hint.style.cssText = 'font-size:0.4rem;font-weight:400;color:var(--muted2);text-align:right;margin-top:2px;';
-                        hint.textContent = '▶ Tap to simulate';
-                        box.appendChild(hint);
+                            row.onclick = () => launchLiveFromAlert(f.code);
+                            row.innerHTML = `
+                                <span style="font-size:0.52rem;font-weight:${isTarget?'700':'400'};color:${isTarget?pfmTarget.color:'var(--text)'};flex:1;white-space:nowrap;">
+                                    ${isTarget ? '★ ' : ''}${pfm}
+                                </span>
+                                <span style="font-size:0.44rem;color:var(--muted);font-family:var(--mono);">wRSI ${wrsi}</span>
+                                <span style="font-size:0.42rem;color:${rc};border:1px solid ${rc}55;padding:0 4px;border-radius:2px;">${regime}</span>
+                                <span style="font-size:0.42rem;color:var(--muted2);">📈</span>
+                            `;
+                            sec.appendChild(row);
+                        });
+                        return sec;
+                    };
+
+                    box.appendChild(makeSubSection(equityFunds, 'Equity (Scheme E)', '#00916e', pfmRec.equity));
+                    box.appendChild(makeSubSection(debtFunds,   'Corp Debt (Scheme C)', '#3b82f6', pfmRec.corpDebt));
+
+                    // ── Current holding (from switch bridge) ──
+                    if (bridgeEntry?.code) {
+                        const hldg = document.createElement('div');
+                        hldg.style.cssText = 'font-size:0.42rem;color:var(--muted);text-align:right;margin-top:2px;cursor:pointer;';
+                        const dtStr = bridgeEntry.switchDate
+                            ? new Date(bridgeEntry.switchDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})
+                            : '';
+                        hldg.textContent = `Current: ${(bridgeEntry.name||'').replace(/\[NPS\]\s*/gi,'').replace(/Scheme\s+/gi,'Sch ').trim().slice(0,22)}${dtStr?' · '+dtStr:''}`;
+                        hldg.onclick = () => launchLiveFromAlert(bridgeEntry.code);
+                        box.appendChild(hldg);
                     } else {
                         const none = document.createElement('div');
-                        none.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--muted2);margin-top:6px;line-height:1.5;';
-                        none.textContent = '— Run NPS Allocator to populate';
+                        none.style.cssText = 'font-size:0.44rem;color:var(--muted2);margin-top:4px;text-align:center;';
+                        none.textContent = '— Open any NPS fund to populate —';
                         box.appendChild(none);
                     }
-                    const pfmDivider = document.createElement('div');
-                    pfmDivider.style.cssText = 'height:1px;background:var(--border);margin:6px 0 5px;';
-                    box.appendChild(pfmDivider);
-                    const pfmRow = document.createElement('div');
-                    pfmRow.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
-                    const pfmLbl = document.createElement('div');
-                    pfmLbl.style.cssText = 'font-size:0.42rem;font-weight:400;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;font-family:var(--mono);';
-                    pfmLbl.textContent = 'PFM Target';
-                    pfmRow.appendChild(pfmLbl);
-                    const pfmVal = document.createElement('div');
-                    pfmVal.style.cssText = `font-size:0.62rem;font-weight:700;color:${pfmRec.color};`;
-                    pfmVal.textContent = pfmRec.pfm;
-                    pfmRow.appendChild(pfmVal);
-                    const pfmRationale = document.createElement('div');
-                    pfmRationale.style.cssText = 'font-size:0.42rem;font-weight:400;color:var(--muted);line-height:1.3;';
-                    pfmRationale.textContent = pfmRec.rationale;
-                    pfmRow.appendChild(pfmRationale);
-                    box.appendChild(pfmRow);
+
                     grid.appendChild(box);
                 });
             }
@@ -11175,11 +11227,11 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     // MF: funds from selected AMC only (non-NPS)
                     baseFunds = fundsList.filter(f => !f.code.startsWith('SM'));
                 } else if (type === 'NPS_T1') {
-                    // NPS Tier 1: collect Scheme E Tier I from ALL 8 PFMs
+                    // NPS Tier 1: both Scheme E (Equity) AND Scheme C (Corp Debt) Tier I from all 4 PFMs
                     baseFunds = Object.values(window.amcFunds).flat()
                         .filter(f => f.code.startsWith('SM') && f.name.includes('Tier I') && !f.name.includes('Tier II'));
                 } else if (type === 'NPS_T2') {
-                    // NPS Tier 2: collect Scheme E Tier II from ALL 8 PFMs
+                    // NPS Tier 2: both Scheme E (Equity) AND Scheme C (Corp Debt) Tier II from all 4 PFMs
                     baseFunds = Object.values(window.amcFunds).flat()
                         .filter(f => f.code.startsWith('SM') && f.name.includes('Tier II'));
                 }
@@ -15842,7 +15894,7 @@ Return a JSON object with this exact structure:
     // ── Constants ─────────────────────────────────────────────────────
     const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'100'); return (v>=3&&v<=100?v:100)*1000; } catch(e){ return 100_000; } })();
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD246VAI5-BG-v2';
+    const ADDON_VER     = 'LD246VAI6M-BG-v2';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
     // ── IST date string (YYYYMMDD) ────────────────────────────────────

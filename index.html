@@ -15964,37 +15964,90 @@ Return a JSON object with this exact structure:
         ];
         for (const [k, v] of MAP) { if (n.includes(k)) { idxName = v; break; } }
         const regime  = wrsi >= 50 ? 'A (Hope)' : wrsi >= 40 ? 'B (Watch)' : 'C (Fear)';
-        const prompt  = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System — the Lie Detector Auditor.\n\nFUND: ${fund.name} | Benchmark: ${idxName}\nFund W-RSI: ${Math.round(wrsi)} (${regime})\n\nSACRED RULE: True compounders never stay below W-RSI 40.\nDIVERGENCE: Price RISING + W-RSI falling/below 50 = Cosmetic Growth. Flag it.\nPSYCHOLOGY: Price moves first; earnings explanations come later.\n\nTASK: Perform Constituent X-Ray on top 5 stocks of ${idxName} by index weight.\nFor each stock return current W-RSI(14), 2-week trend (RISING/FALLING), regime (A/B/C), action.\nCount BULL stocks (regime A + RISING). Sum weights.\nReturn ONLY valid JSON:\n{\n  "stocks":[{"ticker":"Name","weight":"X%","price":"\u20b9XXXX","daily_rsi":"XX","weekly_rsi":"XX","wma20":"\u20b9XXXX","price_vs_wma20":"ABOVE or BELOW","trend_14d":"RISING or FALLING","regime":"A or B or C","verdict":"BULL or HOLD or BEAR","action":"Buy or Hold or Reduce","recommendation":"One sentence."}],\n  "bull_count":0,"bull_weight_sum":"X%",\n  "confirmation":"CONFIRMED or MARGINAL or WEAK",\n  "sop_action":"max 12 words",\n  "divergence_alert":"text or No divergence detected.",\n  "psychology_audit":"Lookout for\u2026 text",\n  "broad_market_regime_a":[{"index":"Name","wrsi":"XX","trend":"RISING or FALLING","signal":"BUY or WATCH"}],\n  "reasoning":"2-3 sentences on ${idxName} breadth."\n}`;
+        const prompt  = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System — the Lie Detector Auditor.\n\nFUND: ${fund.name} | Benchmark: ${idxName}\nFund W-RSI: ${Math.round(wrsi)} (${regime})\n\nSACRED RULE: True compounders never stay below W-RSI 40.\nDIVERGENCE: Price RISING + W-RSI falling/below 50 = Cosmetic Growth. Flag it.\nPSYCHOLOGY: Price moves first; earnings explanations come later.\n\nTASK: Perform Constituent X-Ray on top 5 stocks of ${idxName} by index weight.\nFor each stock return current W-RSI(14), 2-week trend (RISING/FALLING), regime (A/B/C), action.\nCount BULL stocks (regime A + RISING). Sum weights.\nReturn ONLY valid JSON:\n{\n  "stocks":[{"ticker":"Name","weight":"X%","price":"₹XXXX","daily_rsi":"XX","weekly_rsi":"XX","wma20":"₹XXXX","price_vs_wma20":"ABOVE or BELOW","trend_14d":"RISING or FALLING","regime":"A or B or C","verdict":"BULL or HOLD or BEAR","action":"Buy or Hold or Reduce","recommendation":"One sentence."}],\n  "bull_count":0,"bull_weight_sum":"X%",\n  "confirmation":"CONFIRMED or MARGINAL or WEAK",\n  "sop_action":"max 12 words",\n  "divergence_alert":"text or No divergence detected.",\n  "psychology_audit":"Lookout for… text",\n  "broad_market_regime_a":[{"index":"Name","wrsi":"XX","trend":"RISING or FALLING","signal":"BUY or WATCH"}],\n  "reasoning":"2-3 sentences on ${idxName} breadth."\n}`;
         const payload = { contents: [{ parts: [{ text: prompt }] }] };
-        const model   = getModel();
-        for (const slot of [1, 2]) {
-            const k = slot === 1 ? resolvedApiKey : getKey2();
-            if (!k) continue;
-            const ep  = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${k.trim()}`;
-            const res = await fetch(ep, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            if (res.status === 429 && slot === 1) continue;
-            const data = await res.json();
-            if (data.error) throw new Error(`Gemini ${data.error.code}: ${data.error.message}`);
-            let raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
-            const fe = raw.indexOf('\n');
-            if (raw.startsWith('```') && fe !== -1) raw = raw.substring(fe + 1);
-            if (raw.trimEnd().endsWith('```')) raw = raw.trimEnd().slice(0, -3);
-            raw = raw.trim();
-            const js = raw.indexOf('{'), je = raw.lastIndexOf('}');
-            if (js !== -1 && je > js) raw = raw.slice(js, je + 1);
-            try { return JSON.parse(raw); } catch(_) {}
-            let rep = raw.trimEnd();
-            const qc = (rep.match(/(?<!\\)"/g) || []).length;
-            if (qc % 2 !== 0) rep += '"';
-            const ao = (rep.match(/\[/g)||[]).length - (rep.match(/\]/g)||[]).length;
-            const oo = (rep.match(/\{/g)||[]).length - (rep.match(/\}/g)||[]).length;
-            for (let i = 0; i < ao; i++) rep += ']';
-            for (let i = 0; i < oo; i++) rep += '}';
-            try { return JSON.parse(rep); } catch(e2) {
-                throw new Error('BG JSON repair failed — response truncated. Will retry next run.');
+
+        // ── Model cascade: Flash-Lite (default) → Flash → Pro ───────────
+        // Mirrors the interactive BA cascade so BG scan upgrades automatically on 429
+        const userModel = getModel(); // user-selected model (default: flash-lite)
+        const MODEL_CASCADE = (() => {
+            // Always start from user-selected model, then escalate
+            const ALL = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-pro'];
+            const startIdx = ALL.indexOf(userModel);
+            return startIdx === -1 ? ALL : ALL.slice(startIdx);
+        })();
+        const API_KEYS = [resolvedApiKey, getKey2()].filter(Boolean);
+
+        let lastErr = null;
+
+        for (const model of MODEL_CASCADE) {
+            for (const k of API_KEYS) {
+                const ep = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${k.trim()}`;
+                try {
+                    const res = await fetch(ep, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.status === 429) {
+                        console.warn(`[BG BA] 429 on ${model} key${API_KEYS.indexOf(k)+1} — trying next`);
+                        lastErr = new Error(`429 quota on ${model}`);
+                        continue; // try next key or model
+                    }
+
+                    const data = await res.json();
+                    if (data.error) {
+                        lastErr = new Error(`Gemini ${data.error.code}: ${data.error.message}`);
+                        if (data.error.code === 429 || data.error.status === 'RESOURCE_EXHAUSTED') continue;
+                        throw lastErr; // non-quota error — don't cascade
+                    }
+
+                    // ── Parse response ────────────────────────────────────
+                    let raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+                    const fe = raw.indexOf('\n');
+                    if (raw.startsWith('```') && fe !== -1) raw = raw.substring(fe + 1);
+                    if (raw.trimEnd().endsWith('```')) raw = raw.trimEnd().slice(0, -3);
+                    raw = raw.trim();
+                    const js = raw.indexOf('{'), je = raw.lastIndexOf('}');
+                    if (js !== -1 && je > js) raw = raw.slice(js, je + 1);
+                    try { 
+                        const result = JSON.parse(raw);
+                        result._modelUsed = model; // tag which model succeeded
+                        console.log(`[BG BA] ✅ ${fund.name} — BA via ${model}`);
+                        return result;
+                    } catch(_) {}
+                    // JSON repair attempt
+                    let rep = raw.trimEnd();
+                    const qc = (rep.match(/(?<!\\)"/g) || []).length;
+                    if (qc % 2 !== 0) rep += '"';
+                    const ao = (rep.match(/\[/g)||[]).length - (rep.match(/\]/g)||[]).length;
+                    const oo = (rep.match(/\{/g)||[]).length - (rep.match(/\}/g)||[]).length;
+                    for (let i = 0; i < ao; i++) rep += ']';
+                    for (let i = 0; i < oo; i++) rep += '}';
+                    try { 
+                        const result = JSON.parse(rep);
+                        result._modelUsed = model;
+                        return result;
+                    } catch(e2) {
+                        lastErr = new Error('JSON repair failed — response truncated.');
+                        continue; // try next key/model
+                    }
+                } catch(fetchErr) {
+                    lastErr = fetchErr;
+                    console.warn(`[BG BA] Fetch error on ${model}:`, fetchErr.message);
+                    continue;
+                }
+            }
+            // All keys exhausted for this model — brief pause before escalating
+            if (MODEL_CASCADE.indexOf(model) < MODEL_CASCADE.length - 1) {
+                const nextModel = MODEL_CASCADE[MODEL_CASCADE.indexOf(model) + 1];
+                console.log(`[BG BA] ${model} quota exhausted — escalating to ${nextModel}…`);
+                _setPillMsg(`⬆ Quota limit — escalating to ${nextModel.replace('gemini-2.5-','')}…`, '#f59e0b');
+                await _sleep(2000); // brief pause between model tiers
             }
         }
-        throw new Error('No API key available or both keys at quota.');
+        throw lastErr || new Error('All Gemini models and keys exhausted.');
     }
 
     // ── Status pill UI ────────────────────────────────────────────────
@@ -16343,10 +16396,10 @@ Return a JSON object with this exact structure:
                 } catch(e2) {}
                 lastBARan = true;
                 console.log(`[BG BA] ✅ WL BA stored: ${snapshot.name} → ${parsed.confirmation} (${_getCnt()} today)`);
-                _setPillMsg(`✅ WL BA stored: ${snapshot.name.slice(0,28)} `);
+                _setPillMsg(`✅ WL: ${snapshot.name.slice(0,22)} [${parsed._modelUsed?.replace('gemini-2.5-','')||'ok'}]`);
             } catch(e) {
                 console.warn(`[BG BA] ❌ WL BA failed: ${snapshot.name}:`, e.message);
-                _setPillMsg(`⚠ WL ${snapshot.name.slice(0,20)} failed — will retry on relaunch`, '#c97a00');
+                _setPillMsg(`⚠ WL ${snapshot.name.slice(0,20)} — all models at quota, queued`, '#c97a00');
                 await _sleep(3_000);
                 lastBARan = false;
                 // Note: done stays false → will retry on next app launch
@@ -16479,10 +16532,10 @@ Return a JSON object with this exact structure:
                 _incCnt();
                 lastBARan = true;
                 console.log(`[BG BA] ✅ Global BA stored: ${snapshot.name} → ${parsed.confirmation} (${_getCnt()} today)`);
-                _setPillMsg(`✅ Global BA stored: ${snapshot.name.slice(0,26)} `);
+                _setPillMsg(`✅ Global: ${snapshot.name.slice(0,20)} [${parsed._modelUsed?.replace('gemini-2.5-','')||'ok'}]`);
             } catch(e) {
                 console.warn(`[BG BA] ❌ Global BA failed: ${snapshot.name}:`, e.message);
-                _setPillMsg(`⚠ Global ${snapshot.name.slice(0,20)} failed — will retry on relaunch`, '#c97a00');
+                _setPillMsg(`⚠ Global ${snapshot.name.slice(0,20)} — all models at quota, queued`, '#c97a00');
                 await _sleep(3_000);
                 lastBARan = false;
                 // done stays false → retried on next restart

@@ -16079,20 +16079,23 @@ Return a JSON object with this exact structure:
         document.body.appendChild(el);
     }
 
-    // Update counter badge — called every time pill msg changes
+    // Update counter badge — counts actual cached BA analyses for today
     function _updatePillCounter() {
         const el = document.getElementById('bgBreadthCounter');
         if (!el) return;
         try {
+            const _dateKey = _istDate();
+            // Total = today's queue length (funds queued for BA today)
             const q = _loadQ();
             const total = q.length;
-            const done  = q.filter(x => x.done || x.skipReason).length;
-            const cnt   = _getCnt();
-            if (total > 0) {
-                el.textContent = `${cnt}/${total}`;
-            } else {
-                el.textContent = cnt > 0 ? `${cnt}` : '';
-            }
+            if (total === 0) { el.textContent = ''; return; }
+            // Done = funds that actually have a BA cache for today
+            let cached = 0;
+            q.forEach(item => {
+                const ck = `breadth_v1_${(item.code||'').replace(/\W/g,'_')}_${_dateKey}`;
+                try { if (localStorage.getItem(ck)) cached++; } catch(_) {}
+            });
+            el.textContent = `${cached}/${total}`;
         } catch(e) { el.textContent = ''; }
     }
 
@@ -16653,13 +16656,8 @@ Return a JSON object with this exact structure:
             }
         } catch(e) { try { localStorage.removeItem(_qKey()); } catch(_) {} }
 
-        // 5. Reset counter to reflect only what's actually cached now
-        try {
-            const q = _loadQ();
-            const cachedNow = q.filter(item => item.done || _cacheExists(item.code)).length;
-            localStorage.setItem(_cntKey(), String(cachedNow));
-            console.log('[BG BA] Counter reset to ' + cachedNow + ' (actual cached items).');
-        } catch(e) { try { localStorage.removeItem(_cntKey()); } catch(_) {} }
+        // 5. Clear internal counter — pill will recount from actual cache hits via _updatePillCounter
+        try { localStorage.removeItem(_cntKey()); } catch(e) {}
 
         console.log('[BG BA] Restarting scan in 300ms…');
         setTimeout(() => _runBackgroundScan(), 300);

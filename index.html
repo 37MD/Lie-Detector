@@ -2804,8 +2804,18 @@
             </div>
             <!-- BA Results view (toggles with watchlist body) -->
             <div id="wlBaView" style="display:none;flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 8px;flex-direction:column;gap:6px;">
-                <div style="font-size:0.52rem;color:var(--muted);padding:4px 0 6px;border-bottom:1px solid var(--border);flex-shrink:0;">
-                    Tap a fund below to open its full BA Analysis · <span id="wlBaCount" style="color:var(--accent);"></span>
+                <div style="font-size:0.52rem;color:var(--muted);padding:4px 0 6px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:6px;">
+                    <span>Tap fund for BA · <span id="wlBaCount" style="color:var(--accent);"></span></span>
+                    <button onclick="(function(){
+                        if(window.bgBreadthForceRun){
+                            this.textContent='↺ Starting…';
+                            this.disabled=true;
+                            window.bgBreadthForceRun();
+                            setTimeout(()=>{this.textContent='↺ RESTART BA';this.disabled=false;_buildWlBaList();},3000);
+                        }
+                    }).call(this)"
+                    style="font-size:0.5rem;padding:3px 8px;border:1px solid #f59e0b;border-radius:8px;
+                    background:transparent;color:#f59e0b;cursor:pointer;flex-shrink:0;font-family:var(--mono);">↺ RESTART BA</button>
                 </div>
                 <div id="wlBaList" style="display:flex;flex-direction:column;gap:4px;padding-top:4px;"></div>
             </div>
@@ -9820,37 +9830,27 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
                     const sig = getSignal(res);
                     const el  = document.createElement('div');
                     el.style.cssText = `background:var(--surface2);border:1px solid var(--border);
-border-radius:var(--radius);padding:8px 10px;margin-bottom:6px;`;
+border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                     el.innerHTML = `
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;gap:4px;">
-    <div class="ra2-fundname" style="font-size:0.75rem;font-weight:400;color:var(--text);cursor:pointer;
-    flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="Open Live Chart">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+    <div style="font-size:0.75rem;font-weight:400;color:var(--text);
+    width:65%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
     ${res.name.replace(/\[NPS\] | - Growth| - Direct/gi, '')}
     </div>
     <span style="font-size:0.5rem;font-weight:700;padding:2px 6px;border-radius:8px;
-    background:transparent;color:${sig.color};border:1px solid ${sig.color};white-space:nowrap;flex-shrink:0;">
+    background:transparent;color:${sig.color};border:1px solid ${sig.color};white-space:nowrap;">
     ${sig.label}
     </span>
-    <button class="ra2-live-btn" style="font-size:0.5rem;padding:3px 7px;border:1px solid var(--border2);border-radius:4px;
-    background:transparent;color:var(--border2);cursor:pointer;flex-shrink:0;font-family:var(--mono);" title="Navigate to Live Market">📈</button>
 </div>
 <div style="display:flex;gap:10px;font-size:0.58rem;color:var(--muted2);">
     <span>W-RSI: <strong style="color:var(--accent)">${Math.round(res.wr)}</strong></span>
     <span>D-RSI: <strong style="color:${res.dr < 40 ? 'var(--red)' : res.dr > 60 ? '#f59e0b' : 'var(--text)'}">${Math.round(res.dr)}</strong></span>
     <span>Δ: <strong style="color:${res.delta < -15 ? '#a855f7' : res.delta > 15 ? 'var(--red)' : 'var(--muted2)'}">${res.delta > 0 ? '+' : ''}${res.delta.toFixed(1)}</strong></span>
 </div>`;
-                    // Fund name click → RRG Detail / Live Cockpit
-                    el.querySelector('.ra2-fundname').onclick = () => {
+                    el.onclick = () => {
                         currentRRGSelectedFundCode = res.code;
                         document.getElementById('regimeA2ScannerModal').style.display = 'none';
                         launchLiveFromRRG();
-                    };
-                    // 📈 button → direct Live Market navigation
-                    el.querySelector('.ra2-live-btn').onclick = (ev) => {
-                        ev.stopPropagation();
-                        _activeScannerToken++;
-                        document.getElementById('regimeA2ScannerModal').style.display = 'none';
-                        launchLiveFromAlert(res.code);
                     };
                     list.appendChild(el);
                 });
@@ -10333,14 +10333,14 @@ onclick="runRRGScanner('${targetQuadrant}', true)">[ REFRESH ]</span>`;
                     const el = document.createElement('div');
                     el.style.cssText =
                         `background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
-padding:10px;display:flex;justify-content:space-between;
-align-items:center;margin-bottom:6px;gap:6px;`;
+padding:10px;cursor:pointer;display:flex;justify-content:space-between;
+align-items:center;margin-bottom:6px;`;
                     const regColor = res.regime === 'A' ? 'var(--accent)' : res.regime === 'B' ? 'var(--accent2)' : 'var(--red)';
                     const regBg    = res.regime === 'A' ? 'var(--accent-dim)' : res.regime === 'B' ? 'var(--accent2-dim)' : 'var(--red-dim)';
                     const regName  = res.regime === 'A' ? 'Hope' : res.regime === 'B' ? 'Watch' : 'Fear';
                     el.innerHTML = `
-<div style="font-size:0.75rem;font-weight:400;color:var(--text);cursor:pointer;
-flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="Open RRG Detail">
+<div style="font-size:0.75rem;font-weight:400;color:var(--text);
+width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
 ${res.name.replace(/\[NPS\] | - Growth| - Direct/gi, '')}
 </div>
 <span style="font-size:0.52rem;font-weight:700;padding:2px 6px;border-radius:8px;
@@ -10348,20 +10348,9 @@ background:${regBg};color:${regColor};border:1px solid ${regColor};white-space:n
 ${regName}
 </span>
 <div style="font-size:0.7rem;color:${res.alpha1m > 0 ? 'var(--accent)' : 'var(--red)'};
-font-weight:400;white-space:nowrap;">
+font-weight:400;">
 α ${res.alpha1m > 0 ? '+' : ''}${res.alpha1m.toFixed(1)}%
-</div>
-<button style="font-size:0.5rem;padding:3px 7px;border:1px solid var(--border2);border-radius:4px;
-background:transparent;color:var(--border2);cursor:pointer;flex-shrink:0;font-family:var(--mono);"
-title="Navigate to Live Market">📈</button>`;
-                    // Name area → open RRG detail; 📈 button → navigate to Live Market
-                    el.querySelector('div[title="Open RRG Detail"]').onclick = () => openRRGDetail(res, bench1m, bench2m, bench3m, allFunds);
-                    el.querySelector('button[title="Navigate to Live Market"]').onclick = (ev) => {
-                        ev.stopPropagation();
-                        document.getElementById('rrgScannerModal').style.display = 'none';
-                        _activeScannerToken++;
-                        launchLiveFromAlert(res.code);
-                    };
+</div>`;
                     el.onclick = () => openRRGDetail(res, bench1m, bench2m, bench3m, allFunds);
                     return el;
                 };
@@ -11781,7 +11770,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 </div>
                 <span class="modal-close-btn" onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';">[ CLOSE ]</span>
             </div>
-            <div id="alertSummaryContent" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 96px;display:flex;flex-direction:column;gap:3px;">
+            <div id="alertSummaryContent" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 96px;display:block;">
             </div>
         </div>
         <script>
@@ -11802,7 +11791,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         const clr = it.regime === 'A' ? 'var(--accent)' : it.regime === 'B' ? 'var(--accent2,#f5a623)' : 'var(--red)';
                         const safeName = (it.name||'').replace(/'/g,'&apos;').replace(/"/g,'&quot;');
                         const safeCode = (it.code||'').replace(/'/g,'');
-                        return `<div onclick="launchLiveFromAlert('${safeCode}')"
+                        return `<div onclick="(function(){var _af=Object.values(window.amcFunds||{}).flat().find(function(x){return x.code==='${safeCode}';});if(_af&&window.loadFundLive){window.loadFundLive(_af.code,_af.name);}})()"
                             style="display:flex;align-items:center;gap:6px;padding:6px 8px;border-bottom:1px solid var(--border);cursor:pointer;active:opacity:0.7;">
                             <div style="flex:1;font-size:0.58rem;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${it.name}</div>
                             <div style="font-size:0.5rem;color:var(--muted);min-width:28px;text-align:right;">${it.amc||''}</div>
@@ -11810,13 +11799,13 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                             <div style="font-size:0.52rem;color:${color};min-width:50px;text-align:right;">${it.val}</div>
                         </div>`;
                     }).join('');
-                    return `<div style="border:1px solid ${color}55;border-radius:8px;margin-bottom:6px;overflow:hidden;">
+                    return `<div style="border:1px solid ${color}55;border-radius:8px;margin-bottom:6px;">
                         <div onclick="(function(){var b=document.getElementById('${sid}');if(b){var open=b.style.display!=='none';b.style.display=open?'none':'block';this.querySelector('span.arr').textContent=open?'▶':'▼';}}).call(this)"
-                            style="background:${color}20;padding:7px 10px;font-size:0.6rem;color:${color};letter-spacing:0.06em;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+                            style="background:${color}20;padding:7px 10px;font-size:0.6rem;color:${color};letter-spacing:0.06em;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;border-radius:7px 7px 0 0;">
                             <span>${icon} ${title} <span style="opacity:0.7;font-size:0.52rem;">(${arr.length} fund${arr.length>1?'s':''})</span></span>
                             <span class="arr" style="font-size:0.55rem;">▶</span>
                         </div>
-                        <div id="${sid}" style="display:none;">${rows}</div>
+                        <div id="${sid}" style="display:none;overflow:visible;">${rows}</div>
                     </div>`;
                 };
                 const sectHTML =
@@ -13128,24 +13117,29 @@ categories.forEach(cat => {
             const list = document.getElementById('wlBaList');
             const cnt  = document.getElementById('wlBaCount');
             if (!list) return;
-            const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
-            const _allFundsFlat = Object.values(window.amcFunds || {}).flat();
-            const _dateKey = (() => { const n = new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
-            // Show all Regime A funds from today's BA list + watchlist
-            const _baRegimeA  = JSON.parse(localStorage.getItem(`ba_regimeA_funds_${_dateKey}`) || '[]');
-            // Merge watchlist + regime A list (dedupe)
-            const showFunds = [..._baRegimeA];
-            _wl.forEach(w => { if (!showFunds.find(f => f.code === w.code)) showFunds.push(w); });
 
-            // ── Fix 3: Count actual cached BA analyses for all listed funds ──
+            // ── Always show ALL stored watchlist funds — no daily reset ──
+            const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+            const _dateKey = (() => { const n = new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
+
+            // Sort: portfolio funds first, then alphabetical
+            const _portfolioFunds  = _wl.filter(w => w.portfolio);
+            const _watchlistOnly   = _wl.filter(w => !w.portfolio);
+            const showFunds = [..._portfolioFunds, ..._watchlistOnly];
+
+            // ── Counter: count actual cached BA analyses for today ──
             let _cachedCount = 0;
-            const _totalCount = showFunds.length;
             showFunds.forEach(f => {
                 const _ck = `breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dateKey}`;
                 try { if (localStorage.getItem(_ck)) _cachedCount++; } catch(e2) {}
             });
-            if (cnt) cnt.textContent = `${_cachedCount}/${_totalCount} BA analyses done today`;
-            if (!showFunds.length) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No Regime A funds found today. Run a BA scan or open a fund.</div>'; return; }
+            if (cnt) cnt.textContent = `${_cachedCount}/${showFunds.length} BA done today`;
+
+            if (!showFunds.length) {
+                list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No funds pinned. Open any fund → tap + PIN THIS FUND.</div>';
+                return;
+            }
+
             list.innerHTML = showFunds.map(f => {
                 const _ck = `breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dateKey}`;
                 const _cached = (() => { try { const r=localStorage.getItem(_ck); return r?JSON.parse(r):null; } catch(e2){return null;} })();
@@ -13155,19 +13149,24 @@ categories.forEach(cat => {
                 const _vColor  = _verdict==='CONFIRMED'?'#009e70':_verdict==='MARGINAL'?'#f59e0b':'#888';
                 const _safeCode = (f.code||'').replace(/'/g,'');
                 const _safeName = (f.name||'').replace(/'/g,'');
-                return `<div style="display:flex;align-items:center;gap:6px;padding:6px 4px;
+                const _portBadge = f.portfolio
+                    ? `<span style="font-size:0.4rem;color:var(--accent);border:1px solid var(--accent);padding:1px 4px;border-radius:3px;flex-shrink:0;">PORT</span>`
+                    : '';
+                return `<div style="display:flex;align-items:center;gap:5px;padding:6px 4px;
                     border-bottom:1px solid var(--border);font-size:0.54rem;">
                     <div style="flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;"
                          onclick="_launchBaFromWatchlist('${_safeCode}','${_safeName}')">
-                        ${(f.name||'').replace(/\[NPS\] | - Growth| - Direct/gi,'').trim().slice(0,30)}
+                        ${(f.name||'').replace(/\[NPS\] | - Growth| - Direct/gi,'').trim().slice(0,28)}
                     </div>
+                    ${_portBadge}
                     ${_done
-                        ? `<span style="font-size:0.44rem;color:${_vColor};border:1px solid ${_vColor};padding:1px 5px;border-radius:3px;cursor:pointer;" onclick="_launchBaFromWatchlist('${_safeCode}','${_safeName}')">${_verdict||'Cached'}</span>
-                           <span style="font-size:0.42rem;color:var(--muted);">${_ts.slice(11,16)}</span>`
-                        : `<span style="font-size:0.44rem;color:var(--muted);border:1px solid var(--border);padding:1px 5px;border-radius:3px;">No BA</span>`
+                        ? `<span style="font-size:0.44rem;color:${_vColor};border:1px solid ${_vColor};padding:1px 5px;border-radius:3px;cursor:pointer;flex-shrink:0;"
+                               onclick="_launchBaFromWatchlist('${_safeCode}','${_safeName}')">${_verdict||'✓'}</span>
+                           <span style="font-size:0.4rem;color:var(--muted);flex-shrink:0;">${_ts.slice(11,16)}</span>`
+                        : `<span style="font-size:0.44rem;color:var(--muted);border:1px solid var(--border);padding:1px 5px;border-radius:3px;flex-shrink:0;">No BA</span>`
                     }
-                    <span onclick="(function(){document.getElementById('watchlistModal').style.display='none';launchLiveFromAlert('${_safeCode}');})()" 
-                          style="font-size:0.5rem;color:var(--border2);cursor:pointer;padding:2px 5px;border:1px solid var(--border);border-radius:3px;flex-shrink:0;white-space:nowrap;" title="Navigate to Live Market">📈</span>
+                    <span onclick="(function(){document.getElementById('watchlistModal').style.display='none';launchLiveFromAlert('${_safeCode}');})()"
+                          style="font-size:0.5rem;color:var(--border2);cursor:pointer;padding:2px 5px;border:1px solid var(--border);border-radius:3px;flex-shrink:0;" title="Live Market">📈</span>
                 </div>`;
             }).join('');
         }
@@ -16203,43 +16202,21 @@ Return a JSON object with this exact structure:
             const allCodes = new Set(allF.map(f => f.code));
             let wl = [];
             try { wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(e) {}
-
-            // Collect codes that need BA regardless of regime:
-            // (a) Portfolio-flagged watchlist items, (b) Triple RSI confluence funds from today's alerts cache
-            const forceBaCodes = new Set();
-
-            // (a) Portfolio funds
-            for (const wf of (Array.isArray(wl) ? wl : [])) {
-                if (wf.portfolio && wf.code && allCodes.has(wf.code)) forceBaCodes.add(wf.code);
-            }
-
-            // (b) Triple RSI confluence funds from today's alert cache
-            try {
-                const _ald = localStorage.getItem(`ld_alerts_${_istDate()}`);
-                if (_ald) {
-                    const _alParsed = JSON.parse(_ald);
-                    const _tripleList = (_alParsed?.results?.TRIPLE_RSI) || [];
-                    for (const tf of _tripleList) { if (tf.code && allCodes.has(tf.code)) forceBaCodes.add(tf.code); }
-                }
-            } catch(e2) {}
-
             for (const wf of (Array.isArray(wl) ? wl : [])) {
                 if (!wf.code || !allCodes.has(wf.code)) continue; // not in 4 AMCs — skip
                 const found = allF.find(f => f.code === wf.code);
                 if (!found || !_isEquity(found)) continue;
-                const isForceBa = forceBaCodes.has(wf.code);
                 queue.push({
                     code: wf.code,
                     name: wf.name || found.name,
                     wrsi: null,          // will be computed on-demand
                     source: 'watchlist',
                     done: false,
-                    skipReason: null,
-                    forceBa: isForceBa   // true = run BA even if not Regime A
+                    skipReason: null
                 });
             }
             _saveQ(queue);
-            console.log(`[BG BA] Queue built: ${queue.length} watchlist funds (${forceBaCodes.size} force-BA).`);
+            console.log(`[BG BA] Queue built: ${queue.length} watchlist funds.`);
         } else {
             console.log(`[BG BA] Loaded existing queue: ${queue.length} items (crash resume).`);
         }
@@ -16294,17 +16271,13 @@ Return a JSON object with this exact structure:
                 await _sleep(400); // small polite gap after NAV fetch
             }
 
-            // ── Regime check (skipped for portfolio / Triple RSI force-BA funds) ──
-            if (!it.forceBa && (!it.wrsi || it.wrsi < 50)) {
+            // ── Regime check ──────────────────────────────────────────
+            if (!it.wrsi || it.wrsi < 50) {
                 it.skipReason = `regime_bc_wrsi_${it.wrsi}`;
                 _saveQ(q);
                 _setPillMsg(`⏭ WL: ${it.name.slice(0,26)} — Regime B/C (W-RSI ${it.wrsi}) — skipped`);
                 console.log(`[BG BA] WL not Regime A: ${it.name} (W-RSI ${it.wrsi})`);
                 continue;
-            }
-            if (it.forceBa && (!it.wrsi || it.wrsi < 50)) {
-                _setPillMsg(`⭐ WL ForceBA: ${it.name.slice(0,24)} — non-Regime A but Portfolio/TripleRSI — running BA`);
-                console.log(`[BG BA] WL force-BA (portfolio/tripleRSI): ${it.name} (W-RSI ${it.wrsi})`);
             }
 
             // ── Regime A confirmed → apply gap if previous BA was run ─
@@ -16504,8 +16477,19 @@ Return a JSON object with this exact structure:
         } else {
             // Partial run — do NOT mark complete
             const pendingNames = stillPending.slice(0, 3).map(q => q.name.split(' ')[0]).join(', ');
-            _donePill(`⚠ ${finalCnt} stored, ${stillPending.length} pending — relaunch to retry (${pendingNames}…)`);
-            _updateBanner(`⚠ BA partial: ${finalCnt} stored, ${stillPending.length} pending — relaunch app to retry`, '#c97a00');
+            // Show pill with inline restart button (no console needed)
+            _setPillMsg(`⚠ ${finalCnt} stored · ${stillPending.length} pending`, '#f59e0b');
+            const _pillEl = document.getElementById('bgBreadthPill');
+            if (_pillEl) {
+                const _restartBtn = document.createElement('span');
+                _restartBtn.textContent = '↺ RESTART';
+                _restartBtn.style.cssText = `
+                    margin-left:4px;padding:2px 7px;border-radius:10px;border:1px solid #f59e0b;
+                    color:#f59e0b;font-size:0.55rem;cursor:pointer;flex-shrink:0;white-space:nowrap;`;
+                _restartBtn.onclick = () => { if (window.bgBreadthForceRun) window.bgBreadthForceRun(); };
+                _pillEl.appendChild(_restartBtn);
+            }
+            _updateBanner(`⚠ BA partial: ${finalCnt} stored · ${stillPending.length} pending — tap ↺ RESTART pill`, '#c97a00');
             console.log(`[BG BA] Partial. ${finalCnt} stored, ${stillPending.length} still pending.`);
         }
     }

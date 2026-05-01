@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart</title>
+        <title>Lie Detector — NPS NAV Chart · LD246VAI4</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2574,7 +2574,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD246VAI &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD246VAI4 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2586,7 +2586,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI4 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -4523,7 +4523,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD246VAI', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD246VAI4', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -9820,27 +9820,37 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
                     const sig = getSignal(res);
                     const el  = document.createElement('div');
                     el.style.cssText = `background:var(--surface2);border:1px solid var(--border);
-border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
+border-radius:var(--radius);padding:8px 10px;margin-bottom:6px;`;
                     el.innerHTML = `
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
-    <div style="font-size:0.75rem;font-weight:400;color:var(--text);
-    width:65%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;gap:4px;">
+    <div class="ra2-fundname" style="font-size:0.75rem;font-weight:400;color:var(--text);cursor:pointer;
+    flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="Open Live Chart">
     ${res.name.replace(/\[NPS\] | - Growth| - Direct/gi, '')}
     </div>
     <span style="font-size:0.5rem;font-weight:700;padding:2px 6px;border-radius:8px;
-    background:transparent;color:${sig.color};border:1px solid ${sig.color};white-space:nowrap;">
+    background:transparent;color:${sig.color};border:1px solid ${sig.color};white-space:nowrap;flex-shrink:0;">
     ${sig.label}
     </span>
+    <button class="ra2-live-btn" style="font-size:0.5rem;padding:3px 7px;border:1px solid var(--border2);border-radius:4px;
+    background:transparent;color:var(--border2);cursor:pointer;flex-shrink:0;font-family:var(--mono);" title="Navigate to Live Market">📈</button>
 </div>
 <div style="display:flex;gap:10px;font-size:0.58rem;color:var(--muted2);">
     <span>W-RSI: <strong style="color:var(--accent)">${Math.round(res.wr)}</strong></span>
     <span>D-RSI: <strong style="color:${res.dr < 40 ? 'var(--red)' : res.dr > 60 ? '#f59e0b' : 'var(--text)'}">${Math.round(res.dr)}</strong></span>
     <span>Δ: <strong style="color:${res.delta < -15 ? '#a855f7' : res.delta > 15 ? 'var(--red)' : 'var(--muted2)'}">${res.delta > 0 ? '+' : ''}${res.delta.toFixed(1)}</strong></span>
 </div>`;
-                    el.onclick = () => {
+                    // Fund name click → RRG Detail / Live Cockpit
+                    el.querySelector('.ra2-fundname').onclick = () => {
                         currentRRGSelectedFundCode = res.code;
                         document.getElementById('regimeA2ScannerModal').style.display = 'none';
                         launchLiveFromRRG();
+                    };
+                    // 📈 button → direct Live Market navigation
+                    el.querySelector('.ra2-live-btn').onclick = (ev) => {
+                        ev.stopPropagation();
+                        _activeScannerToken++;
+                        document.getElementById('regimeA2ScannerModal').style.display = 'none';
+                        launchLiveFromAlert(res.code);
                     };
                     list.appendChild(el);
                 });
@@ -10323,14 +10333,14 @@ onclick="runRRGScanner('${targetQuadrant}', true)">[ REFRESH ]</span>`;
                     const el = document.createElement('div');
                     el.style.cssText =
                         `background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
-padding:10px;cursor:pointer;display:flex;justify-content:space-between;
-align-items:center;margin-bottom:6px;`;
+padding:10px;display:flex;justify-content:space-between;
+align-items:center;margin-bottom:6px;gap:6px;`;
                     const regColor = res.regime === 'A' ? 'var(--accent)' : res.regime === 'B' ? 'var(--accent2)' : 'var(--red)';
                     const regBg    = res.regime === 'A' ? 'var(--accent-dim)' : res.regime === 'B' ? 'var(--accent2-dim)' : 'var(--red-dim)';
                     const regName  = res.regime === 'A' ? 'Hope' : res.regime === 'B' ? 'Watch' : 'Fear';
                     el.innerHTML = `
-<div style="font-size:0.75rem;font-weight:400;color:var(--text);
-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+<div style="font-size:0.75rem;font-weight:400;color:var(--text);cursor:pointer;
+flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="Open RRG Detail">
 ${res.name.replace(/\[NPS\] | - Growth| - Direct/gi, '')}
 </div>
 <span style="font-size:0.52rem;font-weight:700;padding:2px 6px;border-radius:8px;
@@ -10338,9 +10348,20 @@ background:${regBg};color:${regColor};border:1px solid ${regColor};white-space:n
 ${regName}
 </span>
 <div style="font-size:0.7rem;color:${res.alpha1m > 0 ? 'var(--accent)' : 'var(--red)'};
-font-weight:400;">
+font-weight:400;white-space:nowrap;">
 α ${res.alpha1m > 0 ? '+' : ''}${res.alpha1m.toFixed(1)}%
-</div>`;
+</div>
+<button style="font-size:0.5rem;padding:3px 7px;border:1px solid var(--border2);border-radius:4px;
+background:transparent;color:var(--border2);cursor:pointer;flex-shrink:0;font-family:var(--mono);"
+title="Navigate to Live Market">📈</button>`;
+                    // Name area → open RRG detail; 📈 button → navigate to Live Market
+                    el.querySelector('div[title="Open RRG Detail"]').onclick = () => openRRGDetail(res, bench1m, bench2m, bench3m, allFunds);
+                    el.querySelector('button[title="Navigate to Live Market"]').onclick = (ev) => {
+                        ev.stopPropagation();
+                        document.getElementById('rrgScannerModal').style.display = 'none';
+                        _activeScannerToken++;
+                        launchLiveFromAlert(res.code);
+                    };
                     el.onclick = () => openRRGDetail(res, bench1m, bench2m, bench3m, allFunds);
                     return el;
                 };
@@ -11760,7 +11781,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 </div>
                 <span class="modal-close-btn" onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';">[ CLOSE ]</span>
             </div>
-            <div id="alertSummaryContent" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px;display:flex;flex-direction:column;gap:3px;">
+            <div id="alertSummaryContent" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 96px;display:flex;flex-direction:column;gap:3px;">
             </div>
         </div>
         <script>
@@ -11781,7 +11802,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         const clr = it.regime === 'A' ? 'var(--accent)' : it.regime === 'B' ? 'var(--accent2,#f5a623)' : 'var(--red)';
                         const safeName = (it.name||'').replace(/'/g,'&apos;').replace(/"/g,'&quot;');
                         const safeCode = (it.code||'').replace(/'/g,'');
-                        return `<div onclick="(function(){var _af=Object.values(window.amcFunds||{}).flat().find(function(x){return x.code==='${safeCode}';});if(_af&&window.loadFundLive){window.loadFundLive(_af.code,_af.name);}})()"
+                        return `<div onclick="launchLiveFromAlert('${safeCode}')"
                             style="display:flex;align-items:center;gap:6px;padding:6px 8px;border-bottom:1px solid var(--border);cursor:pointer;active:opacity:0.7;">
                             <div style="flex:1;font-size:0.58rem;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${it.name}</div>
                             <div style="font-size:0.5rem;color:var(--muted);min-width:28px;text-align:right;">${it.amc||''}</div>
@@ -13109,39 +13130,44 @@ categories.forEach(cat => {
             if (!list) return;
             const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
             const _allFundsFlat = Object.values(window.amcFunds || {}).flat();
+            const _dateKey = (() => { const n = new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
             // Show all Regime A funds from today's BA list + watchlist
-            const _baRegimeA  = JSON.parse(localStorage.getItem(`ba_regimeA_funds_${(() => {
-                const n = new Date(Date.now()+5.5*3600000);
-                return n.toISOString().slice(0,10).replace(/-/g,'');
-            })()}`) || '[]');
-            const _baCompleted = JSON.parse(localStorage.getItem(`ba_completed_funds_${(() => {
-                const n = new Date(Date.now()+5.5*3600000);
-                return n.toISOString().slice(0,10).replace(/-/g,'');
-            })()}`) || '[]');
+            const _baRegimeA  = JSON.parse(localStorage.getItem(`ba_regimeA_funds_${_dateKey}`) || '[]');
             // Merge watchlist + regime A list (dedupe)
             const showFunds = [..._baRegimeA];
             _wl.forEach(w => { if (!showFunds.find(f => f.code === w.code)) showFunds.push(w); });
-            if (cnt) cnt.textContent = `${_baCompleted.length}/${_baRegimeA.length} BA analyses done today`;
+
+            // ── Fix 3: Count actual cached BA analyses for all listed funds ──
+            let _cachedCount = 0;
+            const _totalCount = showFunds.length;
+            showFunds.forEach(f => {
+                const _ck = `breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dateKey}`;
+                try { if (localStorage.getItem(_ck)) _cachedCount++; } catch(e2) {}
+            });
+            if (cnt) cnt.textContent = `${_cachedCount}/${_totalCount} BA analyses done today`;
             if (!showFunds.length) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No Regime A funds found today. Run a BA scan or open a fund.</div>'; return; }
             list.innerHTML = showFunds.map(f => {
-                const _dateKey = (() => { const n=new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
                 const _ck = `breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dateKey}`;
                 const _cached = (() => { try { const r=localStorage.getItem(_ck); return r?JSON.parse(r):null; } catch(e2){return null;} })();
                 const _done = !!_cached;
                 const _ts   = _cached?._cachedAtDisplay || '';
                 const _verdict = _cached?.overall_verdict || _cached?.confirmation || '';
                 const _vColor  = _verdict==='CONFIRMED'?'#009e70':_verdict==='MARGINAL'?'#f59e0b':'#888';
+                const _safeCode = (f.code||'').replace(/'/g,'');
+                const _safeName = (f.name||'').replace(/'/g,'');
                 return `<div style="display:flex;align-items:center;gap:6px;padding:6px 4px;
-                    border-bottom:1px solid var(--border);cursor:pointer;font-size:0.54rem;"
-                    onclick="_launchBaFromWatchlist('${f.code}','${(f.name||'').replace(/'/g,'')}')">
-                    <div style="flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">
-                        ${(f.name||'').replace(/\[NPS\] | - Growth| - Direct/gi,'').trim().slice(0,32)}
+                    border-bottom:1px solid var(--border);font-size:0.54rem;">
+                    <div style="flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;"
+                         onclick="_launchBaFromWatchlist('${_safeCode}','${_safeName}')">
+                        ${(f.name||'').replace(/\[NPS\] | - Growth| - Direct/gi,'').trim().slice(0,30)}
                     </div>
                     ${_done
-                        ? `<span style="font-size:0.44rem;color:${_vColor};border:1px solid ${_vColor};padding:1px 5px;border-radius:3px;">${_verdict||'Cached'}</span>
+                        ? `<span style="font-size:0.44rem;color:${_vColor};border:1px solid ${_vColor};padding:1px 5px;border-radius:3px;cursor:pointer;" onclick="_launchBaFromWatchlist('${_safeCode}','${_safeName}')">${_verdict||'Cached'}</span>
                            <span style="font-size:0.42rem;color:var(--muted);">${_ts.slice(11,16)}</span>`
-                        : `<span style="font-size:0.44rem;color:var(--muted);border:1px solid var(--border);padding:1px 5px;border-radius:3px;">No cache</span>`
+                        : `<span style="font-size:0.44rem;color:var(--muted);border:1px solid var(--border);padding:1px 5px;border-radius:3px;">No BA</span>`
                     }
+                    <span onclick="(function(){document.getElementById('watchlistModal').style.display='none';launchLiveFromAlert('${_safeCode}');})()" 
+                          style="font-size:0.5rem;color:var(--border2);cursor:pointer;padding:2px 5px;border:1px solid var(--border);border-radius:3px;flex-shrink:0;white-space:nowrap;" title="Navigate to Live Market">📈</span>
                 </div>`;
             }).join('');
         }
@@ -15813,7 +15839,7 @@ Return a JSON object with this exact structure:
     // ── Constants ─────────────────────────────────────────────────────
     const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'100'); return (v>=3&&v<=100?v:100)*1000; } catch(e){ return 100_000; } })();
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD246VAI3-BG-v2';
+    const ADDON_VER     = 'LD246VAI4-BG-v2';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
     // ── IST date string (YYYYMMDD) ────────────────────────────────────
@@ -16177,21 +16203,43 @@ Return a JSON object with this exact structure:
             const allCodes = new Set(allF.map(f => f.code));
             let wl = [];
             try { wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(e) {}
+
+            // Collect codes that need BA regardless of regime:
+            // (a) Portfolio-flagged watchlist items, (b) Triple RSI confluence funds from today's alerts cache
+            const forceBaCodes = new Set();
+
+            // (a) Portfolio funds
+            for (const wf of (Array.isArray(wl) ? wl : [])) {
+                if (wf.portfolio && wf.code && allCodes.has(wf.code)) forceBaCodes.add(wf.code);
+            }
+
+            // (b) Triple RSI confluence funds from today's alert cache
+            try {
+                const _ald = localStorage.getItem(`ld_alerts_${_istDate()}`);
+                if (_ald) {
+                    const _alParsed = JSON.parse(_ald);
+                    const _tripleList = (_alParsed?.results?.TRIPLE_RSI) || [];
+                    for (const tf of _tripleList) { if (tf.code && allCodes.has(tf.code)) forceBaCodes.add(tf.code); }
+                }
+            } catch(e2) {}
+
             for (const wf of (Array.isArray(wl) ? wl : [])) {
                 if (!wf.code || !allCodes.has(wf.code)) continue; // not in 4 AMCs — skip
                 const found = allF.find(f => f.code === wf.code);
                 if (!found || !_isEquity(found)) continue;
+                const isForceBa = forceBaCodes.has(wf.code);
                 queue.push({
                     code: wf.code,
                     name: wf.name || found.name,
                     wrsi: null,          // will be computed on-demand
                     source: 'watchlist',
                     done: false,
-                    skipReason: null
+                    skipReason: null,
+                    forceBa: isForceBa   // true = run BA even if not Regime A
                 });
             }
             _saveQ(queue);
-            console.log(`[BG BA] Queue built: ${queue.length} watchlist funds.`);
+            console.log(`[BG BA] Queue built: ${queue.length} watchlist funds (${forceBaCodes.size} force-BA).`);
         } else {
             console.log(`[BG BA] Loaded existing queue: ${queue.length} items (crash resume).`);
         }
@@ -16246,13 +16294,17 @@ Return a JSON object with this exact structure:
                 await _sleep(400); // small polite gap after NAV fetch
             }
 
-            // ── Regime check ──────────────────────────────────────────
-            if (!it.wrsi || it.wrsi < 50) {
+            // ── Regime check (skipped for portfolio / Triple RSI force-BA funds) ──
+            if (!it.forceBa && (!it.wrsi || it.wrsi < 50)) {
                 it.skipReason = `regime_bc_wrsi_${it.wrsi}`;
                 _saveQ(q);
                 _setPillMsg(`⏭ WL: ${it.name.slice(0,26)} — Regime B/C (W-RSI ${it.wrsi}) — skipped`);
                 console.log(`[BG BA] WL not Regime A: ${it.name} (W-RSI ${it.wrsi})`);
                 continue;
+            }
+            if (it.forceBa && (!it.wrsi || it.wrsi < 50)) {
+                _setPillMsg(`⭐ WL ForceBA: ${it.name.slice(0,24)} — non-Regime A but Portfolio/TripleRSI — running BA`);
+                console.log(`[BG BA] WL force-BA (portfolio/tripleRSI): ${it.name} (W-RSI ${it.wrsi})`);
             }
 
             // ── Regime A confirmed → apply gap if previous BA was run ─

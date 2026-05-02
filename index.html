@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD246VAI6M</title>
+        <title>Lie Detector — NPS NAV Chart · LD246VAI7</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2574,7 +2574,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD246VAI6M &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD246VAI7 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2586,7 +2586,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI6M 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI7 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -2603,7 +2603,7 @@
                 " onmouseenter="this.style.background='rgba(200,16,46,0.17)'" onmouseleave="this.style.background='linear-gradient(145deg,rgba(200,16,46,0.13),rgba(200,16,46,0.05))'">
                     <span style="font-size:1.4rem;line-height:1;">🚨</span>
                     <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--red);letter-spacing:0.04em;">ALERTS</span>
-                    <span id="alertSummaryBadgeTop" class="alert-badge" style="margin-top:-2px;"></span>
+                    <span id="alertSummaryBadgeTop" class="alert-badge" style="margin-top:-2px;"></span><span id="alertSummaryBadge" class="alert-badge" style="display:none;"></span>
                 </button>
                 <button onclick="openWatchlist()" class="setup-btn-watchlist" style="
                     background:linear-gradient(145deg,rgba(168,85,247,0.13),rgba(168,85,247,0.05));
@@ -4551,7 +4551,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD246VAI6M', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD246VAI7', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -4973,7 +4973,6 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             '#dcfce7' : changePct < -0.05 ? '#fee2e2' : '#ffedd5';
                     }
                 } catch (err) {
-                    console.warn('[updateLiveEstimate] benchmark fetch failed:', err.message || err);
                     if (estVal) estVal.textContent = 'Change: N/A';
                     if (estBox) estBox.style.backgroundColor = 'rgba(255,255,255,0.9)';
                     if (anVal) {
@@ -9815,7 +9814,6 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
                             else if (zone === 'PROFIT' && isProfitSignal)  results.push(entry);
                         }
                     } catch (e) {
-                        console.warn('Failed to fetch:', fund.name);
                     }
                 };
                 for (let i = 0; i < fundsToScan.length; i += SCANNER_BATCH_SIZE) {
@@ -10012,7 +10010,6 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                             }
                         }
                     } catch (e) {
-                        console.warn('Failed to fetch:', fund.name);
                     }
                 };
                 for (let i = 0; i < fundsToScan.length; i += SCANNER_BATCH_SIZE) {
@@ -10140,7 +10137,6 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                             if (iso && Number.isFinite(nav) && nav > 0) navMap[iso] = nav; 
                         });
                         if (Object.keys(navMap).length < 250) continue;
-                        console.log(`[fetchNifty50Nav] Using ${candidate.label} (${candidate.code})`);
                         try {
                             if (window._idbOpenDB && window._idbSetCache && window._idbStores) {
                                 const db = await window._idbOpenDB();
@@ -10150,10 +10146,8 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                         } catch (_) {}
                         return navMap;
                     } catch (err) {
-                        console.warn(`[fetchNifty50Nav] ${candidate.label} failed:`, err.message);
                     }
                 }
-                console.warn('[fetchNifty50Nav] All candidates failed — RRG scan aborted.');
                 return null;
             }
             async function runRRGScanner(targetQuadrant, forceRefresh = false) {
@@ -10197,7 +10191,6 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                             return;
                         }
                     } catch (e) {
-                        console.warn('IDB cache read failed — rebuilding.', e);
                     }
                 }
                 const ovEl = document.getElementById('ov');
@@ -10210,7 +10203,6 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                 ovTxt.textContent = 'FETCHING NIFTY 50 BENCHMARK...';
                 const nifty50NavMap = await fetchNifty50Nav();
                 if (!nifty50NavMap) {
-                    console.warn('[RRG] Nifty 50 fetch failed — scan aborted.');
                     ovEl.style.display = 'none';
                     document.getElementById('setupScreen').style.display = 'flex';
                     const ovTxt2 = document.getElementById('ovTxt');
@@ -10261,7 +10253,6 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                             lastWr,
                         });
                     } catch (e) {
-                        console.error('Fetch error:', fund.name, e);
                     }
                 };
                 for (let i = 0; i < fundsToScan.length; i += SCANNER_BATCH_SIZE) {
@@ -10354,7 +10345,6 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                         timestamp: Date.now()
                     });
                 } catch (e) {
-                    console.warn('IDB RRG cache write failed.', e);
                 }
                 ovEl.style.display = 'none';
                 window._rrgFromCache = false; 
@@ -10797,7 +10787,6 @@ ${d.tsl > 0
                     chartSplit._rawCrosshairData = rrgCrosshairData;
                     window.updateRRGChartLookback(Math.min(84, fPrices.length));
                 } catch (err) {
-                    console.error('Fatal Error in openRRGDetail:', err);
                     ovEl.style.display = 'none';
                     flashBanner(`RRG calculation failed: ${err.message}`, 'danger');
                     document.getElementById('rrgScannerModal').style.display = 'flex';
@@ -11290,7 +11279,6 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                             };
                         }
                     } catch (e) {
-                        console.error('Failed fetching', f.name);
                     }
                     completed++;
                     ovTxt.textContent = `FETCHING DATA... ${Math.round((completed / baseFunds.length) * 100)}%`;
@@ -12078,7 +12066,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
             function renderAlertSummaryUI(res) {
                 const content = document.getElementById('alertSummaryContent');
                 // Call helper (also used by cache path)
-                _renderAlertResults(results, content);
+                _renderAlertResults(res, content);
                 const sub = document.getElementById('alertSummarySub');
                 const allFunds = Object.values(window.amcFunds).flat();
                 const actionableAlerts = ['TSL','REGIME_CRASH','REGIME_C','NC','REGIME_BREAKOUT','PC','RSI_DIP','SLINGSHOT'];
@@ -12825,7 +12813,6 @@ categories.forEach(cat => {
         if (typeof initLiveChart === 'function') {
             initLiveChart();
         } else {
-            console.warn("Live Chart boot failed: initLiveChart() not found in global scope.");
         }
     }
     function consumeNpsSwitch() {
@@ -14387,18 +14374,19 @@ Return a JSON object with this exact structure:
             </div>
             <!-- API Scan Timeout row -->
             <div style="font-size:0.5rem;color:#404060;font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;">
-                API Scan Timing Mode
+                API Scan Gap (between Gemini calls)
             </div>
             <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
                 <select id="ld-api-gap-select" style="flex:1;font-size:0.52rem;padding:5px 8px;border-radius:5px;
                         border:1.5px solid #b0bece;background:#f2f5f9;color:#000;outline:none;font-family:var(--mono);">
-                    <option value="100">🐢 Slow Access — 100s gap (default, quota-safe)</option>
-                    <option value="60">Medium — 60s gap</option>
-                    <option value="30">⚡ Testing Fast — 30s gap</option>
-                    <option value="15">⚡ Testing Fast — 15s gap</option>
-                    <option value="10">⚡ Testing Fast — 10s gap</option>
-                    <option value="5">⚡ Testing Fast — 5s gap</option>
-                    <option value="3">⚡ Testing Fast — 3s gap (risk quota hit)</option>
+                    <option value="30" selected>⚡ Standard — 30s gap (default)</option>
+                    <option value="25">🚀 Fast — 25s gap</option>
+                    <option value="60">🐇 Conservative — 60s gap</option>
+                    <option value="100">🐢 Slow Access — 100s gap (quota-safe)</option>
+                    <option value="15">🔬 Testing — 15s gap</option>
+                    <option value="10">🔬 Testing — 10s gap</option>
+                    <option value="5">🔬 Testing — 5s gap</option>
+                    <option value="3">⚠ Testing — 3s gap (quota risk)</option>
                 </select>
                 <button id="ld-gap-save" style="background:#ffffff;color:#000;border:1.5px solid #b0bece;
                         border-radius:5px;padding:6px 11px;font-size:0.5rem;cursor:pointer;
@@ -14468,7 +14456,7 @@ Return a JSON object with this exact structure:
             const gapSel  = document.getElementById('ld-api-gap-select');
             const gapSave = document.getElementById('ld-gap-save');
             if (gapSel) {
-                const saved = localStorage.getItem('ld_api_gap_sec') || '100';
+                const saved = localStorage.getItem('ld_api_gap_sec') || '30';
                 gapSel.value = saved;
             }
             if (gapSave && gapSel) {
@@ -14634,7 +14622,6 @@ Return a JSON object with this exact structure:
                 // Trigger BG scan if it hasn't run today and addon is loaded
                 if (window.bgBreadthForceRun && !localStorage.getItem('bgbreadth_ran_' +
                     new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,''))) {
-                    console.log('[BG Breadth] K1 saved — auto-starting background scan.');
                     setTimeout(window.bgBreadthForceRun, 1000);
                 }
             }, 1400);
@@ -15544,7 +15531,6 @@ Return a JSON object with this exact structure:
 
         // Null-guard: bail if any critical element is missing
         if (!fileInput || !panel || !chatEl || !summariseBtn || !takeawaysBtn || !askBtn || !pdfInput || !toast) {
-            console.warn('LD PDF Engine: one or more DOM elements not found — aborting init.');
             return;
         }
 
@@ -15894,9 +15880,9 @@ Return a JSON object with this exact structure:
     'use strict';
 
     // ── Constants ─────────────────────────────────────────────────────
-    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'100'); return (v>=3&&v<=100?v:100)*1000; } catch(e){ return 100_000; } })();
+    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'30');  return (v>=3&&v<=100?v:30)*1000;  } catch(e){ return 30_000;  } })();
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD246VAI6M-BG-v2';
+    const ADDON_VER     = 'LD246VAI7-BG-v2';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
     // ── IST date string (YYYYMMDD) ────────────────────────────────────
@@ -16045,7 +16031,6 @@ Return a JSON object with this exact structure:
                     });
 
                     if (res.status === 429) {
-                        console.warn(`[BG BA] 429 on ${model} key${API_KEYS.indexOf(k)+1} — trying next`);
                         lastErr = new Error(`429 quota on ${model}`);
                         continue; // try next key or model
                     }
@@ -16068,7 +16053,6 @@ Return a JSON object with this exact structure:
                     try { 
                         const result = JSON.parse(raw);
                         result._modelUsed = model; // tag which model succeeded
-                        console.log(`[BG BA] ✅ ${fund.name} — BA via ${model}`);
                         return result;
                     } catch(_) {}
                     // JSON repair attempt
@@ -16089,14 +16073,12 @@ Return a JSON object with this exact structure:
                     }
                 } catch(fetchErr) {
                     lastErr = fetchErr;
-                    console.warn(`[BG BA] Fetch error on ${model}:`, fetchErr.message);
                     continue;
                 }
             }
             // All keys exhausted for this model — brief pause before escalating
             if (MODEL_CASCADE.indexOf(model) < MODEL_CASCADE.length - 1) {
                 const nextModel = MODEL_CASCADE[MODEL_CASCADE.indexOf(model) + 1];
-                console.log(`[BG BA] ${model} quota exhausted — escalating to ${nextModel}…`);
                 _setPillMsg(`⬆ Quota limit — escalating to ${nextModel.replace('gemini-2.5-','')}…`, '#f59e0b');
                 await _sleep(2000); // brief pause between model tiers
             }
@@ -16212,7 +16194,6 @@ Return a JSON object with this exact structure:
                 window.removeEventListener('storage', _onKeyStored);
                 const panel = document.getElementById('bgKeyPanel');
                 if (panel) panel.remove();
-                console.log('[BG BA] Key detected via 🔐 modal — auto-starting.');
                 setTimeout(_runBackgroundScan, 800);
             }
         });
@@ -16255,7 +16236,6 @@ Return a JSON object with this exact structure:
         if (_hasRanToday()) {
             const cnt = _getCnt();
             _donePill(`✅ BA complete today — ${cnt} stored.`);
-            console.log(`[BG BA] Fully complete for ${today} — ${cnt} BA stored.`);
             return;
         }
 
@@ -16264,7 +16244,6 @@ Return a JSON object with this exact structure:
         const _k1   = localStorage.getItem('ld_gemini_api_key');
         const _k2   = localStorage.getItem('ld_gemini_api_key2');
         let apiKey  = _resolveApiKey();
-        console.log(`[BG BA] Key scan — K1:${_mask(_k1)} K2:${_mask(_k2)} resolved:${_mask(apiKey)}`);
 
         if (!apiKey) {
             _attachStorageListener();
@@ -16318,13 +16297,11 @@ Return a JSON object with this exact structure:
             };
             const inp = document.getElementById('bgKeyPanelInput');
             if (inp) inp.addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('bgKeyPanelSave').click(); });
-            console.log('[BG BA] Key panel shown.');
             return;
         }
 
         // ── Guard: RSI builder ready ──────────────────────────────────
         if (!window.buildWeeklyRsiFast) {
-            console.log('[BG BA] buildWeeklyRsiFast not ready — retrying in 5s.');
             await _sleep(5_000);
             if (!window.buildWeeklyRsiFast) return;
         }
@@ -16358,9 +16335,7 @@ Return a JSON object with this exact structure:
                 });
             }
             _saveQ(queue);
-            console.log(`[BG BA] Queue built: ${queue.length} watchlist funds.`);
         } else {
-            console.log(`[BG BA] Loaded existing queue: ${queue.length} items (crash resume).`);
         }
 
         // ════════════════════════════════════════════════════════════
@@ -16371,7 +16346,6 @@ Return a JSON object with this exact structure:
 
         _setPillMsg(`📋 Watchlist: ${wlPending.length}/${wlTotal} funds to process…`);
         _updateBanner(`📋 BA Engine: processing ${wlTotal} watchlist funds…`, '#f59e0b');
-        console.log(`[BG BA] Watchlist phase: ${wlPending.length} pending, ${wlTotal - wlPending.length} done/skipped.`);
 
         let lastBARan = false; // tracks whether last iteration ran a Gemini BA call
 
@@ -16388,7 +16362,6 @@ Return a JSON object with this exact structure:
                 _saveQ(q);
                 _incCnt();
                 _setPillMsg(`✅ WL: ${it.name.replace(/\[NPS\] /,'').slice(0,28)} — cached`);
-                console.log(`[BG BA] WL fund already BA-cached today: ${it.name}`);
                 lastBARan = false;
                 continue;
             }
@@ -16401,14 +16374,12 @@ Return a JSON object with this exact structure:
                     if (navRows.length < 30) {
                         it.skipReason = 'insufficient_nav_data';
                         _saveQ(q);
-                        console.log(`[BG BA] WL skip (no data): ${it.name}`);
                         continue;
                     }
                     const w = _computeWrsi(navRows);
                     it.wrsi = w !== null ? Math.round(w * 10) / 10 : 0;
                     _saveQ(q);
                 } catch(e) {
-                    console.warn(`[BG BA] WL NAV fetch error for ${it.code}:`, e.message);
                     continue; // wrsi stays null — will retry on next app launch
                 }
                 await _sleep(400); // small polite gap after NAV fetch
@@ -16419,7 +16390,6 @@ Return a JSON object with this exact structure:
                 it.skipReason = `regime_bc_wrsi_${it.wrsi}`;
                 _saveQ(q);
                 _setPillMsg(`⏭ WL: ${it.name.slice(0,26)} — Regime B/C (W-RSI ${it.wrsi}) — skipped`);
-                console.log(`[BG BA] WL not Regime A: ${it.name} (W-RSI ${it.wrsi})`);
                 continue;
             }
 
@@ -16452,10 +16422,8 @@ Return a JSON object with this exact structure:
                     localStorage.setItem(_bcKey, JSON.stringify(_bcList));
                 } catch(e2) {}
                 lastBARan = true;
-                console.log(`[BG BA] ✅ WL BA stored: ${snapshot.name} → ${parsed.confirmation} (${_getCnt()} today)`);
                 _setPillMsg(`✅ WL: ${snapshot.name.slice(0,22)} [${parsed._modelUsed?.replace('gemini-2.5-','')||'ok'}]`);
             } catch(e) {
-                console.warn(`[BG BA] ❌ WL BA failed: ${snapshot.name}:`, e.message);
                 _setPillMsg(`⚠ WL ${snapshot.name.slice(0,20)} — all models at quota, queued`, '#c97a00');
                 await _sleep(3_000);
                 lastBARan = false;
@@ -16475,7 +16443,6 @@ Return a JSON object with this exact structure:
             const equityFunds = _allFunds().filter(_isEquity);
             _setPillMsg(`🔍 Global scan: ${equityFunds.length} equity funds for Regime A…`);
             _updateBanner(`🔍 Global Regime A scan: 0/${equityFunds.length} funds…`, '#f59e0b');
-            console.log(`[BG BA] Starting global Regime A scan: ${equityFunds.length} equity funds.`);
 
             const regimeAGlobal = [];
             let scanned = 0;
@@ -16492,7 +16459,6 @@ Return a JSON object with this exact structure:
                         }
                     }
                 } catch(e) {
-                    console.warn(`[BG BA] Scan error ${fund.code}:`, e.message);
                 }
                 scanned++;
                 if (scanned % 5 === 0 || scanned === equityFunds.length) {
@@ -16521,7 +16487,6 @@ Return a JSON object with this exact structure:
                 added++;
             }
             _saveQ(q);
-            console.log(`[BG BA] Global scan done: ${regimeAGlobal.length} Regime A funds, ${added} added to queue.`);
 
         } else {
             // Crash resume: reload saved global list and fill any queue gaps
@@ -16549,7 +16514,6 @@ Return a JSON object with this exact structure:
 
         _setPillMsg(`🌐 Global BA: ${globalPending.length}/${gTotal} Regime A funds pending…`);
         _updateBanner(`🌐 Global BA phase: ${globalPending.length} funds to analyse…`, '#a855f7');
-        console.log(`[BG BA] Global BA phase: ${globalPending.length} pending.`);
 
         for (const snapshot of globalPending) {
             if (isCancelled()) { console.log('[BG BA] ⚡ Global BA phase cancelled — new scan started.'); return; }
@@ -16588,10 +16552,8 @@ Return a JSON object with this exact structure:
                 if (it) { it.done = true; _saveQ(q); }
                 _incCnt();
                 lastBARan = true;
-                console.log(`[BG BA] ✅ Global BA stored: ${snapshot.name} → ${parsed.confirmation} (${_getCnt()} today)`);
                 _setPillMsg(`✅ Global: ${snapshot.name.slice(0,20)} [${parsed._modelUsed?.replace('gemini-2.5-','')||'ok'}]`);
             } catch(e) {
-                console.warn(`[BG BA] ❌ Global BA failed: ${snapshot.name}:`, e.message);
                 _setPillMsg(`⚠ Global ${snapshot.name.slice(0,20)} — all models at quota, queued`, '#c97a00');
                 await _sleep(3_000);
                 lastBARan = false;
@@ -16618,7 +16580,6 @@ Return a JSON object with this exact structure:
                 localStorage.setItem(`ba_completed_today_${today}`, 'true');
                 localStorage.setItem(`bg_ba_counter_${today}`, String(finalCnt));
             } catch(e) {}
-            console.log(`[BG BA] ✅ All complete. ${finalCnt} BA stored today.`);
         } else {
             // Partial run — do NOT mark complete
             const pendingNames = stillPending.slice(0, 3).map(q => q.name.split(' ')[0]).join(', ');
@@ -16643,7 +16604,6 @@ Return a JSON object with this exact structure:
                 _pillEl.appendChild(_restartBtn);
             }
             _updateBanner(`⚠ BA partial: ${finalCnt} stored · ${stillPending.length} pending — tap ↺ RESTART pill`, '#c97a00');
-            console.log(`[BG BA] Partial. ${finalCnt} stored, ${stillPending.length} still pending.`);
         }
     }
 
@@ -16655,7 +16615,6 @@ Return a JSON object with this exact structure:
             const list  = JSON.parse(localStorage.getItem(`bgbreadth_regimeA_${today}`) || '[]');
             const queue = _loadQ();
             const cnt   = _getCnt();
-            console.log(`[BG BA] Today (${today}): ${cnt} BA stored | ${list.length} Regime A funds`);
             console.table(queue.map(q => ({
                 source: q.source, fund: q.name.slice(0, 35),
                 wrsi: q.wrsi, done: q.done, skip: q.skipReason
@@ -16670,7 +16629,6 @@ Return a JSON object with this exact structure:
 
         // 1. Cancel any in-flight async scan via token
         _scanToken++;
-        console.log('[BG BA] ⚡ Force-run: cancelled prior scan (token=' + _scanToken + ')');
 
         // 2. Remove stale pill so _makePill() creates a fresh one
         const _oldPill = document.getElementById('bgBreadthPill');
@@ -16703,17 +16661,14 @@ Return a JSON object with this exact structure:
             });
             if (resetCount > 0 || q.length > 0) {
                 _saveQ(q);
-                console.log('[BG BA] Queue reset: ' + resetCount + ' items un-done (cache missing).');
             } else {
                 // No queue yet — will be built fresh
-                console.log('[BG BA] No queue to reset — will build fresh.');
             }
         } catch(e) { try { localStorage.removeItem(_qKey()); } catch(_) {} }
 
         // 5. Clear internal counter — pill will recount from actual cache hits via _updatePillCounter
         try { localStorage.removeItem(_cntKey()); } catch(e) {}
 
-        console.log('[BG BA] Restarting scan in 300ms…');
         setTimeout(() => _runBackgroundScan(), 300);
     };
 
@@ -16727,7 +16682,6 @@ Return a JSON object with this exact structure:
         );
         keys.forEach(k => localStorage.removeItem(k));
         localStorage.removeItem(RUN_FLAG_KEY + d);
-        console.log(`[BG BA] Cleared ${keys.length} entries + run flag for ${d}.`);
     };
 
     // ── Auto-start: 6 seconds after page load ─────────────────────────
@@ -16735,8 +16689,6 @@ Return a JSON object with this exact structure:
         setTimeout(_runBackgroundScan, BOOT_DELAY_MS);
     });
 
-    console.log(`[BG BA] ${ADDON_VER} loaded. Starts in ${BOOT_DELAY_MS/1000}s.`);
-    console.log('[BG BA] Debug: bgBreadthStatus() | bgBreadthForceRun() | bgBreadthClearAll()');
 
     })();
     </script>

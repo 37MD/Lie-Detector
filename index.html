@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD246VAI7</title>
+        <title>Lie Detector — NPS NAV Chart · LD247</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2146,7 +2146,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD246VAI</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD247</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2574,7 +2574,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD246VAI7 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD247 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2586,7 +2586,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD246VAI7 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD247 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -4012,6 +4012,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 ],
             };
             window.amcFunds = amcFunds;
+            // ── SECTION: CONSTANTS & GLOBAL STATE ──────────────────────────────
             const STCG_TAX_RATE      = 0.20;   
             const STCG_HOLD_DAYS     = 365;    
             const STCG_APPROX_FACTOR = 1.45;   
@@ -4205,6 +4206,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             };
             let _lastFetchTimestamp = null;
             let _lastFetchWasCached = false;
+            // ── SECTION: UI UTILITIES ───────────────────────────────────────────
             function updateFreshnessBadge() {
                 const el = document.getElementById('dataFreshnessBadge');
                 if (!el || !_lastFetchTimestamp) return;
@@ -4255,6 +4257,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     updateLiveChartOnly(250, btn1Y);
                 }
             };
+            // ── SECTION: AMC / FUND SELECTION ──────────────────────────────────
             function selectAMC(amc, el, isInit = false) {
                 document.querySelectorAll('#fundGrid .fund-box').forEach(b => b.classList.remove('active'));
                 el.classList.add('active');
@@ -4508,6 +4511,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 } catch(_) {}
                 setTimeout(() => { if (banner) banner.style.display = 'none'; }, 18000);
             }
+            // ── SECTION: SIP CONFIG ─────────────────────────────────────────────
             function openSipConfigModal() {
                 const m = document.getElementById('sipConfigModal');
                 if (m) { m.style.display = 'flex'; _sipConfigModeChange(); }
@@ -4543,6 +4547,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
             }
             window._getPfmRecommendation = _getPfmRecommendation;
+            // ── SECTION: SWITCH JOURNAL (_SJ) ──────────────────────────────────
             const _SJ = {
                 KEY: 'ld_switch_journal',
                 get() {
@@ -4551,7 +4556,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD246VAI7', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD247', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -4606,7 +4611,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         a.click();
                         document.body.removeChild(a);
                         URL.revokeObjectURL(url);
-                    } catch(e) { console.warn('SJ export error', e); }
+                    } catch(e) { }
                 },
                 import(file) {
                     if (!file) return;
@@ -5358,7 +5363,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             }
                         }
                     })
-                    .catch(e => console.warn('[LiveCockpit RRG]', e.message));
+                    .catch(() => {});
             }
             function updateLiveChartOnly(days, btnEl) {
                 window.currentLiveLookback = days;
@@ -5477,7 +5482,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         if (document.getElementById('ld-debug-panel')?.style.display !== 'none') {
                             window._ldRefreshDebug && window._ldRefreshDebug();
                         }
-                    } catch(_e) { console.warn('Auditor collector error:', _e); }
+                    } catch(_e) { }
                 })();
                 // === FIX A: Export pcAlert + ncAlert to window so AI context can read them ===
                 window._lastPcAlert = snap.pcAlert || false;
@@ -6032,8 +6037,7 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                     }).join('');
                 }
                 const _fundDates = globalLiveData.map(d => window.normalizeDate(d.date));
-                renderAlphaStrip(prices, _fundDates).catch(e =>
-                    console.warn('[renderAlphaStrip]', e.message || e));
+                renderAlphaStrip(prices, _fundDates).catch(() => {});
                 let alertText = '';
                 let alertClass = '';
                 const prevWr = globalWeeklyRsiCache[globalLiveData.length - 2] ?? 50;
@@ -6375,6 +6379,7 @@ ${row('1Y %', a.r1y+'%', b.r1y+'%')}`;
                     resEl.innerHTML = `<div style="color:var(--red);padding:16px;text-align:center;font-size:0.65rem;">Error: ${e.message}</div>`;
                 }
             }
+            // ── SECTION: FUND COMPARISON ────────────────────────────────────────
             async function runDateRangeComparison() {
                 const codeA   = document.getElementById('cmpFundA').value;
                 const codeB   = document.getElementById('cmpFundB').value;
@@ -6496,6 +6501,7 @@ ${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' 
                     resEl.innerHTML = `<div style="color:var(--red);padding:12px;text-align:center;font-size:0.62rem;">Error: ${e.message}</div>`;
                 }
             }
+            // ── SECTION: TRADE REPLAY ───────────────────────────────────────────
             function showReplay() {
                 document.getElementById('reviewModal').style.display = 'none';
                 document.getElementById('replayModal').style.display = 'flex';
@@ -8917,6 +8923,7 @@ This is exactly how the system is meant to be played.
                     });
                 });
             }
+            // ── SECTION: WATCHLIST ──────────────────────────────────────────────
             function addCurrentToWatchlist() {
                 const code = document.getElementById('fundSelect')?.value;
                 const name = document.getElementById('fundSelect')?.options[document.getElementById('fundSelect').selectedIndex]?.text || code;
@@ -9116,6 +9123,7 @@ This is exactly how the system is meant to be played.
                     };
                 }
             }
+            // ── SECTION: RSI & TECHNICAL INDICATORS (IIFE) ─────────────────────
             (function() {
                 'use strict';
                 function buildDailyRsiFast(allPrices, period = 4) {
@@ -11596,7 +11604,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                                 }).catch(() => {});
                             setTimeout(() => runAssetAllocator(), 150);
                             switchPromptEl.style.display = 'none';
-                        } catch(e) { console.warn('LP confirmSwitch error', e); }
+                        } catch(e) { }
                     };
                     switchPromptEl.style.display = 'block';
                 } else if (switchPromptEl) {
@@ -12845,7 +12853,7 @@ categories.forEach(cat => {
     });
 </script>
     <!-- ════════════════ AI BREADTH CODE ════════════════ -->
-    <!-- LD246VAI: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
+    <!-- LD247: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
     <style>
     #aiBreadthOverlay {
         position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,0.45);
@@ -13039,7 +13047,7 @@ categories.forEach(cat => {
 
     <script>
     // ════════════════════════════════════════════════════════════
-    // LD246VAI — AI BREADTH CONFIRMATION ENGINE
+    // LD247 — AI BREADTH CONFIRMATION ENGINE
     // Sections:
     //   1. IIFE: State + Modal API (open/close/populate)
     //   2. abpCleanAiResponse — JSON cleanup helper
@@ -13090,11 +13098,11 @@ categories.forEach(cat => {
             try { localStorage.removeItem(_cacheKey(fundCode)); } catch(e) {}
         }
 
-        // ════════════════════════════════════════════════════════════
-        // §2d  DAILY BA LOCK + PARTIAL COMPLETION TRACKING
-        //      BA_completed_today  → skip entire BA if all funds done
-        //      completed_funds[]   → resume from pending on partial run
-        // ════════════════════════════════════════════════════════════
+        
+        
+        
+        
+        
         function _istDateBA() {
             const now = new Date(Date.now() + 5.5 * 60 * 60 * 1000);
             return now.toISOString().slice(0,10).replace(/-/g,'');
@@ -13103,7 +13111,7 @@ categories.forEach(cat => {
         const BA_COMPLETED_KEY  = () => `ba_completed_funds_${_istDateBA()}`;
         const BA_REGIMEA_KEY    = () => `ba_regimeA_funds_${_istDateBA()}`;
 
-        // True if ALL Regime A funds were processed today
+        
         function _baIsLockedToday()  {
             try { return localStorage.getItem(BA_LOCK_KEY()) === 'true'; } catch(e) { return false; }
         }
@@ -13111,7 +13119,7 @@ categories.forEach(cat => {
             try { localStorage.setItem(BA_LOCK_KEY(), 'true'); } catch(e) {}
         }
 
-        // Save one completed fund code into the daily array
+        
         function _baMarkFundDone(fundCode) {
             try {
                 const raw  = localStorage.getItem(BA_COMPLETED_KEY());
@@ -13130,7 +13138,7 @@ categories.forEach(cat => {
             return _baGetCompleted().includes(fundCode);
         }
 
-        // Store today's Regime A list from the BA side (used for on-open display)
+        
         function _baSaveRegimeA(fundList) {
             try { localStorage.setItem(BA_REGIMEA_KEY(), JSON.stringify(fundList)); } catch(e) {}
         }
@@ -13138,11 +13146,11 @@ categories.forEach(cat => {
             try { const r = localStorage.getItem(BA_REGIMEA_KEY()); return r ? JSON.parse(r) : null; } catch(e) { return null; }
         }
 
-        // ════════════════════════════════════════════════════════════
-        // §2c  SMART OPEN — check cache, update button state
-        // ════════════════════════════════════════════════════════════
+        
+        
+        
 
-        // ── Watchlist BA view ──────────────────────────────────────────
+        
         function _openWatchlistBaView() {
             const baView   = document.getElementById('wlBaView');
             const scrollArea = document.getElementById('watchlistScrollArea');
@@ -13163,16 +13171,16 @@ categories.forEach(cat => {
             const cnt  = document.getElementById('wlBaCount');
             if (!list) return;
 
-            // ── Always show ALL stored watchlist funds — no daily reset ──
+            
             const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
             const _dateKey = (() => { const n = new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
 
-            // Sort: portfolio funds first, then alphabetical
+            
             const _portfolioFunds  = _wl.filter(w => w.portfolio);
             const _watchlistOnly   = _wl.filter(w => !w.portfolio);
             const showFunds = [..._portfolioFunds, ..._watchlistOnly];
 
-            // ── Counter: count actual cached BA analyses for today ──
+            
             let _cachedCount = 0;
             showFunds.forEach(f => {
                 const _ck = `breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dateKey}`;
@@ -13216,7 +13224,7 @@ categories.forEach(cat => {
             }).join('');
         }
         function _launchBaFromWatchlist(code, name) {
-            // Open BA modal for this fund — find it in amcFunds
+            
             const _allFlat = Object.values(window.amcFunds||{}).flat();
             const _fund = _allFlat.find(f => f.code === code) || { code, name };
             if (window.openAIBreadthModal) window.openAIBreadthModal(_fund);
@@ -13247,7 +13255,7 @@ categories.forEach(cat => {
             const runLbl    = document.getElementById('abpRunBtnLabel');
             const cacheNote = document.getElementById('abpCacheNote');
 
-            // ── DAILY LOCK: if all Regime A funds done today, disable Run btn ──
+            
             const isLocked   = _baIsLockedToday();
             const isFundDone = _baIsFundDone(fundCode);
 
@@ -13256,7 +13264,7 @@ categories.forEach(cat => {
                     ? '✅ All funds analysed today — no API calls needed'
                     : '🔄 Refresh (uses 1 API token)';
                 runBtn.style.background = isLocked ? '#1e3a2f' : '#334155';
-                runBtn.disabled = isLocked;           // Lock Run button if daily BA done
+                runBtn.disabled = isLocked;           
 
                 if (cacheNote) {
                     cacheNote.style.display = 'block';
@@ -13280,7 +13288,7 @@ categories.forEach(cat => {
                 document.getElementById('abpLoading').classList.remove('visible');
 
             } else if (isLocked) {
-                // BA locked but no cache for this fund — it wasn't Regime A today
+                
                 runBtn.disabled = true;
                 runBtn.style.background = '#1e293b';
                 runLbl.textContent = '🔒 Not in Regime A today';
@@ -13290,7 +13298,7 @@ categories.forEach(cat => {
                     cacheNote.style.color = '#475569';
                 }
             } else {
-                // No cache, no lock — first run CTA
+                
                 runLbl.textContent = '▶ Run Breadth Analysis (1 API call)';
                 runBtn.style.background = '#009e70';
                 runBtn.disabled = false;
@@ -13302,7 +13310,7 @@ categories.forEach(cat => {
             }
 
             document.getElementById('aiBreadthOverlay').classList.add('open');
-            // Show "Add to Watchlist" button if fund not already pinned
+            
             const _awBtn = document.getElementById('abpAddWatchBtn');
             if (_awBtn) {
                 const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
@@ -13316,7 +13324,7 @@ categories.forEach(cat => {
             document.getElementById('aiBreadthOverlay').classList.remove('open');
         };
 
-        // Called from Live Cockpit ✨ AI CHECK button
+        
         window.launchAIBreadthForCurrentFund = function() {
             const fs = document.getElementById('fundSelect');
             if (!fs) return;
@@ -13329,7 +13337,7 @@ categories.forEach(cat => {
             window.openAIBreadthModal({ code, name, wrsi, drsi, r1m });
         };
 
-        // ── Reset ──────────────────────────────────────────────
+        
         function _resetPanel() {
             const runBtn = document.getElementById('abpRunBtn');
             const runLbl = document.getElementById('abpRunBtnLabel');
@@ -13346,7 +13354,7 @@ categories.forEach(cat => {
             if (cn) { cn.style.display = 'none'; cn.textContent = ''; }
         }
 
-        // ── Fund Meta ──────────────────────────────────────────
+        
         function _populateFundMeta(fund) {
             const regime = parseFloat(fund.wrsi) >= 50 ? 'A — HOPE'
                          : parseFloat(fund.wrsi) >= 40 ? 'B — WATCH' : 'C — FEAR';
@@ -13365,7 +13373,7 @@ categories.forEach(cat => {
                 </div>`).join('');
         }
 
-        // ── §3 JSON CLEANUP HELPER ─────────────────────────────
+        
         function abpCleanAiResponse(text) {
             let t = text.trim();
             const marker = String.fromCharCode(96, 96, 96);
@@ -13375,16 +13383,15 @@ categories.forEach(cat => {
         }
 
 
-
-    // ════════════════════════════════════════════════════════════
-    // §4 MAIN ENGINE — executeAIBreadthCheck
-    //    Lazy Load: reads cache first. Only calls Gemini if:
-    //    (a) no today's cache exists, OR (b) user explicitly refreshes
-    // ════════════════════════════════════════════════════════════
+    
+    
+    
+    
+    
     window.executeAIBreadthCheck = async function() {
     if (!_abpFund) return;
 
-    // ── API key check — direct to 🔐 panel, never prompt() ──
+    
     const apiKey = (window.getGeminiKey ? window.getGeminiKey() : localStorage.getItem('ld_gemini_api_key') || '');
     if (!apiKey) {
         const cn = document.getElementById('abpCacheNote');
@@ -13396,7 +13403,7 @@ categories.forEach(cat => {
         return;
     }
 
-    // ── Force-clear today's cache so this run re-fetches ────
+    
     const fundKey = _abpFund.code || _abpFund.name;
     _cacheClear(fundKey);
 
@@ -13422,16 +13429,16 @@ categories.forEach(cat => {
 
 
     try {
-        // ── Step 1: Identify index + top 5 stocks from fund name ──────────
+        
         function _abpGetStocks(name) {
             const n = (name || '').toLowerCase();
             if (n.includes('gold') || n.includes('silver'))
                 return { equity: false, reason: 'Commodity fund — equity breadth not applicable.' };
             if (n.includes('[nps]') && n.includes('scheme c'))
                 return { equity: false, reason: 'NPS Scheme C is a bond fund — equity breadth not applicable.' };
-            // LD246VAI: Full 58-fund index map — covers all SEBI benchmarks in Official Benchmarks table
+            
             const map = [
-                // ── Sectoral / Thematic ──────────────────────────────────────────────────────
+                
                 { k:'nifty it',          idx:'Nifty IT',              s:[['TCS.NS','TCS','20%'],['INFY.NS','Infosys','15%'],['HCLTECH.NS','HCL Tech','12%'],['WIPRO.NS','Wipro','10%'],['TECHM.NS','Tech Mahindra','8%']] },
                 { k:'private bank',      idx:'Nifty Private Bank',    s:[['HDFCBANK.NS','HDFC Bank','26%'],['ICICIBANK.NS','ICICI Bank','22%'],['KOTAKBANK.NS','Kotak Bank','16%'],['AXISBANK.NS','Axis Bank','14%'],['INDUSINDBK.NS','IndusInd Bank','10%']] },
                 { k:'nifty bank',        idx:'Nifty Bank',            s:[['HDFCBANK.NS','HDFC Bank','28%'],['ICICIBANK.NS','ICICI Bank','20%'],['KOTAKBANK.NS','Kotak Bank','12%'],['AXISBANK.NS','Axis Bank','10%'],['SBIN.NS','SBI','8%']] },
@@ -13443,14 +13450,14 @@ categories.forEach(cat => {
                 { k:'india digital',     idx:'Nifty India Digital',   s:[['INFY.NS','Infosys','20%'],['TCS.NS','TCS','18%'],['PERSISTENT.NS','Persistent','14%'],['COFORGE.NS','Coforge','12%'],['MPHASIS.NS','Mphasis','10%']] },
                 { k:'india consumption', idx:'Nifty India Consumption',s:[['ITC.NS','ITC','18%'],['HINDUNILVR.NS','HUL','16%'],['NESTLEIND.NS','Nestle India','12%'],['TITAN.NS','Titan','12%'],['DMART.NS','Avenue Supermarts','10%']] },
                 { k:'india defence',     idx:'Nifty India Defence',   s:[['HAL.NS','HAL','25%'],['BEL.NS','BEL','20%'],['BDL.NS','Bharat Dynamics','18%'],['BEML.NS','BEML','14%'],['DATAPATTNS.NS','Data Patterns','10%']] },
-                // LD246VAI NEW: BSE India Infrastructure (ABSL BSE India Infrastructure - Direct)
+                
                 { k:'india infra',       idx:'BSE India Infrastructure',s:[['LT.NS','L&T','18%'],['NTPC.NS','NTPC','14%'],['POWERGRID.NS','Power Grid','12%'],['ADANIPORTS.NS','Adani Ports','10%'],['BHEL.NS','BHEL','8%']] },
                 { k:'commodit',          idx:'Nifty Commodities',     s:[['COALINDIA.NS','Coal India','20%'],['ONGC.NS','ONGC','18%'],['HINDALCO.NS','Hindalco','14%'],['TATASTEEL.NS','Tata Steel','12%'],['JSWSTEEL.NS','JSW Steel','10%']] },
-                // ── Strategy / Factor ─────────────────────────────────────────────────────────
+                
                 { k:'quality 30',        idx:'Nifty100 Quality 30',   s:[['TCS.NS','TCS','12%'],['INFY.NS','Infosys','10%'],['BAJFINANCE.NS','Bajaj Finance','8%'],['ASIANPAINT.NS','Asian Paints','8%'],['HCLTECH.NS','HCL Tech','7%']] },
                 { k:'value 30',          idx:'Nifty200 Value 30',     s:[['ONGC.NS','ONGC','14%'],['COALINDIA.NS','Coal India','12%'],['NMDC.NS','NMDC','10%'],['POWERGRID.NS','Power Grid','10%'],['GAIL.NS','GAIL','8%']] },
                 { k:'200 momentum 30',   idx:'Nifty200 Momentum 30',  s:[['RELIANCE.NS','Reliance','15%'],['HDFCBANK.NS','HDFC Bank','12%'],['TCS.NS','TCS','10%'],['INFY.NS','Infosys','9%'],['ICICIBANK.NS','ICICI Bank','8%']] },
-                // LD246VAI: BSE 500 Momentum 50 must precede generic '500 momentum' to avoid mismatch
+                
                 { k:'bse 500 momentum',  idx:'BSE 500 Momentum 50',   s:[['RELIANCE.NS','Reliance','9%'],['HDFCBANK.NS','HDFC Bank','8%'],['TCS.NS','TCS','7%'],['ICICIBANK.NS','ICICI Bank','6%'],['INFY.NS','Infosys','5%']] },
                 { k:'500 momentum',      idx:'Nifty500 Momentum 50',  s:[['RELIANCE.NS','Reliance','10%'],['HDFCBANK.NS','HDFC Bank','8%'],['TCS.NS','TCS','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
                 { k:'midcap 150 mom',    idx:'Nifty Midcap150 Mom50', s:[['PERSISTENT.NS','Persistent','3%'],['COFORGE.NS','Coforge','2.5%'],['INDHOTEL.NS','Indian Hotels','2%'],['VOLTAS.NS','Voltas','2%'],['TUBEINVEST.NS','Tube Investments','1.8%']] },
@@ -13458,12 +13465,12 @@ categories.forEach(cat => {
                 { k:'smallcap 250',      idx:'Nifty SmallCap 250',    s:[['KPRMILL.NS','K.P.R. Mill','1.5%'],['HATSUN.NS','Hatsun Agro','1.2%'],['GALAXYSURF.NS','Galaxy Surfactants','1.1%'],['GENESYS.NS','Genesys Intl','1%'],['IIFLSEC.NS','IIFL Securities','0.9%']] },
                 { k:'fin serv ex',       idx:'Nifty Fin Serv Ex-Bank',s:[['BAJFINANCE.NS','Bajaj Finance','22%'],['SBILIFE.NS','SBI Life','14%'],['HDFCAMC.NS','HDFC AMC','12%'],['ICICIGI.NS','ICICI Lombard','10%'],['MUTHOOTFIN.NS','Muthoot Finance','8%']] },
                 { k:'500 multicap',      idx:'Nifty500 Multicap',     s:[['RELIANCE.NS','Reliance','8%'],['TCS.NS','TCS','7%'],['HDFCBANK.NS','HDFC Bank','6%'],['INFY.NS','Infosys','5%'],['ICICIBANK.NS','ICICI Bank','4%']] },
-                // ── Broad Market / Active Equity ──────────────────────────────────────────────
-                // LD246VAI NEW: Nifty 500 (HDFC/Kotak Flexi Cap) — must precede 'nifty 50' to avoid substring trap
+                
+                
                 { k:'nifty 500',         idx:'Nifty 500',             s:[['RELIANCE.NS','Reliance','9%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
-                // LD246VAI NEW: Flexi Cap / Flexicap funds (HDFC, ICICI, Kotak) — BSE 500 & Nifty 500 proxied via Nifty 500 top-5
+                
                 { k:'flexi',             idx:'Nifty 500 (Flexi Cap)',  s:[['RELIANCE.NS','Reliance','9%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
-                // LD246VAI NEW: BSE 500 (explicit key for any future BSE-500-named funds)
+                
                 { k:'bse 500',           idx:'BSE 500',               s:[['RELIANCE.NS','Reliance','8%'],['TCS.NS','TCS','7%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','6%'],['ICICIBANK.NS','ICICI Bank','5%']] },
                 { k:'nifty 50',          idx:'Nifty 50',              s:[['RELIANCE.NS','Reliance','10%'],['TCS.NS','TCS','8%'],['HDFCBANK.NS','HDFC Bank','7%'],['INFY.NS','Infosys','7%'],['ICICIBANK.NS','ICICI Bank','6%']] },
             ];
@@ -13473,7 +13480,7 @@ categories.forEach(cat => {
 
         const idxInfo = _abpGetStocks(fundName);
 
-        // Track this as a known Regime A fund for today's BA completion tracking
+        
         if (idxInfo.equity && parseFloat(fundWrsi) >= 50) {
             const _existing = _baLoadRegimeA() || [];
             const _alreadyKnown = _existing.some(f => (f.code||f.name) === fundKey);
@@ -13483,7 +13490,7 @@ categories.forEach(cat => {
             }
         }
 
-        // Non-equity: skip entirely
+        
         if (!idxInfo.equity) {
             _renderVerdict({ bull_count:0, bull_weight_sum:'0%', confirmation:'N/A', sop_action:'Not applicable.' });
             _renderStocks([]);
@@ -13494,13 +13501,13 @@ categories.forEach(cat => {
             return;
         }
 
-        // ════════════════════════════════════════════════════════
-        // Step 2: DATA PIPELINE — Yahoo → Stooq → (if both fail)
-        //         ONE unified Gemini call: search + analyse together
-        //         Max Gemini calls per tap = 1 (never 2)
-        // ════════════════════════════════════════════════════════
+        
+        
+        
+        
+        
 
-        // ── Shared RSI calculator (Wilder smoothing — uses user-set period) ──
+        
         function calcRSI(closes, period) {
             const p = period || window.userRsiLength || 14;
             if (closes.length < p + 1) return null;
@@ -13524,13 +13531,13 @@ categories.forEach(cat => {
             const last2  = closes.slice(-2);
             const trend  = last2[1] > last2[0] ? 'RISING' : 'FALLING';
             const regime = rsi >= 50 ? 'A' : rsi >= 40 ? 'B' : 'C';
-            // HOLD for Regime B (Watch zone) — not just BULL/BEAR
+            
             const verdict = regime === 'A' && trend === 'RISING' ? 'BULL'
                           : regime === 'B' ? 'HOLD' : 'BEAR';
             return { ticker: name, weight, trend_14d: trend, regime, verdict, note: rsi !== null ? String(rsi) : 'No data', rsi };
         }
 
-        // ── PASS 1 — Yahoo Finance direct ─────────────────────────
+        
         async function fetchYahoo(ticker) {
             const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1wk&range=22wk`;
             const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
@@ -13541,7 +13548,7 @@ categories.forEach(cat => {
             return closes;
         }
 
-        // ── PASS 1B — Yahoo via CORS proxy (allorigins.win) ───────
+        
         async function fetchYahooProxy(ticker) {
             const target = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1wk&range=22wk`);
             const url = `https://api.allorigins.win/raw?url=${target}`;
@@ -13553,7 +13560,7 @@ categories.forEach(cat => {
             return closes;
         }
 
-        // ── PASS 1C — Stooq.com (.in suffix for NSE) ──────────────
+        
         async function fetchStooq(ticker) {
             const stooqTicker = ticker.toLowerCase().replace(/\.ns$/, '.in').replace(/\.bo$/, '.in');
             const url = `https://stooq.com/q/d/l/?s=${stooqTicker}&i=w`;
@@ -13569,7 +13576,7 @@ categories.forEach(cat => {
             return closes;
         }
 
-        // ── PASS 1D — Stooq via CORS proxy ────────────────────────
+        
         async function fetchStooqProxy(ticker) {
             const stooqTicker = ticker.toLowerCase().replace(/\.ns$/, '.in').replace(/\.bo$/, '.in');
             const target = encodeURIComponent(`https://stooq.com/q/d/l/?s=${stooqTicker}&i=w`);
@@ -13586,8 +13593,8 @@ categories.forEach(cat => {
             return closes;
         }
 
-        // ── fetchWithFallbacks: try all 4 sources per ticker ──────
-        // Order: Yahoo direct → Yahoo proxy → Stooq → Stooq proxy
+        
+        
         async function fetchWithFallbacks(ticker) {
             const sources = [
                 () => fetchYahoo(ticker),
@@ -13596,15 +13603,15 @@ categories.forEach(cat => {
                 () => fetchStooqProxy(ticker),
             ];
             for (const src of sources) {
-                try { return await src(); } catch(e) { /* try next */ }
+                try { return await src(); } catch(e) {  }
             }
             throw new Error('All sources failed');
         }
 
-        // ── Gemini model cascade (no dead endpoint variable) ──────────
+        
         const geminiModel = window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash-lite';
 
-        // ── Triple RSI Conviction context (from live cockpit state) ───
+        
         const _tripleAligned = typeof window._tripleRsiAligned === 'number' ? window._tripleRsiAligned : null;
         const _convictionLabel = _tripleAligned === 3 ? 'HIGH (W4·W8·W14 all ≥50 — Triple Confluence)'
             : _tripleAligned === 2 ? 'MEDIUM (2 of 3 periods ≥50)'
@@ -13612,15 +13619,15 @@ categories.forEach(cat => {
             : _tripleAligned === 0 ? 'NONE (all periods <50)'
             : 'N/A (not computed)';
 
-        // ── callGemini: model cascade on 429 (no waiting — just switch model) ──
-        // Free-tier cascade (cheapest quota first — never starts with Pro)
-        // 1. Flash-Lite : 15 RPM / 1 000 RPD  ← primary (fastest quota)
-        // 2. Flash      : 10 RPM /   500 RPD  ← first fallback
-        // 3. Pro        :  5 RPM /   100 RPD  ← last resort (heavy tasks only)
+        
+        
+        
+        
+        
         const GEMINI_CASCADE = [
-            geminiModel,                                      // user's chosen model (default: Flash-Lite)
-            'gemini-2.5-flash',                               // fallback: standard Flash
-            'gemini-2.5-pro',                                 // last resort: Pro (heavy tasks only)
+            geminiModel,                                      
+            'gemini-2.5-flash',                               
+            'gemini-2.5-pro',                                 
         ];
 
         async function callGemini(prompt, useSearch = false) {
@@ -13645,15 +13652,15 @@ categories.forEach(cat => {
                     body: JSON.stringify(body)
                 });
 
-                if (res.status !== 429) return res;   // success or non-quota error — return as-is
+                if (res.status !== 429) return res;   
 
-                // 429 on this model — try next in cascade
+                
                 if (i < GEMINI_CASCADE.length - 1) {
                     loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:#f59e0b;padding:6px 0;">⚠ ${model} quota hit — trying next model…</div>`;
                     continue;
                 }
 
-                // All models exhausted — show countdown + retry on first model
+                
                 const reasonEl = document.getElementById('abpReasoningText');
                 document.getElementById('abpReasoning').classList.add('visible');
                 await new Promise(resolve => {
@@ -13681,9 +13688,9 @@ categories.forEach(cat => {
 
         const loadingEl = document.getElementById('abpLoading');
 
-        // ─────────────────────────────────────────────────────────
-        // ATTEMPT DIRECT FETCH (4 sources per stock in parallel) ──
-        // ─────────────────────────────────────────────────────────
+        
+        
+        
         loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">📡 Fetching weekly closes (Yahoo → Proxy → Stooq → Stooq Proxy)…</div>`;
 
         const p1Results = await Promise.allSettled(
@@ -13711,11 +13718,11 @@ categories.forEach(cat => {
         stocks = stocks.map(({ _failed, _idx, ...s }) => s);
         const stillMissing = stocks.filter(s => s.note === 'No data').length;
 
-        // ─────────────────────────────────────────────────────────
-        // SINGLE GEMINI CALL — google_search NEVER used
-        // Avoids google_search quota entirely
-        // If data missing: Gemini uses training knowledge (labelled estimates)
-        // ─────────────────────────────────────────────────────────
+        
+        
+        
+        
+        
         loadingEl.innerHTML = `<div style="text-align:center;font-size:0.62rem;color:var(--accent);padding:6px 0;">🧠 Sacred RSI Lie Detector running…</div>`;
 
         const stockListStr = idxInfo.stocks.map(([, name, weight]) => `${name} (${weight})`).join(', ');
@@ -13822,7 +13829,7 @@ Return a JSON object with this exact structure:
   "reasoning": "2–3 sentences on ${idxInfo.idx} breadth and overall market context."
 }`;
 
-        const resp = await callGemini(promptText2, false); // google_search NEVER used
+        const resp = await callGemini(promptText2, false); 
 
         const data = await resp.json();
         if (!resp.ok || data.error) throw new Error(data.error?.message || `API Error: ${resp.status}`);
@@ -13840,9 +13847,9 @@ Return a JSON object with this exact structure:
         try {
             parsed = JSON.parse(clean);
         } catch(parseErr) {
-            // Robust repair: handle unterminated strings, arrays, objects
+            
             let repaired = clean.trimEnd();
-            // Close unterminated string: if odd number of unescaped quotes, close it
+            
             const quoteCount = (repaired.match(/(?<!\\)"/g) || []).length;
             if (quoteCount % 2 !== 0) repaired += '"';
             // Close open arrays then objects
@@ -13880,7 +13887,7 @@ Return a JSON object with this exact structure:
         const runLbl2 = document.getElementById('abpRunBtnLabel');
 
         if (_allDone) {
-            // ── DAILY LOCK: all Regime A funds processed — stop all further BA calls ──
+            
             _baSetLock();
             runBtn2.disabled = true;
             runBtn2.style.background = '#1e3a2f';
@@ -13890,7 +13897,7 @@ Return a JSON object with this exact structure:
                 cacheNote.textContent = `🔒 Daily BA complete — all ${_totalRegimeA} Regime A funds analysed. Zero API calls on next open.`;
             }
         } else {
-            // Still pending funds — show progress
+            
             const _pending = _totalRegimeA - _completedToday.length;
             runBtn2.disabled = false;
             runBtn2.style.background = '#334155';
@@ -13914,25 +13921,25 @@ Return a JSON object with this exact structure:
     document.getElementById('abpRunBtn').disabled = _baIsLockedToday();
 };
 
-    // ── Close on overlay tap ───────────────────────────────
+    
     document.getElementById('aiBreadthOverlay').addEventListener('click', function(e){
         if (e.target === this) window.closeAIBreadthModal();
     });
 
-    // Export BA-view and watchlist helpers to global scope so onclick="..." works
+    
     window._openWatchlistBaView  = _openWatchlistBaView;
     window._buildWlBaList        = _buildWlBaList;
     window._launchBaFromWatchlist= _launchBaFromWatchlist;
     window._abpAddToWatchlist    = _abpAddToWatchlist;
-    })(); // ── END AI BREADTH IIFE ──────────────────────────
+    })(); 
 
-    // ════════════════════════════════════════════════════════════
-    // §5 RENDER — Verdict Box
-    // ════════════════════════════════════════════════════════════
+    
+    
+    
     function _renderVerdict(parsed) {
     const bc = typeof parsed.bull_count === 'number' ? parsed.bull_count : parseInt(parsed.bull_count) || 0;
     const bWeight = parsed.bull_weight_sum || '0%';
-    // Cross-check AI's confirmation field — take more conservative if they disagree
+    
     const aiConf = (parsed.confirmation || '').toUpperCase();
     let type, hl, sub, action;
 
@@ -13965,9 +13972,9 @@ Return a JSON object with this exact structure:
     act.textContent = action;
 }
 
-    // ════════════════════════════════════════════════════════════
-    // §6 RENDER — Stock Table (full 11-column, white bg, semantic colour)
-    // ════════════════════════════════════════════════════════════
+    
+    
+    
     function _renderStocks(stocks) {
     if (!stocks || !stocks.length) return;
     const grid = document.getElementById('abpStocksGrid');
@@ -14022,9 +14029,9 @@ Return a JSON object with this exact structure:
         </div>`;
 }
 
-    // ════════════════════════════════════════════════════════════
-    // §7 RENDER — Divergence + Psychology + Broad Scan
-    // ════════════════════════════════════════════════════════════
+    
+    
+    
     function _renderReasoning(text, parsed) {
         const el = document.getElementById('abpReasoningText');
         if (!el) return;
@@ -14032,7 +14039,7 @@ Return a JSON object with this exact structure:
 
         let html = '';
 
-        // 3a — Divergence Alert
+        
         const divAlert = parsed.divergence_alert || 'No divergence detected.';
         const isDivergent = !divAlert.toLowerCase().includes('no divergence');
         html += `<div style="margin-bottom:12px;padding:10px 12px;border-radius:7px;
@@ -14043,7 +14050,7 @@ Return a JSON object with this exact structure:
             <div style="font-size:0.72rem;color:#000;line-height:1.6;">${divAlert}</div>
         </div>`;
 
-        // 3b — Psychology Audit
+        
         const psych = parsed.psychology_audit || '';
         if (psych) {
             html += `<div style="margin-bottom:12px;padding:10px 12px;background:#faf5ff;border:1.5px solid #7c3aed;border-radius:7px;">
@@ -14052,7 +14059,7 @@ Return a JSON object with this exact structure:
             </div>`;
         }
 
-        // Breadth context
+        
         if (text) {
             html += `<div style="margin-bottom:12px;padding:10px 12px;background:#f8fafb;border:1.5px solid #d0d8e4;border-radius:7px;">
                 <div style="font-size:0.76rem;font-weight:800;color:#404060;letter-spacing:0.05em;margin-bottom:4px;">📊 BREADTH CONTEXT</div>
@@ -14060,7 +14067,7 @@ Return a JSON object with this exact structure:
             </div>`;
         }
 
-        // Section 4 — Broad Market Regime A Scan
+        
         const bm = parsed.broad_market_regime_a;
         if (bm && bm.length) {
             html += `<div style="margin-top:4px;">
@@ -14431,10 +14438,10 @@ Return a JSON object with this exact structure:
         const chatArea = document.getElementById('ld-ai-chat-area');
         const input = document.getElementById('ld-ai-input');
         const submit = document.getElementById('ld-ai-submit');
-        // ── Gemini API key management (PA.html pattern) ────────────
-        const GEMINI_MODEL_DEFAULT = 'gemini-2.5-flash-lite'; // Free-tier primary: 15 RPM / 1 000 RPD
+        
+        const GEMINI_MODEL_DEFAULT = 'gemini-2.5-flash-lite'; 
 
-        // ── Model selector — persist choice ────────────────────────
+        
         const modelSelect = document.getElementById('ld-gemini-model-select');
         const savedModel = localStorage.getItem('ld_gemini_model') || GEMINI_MODEL_DEFAULT;
         if (modelSelect) {
@@ -14443,7 +14450,7 @@ Return a JSON object with this exact structure:
                 const chosen = this.value;
                 const label = this.options[this.selectedIndex].text;
                 localStorage.setItem('ld_gemini_model', chosen);
-                // Show brief status in key box status area if visible, else no-op
+                
                 if (keyStatus && keyBox && keyBox.style.display !== 'none') {
                     keyStatus.innerHTML = `<span style="color:#fbbf24">✅ Model → ${label}</span>`;
                     setTimeout(_updateKeyStatus, 1500);
@@ -14451,7 +14458,7 @@ Return a JSON object with this exact structure:
             });
         }
 
-        // ── API gap selector ───────────────────────────────────────
+        
         (function() {
             const gapSel  = document.getElementById('ld-api-gap-select');
             const gapSave = document.getElementById('ld-gap-save');
@@ -14476,13 +14483,13 @@ Return a JSON object with this exact structure:
             return localStorage.getItem('ld_gemini_model') || GEMINI_MODEL_DEFAULT;
         }
 
-        // ══════════════════════════════════════════════════════════════
-        // DUAL-KEY SYSTEM
-        // ld_gemini_api_key  = Primary key (Key 1)
-        // ld_gemini_api_key2 = Backup key  (Key 2)
-        // On 429, auto-shift to Key 2; restore to Key 1 on next session
-        // ══════════════════════════════════════════════════════════════
-        let _activeKeySlot = parseInt(localStorage.getItem('ld_active_key_slot')||'1'); // persisted
+        
+        
+        
+        
+        
+        
+        let _activeKeySlot = parseInt(localStorage.getItem('ld_active_key_slot')||'1'); 
 
         function _getKey(slot) {
             const k = slot === 2
@@ -14492,17 +14499,17 @@ Return a JSON object with this exact structure:
         }
 
         function getGeminiKey() {
-            // Return active key; if missing fall back to the other slot
+            
             const primary = _getKey(1);
             const backup  = _getKey(2);
             if (_activeKeySlot === 2 && backup) return backup;
             if (primary) return primary;
             if (backup)  return backup;
-            return null; // no key — caller must prompt via UI
+            return null; 
         }
 
         function shiftToBackupKey() {
-            // Called on 429 to switch from Key1 → Key2
+            
             const backup = _getKey(2);
             if (backup && _activeKeySlot === 1) {
                 _activeKeySlot = 2;
@@ -14520,8 +14527,8 @@ Return a JSON object with this exact structure:
             localStorage.removeItem('ld_gemini_api_key');
         }
 
-        // ── Key Manager UI ─────────────────────────────────────────────
-        // ALL DOM refs and functions defined here, THEN window.* assigned below
+        
+        
         const keyBtn        = document.getElementById('ld-ai-key-btn');
         const keyBox        = document.getElementById('ld-ai-key-box');
         const key1Input     = document.getElementById('ld-key1-input');
@@ -14535,7 +14542,7 @@ Return a JSON object with this exact structure:
             return k ? `${k.slice(0,6)}…${k.slice(-4)} (${k.length}c)` : '— not saved';
         }
 
-        // Apply green/default colour to save buttons based on whether key is stored
+        
         function _refreshButtonStates() {
             const k1 = _getKey(1), k2 = _getKey(2);
             if (key1SaveBtn) {
@@ -14578,7 +14585,7 @@ Return a JSON object with this exact structure:
         function openKeyBox() {
             if (!keyBox) return;
             keyBox.style.display = 'block';
-            // Do NOT clear inputs — show existing key hints so user knows key is saved
+            
             const _k1 = _getKey(1), _k2 = _getKey(2);
             if (key1Input && !key1Input.value) key1Input.placeholder = _k1 ? `✅ K1 saved (${_k1.slice(0,6)}… ${_k1.length}c) — paste new to replace` : 'AIza… (39 chars)';
             if (key2Input && !key2Input.value) key2Input.placeholder = _k2 ? `✅ K2 saved (${_k2.slice(0,6)}… ${_k2.length}c) — paste new to replace` : 'AIza… (optional backup)';
@@ -14604,7 +14611,7 @@ Return a JSON object with this exact structure:
             }
             const storageKey = slot === 2 ? 'ld_gemini_api_key2' : 'ld_gemini_api_key';
             localStorage.setItem(storageKey, val);
-            // Immediately turn this slot's button green
+            
             const btn = slot === 1 ? key1SaveBtn : key2SaveBtn;
             const inp = slot === 1 ? key1Input   : key2Input;
             if (btn) {
@@ -14615,11 +14622,11 @@ Return a JSON object with this exact structure:
             }
             if (inp) inp.value = '';
             _updateKeyStatus();
-            // Auto-close after saving K1; stay open for K2 so user can also enter K2
+            
             if (slot === 1) setTimeout(() => {
                 closeKeyBox();
                 _refreshButtonStates();
-                // Trigger BG scan if it hasn't run today and addon is loaded
+                
                 if (window.bgBreadthForceRun && !localStorage.getItem('bgbreadth_ran_' +
                     new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,''))) {
                     setTimeout(window.bgBreadthForceRun, 1000);
@@ -14627,7 +14634,7 @@ Return a JSON object with this exact structure:
             }, 1400);
         }
 
-        // Wire up buttons
+        
         if (keyBtn)       keyBtn.addEventListener('click', openKeyBox);
         if (keyCancelBtn) keyCancelBtn.addEventListener('click', closeKeyBox);
         if (key1SaveBtn)  key1SaveBtn.addEventListener('click', () => _saveKey(1, (key1Input.value||'').trim()));
@@ -14639,11 +14646,11 @@ Return a JSON object with this exact structure:
                 if (e.key === 'Escape') closeKeyBox();
             });
         });
-        // Show key status immediately on load — user sees ✅ K1 Active if key is already saved
+        
         _refreshButtonStates();
         _updateKeyStatus();
 
-        // Expose globals AFTER all functions are defined
+        
         window.getGeminiKey      = getGeminiKey;
         window.clearGeminiKey    = clearGeminiKey;
         window.getGeminiModel    = getGeminiModel;
@@ -14660,7 +14667,7 @@ Return a JSON object with this exact structure:
             }
         }
 
-        // === Scroll-to-bottom button wiring ===
+        
         const scrollBtn = document.getElementById('ld-ai-scroll-btn');
         if (scrollBtn) {
             scrollBtn.addEventListener('click', () => {
@@ -14722,18 +14729,18 @@ Return a JSON object with this exact structure:
                 return;
             }
 
-            // Escape HTML
+            
             let safe = text
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
 
-            // Split into verdict block and body
+            
             const verdictStart = safe.search(/▶\s*SIGNAL:/);
             let bodyText = verdictStart >= 0 ? safe.slice(0, verdictStart) : safe;
             let verdictText = verdictStart >= 0 ? safe.slice(verdictStart) : '';
 
-            // Format body — step headers, bold, line breaks
+            
             bodyText = bodyText
                 .replace(/(STEP \d[^\n]*)/g, '<span class="ai-step-header">$1</span>')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -14743,7 +14750,7 @@ Return a JSON object with this exact structure:
                 .replace(/(MACRO VETO: NO[^\n]*)/g, '<span class="ai-buy">$1</span>')
                 .replace(/\n/g, '<br>');
 
-            // Format verdict block
+            
             if (verdictText) {
                 verdictText = verdictText
                     .replace(/(▶\s*SIGNAL:\s*)([A-Z\/\s]+)/g, (_, prefix, val) => {
@@ -14761,7 +14768,7 @@ Return a JSON object with this exact structure:
             d.innerHTML = bodyText + verdictText;
             chatArea.appendChild(d);
 
-            // Scroll to bottom + show scroll button if user scrolled up
+            
             requestAnimationFrame(() => {
                 chatArea.scrollTop = chatArea.scrollHeight;
                 if (scrollBtn) scrollBtn.style.display = 'none';
@@ -14779,7 +14786,7 @@ Return a JSON object with this exact structure:
             return { fundName, fundCode };
         }
         function gatherLeanContext() {
-            let ctx = "=== LD246A LEAN TARGET FUND DUMP ===\n";
+            let ctx = "=== LD247 LEAN TARGET FUND DUMP ===\n";
             ctx += `Timestamp: ${new Date().toISOString()}\n`;
             const { fundName, fundCode } = getFundInfo();
             const regime = document.getElementById('liveRegimeBlock')?.textContent || document.getElementById('regimeBlock')?.textContent || 'N/A';
@@ -14801,7 +14808,7 @@ Return a JSON object with this exact structure:
                 }
             });
 
-            // === FIX 1A: W-RSI Slope Direction (acceleration) ===
+            
             ctx += "\n[W-RSI DIRECTION (3-BAR SLOPE)]\n";
             try {
                 ['wRsi4Cache','wRsi8Cache','wRsi14Cache'].forEach((key, idx) => {
@@ -14817,7 +14824,7 @@ Return a JSON object with this exact structure:
                 });
             } catch(e) { ctx += "W-RSI Direction: UNAVAILABLE\n"; }
 
-            // === FIX 1B: W-RSI Confluence Conviction Grade ===
+            
             ctx += "\n[W-RSI CONFLUENCE CONVICTION]\n";
             try {
                 const w4  = window.wRsi4Cache?.[window.wRsi4Cache.length - 1]  || 0;
@@ -14831,14 +14838,14 @@ Return a JSON object with this exact structure:
                 ctx += `W-RSI values: 4W=${Math.round(w4)} | 8W=${Math.round(w8)} | 14W=${Math.round(w14)}\n`;
             } catch(e) { ctx += "Conviction: UNAVAILABLE\n"; }
 
-            // === FIX 1C: PC-Breakout Flag ===
+            
             ctx += "\n[PC-BREAKOUT SIGNAL]\n";
             try {
                 const pcAlert = window._lastPcAlert || false;
                 ctx += `PC-BREAKOUT ALERT: ${pcAlert ? 'YES — Consolidation breakout detected → TIER 3 BUY eligible' : 'NO — No consolidation breakout'}\n`;
             } catch(e) { ctx += "PC-BREAKOUT ALERT: UNAVAILABLE\n"; }
 
-            // === NC Breakdown alert read ===
+            
             ctx += "\n[NC BREAKDOWN ALERT]\n";
             try {
                 const ncAlert = window._lastNcAlert || false;
@@ -14861,7 +14868,7 @@ Return a JSON object with this exact structure:
                 }
             } catch(e) { ctx += "REGIME CROSSOVER: UNAVAILABLE\n"; }
 
-            // === FIX 1E: Nifty 50 Macro Veto (explicit data field) ===
+            
             ctx += "\n[NIFTY 50 MACRO GATE]\n";
             try {
                 const niftyWrsi = window._niftyWrsi;
@@ -14880,7 +14887,7 @@ Return a JSON object with this exact structure:
                 ctx += `MACRO VETO: ${macroVeto ? 'YES — ALL BUY SIGNALS BLOCKED. Output WAIT only.' : 'NO — BUY signals permitted.'}\n`;
             } catch(e) { ctx += "Nifty 50 Macro: UNAVAILABLE — treat as CAUTION\n"; }
 
-            // === FIX 1F: RRG Quadrant with action signal ===
+            
             ctx += "\n[RRG QUADRANT — ROTATION SIGNAL]\n";
             try {
                 const rrgQuad    = document.getElementById('lcRrgStatusLabel')?.textContent
@@ -14904,7 +14911,7 @@ Return a JSON object with this exact structure:
             return ctx;
         }
         function gatherContext() {
-            let ctx = "=== LD246A SIGNAL DEEP DUMP ===\n";
+            let ctx = "=== LD247 SIGNAL DEEP DUMP ===\n";
             ctx += `Timestamp: ${new Date().toISOString()}\n`;
             const activeModal = document.querySelector('.modal[style*="display: flex"]');
             ctx += `\n[UI SURFACE]\nVisible Screen: ${activeModal ? activeModal.id : 'Main Dashboard'}\n`;
@@ -15001,10 +15008,10 @@ Return a JSON object with this exact structure:
                                 : 'UNKNOWN — proceed without rotation context';
             ctx += `\n[RRG QUADRANT STATUS]\nQuadrant: ${rrgQuad}\nRS Trend: ${rrgRsTrend}\nADX Intensity: ${rrgAdx}\n${rrgCross}\nRRG ACTION SIGNAL: ${rrgDeepSignal}\n`;
 
-            // === FIX 2B: C3 Momentum vs BAF Comparison (deep context only) ===
+            
             try {
                 const baf = window._lastBafComparison;
-                const staleMs = 30 * 60 * 1000; // 30 min
+                const staleMs = 30 * 60 * 1000; 
                 if (baf && baf.baf1m != null && (Date.now() - baf.timestamp) < staleMs) {
                     const fund1m = baf.fund1m != null ? baf.fund1m : null;
                     ctx += `\n[C3 MOMENTUM vs BAF COMPARISON]\n`;
@@ -15034,7 +15041,7 @@ Return a JSON object with this exact structure:
                 ctx += `\n[C3 MOMENTUM vs BAF]\nUnable to read BAF comparison data.\n`;
             }
 
-            // === FIX 2B continued: W-RSI Direction + Conviction in deep mode ===
+            
             ctx += "\n[W-RSI DIRECTION + CONVICTION (DEEP)]\n";
             try {
                 const grades = [];
@@ -15058,7 +15065,7 @@ Return a JSON object with this exact structure:
                 }
             } catch(e) { ctx += "W-RSI Direction: UNAVAILABLE\n"; }
 
-            // === Nifty 50 Macro Gate (deep mode explicit) ===
+            
             ctx += "\n[NIFTY 50 MACRO GATE]\n";
             try {
                 const niftyWrsi = window._niftyWrsi;
@@ -15076,7 +15083,7 @@ Return a JSON object with this exact structure:
                 ctx += `MACRO VETO: ${macroVeto ? 'YES — ALL BUY SIGNALS BLOCKED' : 'NO — BUY signals permitted'}\n`;
             } catch(e) { ctx += "Nifty 50 Regime: UNAVAILABLE\n"; }
 
-            // === Regime Crossover Event (deep mode) ===
+            
             ctx += "\n[REGIME CROSSOVER EVENT]\n";
             try {
                 const w4arr = window.wRsi4Cache || [];
@@ -15114,7 +15121,7 @@ Return a JSON object with this exact structure:
             }
             return ctx;
         }
-        // ── LOCAL ANALYSIS — no AI, no tokens ─────────────────────
+        
         function runLocalLean() {
             appendMsg('user', '📊 Current Fund — Lean Analysis');
             const dump = gatherLeanContext();
@@ -15140,7 +15147,7 @@ Return a JSON object with this exact structure:
         }
 
         function interpretSignalDump(dump, isDeep) {
-            // ── Read from LD_AUDITOR_STATE (written by live cockpit on every render) ──
+            
             const S = window.LD_AUDITOR_STATE;
 
             if (!S || !S.fund || S.fund === 'N/A') {
@@ -15151,14 +15158,14 @@ Return a JSON object with this exact structure:
                     w4, w8, w14, tripleRsiAligned, conviction, crossover, pcAlert, ncAlert,
                     macroVeto, niftyWrsi, ts } = S;
 
-            // ── Regime flags ──
+            
             const regA = wrsi >= 50, regB = wrsi >= 40 && wrsi < 50, regC = wrsi < 40;
             const convGrade = conviction.startsWith('HIGH') ? 'HIGH'
                             : conviction.startsWith('MEDIUM') ? 'MEDIUM' : 'LOW';
 
-            // ─────────────────────────────────────────────────────────
-            // SHARED: derive the current-fund signal (used by both modes)
-            // ─────────────────────────────────────────────────────────
+            
+            
+            
             let signal = 'HOLD', tier = '—', finalConv = convGrade, reasons = [];
             let nextAction = 'Monitor regime and RSI. No action required.';
 
@@ -15220,9 +15227,9 @@ Return a JSON object with this exact structure:
                 }
             }
 
-            // ─────────────────────────────────────────────────────────
-            // LEAN MODE — current fund verdict only (concise, 10 lines)
-            // ─────────────────────────────────────────────────────────
+            
+            
+            
             if (!isDeep) {
                 const macroLine = macroVeto === true  ? `🚨 BLOCKED (Nifty W-RSI ${niftyWrsi})`
                                 : macroVeto === false ? `✅ CLEAR (Nifty W-RSI ${niftyWrsi})`
@@ -15244,28 +15251,28 @@ Return a JSON object with this exact structure:
                 return out;
             }
 
-            // ─────────────────────────────────────────────────────────
-            // DEEP MODE — parse dump for portfolio-wide analysis
-            // ─────────────────────────────────────────────────────────
-            // Helper: extract a section from the dump string
+            
+            
+            
+            
             const getSection = (header) => {
                 const re = new RegExp(`\\[${header}\\]([\\s\\S]*?)(?=\\n\\[|$)`);
                 const m = dump.match(re);
                 return m ? m[1].trim() : '';
             };
 
-            // Portfolio slots
+            
             const portfolioSec = getSection('LIVE PORTFOLIO STATE[^\\]]*');
             const slot1Line = dump.match(/SLOT1: (.+)/)?.[1] || 'EMPTY';
             const slot2Line = dump.match(/SLOT2: (.+)/)?.[1] || 'EMPTY';
             const slot1Status = dump.match(/SLOT1[\s\S]{0,80}Status: ([^\n]+)/)?.[1] || '';
             const slot2Status = dump.match(/SLOT2[\s\S]{0,80}Status: ([^\n]+)/)?.[1] || '';
 
-            // Switch journal
+            
             const switchSec = getSection('SWITCH JOURNAL[^\\]]*');
             const hasSwitches = switchSec && !switchSec.includes('No active');
 
-            // Watchlist
+            
             const watchSec = getSection('WATCHLIST[^\\]]*');
             const watchFunds = [];
             if (watchSec) {
@@ -15280,7 +15287,7 @@ Return a JSON object with this exact structure:
             const watchA = watchFunds.filter(f => f.regime === 'A' || (f.wrsi && parseFloat(f.wrsi) >= 50));
             const watchC = watchFunds.filter(f => f.regime === 'C' || (f.wrsi && parseFloat(f.wrsi) < 40));
 
-            // Allocator top-2
+            
             const allocSec = getSection('ALLOCATOR STATE[^\\]]*');
             const allocTop = [];
             if (allocSec) {
@@ -15293,30 +15300,30 @@ Return a JSON object with this exact structure:
                 });
             }
 
-            // C3/BAF
+            
             const c3Line = dump.match(/C3 SIGNAL: ([^\n]+)/)?.[1] || 'N/A';
             const beatsBaf = dump.match(/BEATS BAF \(1M\): ([^\n]+)/)?.[1] || 'N/A';
 
-            // RRG
+            
             const rrgQuad = dump.match(/Quadrant: ([^\n]+)/)?.[1] || 'N/A';
             const rrgSig  = dump.match(/RRG ACTION SIGNAL: ([^\n]+)/)?.[1] || 'N/A';
 
-            // Deployment
+            
             const depLine = dump.match(/Currently Deployed: ([^\n]+)/)?.[1] || 'N/A';
 
-            // Macro
+            
             const macroLine2 = macroVeto === true  ? `🚨 BLOCKED — Nifty W-RSI ${niftyWrsi} (FEAR)`
                              : macroVeto === false ? `✅ CLEAR — Nifty W-RSI ${niftyWrsi}`
                              : `⚠ UNVERIFIED (Nifty loading)`;
 
-            // Build output
+            
             let out = `🔍 DEEP SCAN — PORTFOLIO VIEW\n`;
             out += `─────────────────────────────\n`;
             out += `MACRO GATE  : ${macroLine2}\n`;
             out += `Deployment  : ${depLine}\n`;
             out += `─────────────────────────────\n`;
 
-            // Section 1 — Current Fund
+            
             out += `\n① CURRENT FUND — ${fund} (${code})\n`;
             out += `   Regime ${regime} | W-RSI ${w4 ?? wrsi} | D-RSI ${drsi} | Delta ${delta}\n`;
             out += `   NAV ₹${nav.toFixed(2)} | TSL ${tslVal > 0 ? '₹'+tslVal.toFixed(2) : 'N/A'} | WMA ₹${wma20 ? wma20.toFixed(2) : 'N/A'}\n`;
@@ -15324,7 +15331,7 @@ Return a JSON object with this exact structure:
             out += `   ▶ ${signal} [${tier}] — Conviction: ${finalConv}\n`;
             out += `   ▶ ${nextAction}\n`;
 
-            // Section 2 — Portfolio Slots
+            
             out += `\n② PORTFOLIO SLOTS\n`;
             out += `   Slot 1: ${slot1Line}${slot1Status ? ' — '+slot1Status : ''}\n`;
             out += `   Slot 2: ${slot2Line}${slot2Status ? ' — '+slot2Status : ''}\n`;
@@ -15336,7 +15343,7 @@ Return a JSON object with this exact structure:
                 out += `   Switch Journal: No active switch positions\n`;
             }
 
-            // Section 3 — Watchlist Scan
+            
             out += `\n③ WATCHLIST SCAN (${watchFunds.length} funds)\n`;
             if (watchA.length > 0) {
                 out += `   ✅ Regime A (BUY eligible): ${watchA.map(f => f.name).join(', ')}\n`;
@@ -15351,7 +15358,7 @@ Return a JSON object with this exact structure:
                 out += `   🟡 Regime B (WATCH): ${watchB.map(f => f.name).join(', ')}\n`;
             }
 
-            // Section 4 — Allocator Top-2
+            
             out += `\n④ ALLOCATOR TOP-2 PICKS\n`;
             if (allocTop.length > 0) {
                 allocTop.forEach((f, i) => {
@@ -15364,14 +15371,14 @@ Return a JSON object with this exact structure:
                 out += `   No allocator data. Run Allocator scan first.\n`;
             }
 
-            // Section 5 — RRG + C3
+            
             out += `\n⑤ ROTATION + MOMENTUM CONFIRM\n`;
             out += `   RRG Quadrant : ${rrgQuad}\n`;
             out += `   RRG Signal   : ${rrgSig}\n`;
             out += `   C3 Signal    : ${c3Line}\n`;
             out += `   Beats BAF 1M : ${beatsBaf}\n`;
 
-            // Section 6 — Portfolio Action
+            
             out += `\n⑥ PORTFOLIO ACTION\n`;
             const bothEmpty = slot1Line === 'EMPTY' && slot2Line === 'EMPTY';
             const oneEmpty  = (slot1Line === 'EMPTY') !== (slot2Line === 'EMPTY');
@@ -15396,7 +15403,7 @@ Return a JSON object with this exact structure:
             out += `Scan captured: ${ts ? ts.slice(0,19).replace('T',' ')+' UTC' : '—'}`;
             return out;
         }
-        // ── Button wiring ──────────────────────────────────────
+        
         const analyzeBtn = document.getElementById('ld-ai-analyze-fund-btn');
         if (analyzeBtn) {
             analyzeBtn.onclick = (e) => { e.preventDefault(); runLocalLean(); };
@@ -15406,13 +15413,13 @@ Return a JSON object with this exact structure:
             deepBtn.onclick = (e) => { e.preventDefault(); runLocalDeep(); };
         }
 
-        // ── Free-text input: Gemini AI for open questions, local for shortcuts ──
+        
         async function routePrompt(txt) {
             if (!txt.trim()) return;
             input.value = '';
             const lower = txt.toLowerCase();
 
-            // Local shortcut keywords → use fast local engine
+            
             if (lower.includes('deep') || lower.includes('full scan') || lower.includes('all funds')) {
                 runLocalDeep(); return;
             }
@@ -15420,7 +15427,7 @@ Return a JSON object with this exact structure:
                 runLocalLean(); return;
             }
 
-            // ── All other queries → call Gemini AI (dual-key aware) ────
+            
             const apiKey = getGeminiKey();
             if (!apiKey) {
                 appendMsg('system', '⚠ No API key saved. Tap 🔐 in the header to add your Gemini API key.\nTip: Use ⚡ Lean or 🔍 Deep buttons for token-free local analysis.');
@@ -15430,25 +15437,25 @@ Return a JSON object with this exact structure:
 
             appendMsg('user', txt);
 
-            // Build context from current state
+            
             let ctx = '';
             try { ctx = gatherLeanContext(); } catch(e) { ctx = '(Fund context unavailable — open Live Cockpit first)'; }
 
             const systemPrompt =
-                'You are the LD246 System Brain — an expert NPS/MF fund analyst embedded in the Lie Detector app.\n' +
+                'You are the LD247 System Brain — an expert NPS/MF fund analyst embedded in the Lie Detector app.\n' +
                 'You analyse Indian NPS and Mutual Fund NAV data using RSI, W-RSI, regime classification (A/B/C), TSL floors, WMA20, and momentum signals.\n' +
                 'Rules: Regime A (W-RSI≥50)=Bull, B (40-50)=Transition, C (<40)=Bear. D-RSI<40=oversold BUY zone. TSL breach=SELL ALL.\n' +
                 'Answer concisely. Use ₹ for prices. Highlight BUY/SELL signals clearly. Below is the current fund data:\n\n' +
                 ctx;
 
-            // Show typing indicator
+            
             const loadDiv = document.createElement('div');
             loadDiv.className = 'ld-ai-message system';
             loadDiv.textContent = '⏳ Analysing with Gemini AI…';
             chatArea.appendChild(loadDiv);
             chatArea.scrollTop = chatArea.scrollHeight;
 
-            // ── Dual-key fetch: try Key1, on 429 shift to Key2 ─────────
+            
             async function dualKeyFetch(promptText) {
                 const model = getGeminiModel();
                 const payload = { contents: [{ parts: [{ text: promptText }] }] };
@@ -15459,7 +15466,7 @@ Return a JSON object with this exact structure:
                         ? localStorage.getItem('ld_gemini_api_key2')
                         : localStorage.getItem('ld_gemini_api_key');
                     if (!k) continue;
-                    // Only show "switching" message if K1 was actually called and got 429
+                    
                     if (slot === 2 && k1Used) {
                         loadDiv.textContent = '⚡ Key 1 quota hit — switching to Key 2…';
                         chatArea.scrollTop = chatArea.scrollHeight;
@@ -15467,8 +15474,8 @@ Return a JSON object with this exact structure:
                     const ep = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${k.trim()}`;
                     const res = await fetch(ep, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
                     if (slot === 1) k1Used = true;
-                    if (res.status === 429 && slot === 1) continue; // try Key2
-                    return res; // success, error, or Key2 429
+                    if (res.status === 429 && slot === 1) continue; 
+                    return res; 
                 }
                 throw new Error('Both API keys hit quota (429). Wait ~1 min and retry.');
             }
@@ -15482,8 +15489,8 @@ Return a JSON object with this exact structure:
                 if (data.error) {
                     const errMsg = data.error.message || 'Unknown Gemini error';
                     if (data.error.code === 400 || data.error.code === 403) {
-                        // Do NOT auto-clear the key — a transient 400/403 should not wipe a valid saved key.
-                        // Only show error; user can re-enter via 🔐 if genuinely invalid.
+                        
+                        
                         appendMsg('system', `🔑 API key error (${data.error.code}): ${errMsg}\n\nIf your key is invalid, tap 🔐 to update it.`);
                     } else if (data.error.code === 429) {
                         appendMsg('system', `⏳ Both API keys are at quota limit.\nWait ~1 minute and try again, or add a second key via 🔐.`);
@@ -15512,12 +15519,12 @@ Return a JSON object with this exact structure:
     (function() {
         'use strict';
 
-        // ── State ──────────────────────────────────────────────────────
-        let _pdfBase64    = null;   // raw base64 of last uploaded PDF
+        
+        let _pdfBase64    = null;   
         let _pdfFilename  = '';
         const GEMINI_PDF_MODEL = (window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash-lite');
 
-        // ── Defer until DOM is fully ready ─────────────────────────────
+        
         function init() {
         const fileInput    = document.getElementById('ld-pdf-file-input');
         const panel        = document.getElementById('cmp-pdf-panel');
@@ -15529,12 +15536,12 @@ Return a JSON object with this exact structure:
         const takeawaysBtn = document.getElementById('cmp-pdf-takeaways-btn');
         const toast        = document.getElementById('ld-pdf-toast');
 
-        // Null-guard: bail if any critical element is missing
+        
         if (!fileInput || !panel || !chatEl || !summariseBtn || !takeawaysBtn || !askBtn || !pdfInput || !toast) {
             return;
         }
 
-        // ── Toast helper ───────────────────────────────────────────────
+        
         function showToast(msg) {
             toast.innerHTML = msg;
             toast.style.opacity = '1';
@@ -15545,7 +15552,7 @@ Return a JSON object with this exact structure:
             }, 4000);
         }
 
-        // ── Chat message helper ────────────────────────────────────────
+        
         function addMsg(role, html) {
             const d = document.createElement('div');
             d.style.cssText = `margin-bottom:10px;padding:8px 10px;border-radius:6px;white-space:pre-wrap;word-wrap:break-word;`;
@@ -15577,13 +15584,13 @@ Return a JSON object with this exact structure:
             if (l) l.remove();
         }
 
-        // ── Get Gemini key — delegates to shared window.getGeminiKey, never uses prompt() ──
+        
         function getKey() {
             const k = window.getGeminiKey ? window.getGeminiKey() : localStorage.getItem('ld_gemini_api_key');
             return k ? k.trim() : null;
         }
 
-        // ── fetchWithRetry (local copy, handles 429) ───────────────────
+        
         async function fetchRetry(url, opts, retries = 2) {
             const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
             for (let i = 0; i <= retries; i++) {
@@ -15593,7 +15600,7 @@ Return a JSON object with this exact structure:
             }
         }
 
-        // ── Core Gemini PDF call ───────────────────────────────────────
+        
         async function callGeminiPdf(promptText) {
             const key = getKey();
             if (!key) throw new Error('No API key provided.');
@@ -15614,7 +15621,7 @@ Return a JSON object with this exact structure:
             if (data.error) {
                 const code = data.error.code;
                 if (code === 400 || code === 403) {
-                    // Do NOT auto-clear — only show error; key stays in storage.
+                    
                     throw new Error(`API key error (${code}): ${data.error.message} — tap 🔐 to update key if invalid.`);
                 }
                 throw new Error(`Gemini error (${code}): ${data.error.message}`);
@@ -15625,25 +15632,25 @@ Return a JSON object with this exact structure:
             return text;
         }
 
-        // ── File upload handler ────────────────────────────────────────
+        
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files?.[0];
             if (!file) return;
-            e.target.value = ''; // allow re-upload
+            e.target.value = ''; 
 
             _pdfFilename = file.name;
             const reader = new FileReader();
             reader.onload = () => {
                 _pdfBase64 = reader.result.split(',')[1];
 
-                // Show panel
+                
                 panel.style.display = 'flex';
                 chatEl.innerHTML = '';
                 filenameEl.textContent = `📄 ${_pdfFilename}`;
                 addMsg('system', `PDF loaded: "${_pdfFilename}"\n\nTap 📝 Summarise for a full summary, ⚡ Takeaways for key points, or type any question below.`);
                 showToast(`✅ PDF loaded — "${_pdfFilename}"`);
 
-                // Scroll compareModal to show PDF panel
+                
                 const compareModal = document.getElementById('compareModal');
                 if (compareModal) setTimeout(() => { compareModal.scrollTop = compareModal.scrollHeight; }, 100);
             };
@@ -15651,7 +15658,7 @@ Return a JSON object with this exact structure:
             reader.readAsDataURL(file);
         });
 
-        // ── Summarise button ───────────────────────────────────────────
+        
         summariseBtn.addEventListener('click', async () => {
             if (!_pdfBase64) { showToast('⚠ Upload a PDF first using the 📤 Upload PDF button.'); return; }
             addMsg('user', '📝 Summarise this PDF');
@@ -15677,7 +15684,7 @@ Return a JSON object with this exact structure:
             }
         });
 
-        // ── Takeaways button ───────────────────────────────────────────
+        
         takeawaysBtn.addEventListener('click', async () => {
             if (!_pdfBase64) { showToast('⚠ Upload a PDF first using the 📤 Upload PDF button.'); return; }
             addMsg('user', '⚡ Key Takeaways');
@@ -15700,7 +15707,7 @@ Return a JSON object with this exact structure:
             }
         });
 
-        // ── Free-text ask ──────────────────────────────────────────────
+        
         async function askPdf(question) {
             if (!question.trim()) return;
             if (!_pdfBase64) { showToast('⚠ Upload a PDF first using the 📤 Upload PDF button.'); return; }
@@ -15727,12 +15734,12 @@ Return a JSON object with this exact structure:
         askBtn.addEventListener('click', () => askPdf(pdfInput.value));
         pdfInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); askPdf(pdfInput.value); } });
 
-        } // end init()
+        } 
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
-            init(); // DOM already ready (script at bottom of body)
+            init(); 
         }
 
     })();
@@ -15789,7 +15796,7 @@ Return a JSON object with this exact structure:
                             : S.conviction?.startsWith('MEDIUM') ? '#f5a623' : '#f04060';
             const drsiColor = S.drsi < 35 ? '#00e8a2' : S.drsi < 40 ? '#f5a623' : '#e0e0e0';
 
-            // ── Derive live signal from state (same logic as interpretSignalDump) ──
+            
             let liveSignal = 'HOLD', liveTier = '—', liveColor = '#f5a623';
             try {
                 const { wrsi, drsi, delta, tslHit, ncAlert, pcAlert,
@@ -15865,7 +15872,7 @@ Return a JSON object with this exact structure:
     })();
     </script>
     <!-- ═══════════════════════════════════════════════════════════════════
-         LD246VAI3 — BACKGROUND BA ENGINE v2
+         LD247 — BACKGROUND BA ENGINE v2
          ─────────────────────────────────────────────────────────────────
          Priority Order:
            1. Watchlist funds (in order) — check Regime A, run BA, store.
@@ -15879,26 +15886,26 @@ Return a JSON object with this exact structure:
     (function() {
     'use strict';
 
-    // ── Constants ─────────────────────────────────────────────────────
+    
     const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'30');  return (v>=3&&v<=100?v:30)*1000;  } catch(e){ return 30_000;  } })();
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD246VAI7-BG-v2';
+    const ADDON_VER     = 'LD247';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
-    // ── IST date string (YYYYMMDD) ────────────────────────────────────
+    
     function _istDate() {
         const now = new Date(Date.now() + 5.5 * 3_600_000);
         return now.toISOString().slice(0, 10).replace(/-/g, '');
     }
 
-    // ── BA cache key — same format as manual BA panel ────────────────
+    
     function _cacheKey(code) {
         return `breadth_v1_${(code||'').replace(/\W/g,'_')}_${_istDate()}`;
     }
     function _cacheExists(code) {
         try { return !!localStorage.getItem(_cacheKey(code)); } catch(e){ return false; }
     }
-    // Store BA result with date + source tags (matches manual BA cache schema)
+    
     function _bgCacheSave(code, parsed) {
         try {
             const _ist = new Date(Date.now() + 5.5 * 3_600_000);
@@ -15915,38 +15922,38 @@ Return a JSON object with this exact structure:
         } catch(e) {}
     }
 
-    // ── Run-flag: marks the full scan as complete for today ───────────
+    
     function _hasRanToday()  { try { return !!localStorage.getItem(RUN_FLAG_KEY + _istDate()); } catch(e){ return false; } }
     function _markRanToday() { try { localStorage.setItem(RUN_FLAG_KEY + _istDate(), '1');      } catch(e){} }
 
-    // ── Queue persistence (per IST day) ───────────────────────────────
-    // Item: { code, name, wrsi, source:'watchlist'|'global', done, skipReason }
-    // wrsi=null means Regime check not yet done.
-    // done=true means BA stored today. skipReason='...' means intentionally skipped.
+    
+    
+    
+    
     function _qKey()   { return `bg_ba_queue_${_istDate()}`; }
     function _loadQ()  { try { return JSON.parse(localStorage.getItem(_qKey())||'[]'); } catch(e){ return []; } }
     function _saveQ(q) { try { localStorage.setItem(_qKey(), JSON.stringify(q));        } catch(e){} }
 
-    // ── BA stored counter (per IST day) ───────────────────────────────
+    
     function _cntKey()  { return `bg_ba_counter_${_istDate()}`; }
     function _getCnt()  { try { return parseInt(localStorage.getItem(_cntKey())||'0');  } catch(e){ return 0; } }
     function _incCnt()  { try { localStorage.setItem(_cntKey(), String(_getCnt()+1));   } catch(e){} }
 
-    // ── All 58 funds from our 4 AMCs ──────────────────────────────────
+    
     function _allFunds() {
         const af = window.amcFunds;
         if (!af) return [];
-        return Object.values(af).flat(); // HDFC 14 + ICICI 13 + KOTAK 18 + ABSL 13 = 58
+        return Object.values(af).flat(); 
     }
 
-    // ── Equity-only filter ────────────────────────────────────────────
+    
     function _isEquity(fund) {
         const n = (fund.name||'').toLowerCase();
         return !n.includes('scheme c') && !n.includes('gold') &&
                !n.includes('silver')   && !n.includes('bharatbond');
     }
 
-    // ── Fetch NAV data ────────────────────────────────────────────────
+    
     async function _fetchNav(code) {
         const url = code.startsWith('SM')
             ? `https://npsnav.in/api/historical/${code}`
@@ -15970,7 +15977,7 @@ Return a JSON object with this exact structure:
         } catch(e) { clearTimeout(tid); return []; }
     }
 
-    // ── Compute W-RSI (uses same RSI period as main app) ─────────────
+    
     function _computeWrsi(navRows) {
         if (!navRows || navRows.length < 30) return null;
         const fn = window.buildWeeklyRsiFast;
@@ -15981,7 +15988,7 @@ Return a JSON object with this exact structure:
         return arr.length ? arr[arr.length - 1] : null;
     }
 
-    // ── Fire ONE Gemini BA call ────────────────────────────────────────
+    
     async function _callGeminiBreadth(fund, wrsi, resolvedApiKey) {
         const getKey2  = () => localStorage.getItem('ld_gemini_api_key2');
         const getModel = window.getGeminiModel || (() => 'gemini-2.5-flash-lite');
@@ -16007,11 +16014,11 @@ Return a JSON object with this exact structure:
         const prompt  = `You are the AI Breadth Confirmation engine of the Sacred RSI Regime System — the Lie Detector Auditor.\n\nFUND: ${fund.name} | Benchmark: ${idxName}\nFund W-RSI: ${Math.round(wrsi)} (${regime})\n\nSACRED RULE: True compounders never stay below W-RSI 40.\nDIVERGENCE: Price RISING + W-RSI falling/below 50 = Cosmetic Growth. Flag it.\nPSYCHOLOGY: Price moves first; earnings explanations come later.\n\nTASK: Perform Constituent X-Ray on top 5 stocks of ${idxName} by index weight.\nFor each stock return current W-RSI(14), 2-week trend (RISING/FALLING), regime (A/B/C), action.\nCount BULL stocks (regime A + RISING). Sum weights.\nReturn ONLY valid JSON:\n{\n  "stocks":[{"ticker":"Name","weight":"X%","price":"₹XXXX","daily_rsi":"XX","weekly_rsi":"XX","wma20":"₹XXXX","price_vs_wma20":"ABOVE or BELOW","trend_14d":"RISING or FALLING","regime":"A or B or C","verdict":"BULL or HOLD or BEAR","action":"Buy or Hold or Reduce","recommendation":"One sentence."}],\n  "bull_count":0,"bull_weight_sum":"X%",\n  "confirmation":"CONFIRMED or MARGINAL or WEAK",\n  "sop_action":"max 12 words",\n  "divergence_alert":"text or No divergence detected.",\n  "psychology_audit":"Lookout for… text",\n  "broad_market_regime_a":[{"index":"Name","wrsi":"XX","trend":"RISING or FALLING","signal":"BUY or WATCH"}],\n  "reasoning":"2-3 sentences on ${idxName} breadth."\n}`;
         const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
-        // ── Model cascade: Flash-Lite (default) → Flash → Pro ───────────
-        // Mirrors the interactive BA cascade so BG scan upgrades automatically on 429
-        const userModel = getModel(); // user-selected model (default: flash-lite)
+        
+        
+        const userModel = getModel(); 
         const MODEL_CASCADE = (() => {
-            // Always start from user-selected model, then escalate
+            
             const ALL = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-pro'];
             const startIdx = ALL.indexOf(userModel);
             return startIdx === -1 ? ALL : ALL.slice(startIdx);
@@ -16032,17 +16039,17 @@ Return a JSON object with this exact structure:
 
                     if (res.status === 429) {
                         lastErr = new Error(`429 quota on ${model}`);
-                        continue; // try next key or model
+                        continue; 
                     }
 
                     const data = await res.json();
                     if (data.error) {
                         lastErr = new Error(`Gemini ${data.error.code}: ${data.error.message}`);
                         if (data.error.code === 429 || data.error.status === 'RESOURCE_EXHAUSTED') continue;
-                        throw lastErr; // non-quota error — don't cascade
+                        throw lastErr; 
                     }
 
-                    // ── Parse response ────────────────────────────────────
+                    
                     let raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
                     const fe = raw.indexOf('\n');
                     if (raw.startsWith('```') && fe !== -1) raw = raw.substring(fe + 1);
@@ -16052,10 +16059,10 @@ Return a JSON object with this exact structure:
                     if (js !== -1 && je > js) raw = raw.slice(js, je + 1);
                     try { 
                         const result = JSON.parse(raw);
-                        result._modelUsed = model; // tag which model succeeded
+                        result._modelUsed = model; 
                         return result;
                     } catch(_) {}
-                    // JSON repair attempt
+                    
                     let rep = raw.trimEnd();
                     const qc = (rep.match(/(?<!\\)"/g) || []).length;
                     if (qc % 2 !== 0) rep += '"';
@@ -16125,7 +16132,7 @@ Return a JSON object with this exact structure:
             const q = _loadQ();
             const total = q.length;
             if (total === 0) { el.textContent = ''; return; }
-            // Done = funds that actually have a BA cache for today
+            
             let cached = 0;
             q.forEach(item => {
                 const ck = `breadth_v1_${(item.code||'').replace(/\W/g,'_')}_${_dateKey}`;
@@ -16155,7 +16162,7 @@ Return a JSON object with this exact structure:
         }, 7000);
     }
 
-    // ── Morning banner helper ─────────────────────────────────────────
+    
     function _updateBanner(text, color) {
         try {
             const mb = document.getElementById('morningScanBanner');
@@ -16167,10 +16174,10 @@ Return a JSON object with this exact structure:
         } catch(_) {}
     }
 
-    // ── Sleep ─────────────────────────────────────────────────────────
+    
     const _sleep = ms => new Promise(r => setTimeout(r, ms));
 
-    // ── API key resolution ────────────────────────────────────────────
+    
     function _resolveApiKey() {
         if (typeof window.getGeminiKey === 'function') {
             const k = window.getGeminiKey();
@@ -16184,7 +16191,7 @@ Return a JSON object with this exact structure:
         return null;
     }
 
-    // ── Storage listener — auto-start when key is saved via 🔐 ───────
+    
     let _bgListenerAttached = false;
     function _attachStorageListener() {
         if (_bgListenerAttached) return;
@@ -16211,35 +16218,35 @@ Return a JSON object with this exact structure:
         setTimeout(() => clearInterval(_pollTimer), 300_000);
     }
 
-    // ════════════════════════════════════════════════════════════════════
-    //  MAIN ORCHESTRATOR
-    //
-    //  Flow each IST day:
-    //    1. Build queue: Watchlist funds (equity, 4 AMCs, in order)
-    //    2. Watchlist phase: Regime A check + BA + store + counter
-    //    3. Global scan: scan all 58 equity funds from 4 AMCs for Regime A
-    //    4. Global phase: BA + store + counter for non-watchlist Regime A funds
-    //    5. Mark complete when all pending items done.
-    //
-    //  Crash recovery: Queue + done-flags persist in localStorage.
-    //  On relaunch _hasRanToday()=false → load queue → resume from pending.
-    // ════════════════════════════════════════════════════════════════════
-    // ── Cancellation token — incremented to kill any in-flight scan ──
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     let _scanToken = 0;
 
     async function _runBackgroundScan() {
-        const myToken = ++_scanToken;   // claim this invocation's token
+        const myToken = ++_scanToken;   
         const today = _istDate();
         const isCancelled = () => _scanToken !== myToken;
 
-        // ── Guard: fully done today ───────────────────────────────────
+        
         if (_hasRanToday()) {
             const cnt = _getCnt();
             _donePill(`✅ BA complete today — ${cnt} stored.`);
             return;
         }
 
-        // ── Resolve API key ───────────────────────────────────────────
+        
         const _mask = k => k ? `${k.slice(0,6)}…${k.slice(-4)}(${k.length}c)` : 'none';
         const _k1   = localStorage.getItem('ld_gemini_api_key');
         const _k2   = localStorage.getItem('ld_gemini_api_key2');
@@ -16247,7 +16254,7 @@ Return a JSON object with this exact structure:
 
         if (!apiKey) {
             _attachStorageListener();
-            // Fast-path key entry panel
+            
             const panel = document.createElement('div');
             panel.id = 'bgKeyPanel';
             panel.style.cssText = [
@@ -16300,7 +16307,7 @@ Return a JSON object with this exact structure:
             return;
         }
 
-        // ── Guard: RSI builder ready ──────────────────────────────────
+        
         if (!window.buildWeeklyRsiFast) {
             await _sleep(5_000);
             if (!window.buildWeeklyRsiFast) return;
@@ -16308,27 +16315,27 @@ Return a JSON object with this exact structure:
 
         _makePill();
 
-        // ════════════════════════════════════════════════════════════
-        // STEP 1 — Build today's work queue (persisted, crash-safe)
-        //   Phase 1 items: watchlist funds (equity, from 4 AMCs, in order)
-        //   Phase 2 items: added after global Regime A scan (Step 3)
-        // ════════════════════════════════════════════════════════════
+        
+        
+        
+        
+        
         let queue = _loadQ();
 
         if (!queue.length) {
-            // Build watchlist section of queue
+            
             const allF     = _allFunds();
             const allCodes = new Set(allF.map(f => f.code));
             let wl = [];
             try { wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(e) {}
             for (const wf of (Array.isArray(wl) ? wl : [])) {
-                if (!wf.code || !allCodes.has(wf.code)) continue; // not in 4 AMCs — skip
+                if (!wf.code || !allCodes.has(wf.code)) continue; 
                 const found = allF.find(f => f.code === wf.code);
                 if (!found || !_isEquity(found)) continue;
                 queue.push({
                     code: wf.code,
                     name: wf.name || found.name,
-                    wrsi: null,          // will be computed on-demand
+                    wrsi: null,          
                     source: 'watchlist',
                     done: false,
                     skipReason: null
@@ -16338,25 +16345,25 @@ Return a JSON object with this exact structure:
         } else {
         }
 
-        // ════════════════════════════════════════════════════════════
-        // STEP 2 — WATCHLIST PHASE: Regime A check + BA for each fund
-        // ════════════════════════════════════════════════════════════
+        
+        
+        
         const wlTotal   = queue.filter(q => q.source === 'watchlist').length;
         const wlPending = queue.filter(q => q.source === 'watchlist' && !q.done && !q.skipReason);
 
         _setPillMsg(`📋 Watchlist: ${wlPending.length}/${wlTotal} funds to process…`);
         _updateBanner(`📋 BA Engine: processing ${wlTotal} watchlist funds…`, '#f59e0b');
 
-        let lastBARan = false; // tracks whether last iteration ran a Gemini BA call
+        let lastBARan = false; 
 
         for (const snapshot of wlPending) {
-            if (isCancelled()) { console.log('[BG BA] ⚡ Watchlist phase cancelled — new scan started.'); return; }
-            // Always reload queue for crash-safety
+            if (isCancelled()) { return; }
+            
             let q  = _loadQ();
             let it = q.find(x => x.code === snapshot.code && x.source === 'watchlist');
-            if (!it || it.done || it.skipReason) continue; // already handled since snapshot
+            if (!it || it.done || it.skipReason) continue; 
 
-            // ── Already has BA stored today? ─────────────────────────
+            
             if (_cacheExists(it.code)) {
                 it.done = true;
                 _saveQ(q);
@@ -16366,7 +16373,7 @@ Return a JSON object with this exact structure:
                 continue;
             }
 
-            // ── Compute W-RSI if not yet done ─────────────────────────
+            
             if (it.wrsi === null) {
                 _setPillMsg(`🔍 WL Regime check: ${it.name.replace(/\[NPS\] /,'').slice(0,26)}…`);
                 try {
@@ -16380,12 +16387,12 @@ Return a JSON object with this exact structure:
                     it.wrsi = w !== null ? Math.round(w * 10) / 10 : 0;
                     _saveQ(q);
                 } catch(e) {
-                    continue; // wrsi stays null — will retry on next app launch
+                    continue; 
                 }
-                await _sleep(400); // small polite gap after NAV fetch
+                await _sleep(400); 
             }
 
-            // ── Regime check ──────────────────────────────────────────
+            
             if (!it.wrsi || it.wrsi < 50) {
                 it.skipReason = `regime_bc_wrsi_${it.wrsi}`;
                 _saveQ(q);
@@ -16393,7 +16400,7 @@ Return a JSON object with this exact structure:
                 continue;
             }
 
-            // ── Regime A confirmed → apply gap if previous BA was run ─
+            
             if (lastBARan) {
                 for (let s = GAP_MS / 1000; s > 0; s -= 5) {
                     if (document.hidden) { await _sleep(3_000); continue; }
@@ -16409,12 +16416,12 @@ Return a JSON object with this exact structure:
             try {
                 const parsed = await _callGeminiBreadth(it, it.wrsi, apiKey);
                 _bgCacheSave(it.code, parsed);
-                // Reload queue and mark done (avoids stale reference)
+                
                 q  = _loadQ();
                 it = q.find(x => x.code === snapshot.code && x.source === 'watchlist');
                 if (it) { it.done = true; _saveQ(q); }
                 _incCnt();
-                // Keep ba_completed_funds in sync → watchlist panel counter reads this
+                
                 try {
                     const _bcKey  = `ba_completed_funds_${today}`;
                     const _bcList = JSON.parse(localStorage.getItem(_bcKey) || '[]');
@@ -16427,15 +16434,15 @@ Return a JSON object with this exact structure:
                 _setPillMsg(`⚠ WL ${snapshot.name.slice(0,20)} — all models at quota, queued`, '#c97a00');
                 await _sleep(3_000);
                 lastBARan = false;
-                // Note: done stays false → will retry on next app launch
+                
             }
         }
 
-        // ════════════════════════════════════════════════════════════
-        // STEP 3 — GLOBAL REGIME A SCAN (all 58 equity funds, 4 AMCs)
-        //   Skipped if already done today (crash-safe flag).
-        //   Results added to queue as source='global' items.
-        // ════════════════════════════════════════════════════════════
+        
+        
+        
+        
+        
         const AMC_SCAN_KEY = `bg_amc_scan_done_${today}`;
         const amcScanDone  = localStorage.getItem(AMC_SCAN_KEY) === 'true';
 
@@ -16448,7 +16455,7 @@ Return a JSON object with this exact structure:
             let scanned = 0;
 
             for (const fund of equityFunds) {
-                if (isCancelled()) { console.log('[BG BA] ⚡ Global scan cancelled — new scan started.'); return; }
+                if (isCancelled()) { return; }
                 if (document.hidden) await _sleep(2_000);
                 try {
                     const navRows = await _fetchNav(fund.code);
@@ -16468,7 +16475,7 @@ Return a JSON object with this exact structure:
                 await _sleep(800);
             }
 
-            // Persist scan results + mark done
+            
             try {
                 localStorage.setItem(AMC_SCAN_KEY, 'true');
                 const rAData = regimeAGlobal.map(f => ({ code: f.code, name: f.name, wrsi: f.wrsi }));
@@ -16476,7 +16483,7 @@ Return a JSON object with this exact structure:
                 localStorage.setItem(`ba_regimeA_funds_${today}`,     JSON.stringify(rAData));
             } catch(e) {}
 
-            // Add global Regime A funds to queue — skip watchlist duplicates
+            
             let q = _loadQ();
             const existingCodes = new Set(q.map(x => x.code));
             let added = 0;
@@ -16489,7 +16496,7 @@ Return a JSON object with this exact structure:
             _saveQ(q);
 
         } else {
-            // Crash resume: reload saved global list and fill any queue gaps
+            
             try {
                 const saved = JSON.parse(localStorage.getItem(`bgbreadth_regimeA_${today}`) || '[]');
                 let q = _loadQ();
@@ -16501,13 +16508,13 @@ Return a JSON object with this exact structure:
                              source: 'global', done: false, skipReason: null });
                     added++;
                 }
-                if (added) { _saveQ(q); console.log(`[BG BA] Crash resume: filled ${added} global queue gaps.`); }
+                if (added) { _saveQ(q); }
             } catch(e) {}
         }
 
-        // ════════════════════════════════════════════════════════════
-        // STEP 4 — GLOBAL PHASE: BA for Regime A funds (non-watchlist)
-        // ════════════════════════════════════════════════════════════
+        
+        
+        
         const freshQ       = _loadQ();
         const gTotal       = freshQ.filter(q => q.source === 'global').length;
         const globalPending = freshQ.filter(q => q.source === 'global' && !q.done && !q.skipReason);
@@ -16516,12 +16523,12 @@ Return a JSON object with this exact structure:
         _updateBanner(`🌐 Global BA phase: ${globalPending.length} funds to analyse…`, '#a855f7');
 
         for (const snapshot of globalPending) {
-            if (isCancelled()) { console.log('[BG BA] ⚡ Global BA phase cancelled — new scan started.'); return; }
+            if (isCancelled()) { return; }
             let q  = _loadQ();
             let it = q.find(x => x.code === snapshot.code && x.source === 'global');
             if (!it || it.done || it.skipReason) continue;
 
-            // ── Already has BA stored today? ─────────────────────────
+            
             if (_cacheExists(it.code)) {
                 it.done = true;
                 _saveQ(q);
@@ -16531,7 +16538,7 @@ Return a JSON object with this exact structure:
                 continue;
             }
 
-            // ── Apply gap if previous BA was run ──────────────────────
+            
             if (lastBARan) {
                 for (let s = GAP_MS / 1000; s > 0; s -= 5) {
                     if (document.hidden) { await _sleep(3_000); continue; }
@@ -16557,16 +16564,16 @@ Return a JSON object with this exact structure:
                 _setPillMsg(`⚠ Global ${snapshot.name.slice(0,20)} — all models at quota, queued`, '#c97a00');
                 await _sleep(3_000);
                 lastBARan = false;
-                // done stays false → retried on next restart
+                
             }
         }
 
-        // ════════════════════════════════════════════════════════════
-        // STEP 5 — COMPLETION CHECK
-        //   Only mark "ran today" if ALL queue items are done or skipped.
-        //   If any failed (no skipReason, not done), leave flag unset
-        //   so next app launch resumes from the pending items.
-        // ════════════════════════════════════════════════════════════
+        
+        
+        
+        
+        
+        
         const finalQ      = _loadQ();
         const stillPending = finalQ.filter(q => !q.done && !q.skipReason);
         const finalCnt    = _getCnt();
@@ -16575,19 +16582,18 @@ Return a JSON object with this exact structure:
             _markRanToday();
             _donePill(`✅ All BA done — ${finalCnt} analyses stored today.`);
             _updateBanner(`✅ BA Engine complete — ${finalCnt} analyses stored today`, '#009e70');
-            // Also set compatibility keys used by other app components
+            
             try {
                 localStorage.setItem(`ba_completed_today_${today}`, 'true');
                 localStorage.setItem(`bg_ba_counter_${today}`, String(finalCnt));
             } catch(e) {}
         } else {
-            // Partial run — do NOT mark complete
-            const pendingNames = stillPending.slice(0, 3).map(q => q.name.split(' ')[0]).join(', ');
-            // Show pill with inline restart button (no console needed)
+            
+            
             _setPillMsg(`⚠ ${finalCnt} stored · ${stillPending.length} pending`, '#f59e0b');
             const _pillEl = document.getElementById('bgBreadthPill');
             if (_pillEl) {
-                // Remove any previously added restart btn
+                
                 const _oldBtn = _pillEl.querySelector('.bg-restart-btn');
                 if (_oldBtn) _oldBtn.remove();
                 const _restartBtn = document.createElement('span');
@@ -16607,72 +16613,68 @@ Return a JSON object with this exact structure:
         }
     }
 
-    // ── Public API ────────────────────────────────────────────────────
-    // bgBreadthStatus() → today's Regime A list + BA counter
+    
+    
     window.bgBreadthStatus = function() {
         try {
             const today = _istDate();
             const list  = JSON.parse(localStorage.getItem(`bgbreadth_regimeA_${today}`) || '[]');
             const queue = _loadQ();
             const cnt   = _getCnt();
-            console.table(queue.map(q => ({
-                source: q.source, fund: q.name.slice(0, 35),
-                wrsi: q.wrsi, done: q.done, skip: q.skipReason
-            })));
             return { list, queue, counter: cnt };
         } catch(e) { return {}; }
     };
 
-    // bgBreadthForceRun() → cancel in-flight scan, reset only FAILED items, restart
+    
     window.bgBreadthForceRun = function() {
         const d = _istDate();
 
-        // 1. Cancel any in-flight async scan via token
+        
         _scanToken++;
 
-        // 2. Remove stale pill so _makePill() creates a fresh one
+        
         const _oldPill = document.getElementById('bgBreadthPill');
         if (_oldPill) _oldPill.remove();
 
-        // 3. Clear run-flag and AMC-scan-flag so scan proceeds
+        
         try { localStorage.removeItem(RUN_FLAG_KEY + d); } catch(e) {}
         try { localStorage.removeItem(`bg_amc_scan_done_${d}`); } catch(e) {}
         try { localStorage.removeItem(`ba_completed_funds_${d}`); } catch(e) {}
 
-        // 4. Reset ONLY failed queue items (not done:true or cached ones)
-        //    Items that have BA cached → keep done:true (no need to re-run Gemini)
-        //    Items with skipReason (regime B/C) → keep skipped
-        //    Items with done:false and no skipReason → these FAILED → reset so they retry
+        
+        
+        
+        
         try {
             const q = _loadQ();
             let resetCount = 0;
             q.forEach(item => {
                 if (!item.done && !item.skipReason) {
-                    // Already pending — leave as-is
+                    
                 } else if (item.done) {
-                    // Check if BA cache still exists; if not (e.g. storage cleared), reset it
+                    
                     if (!_cacheExists(item.code)) {
                         item.done = false;
                         item.wrsi = null;
                         resetCount++;
                     }
                 }
-                // skipReason items: leave as-is (regime B/C won't change intraday)
+                
             });
             if (resetCount > 0 || q.length > 0) {
                 _saveQ(q);
             } else {
-                // No queue yet — will be built fresh
+                
             }
         } catch(e) { try { localStorage.removeItem(_qKey()); } catch(_) {} }
 
-        // 5. Clear internal counter — pill will recount from actual cache hits via _updatePillCounter
+        
         try { localStorage.removeItem(_cntKey()); } catch(e) {}
 
         setTimeout(() => _runBackgroundScan(), 300);
     };
 
-    // bgBreadthClearAll() → wipe all BA caches and flags for today
+    
     window.bgBreadthClearAll = function() {
         const d = _istDate();
         const keys = Object.keys(localStorage).filter(k =>
@@ -16684,7 +16686,7 @@ Return a JSON object with this exact structure:
         localStorage.removeItem(RUN_FLAG_KEY + d);
     };
 
-    // ── Auto-start: 6 seconds after page load ─────────────────────────
+    
     window.addEventListener('load', () => {
         setTimeout(_runBackgroundScan, BOOT_DELAY_MS);
     });

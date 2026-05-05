@@ -11865,12 +11865,12 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const c1Label    = c1trigger ? '🚨 EXIT — FEAR' : c1WatchWarn ? '⚠ WATCH — REDUCE' : '✓ SAFE';
                 const c1Color    = c1trigger ? '#c8102e' : c1WatchWarn ? '#c97a00' : '#009e70';
                 const c1Html = c1trigger || !c1WatchWarn
-                    ? condHTML('🔴', 'CONDITION 1 — REGIME EXIT', c1detail, c1trigger, '🚨 EXIT — FEAR', '✓ SAFE')
+                    ? condHTML('🔴', 'HAS THE CURRENT HOLDING EXITED REGIME HOPE?', c1detail, c1trigger, '🚨 EXIT — FEAR', '✓ SAFE')
                     : (() => {
                         return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid rgba(201,122,0,0.4);background:rgba(201,122,0,0.08);">
                             <div style="font-size:0.9rem;flex-shrink:0;margin-top:1px;">🟡</div>
                             <div style="flex:1;">
-                                <div style="font-size:0.6rem;font-weight:700;color:var(--text);margin-bottom:2px;">CONDITION 1 — REGIME EXIT</div>
+                                <div style="font-size:0.6rem;font-weight:700;color:var(--text);margin-bottom:2px;">HAS THE CURRENT HOLDING EXITED REGIME HOPE?</div>
                                 <div style="font-size:0.56rem;color:var(--muted2);line-height:1.5;">${c1detail}</div>
                             </div>
                             <div style="flex-shrink:0;font-size:0.52rem;font-weight:700;color:#c97a00;border:1px solid #c97a00;border-radius:3px;padding:2px 5px;white-space:nowrap;margin-top:1px;">⚠ WATCH — REDUCE</div>
@@ -11880,7 +11880,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const c2detail = bafLive ? `AMC BAF (${bafLive.name}): 1M = ${bafLiveMom.toFixed(1)}%<br>Hurdle Rate (+2%) = <strong>${bafThreshold.toFixed(1)}%</strong><br>` +
                     `${held1?.name ?? '—'}: 1M = ${held1?.r1m?.toFixed(1) ?? '--'}% ${held1BeatsBAF ? '✓' : '✗'}<br>` +
                     `${held2?.name ?? '—'}: 1M = ${held2?.r1m?.toFixed(1) ?? '--'}% ${held2BeatsBAF ? '✓' : '✗'}` : 'BAF not found in AMC universe.';
-                document.getElementById('tmCond2').outerHTML = `<div id="tmCond2">${condHTML('🛡️', 'CONDITION 2 — BAF ALPHA GATE', c2detail, c2trigger, '⚠ RETREAT TO BAF', '✓ BEATING BAF')}</div>`;
+                document.getElementById('tmCond2').outerHTML = `<div id="tmCond2">${condHTML('🛡️', 'IS THE CURRENT HOLDING BEATING THE HURDLE RATE?', c2detail, c2trigger, '⚠ RETREAT TO BAF', '✓ BEATING BAF')}</div>`;
                 const _c3FundLink = (fund, triggered) => {
                     if (!fund) return '—';
                     const style = triggered
@@ -11915,10 +11915,10 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     c3bDetailOnly += `2nd unowned: ${_c3FundLink(secondUnowned, c3bDisplay)}: 1M = ${secondUnowned?.r1m?.toFixed(1) ?? '--'}%${_settlingSuffix(secondUnowned)}<br>`;
                     c3bDetailOnly += `Held rank-2 (${held2?.name ?? '—'}): 1M = ${held2?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3bSpread.toFixed(1)}%</strong> ${c3bTrigger ? (c3bDisplay ? '⚠ >2%' : '⏳ settling') : '✓ ≤2%'}`;
                 } else { c3bDetailOnly += 'Only 1 slot to compare.'; }
-                document.getElementById('tmCond3').outerHTML = `<div id="tmCond3">${condHTML('🔄', 'CONDITION 3a — MOMENTUM SWAP · Slot 1', c3aDetailOnly, c3aDisplay, '⚠ SWAP SLOT 1', '✓ HOLD')}</div>`;
+                document.getElementById('tmCond3').outerHTML = `<div id="tmCond3">${condHTML('🔄', 'ANY UNOWNED FUND WITH BETTER 1-MONTH MOMENTUM THAN SLOT 1?', c3aDetailOnly, c3aDisplay, '⚠ SWAP SLOT 1', '✓ HOLD')}</div>`;
                 const _tmCond3b = document.getElementById('tmCond3b');
                 if (_tmCond3b) {
-                    _tmCond3b.outerHTML = `<div id="tmCond3b" style="display:flex;">${condHTML('🔄', 'CONDITION 3b — MOMENTUM SWAP · Slot 2', c3bDetailOnly, c3bDisplay, '⚠ SWAP SLOT 2', '✓ HOLD')}</div>`;
+                    _tmCond3b.outerHTML = `<div id="tmCond3b" style="display:flex;">${condHTML('🔄', 'ANY UNOWNED FUND WITH BETTER 1-MONTH MOMENTUM THAN SLOT 2?', c3bDetailOnly, c3bDisplay, '⚠ SWAP SLOT 2', '✓ HOLD')}</div>`;
                 }
                 // LD248A: Save TM snapshot to localStorage for persistent Switch Bridge + Alerts
                 try {
@@ -13572,12 +13572,15 @@ categories.forEach(cat => {
                         ? ' ⚡ Auto-cached (estimates) — Refresh for full analysis.'
                         : '';
                     const _ts = cached._cachedAtDisplay || cached._cachedAt?.slice(0,16).replace('T',' ') || '';
-                    const _stale = _ts ? ` Last updated: ${_ts}.` : '';
-                    const _baComp = _baGetCompleted();
-                    const _baRgmA = _baLoadRegimeA() || [];
-                    const _baCount = _baComp.length;
-                    const _baTotal = _baRgmA.length;
-                    const _baCounter = _baTotal > 0 ? ` Storage: ${_baCount}/${_baTotal} BA done today.` : '';
+                    const _stale = _ts ? ` Last updated: ${_ts} IST.` : '';
+                    // LD248A: Use same breadth_v1_ key as watchlist list for consistent count
+                    const _wlAll = (() => { try { return JSON.parse(localStorage.getItem('ld_watchlist')||'[]'); } catch(_){return [];} })();
+                    const _dateKey = (() => { const n=new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
+                    const _wlTotal = _wlAll.length;
+                    const _wlDone  = _wlAll.filter(f => {
+                        try { return !!localStorage.getItem(`breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dateKey}`); } catch(_){return false;}
+                    }).length;
+                    const _baCounter = _wlTotal > 0 ? ` Storage: ${_wlDone}/${_wlTotal} BA done today.` : '';
                     cacheNote.textContent = '✅ Stored analysis — zero tokens used.' + bgBadge + lockNote + _stale + _baCounter;
                     cacheNote.style.color = cached._bgSource ? '#c97a00' : '#64748b';
                 }

@@ -2664,6 +2664,14 @@
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
             <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD248A 📋</span></h1>
+            <div id="firstRunBanner" style="display:none;background:rgba(245,158,11,0.12);border:1.5px solid #f59e0b;border-radius:6px;padding:8px 10px;margin-bottom:8px;text-align:center;">
+                <div style="font-size:0.58rem;font-weight:700;color:#c97a00;margin-bottom:3px;">⚠ NEW VERSION DETECTED — No saved config found</div>
+                <div style="font-size:0.5rem;color:var(--muted);margin-bottom:6px;">Open your previous <code>LD_Config_…json</code> backup to restore keys, watchlist &amp; settings instantly.</div>
+                <label style="display:inline-block;background:#009e70;color:#fff;padding:6px 16px;border-radius:5px;cursor:pointer;font-size:0.56rem;font-weight:700;letter-spacing:0.05em;">
+                    📂 RESTORE CONFIG NOW
+                    <input type="file" accept=".json" style="display:none;" onchange="_configBackupImport(this.files[0]);this.value='';">
+                </label>
+            </div>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -2919,14 +2927,26 @@
                 <div id="switchBridgeNpsGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"></div>
             </div>
             </div><!-- end watchlistScrollArea -->
-            <div style="padding:6px 8px 4px;border-top:1px solid var(--border);flex-shrink:0;">
-                <div style="font-size:0.48rem;color:var(--muted);margin-bottom:5px;text-align:center;letter-spacing:0.06em;">SWITCH JOURNAL BACKUP (JSON ← Mobile Storage)</div>
-                <div style="display:flex;gap:5px;">
-                    <button class="setup-btn" style="flex:1;font-size:0.52rem;border-color:#a855f7;color:#a855f7;" onclick="_SJ.export()">⬇ EXPORT JSON</button>
-                    <label class="setup-btn" style="flex:1;font-size:0.52rem;border-color:#00b4d8;color:#00b4d8;cursor:pointer;text-align:center;padding:5px 4px;">
-                        ⬆ IMPORT JSON
-                        <input type="file" accept=".json" style="display:none;" onchange="_SJ.import(this.files[0]);this.value='';">
+            <div style="padding:6px 8px 4px;border-top:2px solid #f59e0b;flex-shrink:0;background:rgba(245,158,11,0.06);">
+                <div style="font-size:0.52rem;color:#c97a00;margin-bottom:5px;text-align:center;letter-spacing:0.06em;font-weight:700;">💾 FULL CONFIG BACKUP — Keys · Watchlist · Portfolio · Settings</div>
+                <div style="font-size:0.42rem;color:var(--muted);text-align:center;margin-bottom:5px;">⚠ New file download = new storage. Always RESTORE after upgrading.</div>
+                <div style="display:flex;gap:5px;margin-bottom:5px;">
+                    <button class="setup-btn" style="flex:1;font-size:0.55rem;font-weight:700;border-color:#f59e0b;color:#c97a00;min-height:40px;" onclick="_configBackupExport()">⬇ BACKUP ALL CONFIG</button>
+                    <label class="setup-btn" style="flex:1;font-size:0.55rem;font-weight:700;border-color:#009e70;color:#009e70;cursor:pointer;text-align:center;padding:5px 4px;min-height:40px;">
+                        ⬆ RESTORE CONFIG
+                        <input type="file" accept=".json" style="display:none;" onchange="_configBackupImport(this.files[0]);this.value='';">
                     </label>
+                </div>
+                <div id="configBackupStatus" style="font-size:0.44rem;color:var(--muted);text-align:center;min-height:14px;"></div>
+                <div style="margin-top:4px;border-top:1px solid var(--border);padding-top:4px;">
+                    <div style="font-size:0.44rem;color:var(--muted);margin-bottom:3px;text-align:center;letter-spacing:0.05em;">SWITCH JOURNAL BACKUP</div>
+                    <div style="display:flex;gap:5px;">
+                        <button class="setup-btn" style="flex:1;font-size:0.48rem;border-color:#a855f7;color:#a855f7;" onclick="_SJ.export()">⬇ EXPORT JSON</button>
+                        <label class="setup-btn" style="flex:1;font-size:0.48rem;border-color:#00b4d8;color:#00b4d8;cursor:pointer;text-align:center;padding:5px 4px;">
+                            ⬆ IMPORT JSON
+                            <input type="file" accept=".json" style="display:none;" onchange="_SJ.import(this.files[0]);this.value='';">
+                        </label>
+                    </div>
                 </div>
             </div>
             <div style="padding:6px 8px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:6px;">
@@ -9127,7 +9147,86 @@ This is exactly how the system is meant to be played.
                     });
                 });
             }
-            // ── SECTION: WATCHLIST ──────────────────────────────────────────────
+            // ── LD248A: FULL CONFIG BACKUP / RESTORE ──────────────────────────────
+            const CONFIG_KEYS = [
+                'ld_gemini_api_key', 'ld_gemini_api_key2', 'ld_gemini_model',
+                'ld_api_gap_sec', 'ld_watchlist', 'ld_tm_snapshot',
+                'ld_switch_bridge', 'ld_streak_count', 'ld_streak_best',
+                'ld_active_key_slot'
+            ];
+            function _configBackupExport() {
+                try {
+                    const blob = {};
+                    CONFIG_KEYS.forEach(k => {
+                        const v = localStorage.getItem(k);
+                        if (v !== null) blob[k] = v;
+                    });
+                    // Also export switch journal
+                    try {
+                        const sj = localStorage.getItem('ld_switch_journal_v2');
+                        if (sj) blob['ld_switch_journal_v2'] = sj;
+                    } catch(_) {}
+                    blob['_exportedAt'] = new Date(Date.now()+5.5*3600000).toISOString().slice(0,16).replace('T',' ') + ' IST';
+                    blob['_version'] = 'LD248A';
+                    const wl = JSON.parse(blob['ld_watchlist'] || '[]');
+                    const hasMaskedKey = blob['ld_gemini_api_key'] ? blob['ld_gemini_api_key'].slice(0,4) : 'none';
+                    const fname = `LD_Config_${new Date(Date.now()+5.5*3600000).toISOString().slice(0,10)}_${wl.length}funds.json`;
+                    const a = document.createElement('a');
+                    a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(blob, null, 2));
+                    a.download = fname;
+                    a.click();
+                    const st = document.getElementById('configBackupStatus');
+                    if (st) { st.style.color='#009e70'; st.textContent = `✅ Exported: ${wl.length} funds, key:${hasMaskedKey}…`; }
+                } catch(e) {
+                    const st = document.getElementById('configBackupStatus');
+                    if (st) { st.style.color='#c8102e'; st.textContent = '⚠ Export failed: '+e.message; }
+                }
+            }
+            function _configBackupImport(file) {
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const blob = JSON.parse(ev.target.result);
+                        let count = 0;
+                        CONFIG_KEYS.forEach(k => {
+                            if (blob[k] !== undefined) { localStorage.setItem(k, blob[k]); count++; }
+                        });
+                        if (blob['ld_switch_journal_v2']) localStorage.setItem('ld_switch_journal_v2', blob['ld_switch_journal_v2']);
+                        // Reload watchlist into memory
+                        try { _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(_) {}
+                        const wl = _watchlist.length;
+                        const hasKey = !!localStorage.getItem('ld_gemini_api_key');
+                        const st = document.getElementById('configBackupStatus');
+                        if (st) { st.style.color='#009e70'; st.textContent = `✅ Restored: ${count} settings, ${wl} funds, key:${hasKey?'✓':'✗'} — Reloading…`; }
+                        renderWatchlistStubs();
+                        setTimeout(() => location.reload(), 1800);
+                    } catch(e) {
+                        const st = document.getElementById('configBackupStatus');
+                        if (st) { st.style.color='#c8102e'; st.textContent = '⚠ Import failed: '+e.message; }
+                    }
+                };
+                reader.readAsText(file);
+            }
+            window._configBackupExport = _configBackupExport;
+            window._configBackupImport = _configBackupImport;
+            // ── Startup: show prominent banner if API key is missing ──────────────
+            (function _checkFirstRun() {
+                const hasKey = !!localStorage.getItem('ld_gemini_api_key');
+                const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist')||'[]')).length > 0;
+                if (!hasKey && !hasWl) {
+                    // Completely fresh storage — show restore banner at top of setup screen
+                    setTimeout(() => {
+                        const banner = document.getElementById('firstRunBanner');
+                        if (banner) banner.style.display = 'block';
+                        const st = document.getElementById('configBackupStatus');
+                        if (st) {
+                            st.style.color = '#c97a00';
+                            st.textContent = '⚠ No config found. Tap RESTORE CONFIG above to load your backup.';
+                        }
+                    }, 500);
+                }
+            })();
             function addCurrentToWatchlist() {
                 const code = document.getElementById('fundSelect')?.value;
                 const name = document.getElementById('fundSelect')?.options[document.getElementById('fundSelect').selectedIndex]?.text || code;

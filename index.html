@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD247</title>
+        <title>Lie Detector — NPS NAV Chart · LD248A</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2146,7 +2146,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD247</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD248A</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2573,8 +2573,85 @@
                     Rotate via Asset Allocator Trigger Monitor.&nbsp; Never buy in B or C.&nbsp;
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
+                <!-- LD248A: DECISION FLOW CHART -->
+                <div class="sop-part sop-part-muted" style="margin-top:14px;">DECISION FLOW — Analysis to Buy / Sell</div>
+                <div style="overflow-x:auto;margin-bottom:8px;">
+                <svg viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:360px;display:block;margin:0 auto;font-family:'Space Mono',monospace;">
+                  <!-- Arrows defs -->
+                  <defs>
+                    <marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                      <path d="M0,0 L0,6 L8,3 z" fill="#7090b0"/>
+                    </marker>
+                    <marker id="ahg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                      <path d="M0,0 L0,6 L8,3 z" fill="#009e70"/>
+                    </marker>
+                    <marker id="ahr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                      <path d="M0,0 L0,6 L8,3 z" fill="#c8102e"/>
+                    </marker>
+                    <marker id="aha" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                      <path d="M0,0 L0,6 L8,3 z" fill="#c97a00"/>
+                    </marker>
+                  </defs>
+                  <!-- STEP 1: Morning Analysis -->
+                  <rect x="60" y="10" width="240" height="40" rx="6" fill="#f2f5f9" stroke="#7090b0" stroke-width="1.5"/>
+                  <text x="180" y="27" text-anchor="middle" font-size="8.5" fill="#304058" font-weight="700" letter-spacing="0.06em">STEP 1 — MORNING ANALYSIS</text>
+                  <text x="180" y="42" text-anchor="middle" font-size="7" fill="#404060">Open App · Run Alert Scan · Check Regime</text>
+                  <!-- Arrow 1 -->
+                  <line x1="180" y1="50" x2="180" y2="78" stroke="#7090b0" stroke-width="1.5" marker-end="url(#ah)"/>
+                  <!-- STEP 2: BA Analysis Check -->
+                  <rect x="60" y="80" width="240" height="44" rx="6" fill="rgba(124,58,237,0.07)" stroke="#7c3aed" stroke-width="1.5"/>
+                  <text x="180" y="98" text-anchor="middle" font-size="8.5" fill="#7c3aed" font-weight="700" letter-spacing="0.06em">STEP 2 — BA BREADTH ANALYSIS</text>
+                  <text x="180" y="112" text-anchor="middle" font-size="7" fill="#404060">Open BA Results · Check Breadth Score</text>
+                  <text x="180" y="122" text-anchor="middle" font-size="7" fill="#7c3aed">CONFIRMED / MARGINAL / WEAK</text>
+                  <!-- Arrow 2 -->
+                  <line x1="180" y1="124" x2="180" y2="152" stroke="#7090b0" stroke-width="1.5" marker-end="url(#ah)"/>
+                  <!-- DECISION DIAMOND: Regime Check -->
+                  <polygon points="180,155 300,195 180,235 60,195" fill="rgba(201,122,0,0.10)" stroke="#c97a00" stroke-width="1.5"/>
+                  <text x="180" y="189" text-anchor="middle" font-size="8" fill="#c97a00" font-weight="700">REGIME CHECK</text>
+                  <text x="180" y="202" text-anchor="middle" font-size="7" fill="#404060">W-RSI ≥ 50 ?</text>
+                  <!-- Arrow YES (down) -->
+                  <line x1="180" y1="235" x2="180" y2="263" stroke="#009e70" stroke-width="1.5" marker-end="url(#ahg)"/>
+                  <text x="190" y="253" font-size="7" fill="#009e70" font-weight="700">YES → HOPE</text>
+                  <!-- Arrow NO (right) -->
+                  <line x1="300" y1="195" x2="340" y2="195" stroke="#c8102e" stroke-width="1.5" marker-end="url(#ahr)"/>
+                  <text x="303" y="190" font-size="7" fill="#c8102e" font-weight="700">NO</text>
+                  <!-- SELL ALL box (right) -->
+                  <rect x="305" y="180" width="50" height="30" rx="4" fill="rgba(200,16,46,0.10)" stroke="#c8102e" stroke-width="1.5"/>
+                  <text x="330" y="197" text-anchor="middle" font-size="7.5" fill="#c8102e" font-weight="700">SELL ALL</text>
+                  <text x="330" y="207" text-anchor="middle" font-size="6.5" fill="#c8102e">100% Cash</text>
+                  <!-- STEP 3: Incremental Invest/Divest Check -->
+                  <rect x="60" y="265" width="240" height="52" rx="6" fill="rgba(0,158,112,0.08)" stroke="#009e70" stroke-width="1.5"/>
+                  <text x="180" y="282" text-anchor="middle" font-size="8.5" fill="#009e70" font-weight="700" letter-spacing="0.06em">STEP 3 — INVEST / DIVEST CHECK</text>
+                  <text x="180" y="297" text-anchor="middle" font-size="7" fill="#404060">D-RSI &lt; 40? Delta &lt; −15? PC Breakout?</text>
+                  <text x="180" y="311" text-anchor="middle" font-size="7" fill="#404060">TSL Breach? WMA20 Break? Delta &gt; +15?</text>
+                  <!-- Arrow 3 -->
+                  <line x1="180" y1="317" x2="180" y2="345" stroke="#7090b0" stroke-width="1.5" marker-end="url(#ah)"/>
+                  <!-- DIAMOND: Signal Decision -->
+                  <polygon points="180,348 300,380 180,412 60,380" fill="#f2f5f9" stroke="#7090b0" stroke-width="1.5"/>
+                  <text x="180" y="375" text-anchor="middle" font-size="8" fill="#304058" font-weight="700">SIGNAL?</text>
+                  <text x="180" y="388" text-anchor="middle" font-size="7" fill="#404060">Buy / Hold / Profit / Sell?</text>
+                  <!-- Arrow BUY (left) -->
+                  <line x1="60" y1="380" x2="20" y2="380" stroke="#009e70" stroke-width="1.5" marker-end="url(#ahg)"/>
+                  <rect x="2" y="365" width="46" height="30" rx="4" fill="rgba(0,158,112,0.12)" stroke="#009e70" stroke-width="1.5"/>
+                  <text x="25" y="382" text-anchor="middle" font-size="7.5" fill="#009e70" font-weight="700">BUY</text>
+                  <text x="25" y="392" text-anchor="middle" font-size="6.5" fill="#009e70">10–50%</text>
+                  <!-- Arrow SELL (right) -->
+                  <line x1="300" y1="380" x2="340" y2="380" stroke="#c8102e" stroke-width="1.5" marker-end="url(#ahr)"/>
+                  <rect x="305" y="365" width="50" height="30" rx="4" fill="rgba(200,16,46,0.10)" stroke="#c8102e" stroke-width="1.5"/>
+                  <text x="330" y="382" text-anchor="middle" font-size="7.5" fill="#c8102e" font-weight="700">SELL / TRIM</text>
+                  <text x="330" y="392" text-anchor="middle" font-size="6.5" fill="#c8102e">TSL/Regime</text>
+                  <!-- Arrow HOLD (down) -->
+                  <line x1="180" y1="412" x2="180" y2="440" stroke="#7090b0" stroke-width="1.5" marker-end="url(#ah)"/>
+                  <!-- STEP 4: Log & Hold -->
+                  <rect x="60" y="442" width="240" height="40" rx="6" fill="#f2f5f9" stroke="#b0bece" stroke-width="1.5"/>
+                  <text x="180" y="458" text-anchor="middle" font-size="8.5" fill="#304058" font-weight="700" letter-spacing="0.06em">STEP 4 — LOG &amp; HOLD</text>
+                  <text x="180" y="474" text-anchor="middle" font-size="7" fill="#404060">Record Rationale · Monitor 60s Refresh · Repeat Tomorrow</text>
+                  <!-- HOLD label on arrow down -->
+                  <text x="190" y="430" font-size="7" fill="#7090b0">HOLD</text>
+                </svg>
+                </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD247 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD248A &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2586,7 +2663,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD247 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD248A 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
@@ -2778,6 +2855,8 @@
                         <div id="tmCond2" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
                         </div>
                         <div id="tmCond3" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+                        </div>
+                        <div id="tmCond3b" style="display:none;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
                         </div>
                     </div>
                 </div>
@@ -4314,6 +4393,23 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 _initWatchlistCloseBtn();
                 _initZoom();
                 populateAutoStressScenarios();
+                // LD248A: Show persistent config status on every load (no re-entry needed)
+                (function _showConfigStatus() {
+                    try {
+                        const k1 = localStorage.getItem('ld_gemini_api_key');
+                        const k2 = localStorage.getItem('ld_gemini_api_key2');
+                        const model = localStorage.getItem('ld_gemini_model') || 'gemini-2.5-flash-lite';
+                        const wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+                        const gap = localStorage.getItem('ld_api_gap_sec') || '15';
+                        const ks = document.getElementById('ld-ai-key-status');
+                        if (ks) {
+                            const kStr = k1
+                                ? `<span style="color:#009e70;font-weight:700;">✅ K1 ready</span>` + (k2 ? ` <span style="color:#009e70;">+ K2 backup</span>` : '')
+                                : `<span style="color:#c8102e;font-weight:700;">⚠ No API Key — tap 🔑 to add</span>`;
+                            ks.innerHTML = `${kStr} &nbsp;·&nbsp; <span style="color:var(--muted);">Model: ${model.replace('gemini-','').replace('-preview-','·')}</span> &nbsp;·&nbsp; <span style="color:var(--muted);">Gap: ${gap}s</span> &nbsp;·&nbsp; <span style="color:var(--muted);">WL: ${wl.length} funds</span>`;
+                        }
+                    } catch(_) {}
+                })();
                 setTimeout(async () => {
                     try {
                         const amc   = localStorage.getItem('ld_v3_amc') || 'ICICI';
@@ -4438,6 +4534,14 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                                 const regime  = wrsi >= 50 ? 'A' : wrsi >= 40 ? 'B' : 'C';
                                 const r1m     = last >= 21 ? (prices[last] - prices[last-21]) / prices[last-21] * 100 : 0;
                                 fundScores.push({ code: f.code, name: f.name, r1m, regime, wrsi: Math.round(wrsi) });
+                                // LD248A: Save per-fund data for NPS grid _getLive and BA meta
+                                try {
+                                    const _todayStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
+                                    localStorage.setItem(`ld_morning_${f.code}_${_todayStr}`, JSON.stringify({ wrsi: Math.round(wrsi), regime, r1m, ts: Date.now() }));
+                                    if (f.code.startsWith('SM')) {
+                                        localStorage.setItem(`ld_nps_live_${f.code}`, JSON.stringify({ wrsi: Math.round(wrsi), regime, r1m, ts: Date.now() }));
+                                    }
+                                } catch(_) {}
                                 totalScanned++;
                             } catch(_) {  }
                         }
@@ -4510,6 +4614,17 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     }
                 } catch(_) {}
                 setTimeout(() => { if (banner) banner.style.display = 'none'; }, 18000);
+                // LD248A: Daily alert auto-validation — refresh alert badge after morning scan
+                try {
+                    const _alertDate = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                    const _alertRanKey = `ld_alert_ran_${_alertDate}`;
+                    if (!localStorage.getItem(_alertRanKey) && window.refreshAlertSummaryBadge) {
+                        setTimeout(async () => {
+                            await window.refreshAlertSummaryBadge();
+                            localStorage.setItem(_alertRanKey, '1');
+                        }, 2000);
+                    }
+                } catch(_) {}
             }
             // ── SECTION: SIP CONFIG ─────────────────────────────────────────────
             function openSipConfigModal() {
@@ -4556,7 +4671,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD247', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD248A', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -8664,6 +8779,24 @@ This is exactly how the system is meant to be played.
                 } catch(_) {
                     try { bridge = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}'); } catch(_) {}
                 }
+                // LD248A: Auto-populate from TM snapshot if bridge is empty
+                if (!Object.keys(bridge).length) {
+                    try {
+                        const snap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null');
+                        if (snap && snap.top2 && snap.top2.length) {
+                            const amcOrder = ['ABSL','KOTAK','ICICI','HDFC'];
+                            snap.top2.forEach((f, idx) => {
+                                const amc = (f.name || '').toUpperCase().includes('ABSL') || (f.name||'').toUpperCase().includes('ADITYA') ? 'ABSL'
+                                          : (f.name||'').toUpperCase().includes('KOTAK') ? 'KOTAK'
+                                          : (f.name||'').toUpperCase().includes('ICICI') ? 'ICICI'
+                                          : (f.name||'').toUpperCase().includes('HDFC') ? 'HDFC' : amcOrder[idx] || null;
+                                if (amc && f.code) {
+                                    bridge[amc] = { code: f.code, name: f.name, r1m: f.r1m, wrsi: f.wrsi, regime: f.regime, ts: snap.ts, _fromTm: true };
+                                }
+                            });
+                        }
+                    } catch(_) {}
+                }
                 const amcOrder = [
                     ['ABSL',  '#00b4d8'],
                     ['KOTAK', '#f59e0b'],
@@ -8756,7 +8889,7 @@ This is exactly how the system is meant to be played.
                     } else {
                         const none = document.createElement('div');
                         none.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--muted2);margin-top:6px;line-height:1.5;';
-                        none.textContent = '— Run Allocator to populate';
+                        none.textContent = '— Run Allocator or open TM to auto-populate';
                         box.appendChild(none);
                     }
                     grid.appendChild(box);
@@ -8771,6 +8904,11 @@ This is exactly how the system is meant to be played.
                     bridge = (j.switches && Object.keys(j.switches).length) ? j.switches
                            : JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}');
                 } catch(_) {}
+                // LD248A: load TM snapshot for BAF hurdle + auto-populate
+                let tmSnap = null;
+                try { tmSnap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
+                const bafR1m       = tmSnap?.bafR1m   ?? null;
+                const bafThreshold = tmSnap?.bafThreshold ?? null;
 
                 // ── NPS Fund Universe ──────────────────────────────────────────
                 // Code pattern: SM[pfm][type] where last digit = fund type
@@ -8796,25 +8934,70 @@ This is exactly how the system is meant to be played.
                 // Helper: live data from Asset Allocator cache or switch bridge
                 function _getLive(code) {
                     const today = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                    // LD248A Priority 1: per-fund morning scan cache (key written during _runMorningScan)
                     try {
                         const c = localStorage.getItem(`ld_morning_${code}_${today}`);
                         if (c) return JSON.parse(c);
                     } catch(_) {}
-                    // Try NPS allocator result cache
+                    // Priority 2: NPS live cache (saved by TM snapshot)
                     try {
                         const ac = localStorage.getItem(`ld_nps_live_${code}`);
-                        if (ac) return JSON.parse(ac);
+                        if (ac) {
+                            const _d = JSON.parse(ac);
+                            // Only use if fresh (today)
+                            const _ts = _d.ts || 0;
+                            const _tsDate = new Date(_ts+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                            if (_tsDate === today) return _d;
+                        }
                     } catch(_) {}
-                    // Fallback: switch bridge
+                    // Priority 3: Alert scan cache
+                    try {
+                        const _alertRaw = localStorage.getItem(`ld_alerts_${today}`);
+                        if (_alertRaw) {
+                            const _alertData = JSON.parse(_alertRaw);
+                            const _allItems = Object.values(_alertData.results || {}).flat().filter(Boolean);
+                            const _match = _allItems.find(it => it && it.code === code);
+                            if (_match) return { wrsi: _match.wrsi, regime: _match.regime, r1m: _match.r1m };
+                        }
+                    } catch(_) {}
+                    // Priority 4: switch bridge fallback
                     for (const k of Object.keys(bridge)) {
                         if (bridge[k]?.code === code) return bridge[k];
                     }
                     return null;
                 }
 
-                const pfmRec = typeof _getPfmRecommendation === 'function'
+                // LD248A: Use TM snapshot for NPS PFM selection (not static formula)
+                const _PFM_NAMES = { 'SM008':'HDFC', 'SM007':'ICICI', 'SM005':'KOTAK', 'SM010':'ABSL' };
+                let _tmNpsEquityPfm = null, _tmNpsDebtPfm = null;
+                if (tmSnap) {
+                    // If TM was run in NPS mode, top2 contains E and C selections
+                    if (tmSnap.allocType === 'NPS' && tmSnap.top2?.length) {
+                        tmSnap.top2.forEach(f => {
+                            const _d = (f.code||'').slice(-1);
+                            if (_d==='1'||_d==='4') _tmNpsEquityPfm = (f.code||'').slice(0,5); // prefix = PFM
+                            if (_d==='2'||_d==='5') _tmNpsDebtPfm   = (f.code||'').slice(0,5);
+                        });
+                    }
+                    // Also check held1/held2 from TM for NPS
+                    if (!_tmNpsEquityPfm && tmSnap.held1?.code?.startsWith('SM')) {
+                        const _d = (tmSnap.held1.code||'').slice(-1);
+                        if (_d==='1'||_d==='4') _tmNpsEquityPfm = tmSnap.held1.code.slice(0,5);
+                    }
+                    if (!_tmNpsDebtPfm && tmSnap.held2?.code?.startsWith('SM')) {
+                        const _d = (tmSnap.held2.code||'').slice(-1);
+                        if (_d==='2'||_d==='5') _tmNpsDebtPfm = tmSnap.held2.code.slice(0,5);
+                    }
+                }
+                // Fallback to static formula only if TM snapshot has no NPS data
+                const pfmRec = (_tmNpsEquityPfm || _tmNpsDebtPfm) ? {
+                    equity:   { pfm: _PFM_NAMES[_tmNpsEquityPfm] || '—' },
+                    corpDebt: { pfm: _PFM_NAMES[_tmNpsDebtPfm]   || '—' }
+                } : (typeof _getPfmRecommendation === 'function'
                     ? _getPfmRecommendation()
-                    : { equity:{pfm:'—',color:'var(--muted)',rationale:''}, corpDebt:{pfm:'—',color:'var(--muted)',rationale:''} };
+                    : { equity:{pfm:'—'}, corpDebt:{pfm:'—'} });
+                // isRec: match by PFM code prefix (more reliable than name string matching)
+                const _isRecByPrefix = (fCode, selPrefix) => selPrefix && (fCode||'').startsWith(selPrefix);
 
                 grid.innerHTML = '';
 
@@ -8828,7 +9011,10 @@ This is exactly how the system is meant to be played.
                     // Section header
                     const hdr = document.createElement('div');
                     hdr.style.cssText = 'display:flex;align-items:center;gap:8px;margin:6px 0 3px;grid-column:1/-1;';
-                    hdr.innerHTML = `<span style="font-size:0.44rem;font-weight:700;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;font-family:var(--mono);">${label}</span><div style="flex:1;height:1px;background:var(--border);"></div>`;
+                    const bafHurdleTag = (bafThreshold !== null)
+                        ? `<span style="font-size:0.38rem;color:#f59e0b;border:1px solid #f59e0b55;padding:1px 5px;border-radius:3px;font-family:var(--mono);">BAF Hurdle ≥ ${bafThreshold.toFixed(1)}% | ★=Selected</span>`
+                        : `<span style="font-size:0.38rem;color:var(--muted);font-family:var(--mono);">Run TM for hurdle rate | ★=Selected</span>`;
+                    hdr.innerHTML = `<span style="font-size:0.44rem;font-weight:700;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;font-family:var(--mono);">${label}</span><div style="flex:1;height:1px;background:var(--border);"></div>${bafHurdleTag}`;
                     grid.appendChild(hdr);
 
                     // One card per PFM
@@ -8878,10 +9064,13 @@ This is exactly how the system is meant to be played.
                             const r1m    = live?.r1m   != null ? live.r1m.toFixed(1)  : '—';
                             const rc     = regime==='A'?'#00916e':regime==='C'?'#c8102e':regime==='B'?'#f59e0b':'var(--muted)';
 
-                            // Is this the recommended type?
-                            const isRecE = fType==='E' && pfmRec.equity?.pfm?.toUpperCase().includes(pfmName.toUpperCase());
-                            const isRecC = fType==='C' && pfmRec.corpDebt?.pfm?.toUpperCase().includes(pfmName.toUpperCase());
-                            const isRec  = isRecE || isRecC;
+                            // LD248A: isRec via TM prefix match (E → equity selection, C → debt selection)
+                            const isRecE = fType==='E' && _isRecByPrefix(f.code, _tmNpsEquityPfm);
+                            const isRecC = fType==='C' && _isRecByPrefix(f.code, _tmNpsDebtPfm);
+                            // Fallback to name match if TM snapshot has no NPS data
+                            const isRecE_fb = !_tmNpsEquityPfm && fType==='E' && pfmRec.equity?.pfm?.toUpperCase().includes(pfmName.toUpperCase());
+                            const isRecC_fb = !_tmNpsDebtPfm   && fType==='C' && pfmRec.corpDebt?.pfm?.toUpperCase().includes(pfmName.toUpperCase());
+                            const isRec  = isRecE || isRecC || isRecE_fb || isRecC_fb;
 
                             const row = document.createElement('div');
                             row.style.cssText = `
@@ -8891,12 +9080,24 @@ This is exactly how the system is meant to be played.
                                 border:${isRec ? `1px solid ${fColor}44` : '1px solid transparent'};
                             `;
                             row.onclick = (e) => { e.stopPropagation(); launchLiveFromAlert(f.code); };
+                            // LD248A: BAF hurdle rate comparison for E and C fund types
+                            let hurdleHtml = '';
+                            if ((fType === 'E' || fType === 'C') && r1m !== '—' && bafThreshold !== null) {
+                                const r1mNum = parseFloat(r1m);
+                                const beatsHurdle = r1mNum >= bafThreshold;
+                                const hurdleColor = beatsHurdle ? '#00916e' : '#c8102e';
+                                const hurdleIcon = beatsHurdle ? '✓' : '✗';
+                                hurdleHtml = `<span style="font-size:0.38rem;color:${hurdleColor};font-family:var(--mono);flex-shrink:0;" title="BAF Hurdle: ${bafThreshold.toFixed(1)}%">${hurdleIcon}${bafThreshold.toFixed(1)}%</span>`;
+                            }
+                            const selectedMark = isRec ? `<span style="font-size:0.44rem;color:${fColor};font-family:var(--mono);flex-shrink:0;">★ SEL</span>` : '';
                             row.innerHTML = `
                                 <span style="font-size:0.48rem;font-weight:700;color:${fColor};min-width:20px;font-family:var(--mono);">${fType}</span>
                                 <span style="font-size:0.44rem;color:${isRec?fColor:'var(--muted)'};flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${fLabel}</span>
                                 ${wrsi!=='—' ? `<span style="font-size:0.4rem;color:var(--muted);font-family:var(--mono);">RSI ${wrsi}</span>` : ''}
                                 <span style="font-size:0.38rem;color:${rc};border:1px solid ${rc}44;padding:0 3px;border-radius:2px;flex-shrink:0;">${regime}</span>
                                 ${r1m!=='—' ? `<span style="font-size:0.4rem;color:${parseFloat(r1m)>=0?'#00916e':'var(--red)'};font-family:var(--mono);">${parseFloat(r1m)>=0?'+':''}${r1m}%</span>` : ''}
+                                ${hurdleHtml}
+                                ${selectedMark}
                                 <span style="font-size:0.44rem;color:var(--muted2);flex-shrink:0;">📈</span>
                             `;
                             card.appendChild(row);
@@ -8905,13 +9106,16 @@ This is exactly how the system is meant to be played.
                         // ── Bottom: recommended PFM for this type ──
                         const recRow = document.createElement('div');
                         recRow.style.cssText = 'display:flex;gap:4px;margin-top:2px;flex-wrap:wrap;';
-                        const recE = pfmRec.equity?.pfm?.toUpperCase().includes(pfmName.toUpperCase());
-                        const recC = pfmRec.corpDebt?.pfm?.toUpperCase().includes(pfmName.toUpperCase());
+                        const recE = _isRecByPrefix(pfx+'1', _tmNpsEquityPfm) || _isRecByPrefix(pfx+'4', _tmNpsEquityPfm)
+                                  || (!_tmNpsEquityPfm && pfmRec.equity?.pfm?.toUpperCase().includes(pfmName.toUpperCase()));
+                        const recC = _isRecByPrefix(pfx+'2', _tmNpsDebtPfm)   || _isRecByPrefix(pfx+'5', _tmNpsDebtPfm)
+                                  || (!_tmNpsDebtPfm && pfmRec.corpDebt?.pfm?.toUpperCase().includes(pfmName.toUpperCase()));
+                        const _recSrc = (_tmNpsEquityPfm || _tmNpsDebtPfm) ? 'TM' : 'formula';
                         if (recE) {
-                            recRow.innerHTML += `<span style="font-size:0.38rem;color:#00916e;border:1px solid #00916e44;padding:1px 4px;border-radius:3px;">▶ Equity pick</span>`;
+                            recRow.innerHTML += `<span style="font-size:0.38rem;color:#00916e;border:1px solid #00916e44;padding:1px 4px;border-radius:3px;">▶ Equity pick (${_recSrc})</span>`;
                         }
                         if (recC) {
-                            recRow.innerHTML += `<span style="font-size:0.38rem;color:#3b82f6;border:1px solid #3b82f644;padding:1px 4px;border-radius:3px;">▶ Debt pick</span>`;
+                            recRow.innerHTML += `<span style="font-size:0.38rem;color:#3b82f6;border:1px solid #3b82f644;padding:1px 4px;border-radius:3px;">▶ Debt pick (${_recSrc})</span>`;
                         }
                         if (recRow.innerHTML) card.appendChild(recRow);
 
@@ -11687,22 +11891,12 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         : `launchLiveFromAlert('${fund.code}')`;
                     return `<span style="${style}" onclick="${onclick}">${fund.name.replace(/ - Growth| - Direct/gi,'').trim()}</span>`;
                 };
-                let c3detail = `<em style="font-size:0.5rem;color:var(--muted);">Only Regime Hope funds considered as swap candidates.</em><br>`;
                 const _settlingSuffix = (fund) => {
                     if (fund && _lpPendingCodes.has(fund.code)) {
-                        return ` <span style="color:#f59e0b;font-size:0.5rem;">⏳ settling — badge suppressed</span>`;
+                        return ` <span style="color:#f59e0b;font-size:0.5rem;">⏳ settling</span>`;
                     }
                     return '';
                 };
-                if (c3aSpread !== null) {
-                    c3detail += `C3a — Best unowned: ${_c3FundLink(bestUnowned, c3aDisplay)}: 1M = ${bestUnowned?.r1m?.toFixed(1) ?? '--'}%${_settlingSuffix(bestUnowned)}<br>`;
-                    c3detail += `Held rank-1 (${held1?.name ?? '—'}): 1M = ${held1?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3aSpread.toFixed(1)}%</strong> ${c3aTrigger ? (c3aDisplay ? '⚠ >2%' : '⏳ >2% — settling') : '✓ ≤2%'}<br>`;
-                }
-                if (c3bSpread !== null) {
-                    c3detail += `C3b — 2nd unowned: ${_c3FundLink(secondUnowned, c3bDisplay)}: 1M = ${secondUnowned?.r1m?.toFixed(1) ?? '--'}%${_settlingSuffix(secondUnowned)}<br>`;
-                    c3detail += `Held rank-2 (${held2?.name ?? '—'}): 1M = ${held2?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3bSpread.toFixed(1)}%</strong> ${c3bTrigger ? (c3bDisplay ? '⚠ >2%' : '⏳ >2% — settling') : '✓ ≤2%'}`;
-                }
-                if (c3aSpread === null && c3bSpread === null) c3detail += 'Insufficient Regime Hope candidates for comparison.';
                 const c3NewFunds = [c3aDisplay ? bestUnowned : null, c3bDisplay ? secondUnowned : null].filter(Boolean);
                 const c3Badge = document.getElementById('assetAllocC3Badge');
                 if (c3Badge) {
@@ -11710,7 +11904,45 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     c3Badge.style.display = c3NewFunds.length > 0 ? 'inline' : 'none';
                 }
                 try { window._c3NewFundCount = c3NewFunds.length; } catch(_){}
-                document.getElementById('tmCond3').outerHTML = `<div id="tmCond3">${condHTML('🔄', 'CONDITION 3 — MOMENTUM SWAP (Regime Hope only)', c3detail, c3triggerDisplay, '⚠ TRIGGER SWAP', '✓ HOLD')}</div>`;
+                // LD248A: C3a and C3b as SEPARATE line items
+                let c3aDetailOnly = `<em style="font-size:0.5rem;color:var(--muted);">Only Regime Hope funds considered.</em><br>`;
+                let c3bDetailOnly = `<em style="font-size:0.5rem;color:var(--muted);">Second-slot swap candidate.</em><br>`;
+                if (c3aSpread !== null) {
+                    c3aDetailOnly += `Best unowned: ${_c3FundLink(bestUnowned, c3aDisplay)}: 1M = ${bestUnowned?.r1m?.toFixed(1) ?? '--'}%${_settlingSuffix(bestUnowned)}<br>`;
+                    c3aDetailOnly += `Held rank-1 (${held1?.name ?? '—'}): 1M = ${held1?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3aSpread.toFixed(1)}%</strong> ${c3aTrigger ? (c3aDisplay ? '⚠ >2%' : '⏳ settling') : '✓ ≤2%'}`;
+                } else { c3aDetailOnly += 'No Regime Hope candidates available.'; }
+                if (c3bSpread !== null) {
+                    c3bDetailOnly += `2nd unowned: ${_c3FundLink(secondUnowned, c3bDisplay)}: 1M = ${secondUnowned?.r1m?.toFixed(1) ?? '--'}%${_settlingSuffix(secondUnowned)}<br>`;
+                    c3bDetailOnly += `Held rank-2 (${held2?.name ?? '—'}): 1M = ${held2?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3bSpread.toFixed(1)}%</strong> ${c3bTrigger ? (c3bDisplay ? '⚠ >2%' : '⏳ settling') : '✓ ≤2%'}`;
+                } else { c3bDetailOnly += 'Only 1 slot to compare.'; }
+                document.getElementById('tmCond3').outerHTML = `<div id="tmCond3">${condHTML('🔄', 'CONDITION 3a — MOMENTUM SWAP · Slot 1', c3aDetailOnly, c3aDisplay, '⚠ SWAP SLOT 1', '✓ HOLD')}</div>`;
+                const _tmCond3b = document.getElementById('tmCond3b');
+                if (_tmCond3b) {
+                    _tmCond3b.outerHTML = `<div id="tmCond3b" style="display:flex;">${condHTML('🔄', 'CONDITION 3b — MOMENTUM SWAP · Slot 2', c3bDetailOnly, c3bDisplay, '⚠ SWAP SLOT 2', '✓ HOLD')}</div>`;
+                }
+                // LD248A: Save TM snapshot to localStorage for persistent Switch Bridge + Alerts
+                try {
+                    const _tmSnap = {
+                        ts: Date.now(),
+                        istDate: new Date(Date.now()+5.5*3600000).toISOString().slice(0,10),
+                        top2: lastAlloc.top2 ? lastAlloc.top2.map(f => ({
+                            code: f.code, name: f.name, r1m: f.r1m, wrsi: f.wrsi, regime: f.regime
+                        })) : [],
+                        c3a: bestUnowned ? { code: bestUnowned.code, name: bestUnowned.name, r1m: bestUnowned.r1m, wrsi: bestUnowned.wrsi, regime: bestUnowned.regime, spread: c3aSpread, triggered: c3aTrigger } : null,
+                        c3b: secondUnowned ? { code: secondUnowned.code, name: secondUnowned.name, r1m: secondUnowned.r1m, wrsi: secondUnowned.wrsi, regime: secondUnowned.regime, spread: c3bSpread, triggered: c3bTrigger } : null,
+                        bafName: bafLive?.name || '—',
+                        bafR1m: bafLiveMom,
+                        bafThreshold: bafThreshold,
+                        held1: held1 ? { code: held1.code, name: held1.name, r1m: held1.r1m, wrsi: held1.wrsi, regime: held1.regime } : null,
+                        held2: held2 ? { code: held2.code, name: held2.name, r1m: held2.r1m, wrsi: held2.wrsi, regime: held2.regime } : null,
+                        allocType: document.getElementById('assetAllocType')?.value || 'MF'
+                    };
+                    localStorage.setItem('ld_tm_snapshot', JSON.stringify(_tmSnap));
+                    // Also save per-fund live data for NPS grid
+                    for (const f of snapshot) {
+                        try { localStorage.setItem(`ld_nps_live_${f.code}`, JSON.stringify({ wrsi: f.wrsi, regime: f.regime, r1m: f.r1m, ts: Date.now() })); } catch(_) {}
+                    }
+                } catch(_) {}
                 el.style.display = 'block';
             }
             function renderAssetAllocatorBoxes(allocs) {
@@ -12253,6 +12485,35 @@ categories.forEach(cat => {
                 ];
                 npsTierDefs.forEach(({ key, label, accent }) => {
                     const entry = (res.SHORTLISTED || []).find(e => e.amc === key);
+                    // LD248A: Pull TM snapshot for NPS selected fund/PFM per Tier
+                    let tmSnapNps = null;
+                    try { tmSnapNps = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
+                    const tmBafR1m       = tmSnapNps?.bafR1m ?? null;
+                    const tmBafThreshold = tmSnapNps?.bafThreshold ?? null;
+                    // Build per-fund TM data lookup
+                    const _getNpsLive = (code) => {
+                        try {
+                            const d = localStorage.getItem(`ld_nps_live_${code}`);
+                            return d ? JSON.parse(d) : null;
+                        } catch(_) { return null; }
+                    };
+                    // Determine PFM from fund code prefix
+                    const _pfmFromCode = (code) => {
+                        if (!code) return '—';
+                        if (code.startsWith('SM008')) return 'HDFC';
+                        if (code.startsWith('SM007')) return 'ICICI';
+                        if (code.startsWith('SM005')) return 'KOTAK';
+                        if (code.startsWith('SM010')) return 'ABSL';
+                        return code.slice(0,5);
+                    };
+                    // Fund type from last digit
+                    const _typeFromCode = (code) => {
+                        const d = code?.slice(-1);
+                        if (d==='1'||d==='4') return 'E';
+                        if (d==='2'||d==='5') return 'C';
+                        if (d==='3'||d==='6') return 'H';
+                        return '?';
+                    };
                     const npsBox = document.createElement('div');
                     npsBox.style.cssText = `
                         background:var(--surface);
@@ -12282,6 +12543,45 @@ categories.forEach(cat => {
                         npsName.style.cssText = 'font-size:0.62rem;font-weight:400;color:var(--text);line-height:1.3;';
                         npsName.textContent = entry.fund.name.replace(/\[NPS\] /gi,'').replace(/ - Growth| - Direct/gi,'').trim().slice(0, 34);
                         npsBox.appendChild(npsName);
+                        // LD248A: Show E and C rows with PFM + BAF hurdle
+                        const entryType = _typeFromCode(entry.fund.code);
+                        const entryPfm  = _pfmFromCode(entry.fund.code);
+                        const entryLive = _getNpsLive(entry.fund.code);
+                        const _makeECRow = (fType, fCode, fName, fR1m, fWrsi) => {
+                            const pfm = _pfmFromCode(fCode);
+                            const col = fType==='E' ? '#00916e' : '#3b82f6';
+                            const beatsHurdle = tmBafThreshold !== null && typeof fR1m==='number' ? fR1m >= tmBafThreshold : null;
+                            const hBadge = beatsHurdle !== null
+                                ? `<span style="font-size:0.38rem;color:${beatsHurdle?'#00916e':'#c8102e'};font-family:var(--mono);">${beatsHurdle?'✓':'✗'}${tmBafThreshold.toFixed(1)}%</span>`
+                                : '';
+                            const r1mStr = typeof fR1m==='number' ? `${fR1m>=0?'+':''}${fR1m.toFixed(1)}%` : '—';
+                            const shortName = (fName||'').replace(/\[NPS\] /gi,'').replace(/ - Growth| - Direct/gi,'').trim().slice(0,22);
+                            return `<div style="display:flex;align-items:center;gap:4px;background:${col}11;border:1px solid ${col}33;border-radius:3px;padding:2px 5px;cursor:pointer;" onclick="event.stopPropagation();launchLiveFromAlert('${fCode}')">
+                                <span style="font-size:0.46rem;font-weight:700;color:${col};font-family:var(--mono);min-width:14px;">${fType}</span>
+                                <span style="font-size:0.42rem;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${fName}">${pfm} · ${shortName}</span>
+                                <span style="font-size:0.4rem;color:${parseFloat(r1mStr)>=0?'#00916e':'var(--red)'};font-family:var(--mono);">${r1mStr}</span>
+                                ${hBadge}
+                            </div>`;
+                        };
+                        // Primary (shortlisted fund row)
+                        npsBox.innerHTML += _makeECRow(entryType, entry.fund.code, entry.fund.name, entry.fund.r1m, entry.fund.wrsi);
+                        // Try to find the complementary E or C fund for same PFM
+                        const allNpsFunds = Object.values(window.amcFunds||{}).flat().filter(f=>f.code?.startsWith('SM'));
+                        const tierFilter = key==='NPS_T1'
+                            ? f => (f.name.includes('Tier I') && !f.name.includes('Tier II'))
+                            : f => f.name.includes('Tier II');
+                        const complementType = entryType==='E' ? 'C' : 'E';
+                        const compFund = allNpsFunds.find(f => f.code.startsWith(entry.fund.code.slice(0,5)) && tierFilter(f) && _typeFromCode(f.code)===complementType);
+                        if (compFund) {
+                            const compLive = _getNpsLive(compFund.code);
+                            npsBox.innerHTML += _makeECRow(complementType, compFund.code, compFund.name, compLive?.r1m ?? null, compLive?.wrsi ?? null);
+                        }
+                        if (tmBafThreshold !== null) {
+                            const hurdleNote = document.createElement('div');
+                            hurdleNote.style.cssText = 'font-size:0.38rem;color:var(--muted);font-family:var(--mono);margin-top:1px;';
+                            hurdleNote.textContent = `BAF Hurdle: ${tmBafThreshold.toFixed(1)}%  ·  PFM: ${entryPfm}`;
+                            npsBox.appendChild(hurdleNote);
+                        }
                         const npsStats = document.createElement('div');
                         npsStats.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--text);display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;';
                         npsStats.innerHTML = `<span style="color:#00916e;">1M: ${entry.fund.r1m.toFixed(1)}%</span><span style="color:var(--muted);">wRSI ${entry.fund.wrsi}</span>`;
@@ -12300,8 +12600,7 @@ categories.forEach(cat => {
                         npsAiBtn.style.cssText = 'margin-top:4px;width:100%;font-size:0.44rem;padding:3px 0;border:1px solid #7c3aed;border-radius:4px;background:rgba(124,58,237,0.07);color:#7c3aed;cursor:pointer;font-family:var(--mono);font-weight:700;letter-spacing:0.04em;text-transform:uppercase;';
                         npsAiBtn.onclick = (ev) => {
                             ev.stopPropagation();
-                            const fundForAI = { code: entry.fund.code, name: entry.fund.name, wrsi: entry.fund.wrsi, drsi: entry.fund.drsi, r1m: entry.fund.r1m };
-                            openAIBreadthModal(fundForAI);
+                            openAIBreadthModal({ code: entry.fund.code, name: entry.fund.name, wrsi: entry.fund.wrsi, drsi: entry.fund.drsi, r1m: entry.fund.r1m });
                         };
                         npsBox.appendChild(npsAiBtn);
                     } else {
@@ -13356,14 +13655,77 @@ categories.forEach(cat => {
 
         
         function _populateFundMeta(fund) {
-            const regime = parseFloat(fund.wrsi) >= 50 ? 'A — HOPE'
-                         : parseFloat(fund.wrsi) >= 40 ? 'B — WATCH' : 'C — FEAR';
-            const regimeClass = parseFloat(fund.wrsi) >= 50 ? 'regime-a'
-                              : parseFloat(fund.wrsi) >= 40 ? 'regime-b' : 'regime-c';
+            // LD248A: Build RSI from the most accurate source available, in priority order
+            const fCode = fund.code || '';
+            let wrsiVal = fund.wrsi ?? null;
+            let drsiVal = fund.drsi ?? null;
+
+            // Priority 1: If same fund is currently live on Page 1 → use Page 1 DOM values (most current)
+            const liveCode = document.getElementById('fundSelect')?.value;
+            if (liveCode && liveCode === fCode) {
+                const liveWrsiEl = document.getElementById('liveWRsi');
+                const liveDrsiEl = document.getElementById('liveDRsi');
+                const _wTxt = liveWrsiEl?.textContent?.trim();
+                const _dTxt = liveDrsiEl?.textContent?.trim();
+                if (_wTxt && _wTxt !== '--' && !isNaN(parseInt(_wTxt))) wrsiVal = parseInt(_wTxt);
+                if (_dTxt && _dTxt !== '--' && !isNaN(parseInt(_dTxt))) drsiVal = parseInt(_dTxt);
+            }
+
+            // Priority 2: Alert scan cache (covers ALL funds scanned today)
+            if ((wrsiVal == null) || (drsiVal == null)) {
+                try {
+                    const _alertDate = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                    const _alertRaw = localStorage.getItem(`ld_alerts_${_alertDate}`);
+                    if (_alertRaw) {
+                        const _alertData = JSON.parse(_alertRaw);
+                        const _allAlertItems = Object.values(_alertData.results || {}).flat().filter(Boolean);
+                        const _match = _allAlertItems.find(it => it && it.code === fCode);
+                        if (_match) {
+                            if (wrsiVal == null && _match.wrsi != null) wrsiVal = Math.round(_match.wrsi);
+                            if (drsiVal == null && _match.drsi != null) drsiVal = Math.round(_match.drsi);
+                        }
+                    }
+                } catch(_) {}
+            }
+
+            // Priority 3: NPS live cache (saved by TM run)
+            if ((wrsiVal == null) || (drsiVal == null)) {
+                try {
+                    const _npsRaw = localStorage.getItem(`ld_nps_live_${fCode}`);
+                    if (_npsRaw) {
+                        const _nps = JSON.parse(_npsRaw);
+                        if (wrsiVal == null && _nps.wrsi != null) wrsiVal = Math.round(_nps.wrsi);
+                        // d-RSI not stored separately in NPS cache; derive from wrsi if needed
+                    }
+                } catch(_) {}
+            }
+
+            // Priority 4: Morning scan rank1 (covers rank-1 fund per AMC bucket)
+            if (wrsiVal == null) {
+                try {
+                    const _dateKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
+                    const _amcKeys = Object.keys(window.amcFunds || {});
+                    for (const amc of _amcKeys) {
+                        for (const type of ['MF','NPS_T1','NPS_T2']) {
+                            const _raw = localStorage.getItem(`ld_v3_morning_${amc}_${type}`);
+                            if (!_raw) continue;
+                            const _d = JSON.parse(_raw);
+                            if (_d.rank1?.code === fCode) {
+                                if (wrsiVal == null) wrsiVal = Math.round(_d.rank1.wrsi ?? 0);
+                                break;
+                            }
+                        }
+                    }
+                } catch(_) {}
+            }
+            const regime = parseFloat(wrsiVal) >= 50 ? 'A — HOPE'
+                         : parseFloat(wrsiVal) >= 40 ? 'B — WATCH' : 'C — FEAR';
+            const regimeClass = parseFloat(wrsiVal) >= 50 ? 'regime-a'
+                              : parseFloat(wrsiVal) >= 40 ? 'regime-b' : 'regime-c';
             const cells = [
                 { label: 'Regime', val: regime, cls: regimeClass },
-                { label: 'W-RSI', val: fund.wrsi ?? '—', cls: '' },
-                { label: 'D-RSI', val: fund.drsi ?? '—', cls: '' },
+                { label: 'W-RSI', val: wrsiVal ?? '—', cls: '' },
+                { label: 'D-RSI', val: drsiVal ?? '—', cls: '' },
             ];
             const meta = document.getElementById('abpFundMeta');
             meta.innerHTML = cells.map(c => `
@@ -14386,14 +14748,12 @@ Return a JSON object with this exact structure:
             <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
                 <select id="ld-api-gap-select" style="flex:1;font-size:0.52rem;padding:5px 8px;border-radius:5px;
                         border:1.5px solid #b0bece;background:#f2f5f9;color:#000;outline:none;font-family:var(--mono);">
-                    <option value="30" selected>⚡ Standard — 30s gap (default)</option>
-                    <option value="25">🚀 Fast — 25s gap</option>
+                    <option value="100">🐢 Slow — 100s gap (quota-safe)</option>
                     <option value="60">🐇 Conservative — 60s gap</option>
-                    <option value="100">🐢 Slow Access — 100s gap (quota-safe)</option>
-                    <option value="15">🔬 Testing — 15s gap</option>
-                    <option value="10">🔬 Testing — 10s gap</option>
-                    <option value="5">🔬 Testing — 5s gap</option>
-                    <option value="3">⚠ Testing — 3s gap (quota risk)</option>
+                    <option value="30">⚡ Standard — 30s gap</option>
+                    <option value="25">🚀 Fast — 25s gap</option>
+                    <option value="15" selected>⚡ Default — 15s gap</option>
+                    <option value="10">⚡ Quick — 10s gap</option>
                 </select>
                 <button id="ld-gap-save" style="background:#ffffff;color:#000;border:1.5px solid #b0bece;
                         border-radius:5px;padding:6px 11px;font-size:0.5rem;cursor:pointer;
@@ -14463,7 +14823,7 @@ Return a JSON object with this exact structure:
             const gapSel  = document.getElementById('ld-api-gap-select');
             const gapSave = document.getElementById('ld-gap-save');
             if (gapSel) {
-                const saved = localStorage.getItem('ld_api_gap_sec') || '30';
+                const saved = localStorage.getItem('ld_api_gap_sec') || '15';
                 gapSel.value = saved;
             }
             if (gapSave && gapSel) {
@@ -15887,9 +16247,9 @@ Return a JSON object with this exact structure:
     'use strict';
 
     
-    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'30');  return (v>=3&&v<=100?v:30)*1000;  } catch(e){ return 30_000;  } })();
+    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'15');  return (v>=10&&v<=100?v:15)*1000;  } catch(e){ return 15_000;  } })();
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD247';
+    const ADDON_VER     = 'LD248A';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
     

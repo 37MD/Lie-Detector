@@ -2665,8 +2665,8 @@
             <div class="streak-badge" id="streakBadge"></div>
             <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD248A 📋</span></h1>
             <div id="firstRunBanner" style="display:none;background:rgba(245,158,11,0.12);border:1.5px solid #f59e0b;border-radius:6px;padding:8px 10px;margin-bottom:8px;text-align:center;">
-                <div style="font-size:0.58rem;font-weight:700;color:#c97a00;margin-bottom:3px;">⚠ NEW VERSION DETECTED — No saved config found</div>
-                <div style="font-size:0.5rem;color:var(--muted);margin-bottom:6px;">Open your previous <code>LD_Config_…json</code> backup to restore keys, watchlist &amp; settings instantly.</div>
+                <div class="firstRunTitle" style="font-size:0.58rem;font-weight:700;color:#c97a00;margin-bottom:3px;">⚠ Config not found — Browser cleared storage</div>
+                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);margin-bottom:6px;">Android Chrome clears file storage after hours in background. Open your LD_Config backup to restore instantly.</div>
                 <label style="display:inline-block;background:#009e70;color:#fff;padding:6px 16px;border-radius:5px;cursor:pointer;font-size:0.56rem;font-weight:700;letter-spacing:0.05em;">
                     📂 RESTORE CONFIG NOW
                     <input type="file" accept=".json" style="display:none;" onchange="_configBackupImport(this.files[0]);this.value='';">
@@ -2938,16 +2938,6 @@
                     </label>
                 </div>
                 <div id="configBackupStatus" style="font-size:0.44rem;color:var(--muted);text-align:center;min-height:14px;"></div>
-                <div style="margin-top:4px;border-top:1px solid var(--border);padding-top:4px;">
-                    <div style="font-size:0.44rem;color:var(--muted);margin-bottom:3px;text-align:center;letter-spacing:0.05em;">SWITCH JOURNAL BACKUP</div>
-                    <div style="display:flex;gap:5px;">
-                        <button class="setup-btn" style="flex:1;font-size:0.48rem;border-color:#a855f7;color:#a855f7;" onclick="_SJ.export()">⬇ EXPORT JSON</button>
-                        <label class="setup-btn" style="flex:1;font-size:0.48rem;border-color:#00b4d8;color:#00b4d8;cursor:pointer;text-align:center;padding:5px 4px;">
-                            ⬆ IMPORT JSON
-                            <input type="file" accept=".json" style="display:none;" onchange="_SJ.import(this.files[0]);this.value='';">
-                        </label>
-                    </div>
-                </div>
             </div>
             <div style="padding:6px 8px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:6px;">
                 <button class="setup-btn" style="border-color:var(--border2);color:var(--muted2);flex:1;font-size:0.55rem;min-height:44px;padding:8px 6px;" onclick="refreshWatchlist()">↺ REFRESH ALL</button>
@@ -4503,7 +4493,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 const types    = ['MF', 'NPS_T1', 'NPS_T2'];
                 const months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
                 const fmtTime  = () => { const n=new Date(); return `${n.getDate()}-${months[n.getMonth()]} ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; };
-                let totalScanned = 0, addedToWatchlist = 0, fearFlags = 0;
+                let totalScanned = 0, fearFlags = 0;
                 const scanResults = {}; 
                 for (const amc of amcKeys) {
                     const fundsList = window.amcFunds[amc] || [];
@@ -4594,11 +4584,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             }
                         } catch(_) {}
                         if (rank1 && rank1.regime === 'A') {
-                            if (!_watchlist.find(w => w.code === rank1.code) && _watchlist.length < 20) {
-                                _watchlist.push({ code: rank1.code, name: rank1.name, morningAdd: true, portfolio: false });
-                                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
-                                addedToWatchlist++;
-                            }
+                            // LD248A: Do NOT auto-add to watchlist — user manages watchlist manually
+                            // (previously this silently added random rank-1 funds like "Nifty200 Value 30")
                         }
                         fundScores.filter(f => f.regime === 'C').forEach(fearFund => {
                             const wIdx = _watchlist.findIndex(w => w.code === fearFund.code);
@@ -4620,8 +4607,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     `🌅 Morning scan complete · ${fmtTime()}`,
                     `${totalScanned} funds · ${hopeCount} buckets in Hope · ${fearCount} in Fear`,
                 ];
-                if (addedToWatchlist > 0) summaryLines.push(`📌 ${addedToWatchlist} fund${addedToWatchlist>1?'s':''} auto-added to Watchlist`);
-                if (fearFlags > 0)        summaryLines.push(`⚠ ${fearFlags} watchlisted fund${fearFlags>1?'s':''} flagged Regime Fear`);
+                if (fearFlags > 0) summaryLines.push(`⚠ ${fearFlags} watchlisted fund${fearFlags>1?'s':''} flagged Regime Fear`);
                 const bannerColor = fearFlags > 0 ? '#c8102e' : hopeCount > 0 ? '#00e8a2' : '#f59e0b';
                 _setBanner(summaryLines.join('<br>'), bannerColor);
                 // ── Update Investment Switch Bridge last-update timestamp ──────
@@ -9151,8 +9137,11 @@ This is exactly how the system is meant to be played.
             const CONFIG_KEYS = [
                 'ld_gemini_api_key', 'ld_gemini_api_key2', 'ld_gemini_model',
                 'ld_api_gap_sec', 'ld_watchlist', 'ld_tm_snapshot',
-                'ld_switch_bridge', 'ld_streak_count', 'ld_streak_best',
-                'ld_active_key_slot'
+                'ld_switch_bridge', 'ld_switch_journal_v2',
+                'ld_streak_count', 'ld_streak_best', 'ld_active_key_slot',
+                // Daily scan state — prevents BA/morning scan restarting after restore
+                'ld_v3_morning_scan_date', 'ld_last_version',
+                'ld_v3_amc', 'ld_v3_fund', 'ld_v3_rsi_length'
             ];
             function _configBackupExport() {
                 try {
@@ -9161,11 +9150,14 @@ This is exactly how the system is meant to be played.
                         const v = localStorage.getItem(k);
                         if (v !== null) blob[k] = v;
                     });
-                    // Also export switch journal
-                    try {
-                        const sj = localStorage.getItem('ld_switch_journal_v2');
-                        if (sj) blob['ld_switch_journal_v2'] = sj;
-                    } catch(_) {}
+                    // Save today's BA-run flags so they survive restore
+                    const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                    ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
+                        const v = localStorage.getItem(prefix + _todayKey);
+                        if (v !== null) blob[prefix + _todayKey] = v;
+                    });
+                    // Write version stamp into storage
+                    localStorage.setItem('ld_last_version', 'LD248A');
                     blob['_exportedAt'] = new Date(Date.now()+5.5*3600000).toISOString().slice(0,16).replace('T',' ') + ' IST';
                     blob['_version'] = 'LD248A';
                     const wl = JSON.parse(blob['ld_watchlist'] || '[]');
@@ -9192,7 +9184,12 @@ This is exactly how the system is meant to be played.
                         CONFIG_KEYS.forEach(k => {
                             if (blob[k] !== undefined) { localStorage.setItem(k, blob[k]); count++; }
                         });
-                        if (blob['ld_switch_journal_v2']) localStorage.setItem('ld_switch_journal_v2', blob['ld_switch_journal_v2']);
+                        // Restore today's BA-run flags
+                        const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                        ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
+                            if (blob[prefix + _todayKey] !== undefined) localStorage.setItem(prefix + _todayKey, blob[prefix + _todayKey]);
+                        });
+                        localStorage.setItem('ld_last_version', 'LD248A');
                         // Reload watchlist into memory
                         try { _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(_) {}
                         const wl = _watchlist.length;
@@ -9212,18 +9209,22 @@ This is exactly how the system is meant to be played.
             window._configBackupImport = _configBackupImport;
             // ── Startup: show prominent banner if API key is missing ──────────────
             (function _checkFirstRun() {
+                // Always stamp current version into storage (for next-load comparison)
+                localStorage.setItem('ld_last_version', 'LD248A');
                 const hasKey = !!localStorage.getItem('ld_gemini_api_key');
                 const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist')||'[]')).length > 0;
                 if (!hasKey && !hasWl) {
-                    // Completely fresh storage — show restore banner at top of setup screen
                     setTimeout(() => {
                         const banner = document.getElementById('firstRunBanner');
+                        const bannerTitle = banner?.querySelector('.firstRunTitle');
+                        const bannerMsg   = banner?.querySelector('.firstRunMsg');
+                        // Storage was cleared by Android Chrome (same file, different session)
+                        // Show correct message — NOT "New Version"
+                        if (bannerTitle) bannerTitle.textContent = '⚠ Config not found — Browser cleared storage';
+                        if (bannerMsg) bannerMsg.textContent = 'Android Chrome clears file storage after a few hours in background. Open your LD_Config backup to restore keys, watchlist & settings.';
                         if (banner) banner.style.display = 'block';
                         const st = document.getElementById('configBackupStatus');
-                        if (st) {
-                            st.style.color = '#c97a00';
-                            st.textContent = '⚠ No config found. Tap RESTORE CONFIG above to load your backup.';
-                        }
+                        if (st) { st.style.color='#c97a00'; st.textContent='⚠ Storage was cleared. Tap RESTORE CONFIG to reload your backup.'; }
                     }, 500);
                 }
             })();

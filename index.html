@@ -2862,9 +2862,7 @@
                         </div>
                         <div id="tmCond2" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
                         </div>
-                        <div id="tmCond3" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
-                        </div>
-                        <div id="tmCond3b" style="display:none;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+                        <div id="tmCond3combined" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
                         </div>
                     </div>
                 </div>
@@ -2889,6 +2887,8 @@
             <div style="padding:6px 8px;font-size:0.5rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
                 Auto-refreshes every 60s · Tap row to open Live Cockpit
             </div>
+            <!-- LD248A: TM Swap Auto-Notification -->
+            <div id="wlSwapNotification" style="display:none;flex-shrink:0;margin:5px 8px 0;border-radius:6px;overflow:hidden;"></div>
             <!-- BA Results view (toggles with watchlist body) -->
             <div id="wlBaView" style="display:none;flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 8px;flex-direction:column;gap:6px;">
                 <div style="font-size:0.52rem;color:var(--muted);padding:4px 0 6px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:6px;">
@@ -8763,9 +8763,10 @@ This is exactly how the system is meant to be played.
                 document.getElementById('watchlistModal').style.display = 'flex';
                 renderWatchlistStubs();
                 refreshWatchlist();
-                renderSwitchBridgeGrid();       
-                renderSwitchBridgeNpsGrid();    
-                refreshLiveBridgePnL();         
+                renderSwitchBridgeGrid();
+                renderSwitchBridgeNpsGrid();
+                refreshLiveBridgePnL();
+                if (window._renderTmSwapNotification) window._renderTmSwapNotification();
                 _watchlistRefreshTimer = setInterval(refreshWatchlist, 60_000);
             }
             function openLiveBridge() {
@@ -9133,6 +9134,36 @@ This is exactly how the system is meant to be played.
                     });
                 });
             }
+            // ── LD248A: TM SWAP AUTO-NOTIFICATION ──────────────────────────────────
+            window._renderTmSwapNotification = function() {
+                let snap = null;
+                try { snap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
+                const triggeredSwaps = (snap?.swaps || []).filter(s => s.triggered);
+                ['wlSwapNotification', 'alertSwapNotification'].forEach(id => {
+                    const box = document.getElementById(id);
+                    if (!box) return;
+                    if (!snap || !triggeredSwaps.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+                    const _istDate = snap.istDate || '—';
+                    let html = `<div style="background:rgba(0,158,112,0.10);border:1.5px solid #009e70;border-radius:6px;padding:7px 10px;">
+                        <div style="font-size:0.52rem;font-weight:700;color:#009e70;margin-bottom:4px;letter-spacing:0.06em;">⚡ TM SWAP ALERT — ${_istDate} &nbsp;·&nbsp; ${snap.allocType||'MF'}</div>`;
+                    triggeredSwaps.forEach(s => {
+                        const heldName = (s.held?.name||'—').replace(/ - Growth| - Direct/gi,'').trim();
+                        const unwnName = (s.unowned?.name||'—').replace(/ - Growth| - Direct/gi,'').trim();
+                        const heldR1m  = typeof s.held?.r1m   === 'number' ? s.held.r1m.toFixed(1)   : '--';
+                        const unwnR1m  = typeof s.unowned?.r1m === 'number' ? s.unowned.r1m.toFixed(1) : '--';
+                        html += `<div style="padding:4px 0;border-top:1px solid #009e7033;font-size:0.54rem;line-height:1.8;">
+                            <span style="color:var(--muted);font-size:0.46rem;font-family:var(--mono);">SLOT ${s.slot} &nbsp;</span>
+                            Switch from &nbsp;<span style="color:#c8102e;font-weight:700;">${heldName}</span>&nbsp;
+                            <span style="color:var(--muted);font-size:0.46rem;">(1M: ${heldR1m}%)</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ &nbsp;<span style="color:#009e70;font-weight:700;">${unwnName}</span>&nbsp;
+                            <span style="color:var(--muted);font-size:0.46rem;">(1M: ${unwnR1m}% · Spread: +${s.spread?.toFixed(1)||'--'}%)</span>
+                        </div>`;
+                    });
+                    html += `</div>`;
+                    box.innerHTML = html;
+                    box.style.display = 'block';
+                });
+            };
             // ── LD248A: FULL CONFIG BACKUP / RESTORE ──────────────────────────────
             const CONFIG_KEYS = [
                 'ld_gemini_api_key', 'ld_gemini_api_key2', 'ld_gemini_model',
@@ -12004,21 +12035,48 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     c3Badge.style.display = c3NewFunds.length > 0 ? 'inline' : 'none';
                 }
                 try { window._c3NewFundCount = c3NewFunds.length; } catch(_){}
-                // LD248A: C3a and C3b as SEPARATE line items
-                let c3aDetailOnly = `<em style="font-size:0.5rem;color:var(--muted);">Only Regime Hope funds considered.</em><br>`;
-                let c3bDetailOnly = `<em style="font-size:0.5rem;color:var(--muted);">Second-slot swap candidate.</em><br>`;
+                // LD248A: COMBINED C3 — single box for Slot 1 AND Slot 2 candidates
+                const _c3Swaps = []; // all triggered/near swaps
                 if (c3aSpread !== null) {
-                    c3aDetailOnly += `Best unowned: ${_c3FundLink(bestUnowned, c3aDisplay)}: 1M = ${bestUnowned?.r1m?.toFixed(1) ?? '--'}%${_settlingSuffix(bestUnowned)}<br>`;
-                    c3aDetailOnly += `Held rank-1 (${held1?.name ?? '—'}): 1M = ${held1?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3aSpread.toFixed(1)}%</strong> ${c3aTrigger ? (c3aDisplay ? '⚠ >2%' : '⏳ settling') : '✓ ≤2%'}`;
-                } else { c3aDetailOnly += 'No Regime Hope candidates available.'; }
+                    _c3Swaps.push({ slot: 1, unowned: bestUnowned, held: held1, spread: c3aSpread, triggered: c3aTrigger, display: c3aDisplay });
+                }
                 if (c3bSpread !== null) {
-                    c3bDetailOnly += `2nd unowned: ${_c3FundLink(secondUnowned, c3bDisplay)}: 1M = ${secondUnowned?.r1m?.toFixed(1) ?? '--'}%${_settlingSuffix(secondUnowned)}<br>`;
-                    c3bDetailOnly += `Held rank-2 (${held2?.name ?? '—'}): 1M = ${held2?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3bSpread.toFixed(1)}%</strong> ${c3bTrigger ? (c3bDisplay ? '⚠ >2%' : '⏳ settling') : '✓ ≤2%'}`;
-                } else { c3bDetailOnly += 'Only 1 slot to compare.'; }
-                document.getElementById('tmCond3').outerHTML = `<div id="tmCond3">${condHTML('🔄', 'ANY UNOWNED FUND WITH BETTER 1-MONTH MOMENTUM THAN SLOT 1?', c3aDetailOnly, c3aDisplay, '⚠ SWAP SLOT 1', '✓ HOLD')}</div>`;
-                const _tmCond3b = document.getElementById('tmCond3b');
-                if (_tmCond3b) {
-                    _tmCond3b.outerHTML = `<div id="tmCond3b" style="display:flex;">${condHTML('🔄', 'ANY UNOWNED FUND WITH BETTER 1-MONTH MOMENTUM THAN SLOT 2?', c3bDetailOnly, c3bDisplay, '⚠ SWAP SLOT 2', '✓ HOLD')}</div>`;
+                    _c3Swaps.push({ slot: 2, unowned: secondUnowned, held: held2, spread: c3bSpread, triggered: c3bTrigger, display: c3bDisplay });
+                }
+                const _anyTriggered = _c3Swaps.some(s => s.display);
+                // Build combined box content
+                let c3combinedBody = `<em style="font-size:0.5rem;color:var(--muted);">Only Regime Hope funds considered. Swap triggers when unowned beats held by &gt;2%.</em><br><br>`;
+                if (_c3Swaps.length === 0) {
+                    c3combinedBody += 'Insufficient Regime Hope candidates for comparison.';
+                } else {
+                    _c3Swaps.forEach(s => {
+                        const _heldName  = (s.held?.name||'—').replace(/ - Growth| - Direct/gi,'').trim();
+                        const _unwnName  = (s.unowned?.name||'—').replace(/ - Growth| - Direct/gi,'').trim();
+                        const _heldR1m   = s.held?.r1m?.toFixed(1) ?? '--';
+                        const _unwnR1m   = s.unowned?.r1m?.toFixed(1) ?? '--';
+                        const _spreadStr = s.spread?.toFixed(1) ?? '--';
+                        const _settling  = s.unowned && _lpPendingCodes.has(s.unowned.code) ? ' <span style="color:#f59e0b;font-size:0.48rem;">⏳ settling</span>' : '';
+                        if (s.display) {
+                            // TRIGGERED — show Switch from RED → GREEN prominently
+                            c3combinedBody += `<div style="background:rgba(0,158,112,0.08);border:1px solid #009e7055;border-radius:5px;padding:5px 7px;margin:4px 0;">
+                                <div style="font-size:0.52rem;font-weight:700;color:#009e70;margin-bottom:3px;">⚡ SLOT ${s.slot} — SWAP TRIGGERED</div>
+                                <div style="font-size:0.54rem;line-height:1.6;">
+                                    Switch from <span style="color:#c8102e;font-weight:700;cursor:pointer;" onclick="launchLiveFromAlert('${s.held?.code||''}')">${_heldName}</span> <span style="color:var(--muted);">(1M: ${_heldR1m}%)</span><br>
+                                    ↓ to &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#009e70;font-weight:700;cursor:pointer;text-decoration:underline;" onclick="launchBridgeSimulation('${s.unowned?.code||''}',null)">${_unwnName}</span> <span style="color:var(--muted);">(1M: ${_unwnR1m}%)${_settling}</span><br>
+                                    <span style="color:#009e70;font-size:0.48rem;">Spread: +${_spreadStr}% above slot ${s.slot} holding</span>
+                                </div>
+                            </div>`;
+                        } else {
+                            // Not triggered — compact summary
+                            c3combinedBody += `<div style="padding:3px 0;font-size:0.5rem;color:var(--muted);">
+                                Slot ${s.slot}: <span style="color:#c8102e;">${_heldName}</span> (${_heldR1m}%) vs <span style="color:var(--muted2);">${_unwnName}</span> (${_unwnR1m}%) — Spread <strong>${_spreadStr}%</strong> ✓ ≤2%
+                            </div>`;
+                        }
+                    });
+                }
+                const _c3combEl = document.getElementById('tmCond3combined');
+                if (_c3combEl) {
+                    _c3combEl.outerHTML = `<div id="tmCond3combined">${condHTML('🔄', 'ANY UNOWNED FUND WITH BETTER 1-MONTH MOMENTUM THAN SLOT 1 OR SLOT 2?', c3combinedBody, _anyTriggered, '⚠ SWAP AVAILABLE', '✓ HOLD — NO SWAP NEEDED')}</div>`;
                 }
                 // LD248A: Save TM snapshot to localStorage for persistent Switch Bridge + Alerts
                 try {
@@ -12028,6 +12086,13 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         top2: lastAlloc.top2 ? lastAlloc.top2.map(f => ({
                             code: f.code, name: f.name, r1m: f.r1m, wrsi: f.wrsi, regime: f.regime
                         })) : [],
+                        swaps: _c3Swaps.map(s => ({
+                            slot: s.slot,
+                            triggered: s.display,
+                            held:    s.held    ? { code: s.held.code,    name: s.held.name,    r1m: s.held.r1m    } : null,
+                            unowned: s.unowned ? { code: s.unowned.code, name: s.unowned.name, r1m: s.unowned.r1m } : null,
+                            spread:  s.spread
+                        })),
                         c3a: bestUnowned ? { code: bestUnowned.code, name: bestUnowned.name, r1m: bestUnowned.r1m, wrsi: bestUnowned.wrsi, regime: bestUnowned.regime, spread: c3aSpread, triggered: c3aTrigger } : null,
                         c3b: secondUnowned ? { code: secondUnowned.code, name: secondUnowned.name, r1m: secondUnowned.r1m, wrsi: secondUnowned.wrsi, regime: secondUnowned.regime, spread: c3bSpread, triggered: c3bTrigger } : null,
                         bafName: bafLive?.name || '—',
@@ -12038,11 +12103,12 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         allocType: document.getElementById('assetAllocType')?.value || 'MF'
                     };
                     localStorage.setItem('ld_tm_snapshot', JSON.stringify(_tmSnap));
-                    // Also save per-fund live data for NPS grid
                     for (const f of snapshot) {
                         try { localStorage.setItem(`ld_nps_live_${f.code}`, JSON.stringify({ wrsi: f.wrsi, regime: f.regime, r1m: f.r1m, ts: Date.now() })); } catch(_) {}
                     }
                 } catch(_) {}
+                // Render swap notifications in Watchlist + Alerts panels
+                if (window._renderTmSwapNotification) window._renderTmSwapNotification();
                 el.style.display = 'block';
             }
             function renderAssetAllocatorBoxes(allocs) {
@@ -12155,7 +12221,8 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 <span class="modal-close-btn" onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';">[ CLOSE ]</span>
             </div>
             <div id="alertSummaryContent" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 96px;display:block;">
-            </div>
+                <!-- LD248A: TM Swap Auto-Notification -->
+                <div id="alertSwapNotification" style="margin-bottom:8px;border-radius:6px;overflow:hidden;"></div>
         </div>
         <script>
             // ── _renderAlertResults: renders cached or fresh alert results ──
@@ -12235,6 +12302,8 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const content = document.getElementById('alertSummaryContent');
                 modal.style.display = 'flex';
                 document.getElementById('setupScreen').style.display = 'none';
+                // LD248A: Render TM swap notification immediately (no wait for scan)
+                if (window._renderTmSwapNotification) window._renderTmSwapNotification();
 
                 // ── Check daily cache first — never rescan same day ──────────
                 const _cached = _alertCacheLoad();

@@ -3763,23 +3763,30 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 </div>
             </div>
         </div>
+        <!-- LD248C: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
+        <script type="application/json" id="LD248C_EMBED">null</script>
         <script>
             'use strict';
-            // LD248C: Self-restoring embedded config — survives Android Chrome localStorage clear
-            // This variable is replaced with actual config data when user taps BACKUP ALL CONFIG
-            var EMBEDDED_CONFIG = null; // LD_EMBED_MARKER
+            // LD248C: Self-restoring config — reads from <script id="LD248C_EMBED"> tag
+            // Base64 encoded so zero risk of HTML/JS syntax corruption
             (function _autoRestoreFromEmbed() {
-                if (!EMBEDDED_CONFIG) return;
                 try {
+                    const embedEl = document.getElementById('LD248C_EMBED');
+                    if (!embedEl) return;
+                    const raw = (embedEl.textContent || embedEl.innerText || '').trim();
+                    if (!raw || raw === 'null') return;
+                    // Only restore if localStorage is empty (Chrome cleared it)
                     const hasKey = !!localStorage.getItem('ld_gemini_api_key');
-                    const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist')||'[]')).length > 0;
-                    if (hasKey || hasWl) return; // Data already present — no restore needed
+                    const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist') || '[]')).length > 0;
+                    if (hasKey || hasWl) return;
+                    // Decode base64 → UTF-8 → JSON
+                    const config = JSON.parse(decodeURIComponent(escape(atob(raw))));
                     let restored = 0;
-                    Object.entries(EMBEDDED_CONFIG).forEach(([k,v]) => {
-                        try { localStorage.setItem(k, v); restored++; } catch(_) {}
+                    Object.entries(config).forEach(([k, v]) => {
+                        try { if (k && !k.startsWith('_')) { localStorage.setItem(k, v); restored++; } } catch(_) {}
                     });
-                    if (restored > 0) console.log(`LD248C: Auto-restored ${restored} config keys from embedded backup`);
-                } catch(e) { console.warn('LD248C embed restore failed:', e); }
+                    console.log('LD248C: Auto-restored', restored, 'config keys from embedded backup');
+                } catch(e) { console.warn('LD248C embed restore error:', e.message); }
             })();
             const NSE_BENCHMARK_MAP = {
                 '118955': 'NIFTY 500',  
@@ -4636,7 +4643,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     }
                 } catch(_) {}
                 setTimeout(() => { if (banner) banner.style.display = 'none'; }, 18000);
-                // LD248C: Daily alert auto-validation — refresh alert badge after morning scan
+                // LD248C: Daily alert auto-validation
                 try {
                     const _alertDate = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
                     const _alertRanKey = `ld_alert_ran_${_alertDate}`;
@@ -4647,7 +4654,39 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         }, 2000);
                     }
                 } catch(_) {}
-            }
+                // LD248C: AUTO-BACKUP — always save fixed-name self-restoring HTML after scan
+                // Fixed filename LD248C_DAILY.html — tap "Replace" when Android asks
+                // Bookmark that file. Every morning it auto-updates with today's config baked in.
+                setTimeout(() => {
+                    try {
+                        const _blob = {};
+                        CONFIG_KEYS.forEach(k => {
+                            const v = localStorage.getItem(k);
+                            if (v !== null) _blob[k] = v;
+                        });
+                        const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                        ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
+                            const v = localStorage.getItem(prefix + _todayKey);
+                            if (v !== null) _blob[prefix + _todayKey] = v;
+                        });
+                        _blob['ld_last_version'] = 'LD248C';
+                        // Base64 encode — safe from ALL HTML/JS escaping issues
+                        const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(_blob))));
+                        const currentHtml = document.documentElement.outerHTML;
+                        const newHtml = currentHtml.replace(
+                            /(<script[^>]*id="LD248C_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
+                            (_, open, close) => open + configB64 + close
+                        );
+                        const a = document.createElement('a');
+                        a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(newHtml);
+                        a.download = 'LD248C_DAILY.html';  // Fixed name — always overwrites
+                        a.click();
+                        _setBanner(summaryLines.join('<br>') + '<br>💾 Daily backup saved → LD248C_DAILY.html', bannerColor);
+                    } catch(_e) {
+                        console.warn('Auto-backup failed:', _e);
+                    }
+                }, 4000); // 4s delay — let scan banner show first
+            } // end _runMorningScan
             // ── SECTION: SIP CONFIG ─────────────────────────────────────────────
             function openSipConfigModal() {
                 const m = document.getElementById('sipConfigModal');
@@ -9229,12 +9268,12 @@ This is exactly how the system is meant to be played.
                         if (v !== null) blob[prefix + _todayKey] = v;
                     });
                     blob['ld_last_version'] = 'LD248C';
-                    // ── CORE FIX: bake config INTO the HTML so it self-restores on open ──
+                    // Base64 encode — safe from ALL HTML/JS escaping issues
+                    const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
                     const currentHtml = document.documentElement.outerHTML;
-                    const configJson  = JSON.stringify(blob);
                     const newHtml = currentHtml.replace(
-                        /var EMBEDDED_CONFIG = .*?; \/\/ LD_EMBED_MARKER/,
-                        `var EMBEDDED_CONFIG = ${configJson}; // LD_EMBED_MARKER`
+                        /(<script[^>]*id="LD248C_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
+                        (_, open, close) => open + configB64 + close
                     );
                     const wl = JSON.parse(blob['ld_watchlist'] || '[]');
                     const date = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);

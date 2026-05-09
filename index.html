@@ -9326,7 +9326,9 @@ This is exactly how the system is meant to be played.
                             // ── TYPE 1: Self-restoring HTML backup (LD249A_DATE_Nfunds.html or LD249A_DAILY.html)
                             // Config is base64-encoded inside <script id="LD249A_EMBED">
                             fileType = 'html';
-                            const match = raw.match(/<script[^>]*id="LD249A_EMBED"[^>]*>([\s\S]*?)<\/script>/);
+                            const match = raw.match(/<script[^>]*id="LD249A_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                                         raw.match(/<script[^>]*id="LD248D_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                                         raw.match(/<script[^>]*id="LD247_EMBED"[^>]*>([\s\S]*?)<\/script>/);
                             if (!match || !match[1] || match[1].trim() === 'null') {
                                 throw new Error('HTML file has no embedded config — use a full HTML backup, not the base app');
                             }
@@ -16741,7 +16743,7 @@ Return a JSON object with this exact structure:
         const userModel = getModel(); 
         const MODEL_CASCADE = (() => {
             
-            const ALL = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-pro'];
+            const ALL = ['gemini-3.1-flash-lite', 'gemini-3-flash', 'gemini-3.1-pro', 'gemini-2.5-flash-lite'];
             const startIdx = ALL.indexOf(userModel);
             return startIdx === -1 ? ALL : ALL.slice(startIdx);
         })();
@@ -17425,14 +17427,13 @@ Return a JSON object with this exact structure:
 
 
     <!-- ═══════════════ LD SCANNER ADD-ON ═══════════════ -->
-
-    <!-- Scanner overlay — no separate close bar; close button is inside top bar -->
     <div id="ld-scn-overlay" style="display:none;position:fixed;inset:0;z-index:9999;overflow-y:auto;background:#fff;">
+      <div style="position:sticky;top:0;text-align:right;padding:4px 8px;background:rgba(242,245,249,0.97);border-bottom:1px solid #b0bece;z-index:200;">
+        <button onclick="window.closeLDScanner()" style="background:#c8102e;color:#fff;border:none;padding:4px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:'Space Mono',monospace;">&#x2715; CLOSE</button>
+      </div>
       <div id="ld-scn-root"></div>
     </div>
     <style>@keyframes scn-spin{to{transform:rotate(360deg);}}</style>
-
-    <!-- React 18 inlined (no CDN needed) -->
     <script>/**
  * @license React
  * react.production.min.js
@@ -17733,8 +17734,6 @@ var d=null!=c&&c.hydratedSources||null,e=!1,f="",g=aj;null!==c&&void 0!==c&&(!0=
 function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmountComponentAtNode=function(a){if(!Vd(a))throw Error(m(40));return a._reactRootContainer?(yb(function(){Wd(null,null,a,!1,function(){a._reactRootContainer=null;a[Ja]=null})}),!0):!1};Q.unstable_batchedUpdates=Tf;Q.unstable_renderSubtreeIntoContainer=function(a,b,c,d){if(!Vd(c))throw Error(m(200));if(null==a||void 0===a._reactInternals)throw Error(m(38));return Wd(a,b,c,!1,d)};Q.version="18.3.1-next-f1338f8080-20240426"});
 })();
 </script>
-
-    <!-- Sync stub: openLDScanner/closeLDScanner defined immediately -->
     <script>
     window.openLDScanner = function() {
       document.getElementById('ld-scn-overlay').style.display = 'block';
@@ -17750,8 +17749,6 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       document.body.style.overflow = '';
     };
     </script>
-
-    <!-- Pre-compiled scanner component (plain JS, no Babel needed) -->
     <script>
 const {
   useState,
@@ -18941,20 +18938,7 @@ function LDScanner() {
       ...F,
       whiteSpace: "nowrap"
     }
-  }, "VIX ", vix.toFixed(1), " ", vix > 20 ? "⚠" : "✓"), /*#__PURE__*/React.createElement("button", {
-    onclick: "window.closeLDScanner()",
-    style: {
-      background: red,
-      border: "none",
-      padding: "4px 14px",
-      fontWeight: 700,
-      fontSize: 11,
-      cursor: "pointer",
-      color: "#fff",
-      ...F,
-      letterSpacing: 1
-    }
-  }, "\u2715 CLOSE"))), scanning && /*#__PURE__*/React.createElement("div", {
+  }, "VIX ", vix.toFixed(1), " ", vix > 20 ? "⚠" : "✓"))), scanning && /*#__PURE__*/React.createElement("div", {
     style: {
       height: 2,
       background: surf2
@@ -19289,5 +19273,4 @@ function LDScanner() {
 }
 window.LDScannerComponent = LDScanner;
     </script>
-
     <!-- ═══════════════ END LD SCANNER ADD-ON ═══════════════ -->

@@ -2909,7 +2909,7 @@
                 </div>
             </div>
             <div style="padding:6px 8px;font-size:0.5rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
-                Auto-refreshes every 60s · Tap row to open Live Cockpit
+                Start BA download · Tap row to open Live Cockpit
             </div>
             <!-- LD249A: TM Swap Auto-Notification -->
             <div id="wlSwapNotification" style="display:none;flex-shrink:0;margin:5px 8px 0;border-radius:6px;overflow:hidden;"></div>
@@ -14314,8 +14314,11 @@ categories.forEach(cat => {
         
         const GEMINI_CASCADE = [
             geminiModel,                                      
+            'gemini-3.1-flash-lite',                          
+            'gemini-3-flash',                                 
+            'gemini-3.1-pro',                                 
+            'gemini-2.5-flash-lite',                          
             'gemini-2.5-flash',                               
-            'gemini-2.5-pro',                                 
         ];
 
         async function callGemini(prompt, useSearch = false) {
@@ -15080,6 +15083,7 @@ Return a JSON object with this exact structure:
                     <option value="25">🚀 Fast — 25s gap</option>
                     <option value="15" selected>⚡ Default — 15s gap</option>
                     <option value="10">⚡ Quick — 10s gap</option>
+                    <option value="4">🔥 Scanner — 4.2s gap (Gemini 3 only)</option>
                 </select>
                 <button id="ld-gap-save" style="background:#ffffff;color:#000;border:1.5px solid #b0bece;
                         border-radius:5px;padding:6px 11px;font-size:0.5rem;cursor:pointer;
@@ -16577,7 +16581,7 @@ Return a JSON object with this exact structure:
     'use strict';
 
     
-    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'15');  return (v>=10&&v<=100?v:15)*1000;  } catch(e){ return 15_000;  } })();
+    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'15');  return (v>=4&&v<=100?v:15)*1000;  } catch(e){ return 15_000;  } })();
     const BOOT_DELAY_MS = 6_000;
     const ADDON_VER     = 'LD249A';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
@@ -16743,7 +16747,7 @@ Return a JSON object with this exact structure:
         const userModel = getModel(); 
         const MODEL_CASCADE = (() => {
             
-            const ALL = ['gemini-3.1-flash-lite', 'gemini-3-flash', 'gemini-3.1-pro', 'gemini-2.5-flash-lite'];
+            const ALL = ['gemini-3.1-flash-lite', 'gemini-3-flash', 'gemini-3.1-pro', 'gemini-2.5-flash-lite', 'gemini-2.5-flash'];
             const startIdx = ALL.indexOf(userModel);
             return startIdx === -1 ? ALL : ALL.slice(startIdx);
         })();
@@ -17758,6 +17762,10 @@ const {
 } = React;
 const SCAN_CACHE_KEY = "ld_scn_results_cache";
 const SCAN_DATE_KEY = "ld_scn_results_date";
+const SCAN_ISO_DATE_KEY = "ld_scn_results_isodate";
+function _istTodayStr() {
+  return new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10);
+}
 const ALL_INDICES = [{
   name: "Sensex",
   symbol: "^BSESN",
@@ -18209,6 +18217,15 @@ function loadCache() {
       results: {},
       date: null
     };
+    // ── IST calendar-day staleness check ──────────────────────────────
+    // New saves store an ISO date; old saves have no ISO key → treated as stale
+    const savedIso = localStorage.getItem(SCAN_ISO_DATE_KEY) || null;
+    const todayIso = _istTodayStr();
+    if (savedIso !== todayIso) {
+      // Previous-day cache — discard silently; new scan will replace it
+      return { results: {}, date: null };
+    }
+    // ──────────────────────────────────────────────────────────────────
     return {
       results: JSON.parse(raw),
       date
@@ -18232,6 +18249,8 @@ function saveCache(results) {
     });
     localStorage.setItem(SCAN_CACHE_KEY, JSON.stringify(results));
     localStorage.setItem(SCAN_DATE_KEY, dateStr);
+    // Store IST calendar date so loadCache can detect next-day staleness
+    localStorage.setItem(SCAN_ISO_DATE_KEY, _istTodayStr());
     return dateStr;
   } catch (e) {
     return null;
@@ -19046,7 +19065,11 @@ function LDScanner() {
     onClick: () => reqSort("baPct"),
     title: "% mkt-cap weight Regime A"
   }, "%Wt-A", si("baPct")))), /*#__PURE__*/React.createElement("tbody", null, rows.map((r, i) => {
-    if (!r.wRsi) return null;
+    if (!r.wRsi && !r.error) return null;
+    if (r.error) return /*#__PURE__*/React.createElement("tr", { key: r.symbol, style: { background: "#fff8f8" } },
+      /*#__PURE__*/React.createElement("td", { style: { ...td1S, color: red, fontSize: 10 } }, r.name),
+      /*#__PURE__*/React.createElement("td", { colSpan: 14, style: { ...tdS, color: "#c8102e", fontSize: 10, fontStyle: "italic" } }, "⚠ fetch error — CORS block or Yahoo timeout. Retry scan.")
+    );
     const et = runET(r, vix);
     const ba = baRes[r.symbol];
     const rowBg = i % 2 === 0 ? "#fff" : surf;

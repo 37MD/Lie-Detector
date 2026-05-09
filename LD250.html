@@ -4484,7 +4484,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     try {
                         const k1 = localStorage.getItem('ld_gemini_api_key');
                         const k2 = localStorage.getItem('ld_gemini_api_key2');
-                        const model = localStorage.getItem('ld_gemini_model') || 'gemini-2.5-flash-lite';
+                        const model = localStorage.getItem('ld_gemini_model') || 'gemini-3.1-flash-lite';
                         const wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
                         const gap = localStorage.getItem('ld_api_gap_sec') || '5';
                         const ks = document.getElementById('ld-ai-key-status');
@@ -14340,7 +14340,7 @@ categories.forEach(cat => {
         }
 
         
-        const geminiModel = window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash-lite';
+        const geminiModel = window.getGeminiModel ? window.getGeminiModel() : 'gemini-3.1-flash-lite';
 
         
         const _tripleAligned = typeof window._tripleRsiAligned === 'number' ? window._tripleRsiAligned : null;
@@ -15064,9 +15064,11 @@ Return a JSON object with this exact structure:
                     background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);
                     border-radius:4px;padding:2px 4px;font-size:0.55rem;font-family:var(--mono);
                     cursor:pointer;outline:none;max-width:110px;">
-                    <option value="gemini-2.5-flash-lite">2.5 Flash-Lite ⚡ (default — 1,000 RPD)</option>
+                    <option value="gemini-3.1-flash-lite">3.1 Flash-Lite ⚡ (default)</option>
+                    <option value="gemini-3-flash">3.0 Flash 🚀</option>
+                    <option value="gemini-3.1-pro">3.1 Pro 🔬</option>
+                    <option value="gemini-2.5-flash-lite">2.5 Flash-Lite (1,000 RPD)</option>
                     <option value="gemini-2.5-flash">2.5 Flash (500 RPD)</option>
-                    <option value="gemini-2.5-pro">2.5 Pro 🔬 (100 RPD — heavy tasks only)</option>
                 </select>
                 <button type="button" id="ld-ai-key-btn" title="Change API Key" style="
                     background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);
@@ -15182,11 +15184,14 @@ Return a JSON object with this exact structure:
         const input = document.getElementById('ld-ai-input');
         const submit = document.getElementById('ld-ai-submit');
         
-        const GEMINI_MODEL_DEFAULT = 'gemini-2.5-flash-lite'; 
+        const GEMINI_MODEL_DEFAULT = 'gemini-3.1-flash-lite'; 
 
         
         const modelSelect = document.getElementById('ld-gemini-model-select');
-        const savedModel = localStorage.getItem('ld_gemini_model') || GEMINI_MODEL_DEFAULT;
+        let savedModel = localStorage.getItem('ld_gemini_model') || GEMINI_MODEL_DEFAULT;
+        // Migrate: if stored model no longer exists in dropdown, reset to new default
+        const _validModels = ['gemini-3.1-flash-lite','gemini-3-flash','gemini-3.1-pro','gemini-2.5-flash-lite','gemini-2.5-flash'];
+        if (!_validModels.includes(savedModel)) { savedModel = GEMINI_MODEL_DEFAULT; try { localStorage.setItem('ld_gemini_model', savedModel); } catch(_){} }
         if (modelSelect) {
             modelSelect.value = savedModel;
             modelSelect.addEventListener('change', function() {
@@ -15206,7 +15211,8 @@ Return a JSON object with this exact structure:
             const gapSel  = document.getElementById('ld-api-gap-select');
             const gapSave = document.getElementById('ld-gap-save');
             if (gapSel) {
-                const saved = localStorage.getItem('ld_api_gap_sec') || '5';
+                let saved = localStorage.getItem('ld_api_gap_sec') || '5';
+                if (saved === '15') { saved = '5'; try { localStorage.setItem('ld_api_gap_sec','5'); } catch(_){} }
                 gapSel.value = saved;
             }
             if (gapSave && gapSel) {
@@ -16265,7 +16271,7 @@ Return a JSON object with this exact structure:
         
         let _pdfBase64    = null;   
         let _pdfFilename  = '';
-        const GEMINI_PDF_MODEL = (window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash-lite');
+        const GEMINI_PDF_MODEL = (window.getGeminiModel ? window.getGeminiModel() : 'gemini-3.1-flash-lite');
 
         
         function init() {
@@ -16763,7 +16769,7 @@ Return a JSON object with this exact structure:
     
     async function _callGeminiBreadth(fund, wrsi, resolvedApiKey) {
         const getKey2  = () => localStorage.getItem('ld_gemini_api_key2');
-        const getModel = window.getGeminiModel || (() => 'gemini-2.5-flash-lite');
+        const getModel = window.getGeminiModel || (() => 'gemini-3.1-flash-lite');
         const n = (fund.name || '').toLowerCase();
         let idxName = 'Nifty 50 (proxy)';
         const MAP = [
@@ -18608,7 +18614,7 @@ function LDScanner() {
         responseMimeType: "application/json"
       }
     };
-    for (const m of ["gemini-3.1-flash-lite", "gemini-3-flash", "gemini-3.1-pro"]) {
+    for (const m of ["gemini-3.1-flash-lite", "gemini-3-flash", "gemini-3.1-pro", "gemini-2.5-flash-lite", "gemini-2.5-flash"]) {
       try {
         const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`, {
           method: "POST",

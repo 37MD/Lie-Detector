@@ -17426,16 +17426,13 @@ Return a JSON object with this exact structure:
 
     <!-- ═══════════════ LD SCANNER ADD-ON ═══════════════ -->
 
-    <!-- Scanner overlay -->
+    <!-- Scanner overlay — no separate close bar; close button is inside top bar -->
     <div id="ld-scn-overlay" style="display:none;position:fixed;inset:0;z-index:9999;overflow-y:auto;background:#fff;">
-      <div style="position:sticky;top:0;text-align:right;padding:6px 10px;background:rgba(242,245,249,0.97);z-index:10000;border-bottom:1px solid #b0bece;">
-        <button onclick="window.closeLDScanner()" style="background:#c8102e;border:none;padding:5px 16px;font-weight:700;font-size:12px;cursor:pointer;font-family:'Space Mono','Courier New',monospace;color:#fff;letter-spacing:1px;">&#x2715; CLOSE</button>
-      </div>
       <div id="ld-scn-root"></div>
     </div>
     <style>@keyframes scn-spin{to{transform:rotate(360deg);}}</style>
 
-    <!-- React 18 inlined -->
+    <!-- React 18 inlined (no CDN needed) -->
     <script>/**
  * @license React
  * react.production.min.js
@@ -17737,7 +17734,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
 })();
 </script>
 
-    <!-- Sync stub: openLDScanner defined immediately -->
+    <!-- Sync stub: openLDScanner/closeLDScanner defined immediately -->
     <script>
     window.openLDScanner = function() {
       document.getElementById('ld-scn-overlay').style.display = 'block';
@@ -17754,7 +17751,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     };
     </script>
 
-    <!-- Pre-compiled scanner component -->
+    <!-- Pre-compiled scanner component (plain JS, no Babel needed) -->
     <script>
 const {
   useState,
@@ -17762,6 +17759,8 @@ const {
   useMemo,
   useEffect
 } = React;
+const SCAN_CACHE_KEY = "ld_scn_results_cache";
+const SCAN_DATE_KEY = "ld_scn_results_date";
 const ALL_INDICES = [{
   name: "Sensex",
   symbol: "^BSESN",
@@ -18205,6 +18204,42 @@ const ALL_INDICES = [{
 }];
 const PROXY = "https://corsproxy.io/?";
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+function loadCache() {
+  try {
+    const date = localStorage.getItem(SCAN_DATE_KEY);
+    const raw = localStorage.getItem(SCAN_CACHE_KEY);
+    if (!date || !raw) return {
+      results: {},
+      date: null
+    };
+    return {
+      results: JSON.parse(raw),
+      date
+    };
+  } catch (e) {
+    return {
+      results: {},
+      date: null
+    };
+  }
+}
+function saveCache(results) {
+  try {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short"
+    }) + " " + now.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    localStorage.setItem(SCAN_CACHE_KEY, JSON.stringify(results));
+    localStorage.setItem(SCAN_DATE_KEY, dateStr);
+    return dateStr;
+  } catch (e) {
+    return null;
+  }
+}
 function calcRSI(closes, period) {
   const v = closes.filter(x => x != null && !isNaN(x));
   if (v.length < period + 1) return [];
@@ -18434,17 +18469,18 @@ function rsiCls(v) {
   };
 }
 function LDScanner() {
+  const cached = loadCache();
   const [scanning, setScanning] = useState(false);
-  const [scanned, setScanned] = useState(false);
+  const [scanned, setScanned] = useState(Object.keys(cached.results).length > 0);
   const [progress, setProgress] = useState({
     done: 0,
     total: 0,
     label: ""
   });
-  const [results, setResults] = useState({});
+  const [results, setResults] = useState(cached.results);
+  const [cacheDate, setCacheDate] = useState(cached.date);
   const [regF, setRegF] = useState("ALL");
   const [phaseF, setPhaseF] = useState("ALL");
-  const [updated, setUpdated] = useState(null);
   const [sortCfg, setSortCfg] = useState({
     key: null,
     dir: "asc"
@@ -18464,7 +18500,6 @@ function LDScanner() {
   const vix = results["^INDIAVIX"]?.price ?? null;
   const F = {
     fontFamily: "'Space Mono','Courier New',monospace",
-    fontSize: 11,
     color: "#000"
   };
   const accent = "#009e70",
@@ -18527,9 +18562,7 @@ function LDScanner() {
     setScanning(true);
     const toFetch = ALL_INDICES.filter(i => i.symbol);
     let done = 0,
-      tmp = {
-        ...results
-      };
+      tmp = {};
     for (const idx of toFetch) {
       if (stopRef.current) break;
       setProgress({
@@ -18553,12 +18586,14 @@ function LDScanner() {
       });
       await sleep(500);
     }
+    // Save to localStorage
+    const savedDate = saveCache(tmp);
+    setCacheDate(savedDate);
     setProgress({
       done: toFetch.length,
       total: toFetch.length,
-      label: "Scan complete"
+      label: "Scan saved \u2014 " + savedDate
     });
-    setUpdated(new Date());
     setScanned(true);
     setScanning(false);
     const k = (localStorage.getItem("ld_scn_gem_key") || "").trim();
@@ -18614,7 +18649,7 @@ function LDScanner() {
     }));
   }
   function si(k) {
-    return sortCfg.key !== k ? "" : sortCfg.dir === "asc" ? " ▲" : " ▼";
+    return sortCfg.key !== k ? "" : sortCfg.dir === "asc" ? " \u25B2" : " \u25BC";
   }
   const rows = useMemo(() => {
     let list = ALL_INDICES.filter(i => i.symbol).map(i => ({
@@ -18671,11 +18706,11 @@ function LDScanner() {
   }, [results, regF, phaseF, vix, sortCfg, baRes]);
   const pct = progress.total > 0 ? Math.round(progress.done / progress.total * 100) : 0;
   const hasData = rows.length > 0 && Object.keys(results).length > 0;
-  const thStyle = {
+  const thS = {
     position: "sticky",
     top: 0,
     background: surf2,
-    padding: "8px 10px",
+    padding: "7px 9px",
     fontSize: 10,
     fontWeight: 700,
     letterSpacing: "0.8px",
@@ -18689,16 +18724,16 @@ function LDScanner() {
     color: "#000",
     zIndex: 10
   };
-  const th1Style = {
-    ...thStyle,
+  const th1S = {
+    ...thS,
     position: "sticky",
     left: 0,
     top: 0,
     zIndex: 20,
     background: surf2
   };
-  const tdBase = {
-    padding: "7px 10px",
+  const tdS = {
+    padding: "6px 9px",
     borderBottom: `1px solid ${surf2}`,
     borderRight: `1px solid ${surf2}`,
     whiteSpace: "nowrap",
@@ -18706,14 +18741,14 @@ function LDScanner() {
     fontSize: 11,
     color: "#000"
   };
-  const td1Style = {
-    ...tdBase,
+  const td1S = {
+    ...tdS,
     position: "sticky",
     left: 0,
     background: "#fff",
     borderRight: `2px solid ${bdr}`,
-    fontWeight: 600,
-    minWidth: 170,
+    fontWeight: 400,
+    minWidth: 165,
     zIndex: 5
   };
   return /*#__PURE__*/React.createElement("div", {
@@ -18726,109 +18761,74 @@ function LDScanner() {
     style: {
       background: surf,
       borderBottom: `2px solid ${bdr2}`,
-      padding: "8px 14px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
+      padding: "5px 10px",
       position: "sticky",
       top: 0,
-      zIndex: 100
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontWeight: 700,
-      fontSize: 15,
-      letterSpacing: -0.3,
-      ...F
-    }
-  }, "REGIME SCANNER"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 10,
-      color: "#606080",
-      marginLeft: 10,
-      ...F
-    }
-  }, "NSE / BSE \xB7 ", ALL_INDICES.length, " indices")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 10
-    }
-  }, updated && /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 10,
-      color: "#606080",
-      ...F
-    }
-  }, updated.toLocaleTimeString("en-IN")), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 10,
-      fontWeight: 700,
-      color: scanning ? accent : scanned ? bdr2 : "#606080",
-      ...F
-    }
-  }, scanning ? `SCANNING ${pct}%` : scanned ? "DONE" : "READY"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: "4px 10px"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
+      zIndex: 100,
       display: "flex",
       alignItems: "center",
       gap: 6,
-      padding: "5px 8px",
-      marginBottom: 3,
-      background: surf,
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      fontWeight: 700,
+      letterSpacing: 0.5,
+      ...F,
+      whiteSpace: "nowrap"
+    }
+  }, "REGIME SCANNER"), cacheDate && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 9,
+      color: bdr2,
+      ...F,
+      whiteSpace: "nowrap"
+    }
+  }, "\uD83D\uDCBE", " ", cacheDate), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 4,
       border: `1px solid ${gemKey ? accent : red}`,
-      borderLeft: `3px solid ${gemKey ? accent : red}`
+      padding: "2px 6px",
+      background: "#fff"
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 9,
       fontWeight: 700,
-      letterSpacing: 1,
-      textTransform: "uppercase",
-      whiteSpace: "nowrap",
       color: gemKey ? accent : red,
-      ...F
+      ...F,
+      whiteSpace: "nowrap"
     }
-  }, gemKey ? "● GEMINI KEY ACTIVE" : "● NO GEMINI KEY"), /*#__PURE__*/React.createElement("input", {
+  }, gemKey ? "●" : "○"), /*#__PURE__*/React.createElement("input", {
     style: {
-      flex: 1,
-      minWidth: 0,
-      background: "#fff",
-      border: `1px solid ${bdr}`,
-      fontSize: 11,
-      padding: "3px 7px",
+      width: 130,
+      background: "transparent",
+      border: "none",
+      fontSize: 10,
       outline: "none",
-      fontFamily: "'Space Mono','Courier New',monospace",
-      color: "#000"
+      ...F,
+      padding: "1px 3px"
     },
     type: "password",
-    placeholder: "Paste AIza... key",
+    placeholder: "Gemini key...",
     value: keyIn,
     onChange: e => setKeyIn(e.target.value),
     onKeyDown: e => e.key === "Enter" && saveKey()
   }), /*#__PURE__*/React.createElement("button", {
     onClick: saveKey,
     style: {
-      background: accent,
+      background: "transparent",
       border: "none",
-      padding: "3px 12px",
-      fontSize: 11,
-      fontWeight: 700,
       cursor: "pointer",
-      color: "#fff",
-      fontFamily: "'Space Mono','Courier New',monospace",
-      whiteSpace: "nowrap"
-    }
-  }, "\u2713 SAVE"), keySt && /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 10,
+      fontSize: 11,
       color: accent,
-      ...F
+      fontWeight: 700,
+      padding: "0 2px"
     }
-  }, keySt), gemKey && /*#__PURE__*/React.createElement("button", {
+  }, "\u2713"), gemKey && /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       try {
         localStorage.removeItem("ld_scn_gem_key");
@@ -18836,50 +18836,24 @@ function LDScanner() {
       setGemKey("");
     },
     style: {
-      background: "#fde8e8",
-      border: `1px solid ${red}`,
-      padding: "3px 8px",
-      fontSize: 10,
+      background: "transparent",
+      border: "none",
       cursor: "pointer",
-      fontFamily: "'Space Mono','Courier New',monospace",
-      color: red
-    }
-  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      flexWrap: "wrap",
-      gap: 6,
-      padding: "5px 8px",
-      marginBottom: 3,
-      background: surf,
-      border: `1px solid ${bdr}`
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 10,
-      alignItems: "center",
-      flexWrap: "wrap"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 5,
-      alignItems: "center"
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 10,
+      fontSize: 11,
+      color: red,
       fontWeight: 700,
-      letterSpacing: 1,
+      padding: "0 2px"
+    }
+  }, "\u2715"), keySt && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 9,
+      color: accent,
       ...F
     }
-  }, "REGIME"), /*#__PURE__*/React.createElement("select", {
+  }, keySt)), /*#__PURE__*/React.createElement("select", {
     style: {
-      fontSize: 11,
-      padding: "3px 6px",
+      fontSize: 10,
+      padding: "3px 5px",
       background: "#fff",
       border: `1px solid ${bdr}`,
       fontFamily: "'Space Mono','Courier New',monospace"
@@ -18888,29 +18862,16 @@ function LDScanner() {
     onChange: e => setRegF(e.target.value)
   }, /*#__PURE__*/React.createElement("option", {
     value: "ALL"
-  }, "All"), /*#__PURE__*/React.createElement("option", {
+  }, "All Regimes"), /*#__PURE__*/React.createElement("option", {
     value: "A"
   }, "A \u2014 Hope"), /*#__PURE__*/React.createElement("option", {
     value: "B"
   }, "B \u2014 Watch"), /*#__PURE__*/React.createElement("option", {
     value: "C"
-  }, "C \u2014 Fear"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 5,
-      alignItems: "center"
-    }
-  }, /*#__PURE__*/React.createElement("span", {
+  }, "C \u2014 Fear")), /*#__PURE__*/React.createElement("select", {
     style: {
       fontSize: 10,
-      fontWeight: 700,
-      letterSpacing: 1,
-      ...F
-    }
-  }, "VERDICT"), /*#__PURE__*/React.createElement("select", {
-    style: {
-      fontSize: 11,
-      padding: "3px 6px",
+      padding: "3px 5px",
       background: "#fff",
       border: `1px solid ${bdr}`,
       fontFamily: "'Space Mono','Courier New',monospace"
@@ -18919,7 +18880,7 @@ function LDScanner() {
     onChange: e => setPhaseF(e.target.value)
   }, /*#__PURE__*/React.createElement("option", {
     value: "ALL"
-  }, "All"), /*#__PURE__*/React.createElement("option", {
+  }, "All Verdicts"), /*#__PURE__*/React.createElement("option", {
     value: "VERIFIED STRIKE"
   }, "\uD83D\uDC8E Strike"), /*#__PURE__*/React.createElement("option", {
     value: "NEAR MISS"
@@ -18927,64 +18888,73 @@ function LDScanner() {
     value: "FAKE SUPPORT"
   }, "\uD83D\uDD34 Fake"), /*#__PURE__*/React.createElement("option", {
     value: "ABORT"
-  }, "\uD83D\uDC80 Abort"))), vix != null && /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11,
-      fontWeight: 700,
-      padding: "3px 10px",
-      background: vix > 20 ? "#fde8e8" : "#d4edda",
-      border: `1px solid ${vix > 20 ? red : accent}`,
-      fontFamily: "'Space Mono','Courier New',monospace"
-    }
-  }, "VIX ", vix.toFixed(1), " ", vix > 20 ? "⚠" : "✓")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 6
-    }
-  }, !scanning ? /*#__PURE__*/React.createElement("button", {
+  }, "\uD83D\uDC80 Abort")), !scanning ? /*#__PURE__*/React.createElement("button", {
     style: {
       background: accent,
       border: "none",
-      padding: "5px 16px",
-      fontSize: 11,
+      padding: "4px 12px",
+      fontSize: 10,
       fontWeight: 700,
       cursor: "pointer",
       color: "#fff",
       letterSpacing: 1,
-      fontFamily: "'Space Mono','Courier New',monospace"
+      ...F,
+      whiteSpace: "nowrap"
     },
     onClick: doScan
-  }, "\u26A1 EXECUTE AUDIT") : /*#__PURE__*/React.createElement("button", {
+  }, "\u26A1") : /*#__PURE__*/React.createElement("button", {
     style: {
       background: "#fde8e8",
       border: `1px solid ${red}`,
-      padding: "5px 16px",
-      fontSize: 11,
+      padding: "4px 12px",
+      fontSize: 10,
       fontWeight: 700,
       cursor: "pointer",
       color: red,
-      fontFamily: "'Space Mono','Courier New',monospace"
+      ...F,
+      whiteSpace: "nowrap"
     },
     onClick: () => {
       stopRef.current = true;
       baStopRef.current = true;
     }
-  }, "\u25A0 STOP (", pct, "%)"))), (scanning || scanned && progress.label !== "") && /*#__PURE__*/React.createElement("div", {
+  }, "\u25A0 ", pct, "%"), scanning && /*#__PURE__*/React.createElement("span", {
     style: {
-      padding: "4px 8px",
-      marginBottom: 3,
-      background: surf,
-      border: `1px solid ${bdr}`
+      fontSize: 9,
+      color: bdr2,
+      ...F
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, progress.label), /*#__PURE__*/React.createElement("div", {
     style: {
+      marginLeft: "auto",
       display: "flex",
-      justifyContent: "space-between",
-      marginBottom: 3,
-      ...F,
-      fontSize: 10
+      alignItems: "center",
+      gap: 6
     }
-  }, /*#__PURE__*/React.createElement("span", null, progress.label), /*#__PURE__*/React.createElement("span", null, progress.done, "/", progress.total)), /*#__PURE__*/React.createElement("div", {
+  }, vix != null && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      fontWeight: 700,
+      padding: "3px 8px",
+      background: vix > 20 ? "#fde8e8" : "#d4edda",
+      border: `1px solid ${vix > 20 ? red : accent}`,
+      ...F,
+      whiteSpace: "nowrap"
+    }
+  }, "VIX ", vix.toFixed(1), " ", vix > 20 ? "⚠" : "✓"), /*#__PURE__*/React.createElement("button", {
+    onclick: "window.closeLDScanner()",
+    style: {
+      background: red,
+      border: "none",
+      padding: "4px 14px",
+      fontWeight: 700,
+      fontSize: 11,
+      cursor: "pointer",
+      color: "#fff",
+      ...F,
+      letterSpacing: 1
+    }
+  }, "\u2715 CLOSE"))), scanning && /*#__PURE__*/React.createElement("div", {
     style: {
       height: 2,
       background: surf2
@@ -18996,12 +18966,16 @@ function LDScanner() {
       width: pct + "%",
       transition: "width 0.3s"
     }
-  }))), hasData ? /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "4px 6px"
+    }
+  }, hasData ? /*#__PURE__*/React.createElement("div", {
     style: {
       border: `1px solid ${bdr}`,
       overflowX: "auto",
       overflowY: "auto",
-      maxHeight: "calc(100vh - 160px)"
+      maxHeight: "calc(100vh - 60px)"
     }
   }, /*#__PURE__*/React.createElement("table", {
     style: {
@@ -19011,82 +18985,82 @@ function LDScanner() {
       fontSize: 11
     }
   }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
-    style: th1Style,
+    style: th1S,
     onClick: () => reqSort("name")
   }, "Index", si("name")), /*#__PURE__*/React.createElement("th", {
-    style: thStyle,
+    style: thS,
     onClick: () => reqSort("price")
   }, "Price", si("price")), /*#__PURE__*/React.createElement("th", {
     style: {
-      ...thStyle,
+      ...thS,
       textAlign: "center"
     },
     onClick: () => reqSort("changePct")
   }, "%Chg", si("changePct")), /*#__PURE__*/React.createElement("th", {
     style: {
-      ...thStyle,
+      ...thS,
       textAlign: "center"
     },
     onClick: () => reqSort("dRsi")
   }, "D-RSI 4\xB78\xB714", si("dRsi")), /*#__PURE__*/React.createElement("th", {
     style: {
-      ...thStyle,
+      ...thS,
       textAlign: "center"
     },
     onClick: () => reqSort("wRsi")
   }, "W-RSI 4\xB78\xB714", si("wRsi")), /*#__PURE__*/React.createElement("th", {
-    style: thStyle,
+    style: thS,
     onClick: () => reqSort("wma20Rsi")
-  }, "WMA20RSI", si("wma20Rsi")), /*#__PURE__*/React.createElement("th", {
+  }, "WMA20", si("wma20Rsi")), /*#__PURE__*/React.createElement("th", {
     style: {
-      ...thStyle,
+      ...thS,
       textAlign: "center"
     },
     onClick: () => reqSort("pvsw")
   }, "P>20WMA", si("pvsw")), /*#__PURE__*/React.createElement("th", {
     style: {
-      ...thStyle,
+      ...thS,
       textAlign: "center"
     },
     onClick: () => reqSort("dTsiCurr")
   }, "TSI 21D", si("dTsiCurr")), /*#__PURE__*/React.createElement("th", {
     style: {
-      ...thStyle,
+      ...thS,
       textAlign: "center"
     },
     onClick: () => reqSort("tsiTrigger")
   }, "TSI Signal", si("tsiTrigger")), /*#__PURE__*/React.createElement("th", {
     style: {
-      ...thStyle,
+      ...thS,
       textAlign: "center"
     },
     onClick: () => reqSort("regime")
   }, "Regime", si("regime")), /*#__PURE__*/React.createElement("th", {
     style: {
-      ...thStyle,
+      ...thS,
       textAlign: "center"
     },
     onClick: () => reqSort("action")
   }, "Action", si("action")), /*#__PURE__*/React.createElement("th", {
     style: {
-      ...thStyle,
-      minWidth: 150
+      ...thS,
+      minWidth: 140
     },
     onClick: () => reqSort("verdict")
   }, "Verdict", si("verdict")), /*#__PURE__*/React.createElement("th", {
     style: {
-      ...thStyle,
-      minWidth: 190
+      ...thS,
+      minWidth: 180
     },
     onClick: () => reqSort("detail")
   }, "Trapdoor Detail", si("detail")), /*#__PURE__*/React.createElement("th", {
     style: {
-      ...thStyle,
+      ...thS,
       textAlign: "center",
-      minWidth: 75
+      minWidth: 70
     },
     onClick: () => reqSort("baPct"),
-    title: "% market-cap weight in Regime A \u2014 Gemini AI, Regime A only"
+    title: "% mkt-cap weight Regime A"
   }, "%Wt-A", si("baPct")))), /*#__PURE__*/React.createElement("tbody", null, rows.map((r, i) => {
     if (!r.wRsi) return null;
     const et = runET(r, vix);
@@ -19096,7 +19070,7 @@ function LDScanner() {
     let baCell = null;
     if (r.regime !== "A") baCell = /*#__PURE__*/React.createElement("span", {
       style: {
-        color: "#aaa",
+        color: "#bbb",
         fontSize: 10
       }
     }, "\u2014");else if (!ba) {
@@ -19110,8 +19084,8 @@ function LDScanner() {
     } else if (ba.status === "loading") baCell = /*#__PURE__*/React.createElement("span", {
       style: {
         display: "inline-block",
-        width: 11,
-        height: 11,
+        width: 10,
+        height: 10,
         border: `2px solid ${bdr}`,
         borderTopColor: accent,
         borderRadius: "50%",
@@ -19128,12 +19102,12 @@ function LDScanner() {
       const cb = ba.conf === "HIGH" ? "●" : ba.conf === "MEDIUM" ? "◑" : "○";
       baCell = /*#__PURE__*/React.createElement("span", {
         style: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 700,
           background: bc,
-          padding: "2px 5px",
+          padding: "1px 5px",
           border: `1px solid ${bb}`,
-          fontFamily: "'Space Mono','Courier New',monospace"
+          ...F
         },
         title: `${ba.pct}% | ${ba.bull ?? '?'}/${ba.tot ?? '?'} | ${ba.conf} | ${ba.note}`
       }, ba.pct, "%", cb);
@@ -19145,28 +19119,28 @@ function LDScanner() {
       }
     }, /*#__PURE__*/React.createElement("td", {
       style: {
-        ...td1Style,
+        ...td1S,
         background: rowBg
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 9,
-        color: "#888",
-        marginRight: 5,
-        fontFamily: "'Space Mono','Courier New',monospace"
+        color: "#999",
+        marginRight: 4,
+        ...F
       }
     }, r.exchange), r.name), /*#__PURE__*/React.createElement("td", {
-      style: tdBase
+      style: tdS
     }, r.price?.toFixed(2) ?? "-"), /*#__PURE__*/React.createElement("td", {
       style: {
-        ...tdBase,
+        ...tdS,
         textAlign: "center",
         fontWeight: 600,
         background: r.changePct > 0 ? "#d4edda" : r.changePct < 0 ? "#fde8e8" : "transparent"
       }
     }, r.changePct == null ? "-" : (r.changePct > 0 ? "▲" : r.changePct < 0 ? "▼" : "") + r.changePct.toFixed(2) + "%"), /*#__PURE__*/React.createElement("td", {
       style: {
-        ...tdBase,
+        ...tdS,
         textAlign: "center"
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -19181,11 +19155,11 @@ function LDScanner() {
         padding: "1px 4px",
         fontSize: 10,
         ...rsiCls(v),
-        fontFamily: "'Space Mono','Courier New',monospace"
+        ...F
       }
     }, v ?? "-")))), /*#__PURE__*/React.createElement("td", {
       style: {
-        ...tdBase,
+        ...tdS,
         textAlign: "center"
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -19200,70 +19174,70 @@ function LDScanner() {
         padding: "1px 4px",
         fontSize: 10,
         ...rsiCls(v),
-        fontFamily: "'Space Mono','Courier New',monospace"
+        ...F
       }
     }, v ?? "-")))), /*#__PURE__*/React.createElement("td", {
-      style: tdBase
+      style: tdS
     }, r.wma20Rsi ?? "-"), /*#__PURE__*/React.createElement("td", {
       style: {
-        ...tdBase,
+        ...tdS,
         textAlign: "center",
-        fontWeight: 700,
+        fontWeight: 600,
         background: wmaOk === true ? "#d4edda" : wmaOk === false ? "#fde8e8" : "transparent",
         color: wmaOk === true ? accent : wmaOk === false ? red : "#000"
       }
     }, wmaOk === null ? "-" : wmaOk ? "YES" : "NO"), /*#__PURE__*/React.createElement("td", {
       style: {
-        ...tdBase,
+        ...tdS,
         textAlign: "center",
         fontWeight: 600,
         background: r.dTsiCurr > 0 ? "#d4edda" : r.dTsiCurr < 0 ? "#fde8e8" : "transparent"
       }
     }, r.dTsiCurr != null ? r.dTsiCurr.toFixed(2) : "-"), /*#__PURE__*/React.createElement("td", {
       style: {
-        ...tdBase,
+        ...tdS,
         textAlign: "center"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 10,
         fontWeight: 600,
-        padding: "2px 5px",
+        padding: "1px 5px",
         background: r.tsiColor,
         border: `1px solid ${r.tsiBorder}`,
-        fontFamily: "'Space Mono','Courier New',monospace"
+        ...F
       }
     }, r.tsiTrigger)), /*#__PURE__*/React.createElement("td", {
       style: {
-        ...tdBase,
+        ...tdS,
         textAlign: "center"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 10,
         fontWeight: 700,
-        padding: "2px 7px",
+        padding: "2px 6px",
         background: r.regime === "A" ? "#d4edda" : r.regime === "B" ? "#fff3cd" : "#fde8e8",
         border: `1px solid ${r.regime === "A" ? accent : r.regime === "B" ? accent2 : red}`,
-        fontFamily: "'Space Mono','Courier New',monospace"
+        ...F
       }
     }, r.regime ?? "-")), /*#__PURE__*/React.createElement("td", {
       style: {
-        ...tdBase,
+        ...tdS,
         textAlign: "center"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 10,
         fontWeight: 700,
-        padding: "2px 7px",
+        padding: "2px 6px",
         background: r.action === "BUY" ? "#d4edda" : r.action === "SELL" ? "#fde8e8" : r.action === "REDUCE" ? "#fff3cd" : "#e4eaf2",
         border: `1px solid ${r.action === "BUY" ? accent : r.action === "SELL" ? red : r.action === "REDUCE" ? accent2 : bdr}`,
-        fontFamily: "'Space Mono','Courier New',monospace"
+        ...F
       }
     }, r.action ?? "-")), /*#__PURE__*/React.createElement("td", {
       style: {
-        ...tdBase,
+        ...tdS,
         textAlign: "center",
         whiteSpace: "nowrap"
       }
@@ -19271,20 +19245,20 @@ function LDScanner() {
       style: {
         fontSize: 10,
         fontWeight: 700,
-        padding: "2px 7px",
+        padding: "2px 6px",
         background: et.color,
         border: `1px solid ${et.bdr}`,
-        fontFamily: "'Space Mono','Courier New',monospace"
+        ...F
       }
     }, et.label) : "-"), /*#__PURE__*/React.createElement("td", {
       style: {
-        ...tdBase,
+        ...tdS,
         fontSize: 10,
-        minWidth: 190
+        minWidth: 180
       }
     }, et?.detail ?? "-"), /*#__PURE__*/React.createElement("td", {
       style: {
-        ...tdBase,
+        ...tdS,
         textAlign: "center"
       }
     }, baCell));
@@ -19295,23 +19269,23 @@ function LDScanner() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 36,
-      marginBottom: 8
+      fontSize: 34,
+      marginBottom: 6
     }
   }, "\uD83D\uDCE1"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 15,
+      fontSize: 14,
       fontWeight: 700,
       marginBottom: 4,
       ...F
     }
   }, "Ready to Scan"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 11,
-      color: "#606080",
+      fontSize: 10,
+      color: "#888",
       ...F
     }
-  }, "Execute Audit to analyse all ", ALL_INDICES.filter(i => i.symbol).length, " indices \xB7 NSE & BSE"))));
+  }, "Tap \u26A1 to audit all ", ALL_INDICES.filter(i => i.symbol).length, " indices \xB7 NSE & BSE"))));
 }
 window.LDScannerComponent = LDScanner;
     </script>

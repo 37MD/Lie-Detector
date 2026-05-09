@@ -18480,7 +18480,7 @@ function LDScanner() {
         responseMimeType: "application/json"
       }
     };
-    for (const m of ["gemini-2.0-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash-latest"]) {
+    for (const m of ["gemini-3.1-flash-lite", "gemini-3-flash", "gemini-3.1-pro"]) {
       try {
         const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`, {
           method: "POST",

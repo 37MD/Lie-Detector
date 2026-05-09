@@ -2910,21 +2910,39 @@
             </div>
             <div style="padding:6px 8px;font-size:0.5rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:6px;">
                 <span>Start BA download · Tap row to open Live Cockpit</span>
-                <button onclick="
-                    var btn=this;
-                    if(btn.disabled)return;
-                    btn.textContent='⬇ Starting…';
-                    btn.disabled=true;
-                    btn.style.opacity='0.5';
-                    if(window.bgBreadthForceRun){ window.bgBreadthForceRun(); }
-                    setTimeout(function(){
-                        btn.textContent='⬇ BA';
-                        btn.disabled=false;
-                        btn.style.opacity='1';
-                        if(window._buildWlBaList) window._buildWlBaList();
-                    }, 3000);"
-                style="font-size:0.48rem;padding:3px 9px;border:1px solid var(--accent);border-radius:8px;
-                background:transparent;color:var(--accent);cursor:pointer;flex-shrink:0;font-family:var(--mono);font-weight:700;white-space:nowrap;">⬇ BA</button>
+                <span style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+                    <span id="wlBaDownloadCount" style="font-size:0.48rem;font-family:var(--mono);color:var(--accent);font-weight:700;white-space:nowrap;"></span>
+                    <button id="wlBaDownloadBtn" onclick="
+                        var btn=document.getElementById('wlBaDownloadBtn');
+                        var cntEl=document.getElementById('wlBaDownloadCount');
+                        if(btn.disabled)return;
+                        btn.textContent='⬇ …';
+                        btn.disabled=true;
+                        btn.style.opacity='0.5';
+                        if(window.bgBreadthForceRun){ window.bgBreadthForceRun(); }
+                        function _refreshBaCount(){
+                            try{
+                                var wl=JSON.parse(localStorage.getItem('ld_watchlist')||'[]');
+                                var dk=(function(){var n=new Date(Date.now()+5.5*3600000);return n.toISOString().slice(0,10).replace(/-/g,'');})();
+                                var done=0;
+                                wl.forEach(function(f){
+                                    var ck='breadth_v1_'+(f.code||'').replace(/\W/g,'_')+'_'+dk;
+                                    if(localStorage.getItem(ck))done++;
+                                });
+                                if(cntEl)cntEl.textContent=done+'/'+wl.length;
+                            }catch(e){}
+                        }
+                        _refreshBaCount();
+                        setTimeout(function(){
+                            btn.textContent='⬇ BA';
+                            btn.disabled=false;
+                            btn.style.opacity='1';
+                            _refreshBaCount();
+                            if(window._buildWlBaList) window._buildWlBaList();
+                        }, 3000);"
+                    style="font-size:0.48rem;padding:3px 9px;border:1px solid var(--accent);border-radius:8px;
+                    background:transparent;color:var(--accent);cursor:pointer;font-family:var(--mono);font-weight:700;white-space:nowrap;">⬇ BA</button>
+                </span>
             </div>
             <!-- LD250: TM Swap Auto-Notification -->
             <div id="wlSwapNotification" style="display:none;flex-shrink:0;margin:5px 8px 0;border-radius:6px;overflow:hidden;"></div>
@@ -8862,6 +8880,15 @@ This is exactly how the system is meant to be played.
                 refreshLiveBridgePnL();
                 if (window._renderTmSwapNotification) window._renderTmSwapNotification();
                 _watchlistRefreshTimer = setInterval(refreshWatchlist, 60_000);
+                // Populate BA download counter
+                try {
+                    const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+                    const _dk = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                    let _done = 0;
+                    _wl.forEach(f => { if (localStorage.getItem(`breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dk}`)) _done++; });
+                    const _el = document.getElementById('wlBaDownloadCount');
+                    if (_el) _el.textContent = `${_done}/${_wl.length}`;
+                } catch(_) {}
             }
             function openLiveBridge() {
                 openWatchlist();
@@ -9342,6 +9369,7 @@ This is exactly how the system is meant to be played.
                             // Config is base64-encoded inside <script id="LD250_EMBED">
                             fileType = 'html';
                             const match = raw.match(/<script[^>]*id="LD250_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                                         raw.match(/<script[^>]*id="LD249A_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD248D_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD247_EMBED"[^>]*>([\s\S]*?)<\/script>/);
                             if (!match || !match[1] || match[1].trim() === 'null') {

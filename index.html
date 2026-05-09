@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD249A</title>
+        <title>Lie Detector — NPS NAV Chart · LD250</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2146,7 +2146,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD249A</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD250</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2573,7 +2573,7 @@
                     Rotate via Asset Allocator Trigger Monitor.&nbsp; Never buy in B or C.&nbsp;
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
-                <!-- LD249A: DECISION FLOW CHART -->
+                <!-- LD250: DECISION FLOW CHART -->
                 <div class="sop-part sop-part-muted" style="margin-top:14px;">DECISION FLOW — Analysis to Buy / Sell</div>
                 <div style="overflow-x:auto;margin-bottom:8px;">
                 <svg viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:360px;display:block;margin:0 auto;font-family:'Space Mono',monospace;">
@@ -2651,7 +2651,7 @@
                 </svg>
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD249A &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD250 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2663,14 +2663,14 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD249A 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD250 📋</span></h1>
             <div id="firstRunBanner" style="display:none;background:rgba(245,158,11,0.12);border:1.5px solid #f59e0b;border-radius:6px;padding:8px 10px;margin-bottom:8px;text-align:center;">
                 <div class="firstRunTitle" style="font-size:0.58rem;font-weight:700;color:#c97a00;margin-bottom:3px;">⚠ Storage cleared by browser — open your backup HTML</div>
-                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);margin-bottom:6px;">Android Chrome clears file storage after hours in background. Open the <b>LD249A_date_Xfunds.html</b> backup file you saved — config will auto-load instantly.</div>
+                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);margin-bottom:6px;">Android Chrome clears file storage after hours in background. Open the <b>LD250_date_Xfunds.html</b> backup file you saved — config will auto-load instantly.</div>
             </div>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
-            <!-- LD249A: 3-col layout — SCAN (vertical, spans full height) | ALERTS+LIVE MARKET | WATCHLIST+SIMULATION -->
+            <!-- LD250: 3-col layout — SCAN (vertical, spans full height) | ALERTS+LIVE MARKET | WATCHLIST+SIMULATION -->
             <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
 
                 <!-- SCAN BOX — vertical, spans 2 rows -->
@@ -2908,10 +2908,25 @@
                     <span class="modal-close-btn" onclick="document.getElementById('watchlistModal').style.display='none';document.getElementById('setupScreen').style.display='flex';">[ X ]</span>
                 </div>
             </div>
-            <div style="padding:6px 8px;font-size:0.5rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
-                Start BA download · Tap row to open Live Cockpit
+            <div style="padding:6px 8px;font-size:0.5rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:6px;">
+                <span>Start BA download · Tap row to open Live Cockpit</span>
+                <button onclick="
+                    var btn=this;
+                    if(btn.disabled)return;
+                    btn.textContent='⬇ Starting…';
+                    btn.disabled=true;
+                    btn.style.opacity='0.5';
+                    if(window.bgBreadthForceRun){ window.bgBreadthForceRun(); }
+                    setTimeout(function(){
+                        btn.textContent='⬇ BA';
+                        btn.disabled=false;
+                        btn.style.opacity='1';
+                        if(window._buildWlBaList) window._buildWlBaList();
+                    }, 3000);"
+                style="font-size:0.48rem;padding:3px 9px;border:1px solid var(--accent);border-radius:8px;
+                background:transparent;color:var(--accent);cursor:pointer;flex-shrink:0;font-family:var(--mono);font-weight:700;white-space:nowrap;">⬇ BA</button>
             </div>
-            <!-- LD249A: TM Swap Auto-Notification -->
+            <!-- LD250: TM Swap Auto-Notification -->
             <div id="wlSwapNotification" style="display:none;flex-shrink:0;margin:5px 8px 0;border-radius:6px;overflow:hidden;"></div>
             <!-- BA Results view (toggles with watchlist body) -->
             <div id="wlBaView" style="display:none;flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 8px;flex-direction:column;gap:6px;">
@@ -3787,15 +3802,15 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 </div>
             </div>
         </div>
-        <!-- LD249A: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
-        <script type="application/json" id="LD249A_EMBED">null</script>
+        <!-- LD250: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
+        <script type="application/json" id="LD250_EMBED">null</script>
         <script>
             'use strict';
-            // LD249A: Self-restoring config — reads from <script id="LD249A_EMBED"> tag
+            // LD250: Self-restoring config — reads from <script id="LD250_EMBED"> tag
             // Base64 encoded so zero risk of HTML/JS syntax corruption
             (function _autoRestoreFromEmbed() {
                 try {
-                    const embedEl = document.getElementById('LD249A_EMBED');
+                    const embedEl = document.getElementById('LD250_EMBED');
                     if (!embedEl) return;
                     const raw = (embedEl.textContent || embedEl.innerText || '').trim();
                     if (!raw || raw === 'null') return;
@@ -3809,8 +3824,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     Object.entries(config).forEach(([k, v]) => {
                         try { if (k && !k.startsWith('_')) { localStorage.setItem(k, v); restored++; } } catch(_) {}
                     });
-                    console.log('LD249A: Auto-restored', restored, 'config keys from embedded backup');
-                } catch(e) { console.warn('LD249A embed restore error:', e.message); }
+                    console.log('LD250: Auto-restored', restored, 'config keys from embedded backup');
+                } catch(e) { console.warn('LD250 embed restore error:', e.message); }
             })();
             const NSE_BENCHMARK_MAP = {
                 '118955': 'NIFTY 500',  
@@ -4446,14 +4461,14 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 _initWatchlistCloseBtn();
                 _initZoom();
                 populateAutoStressScenarios();
-                // LD249A: Show persistent config status on every load (no re-entry needed)
+                // LD250: Show persistent config status on every load (no re-entry needed)
                 (function _showConfigStatus() {
                     try {
                         const k1 = localStorage.getItem('ld_gemini_api_key');
                         const k2 = localStorage.getItem('ld_gemini_api_key2');
                         const model = localStorage.getItem('ld_gemini_model') || 'gemini-2.5-flash-lite';
                         const wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
-                        const gap = localStorage.getItem('ld_api_gap_sec') || '15';
+                        const gap = localStorage.getItem('ld_api_gap_sec') || '5';
                         const ks = document.getElementById('ld-ai-key-status');
                         if (ks) {
                             const kStr = k1
@@ -4516,7 +4531,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 setTimeout(() => {
                     const today = new Date(Date.now()+5.5*3600000).toISOString().slice(0, 10);
                     const lastScanLS  = localStorage.getItem('ld_v3_morning_scan_date') || '';
-                    // LD249A: Cookie as secondary guard — survives localStorage clear
+                    // LD250: Cookie as secondary guard — survives localStorage clear
                     const lastScanCk  = document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith('ld_scan_date='))?.split('=')[1] || '';
                     if (lastScanLS !== today && lastScanCk !== today) {
                         _runMorningScan();
@@ -4589,7 +4604,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                                 const regime  = wrsi >= 50 ? 'A' : wrsi >= 40 ? 'B' : 'C';
                                 const r1m     = last >= 21 ? (prices[last] - prices[last-21]) / prices[last-21] * 100 : 0;
                                 fundScores.push({ code: f.code, name: f.name, r1m, regime, wrsi: Math.round(wrsi) });
-                                // LD249A: Save per-fund data for NPS grid _getLive and BA meta
+                                // LD250: Save per-fund data for NPS grid _getLive and BA meta
                                 try {
                                     const _todayStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
                                     localStorage.setItem(`ld_morning_${f.code}_${_todayStr}`, JSON.stringify({ wrsi: Math.round(wrsi), regime, r1m, ts: Date.now() }));
@@ -4629,7 +4644,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             }
                         } catch(_) {}
                         if (rank1 && rank1.regime === 'A') {
-                            // LD249A: Do NOT auto-add to watchlist — user manages watchlist manually
+                            // LD250: Do NOT auto-add to watchlist — user manages watchlist manually
                             // (previously this silently added random rank-1 funds like "Nifty200 Value 30")
                         }
                         fundScores.filter(f => f.regime === 'C').forEach(fearFund => {
@@ -4645,7 +4660,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
                 const today = new Date(Date.now()+5.5*3600000).toISOString().slice(0, 10);
                 localStorage.setItem('ld_v3_morning_scan_date', today);
-                // LD249A: Also save to cookie — survives Android Chrome localStorage clear
+                // LD250: Also save to cookie — survives Android Chrome localStorage clear
                 try { document.cookie = `ld_scan_date=${today};max-age=86400;samesite=strict`; } catch(_) {}
                 try { renderWatchlistStubs(); } catch(_) {}
                 const hopeCount = Object.values(scanResults).filter(r => r.rank1?.regime === 'A').length;
@@ -4667,7 +4682,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     }
                 } catch(_) {}
                 setTimeout(() => { if (banner) banner.style.display = 'none'; }, 18000);
-                // LD249A: Daily alert auto-validation
+                // LD250: Daily alert auto-validation
                 try {
                     const _alertDate = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
                     const _alertRanKey = `ld_alert_ran_${_alertDate}`;
@@ -4678,8 +4693,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         }, 2000);
                     }
                 } catch(_) {}
-                // LD249A: AUTO-BACKUP — always save fixed-name self-restoring HTML after scan
-                // Fixed filename LD249A_DAILY.html — tap "Replace" when Android asks
+                // LD250: AUTO-BACKUP — always save fixed-name self-restoring HTML after scan
+                // Fixed filename LD250_DAILY.html — tap "Replace" when Android asks
                 // Bookmark that file. Every morning it auto-updates with today's config baked in.
                 setTimeout(() => {
                     try {
@@ -4693,19 +4708,19 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             const v = localStorage.getItem(prefix + _todayKey);
                             if (v !== null) _blob[prefix + _todayKey] = v;
                         });
-                        _blob['ld_last_version'] = 'LD249A';
+                        _blob['ld_last_version'] = 'LD250';
                         // Base64 encode — safe from ALL HTML/JS escaping issues
                         const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(_blob))));
                         const currentHtml = document.documentElement.outerHTML;
                         const newHtml = currentHtml.replace(
-                            /(<script[^>]*id="LD249A_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
+                            /(<script[^>]*id="LD250_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
                             (_, open, close) => open + configB64 + close
                         );
                         const a = document.createElement('a');
                         a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(newHtml);
-                        a.download = 'LD249A_DAILY.html';  // Fixed name — always overwrites
+                        a.download = 'LD250_DAILY.html';  // Fixed name — always overwrites
                         a.click();
-                        _setBanner(summaryLines.join('<br>') + '<br>💾 Daily backup saved → LD249A_DAILY.html', bannerColor);
+                        _setBanner(summaryLines.join('<br>') + '<br>💾 Daily backup saved → LD250_DAILY.html', bannerColor);
                     } catch(_e) {
                         console.warn('Auto-backup failed:', _e);
                     }
@@ -4756,7 +4771,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD249A', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD250', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -8865,7 +8880,7 @@ This is exactly how the system is meant to be played.
                 } catch(_) {
                     try { bridge = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}'); } catch(_) {}
                 }
-                // LD249A: Auto-populate from TM snapshot if bridge is empty
+                // LD250: Auto-populate from TM snapshot if bridge is empty
                 if (!Object.keys(bridge).length) {
                     try {
                         const snap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null');
@@ -8990,7 +9005,7 @@ This is exactly how the system is meant to be played.
                     bridge = (j.switches && Object.keys(j.switches).length) ? j.switches
                            : JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}');
                 } catch(_) {}
-                // LD249A: load TM snapshot for BAF hurdle + auto-populate
+                // LD250: load TM snapshot for BAF hurdle + auto-populate
                 let tmSnap = null;
                 try { tmSnap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
                 const bafR1m       = tmSnap?.bafR1m   ?? null;
@@ -9020,7 +9035,7 @@ This is exactly how the system is meant to be played.
                 // Helper: live data from Asset Allocator cache or switch bridge
                 function _getLive(code) {
                     const today = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
-                    // LD249A Priority 1: per-fund morning scan cache (key written during _runMorningScan)
+                    // LD250 Priority 1: per-fund morning scan cache (key written during _runMorningScan)
                     try {
                         const c = localStorage.getItem(`ld_morning_${code}_${today}`);
                         if (c) return JSON.parse(c);
@@ -9053,7 +9068,7 @@ This is exactly how the system is meant to be played.
                     return null;
                 }
 
-                // LD249A: Use TM snapshot for NPS PFM selection (not static formula)
+                // LD250: Use TM snapshot for NPS PFM selection (not static formula)
                 const _PFM_NAMES = { 'SM008':'HDFC', 'SM007':'ICICI', 'SM005':'KOTAK', 'SM010':'ABSL' };
                 let _tmNpsEquityPfm = null, _tmNpsDebtPfm = null;
                 if (tmSnap) {
@@ -9150,7 +9165,7 @@ This is exactly how the system is meant to be played.
                             const r1m    = live?.r1m   != null ? live.r1m.toFixed(1)  : '—';
                             const rc     = regime==='A'?'#00916e':regime==='C'?'#c8102e':regime==='B'?'#f59e0b':'var(--muted)';
 
-                            // LD249A: isRec via TM prefix match (E → equity selection, C → debt selection)
+                            // LD250: isRec via TM prefix match (E → equity selection, C → debt selection)
                             const isRecE = fType==='E' && _isRecByPrefix(f.code, _tmNpsEquityPfm);
                             const isRecC = fType==='C' && _isRecByPrefix(f.code, _tmNpsDebtPfm);
                             // Fallback to name match if TM snapshot has no NPS data
@@ -9166,7 +9181,7 @@ This is exactly how the system is meant to be played.
                                 border:${isRec ? `1px solid ${fColor}44` : '1px solid transparent'};
                             `;
                             row.onclick = (e) => { e.stopPropagation(); launchLiveFromAlert(f.code); };
-                            // LD249A: BAF hurdle rate comparison for E and C fund types
+                            // LD250: BAF hurdle rate comparison for E and C fund types
                             let hurdleHtml = '';
                             if ((fType === 'E' || fType === 'C') && r1m !== '—' && bafThreshold !== null) {
                                 const r1mNum = parseFloat(r1m);
@@ -9213,7 +9228,7 @@ This is exactly how the system is meant to be played.
                     });
                 });
             }
-            // ── LD249A: TM SWAP AUTO-NOTIFICATION ──────────────────────────────────
+            // ── LD250: TM SWAP AUTO-NOTIFICATION ──────────────────────────────────
             window._renderTmSwapNotification = function() {
                 let snap = null;
                 try { snap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
@@ -9269,7 +9284,7 @@ This is exactly how the system is meant to be played.
                     box.style.display = 'block';
                 });
             };
-            // ── LD249A: FULL CONFIG BACKUP / RESTORE ──────────────────────────────
+            // ── LD250: FULL CONFIG BACKUP / RESTORE ──────────────────────────────
             const CONFIG_KEYS = [
                 'ld_gemini_api_key', 'ld_gemini_api_key2', 'ld_gemini_model',
                 'ld_api_gap_sec', 'ld_watchlist', 'ld_tm_snapshot',
@@ -9291,17 +9306,17 @@ This is exactly how the system is meant to be played.
                         const v = localStorage.getItem(prefix + _todayKey);
                         if (v !== null) blob[prefix + _todayKey] = v;
                     });
-                    blob['ld_last_version'] = 'LD249A';
+                    blob['ld_last_version'] = 'LD250';
                     // Base64 encode — safe from ALL HTML/JS escaping issues
                     const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
                     const currentHtml = document.documentElement.outerHTML;
                     const newHtml = currentHtml.replace(
-                        /(<script[^>]*id="LD249A_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
+                        /(<script[^>]*id="LD250_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
                         (_, open, close) => open + configB64 + close
                     );
                     const wl = JSON.parse(blob['ld_watchlist'] || '[]');
                     const date = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
-                    const fname = `LD249A_${date}_${wl.length}funds.html`;
+                    const fname = `LD250_${date}_${wl.length}funds.html`;
                     const a = document.createElement('a');
                     a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(newHtml);
                     a.download = fname;
@@ -9323,10 +9338,10 @@ This is exactly how the system is meant to be played.
                         let fileType = 'unknown';
 
                         if (raw.trim().startsWith('<!DOCTYPE') || raw.trim().startsWith('<html')) {
-                            // ── TYPE 1: Self-restoring HTML backup (LD249A_DATE_Nfunds.html or LD249A_DAILY.html)
-                            // Config is base64-encoded inside <script id="LD249A_EMBED">
+                            // ── TYPE 1: Self-restoring HTML backup (LD250_DATE_Nfunds.html or LD250_DAILY.html)
+                            // Config is base64-encoded inside <script id="LD250_EMBED">
                             fileType = 'html';
-                            const match = raw.match(/<script[^>]*id="LD249A_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                            const match = raw.match(/<script[^>]*id="LD250_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD248D_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD247_EMBED"[^>]*>([\s\S]*?)<\/script>/);
                             if (!match || !match[1] || match[1].trim() === 'null') {
@@ -9371,7 +9386,7 @@ This is exactly how the system is meant to be played.
                         ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
                             if (blob[prefix + _todayKey] !== undefined) localStorage.setItem(prefix + _todayKey, blob[prefix + _todayKey]);
                         });
-                        localStorage.setItem('ld_last_version', 'LD249A');
+                        localStorage.setItem('ld_last_version', 'LD250');
                         // Reload watchlist into memory
                         try { _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(_) {}
                         const wl = _watchlist.length;
@@ -9393,7 +9408,7 @@ This is exactly how the system is meant to be played.
             // ── Startup: show prominent banner if API key is missing ──────────────
             (function _checkFirstRun() {
                 // Always stamp current version into storage (for next-load comparison)
-                localStorage.setItem('ld_last_version', 'LD249A');
+                localStorage.setItem('ld_last_version', 'LD250');
                 const hasKey = !!localStorage.getItem('ld_gemini_api_key');
                 const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist')||'[]')).length > 0;
                 if (!hasKey && !hasWl) {
@@ -12187,7 +12202,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     c3Badge.style.display = c3NewFunds.length > 0 ? 'inline' : 'none';
                 }
                 try { window._c3NewFundCount = c3NewFunds.length; } catch(_){}
-                // LD249A: COMBINED C3 — single box for Slot 1 AND Slot 2 candidates
+                // LD250: COMBINED C3 — single box for Slot 1 AND Slot 2 candidates
                 const _c3Swaps = []; // all triggered/near swaps
                 if (c3aSpread !== null) {
                     _c3Swaps.push({ slot: 1, unowned: bestUnowned, held: held1, spread: c3aSpread, triggered: c3aTrigger, display: c3aDisplay });
@@ -12230,7 +12245,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 if (_c3combEl) {
                     _c3combEl.outerHTML = `<div id="tmCond3combined">${condHTML('🔄', 'ANY UNOWNED FUND WITH BETTER 1-MONTH MOMENTUM THAN SLOT 1 OR SLOT 2?', c3combinedBody, _anyTriggered, '⚠ SWAP AVAILABLE', '✓ HOLD — NO SWAP NEEDED')}</div>`;
                 }
-                // LD249A: Save TM snapshot to localStorage for persistent Switch Bridge + Alerts
+                // LD250: Save TM snapshot to localStorage for persistent Switch Bridge + Alerts
                 try {
                     const _tmSnap = {
                         ts: Date.now(),
@@ -12372,7 +12387,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 </div>
                 <span class="modal-close-btn" onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';">[ CLOSE ]</span>
             </div>
-            <!-- LD249A: TM Swap Auto-Notification — OUTSIDE content div so it survives scan redraws -->
+            <!-- LD250: TM Swap Auto-Notification — OUTSIDE content div so it survives scan redraws -->
             <div id="alertSwapNotification" style="display:none;flex-shrink:0;margin:4px 8px 0;border-radius:6px;overflow:hidden;"></div>
             <div id="alertSummaryContent" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 96px;display:block;">
             </div>
@@ -12455,7 +12470,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const content = document.getElementById('alertSummaryContent');
                 modal.style.display = 'flex';
                 document.getElementById('setupScreen').style.display = 'none';
-                // LD249A: Render TM swap notification immediately (no wait for scan)
+                // LD250: Render TM swap notification immediately (no wait for scan)
                 if (window._renderTmSwapNotification) window._renderTmSwapNotification();
 
                 // ── Check daily cache first — never rescan same day ──────────
@@ -12808,7 +12823,7 @@ categories.forEach(cat => {
                 ];
                 npsTierDefs.forEach(({ key, label, accent }) => {
                     const entry = (res.SHORTLISTED || []).find(e => e.amc === key);
-                    // LD249A: Pull TM snapshot for NPS selected fund/PFM per Tier
+                    // LD250: Pull TM snapshot for NPS selected fund/PFM per Tier
                     let tmSnapNps = null;
                     try { tmSnapNps = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
                     const tmBafR1m       = tmSnapNps?.bafR1m ?? null;
@@ -12866,7 +12881,7 @@ categories.forEach(cat => {
                         npsName.style.cssText = 'font-size:0.62rem;font-weight:400;color:var(--text);line-height:1.3;';
                         npsName.textContent = entry.fund.name.replace(/\[NPS\] /gi,'').replace(/ - Growth| - Direct/gi,'').trim().slice(0, 34);
                         npsBox.appendChild(npsName);
-                        // LD249A: Show E and C rows with PFM + BAF hurdle
+                        // LD250: Show E and C rows with PFM + BAF hurdle
                         const entryType = _typeFromCode(entry.fund.code);
                         const entryPfm  = _pfmFromCode(entry.fund.code);
                         const entryLive = _getNpsLive(entry.fund.code);
@@ -13896,7 +13911,7 @@ categories.forEach(cat => {
                         : '';
                     const _ts = cached._cachedAtDisplay || cached._cachedAt?.slice(0,16).replace('T',' ') || '';
                     const _stale = _ts ? ` Last updated: ${_ts} IST.` : '';
-                    // LD249A: Use same breadth_v1_ key as watchlist list for consistent count
+                    // LD250: Use same breadth_v1_ key as watchlist list for consistent count
                     const _wlAll = (() => { try { return JSON.parse(localStorage.getItem('ld_watchlist')||'[]'); } catch(_){return [];} })();
                     const _dateKey = (() => { const n=new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
                     const _wlTotal = _wlAll.length;
@@ -13981,7 +13996,7 @@ categories.forEach(cat => {
 
         
         function _populateFundMeta(fund) {
-            // LD249A: Build RSI from the most accurate source available, in priority order
+            // LD250: Build RSI from the most accurate source available, in priority order
             const fCode = fund.code || '';
             let wrsiVal = fund.wrsi ?? null;
             let drsiVal = fund.drsi ?? null;
@@ -15081,8 +15096,9 @@ Return a JSON object with this exact structure:
                     <option value="60">🐇 Conservative — 60s gap</option>
                     <option value="30">⚡ Standard — 30s gap</option>
                     <option value="25">🚀 Fast — 25s gap</option>
-                    <option value="15" selected>⚡ Default — 15s gap</option>
-                    <option value="10">⚡ Quick — 10s gap</option>
+                    <option value="15">⚡ Quick — 15s gap</option>
+                    <option value="10">⚡ Faster — 10s gap</option>
+                    <option value="5" selected>⚡ Default — 5s gap</option>
                     <option value="4">🔥 Scanner — 4.2s gap (Gemini 3 only)</option>
                 </select>
                 <button id="ld-gap-save" style="background:#ffffff;color:#000;border:1.5px solid #b0bece;
@@ -15162,7 +15178,7 @@ Return a JSON object with this exact structure:
             const gapSel  = document.getElementById('ld-api-gap-select');
             const gapSave = document.getElementById('ld-gap-save');
             if (gapSel) {
-                const saved = localStorage.getItem('ld_api_gap_sec') || '15';
+                const saved = localStorage.getItem('ld_api_gap_sec') || '5';
                 gapSel.value = saved;
             }
             if (gapSave && gapSel) {
@@ -16581,9 +16597,9 @@ Return a JSON object with this exact structure:
     'use strict';
 
     
-    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'15');  return (v>=4&&v<=100?v:15)*1000;  } catch(e){ return 15_000;  } })();
+    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'5');  return (v>=4&&v<=100?v:5)*1000;  } catch(e){ return 5_000;  } })();
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD249A';
+    const ADDON_VER     = 'LD250';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
     
@@ -17210,7 +17226,7 @@ Return a JSON object with this exact structure:
                 localStorage.setItem(`bgbreadth_regimeA_${today}`,   JSON.stringify(rAData));
                 localStorage.setItem(`ba_regimeA_funds_${today}`,     JSON.stringify(rAData));
             } catch(e) {}
-            // LD249A FIX: Stamp intermediate completion after AMC scan finishes.
+            // LD250 FIX: Stamp intermediate completion after AMC scan finishes.
             // If app reopens after this point and queue shows all done, _hasRanToday()
             // Check 4 will catch it and skip re-download.
             _markRanToday();
@@ -18208,6 +18224,31 @@ const ALL_INDICES = [{
   category: "Strategy"
 }];
 const PROXY = "https://corsproxy.io/?";
+const PROXY_LIST = [
+  "https://corsproxy.io/?",
+  "https://api.allorigins.win/raw?url=",
+  "https://corsproxy.io/?"
+];
+let _proxyIdx = 0;
+async function _fetchWithFallback(url, opts) {
+  for (let attempt = 0; attempt < PROXY_LIST.length; attempt++) {
+    const px = PROXY_LIST[(_proxyIdx + attempt) % PROXY_LIST.length];
+    try {
+      const r = await fetch(px + encodeURIComponent(url), opts);
+      if (r.ok) return r;
+      if (r.status === 429 || r.status === 403) {
+        _proxyIdx = (_proxyIdx + 1) % PROXY_LIST.length;
+        await new Promise(res => setTimeout(res, 800));
+        continue;
+      }
+      return r;
+    } catch(e) {
+      _proxyIdx = (_proxyIdx + 1) % PROXY_LIST.length;
+      await new Promise(res => setTimeout(res, 600));
+    }
+  }
+  return null;
+}
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function loadCache() {
   try {
@@ -18315,16 +18356,15 @@ async function fetchIdx(symbol) {
   const dUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=6mo`;
   const qtUrl = `https://query1.finance.yahoo.com/v8/finance/quote?symbols=${symbol}`;
   try {
-    const [wkR, dR, qtR] = await Promise.all([fetch(PROXY + encodeURIComponent(wkUrl), {
-      signal: AbortSignal.timeout(15000)
-    }), fetch(PROXY + encodeURIComponent(dUrl), {
-      signal: AbortSignal.timeout(15000)
-    }), fetch(PROXY + encodeURIComponent(qtUrl), {
-      signal: AbortSignal.timeout(15000)
-    })]);
-    const wkD = wkR.ok ? await wkR.json() : null,
-      dD = dR.ok ? await dR.json() : null,
-      qtD = qtR.ok ? await qtR.json() : null;
+    const sig = { signal: AbortSignal.timeout(15000) };
+    const [wkR, dR, qtR] = await Promise.all([
+      _fetchWithFallback(wkUrl, sig),
+      _fetchWithFallback(dUrl, sig),
+      _fetchWithFallback(qtUrl, sig)
+    ]);
+    const wkD = wkR?.ok ? await wkR.json() : null,
+      dD = dR?.ok ? await dR.json() : null,
+      qtD = qtR?.ok ? await qtR.json() : null;
     const wC = wkD?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || [];
     const dC = dD?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || [];
     const q = qtD?.quoteResponse?.result?.[0] || null;
@@ -18504,7 +18544,7 @@ function LDScanner() {
   const [baRes, setBaRes] = useState({});
   const [gemKey, setGemKey] = useState(() => {
     try {
-      return localStorage.getItem("ld_scn_gem_key") || "";
+      return localStorage.getItem("ld_scn_gem_key") || localStorage.getItem("ld_gemini_api_key") || "";
     } catch (e) {
       return "";
     }
@@ -18526,7 +18566,7 @@ function LDScanner() {
     bdr = "#b0bece",
     bdr2 = "#7090b0";
   async function callBA(name, wRsi4) {
-    const key = (localStorage.getItem("ld_scn_gem_key") || "").trim();
+    const key = (localStorage.getItem("ld_scn_gem_key") || localStorage.getItem("ld_gemini_api_key") || "").trim();
     if (!key || key.length < 20) return null;
     const reg = wRsi4 >= 50 ? "A (Hope)" : wRsi4 >= 40 ? "B (Watch)" : "C (Fear)";
     const prompt = `You are a constituent breadth analyst.\nINDEX: ${name}\nW-RSI4: ${Math.round(wRsi4)} Regime ${reg}\nEstimate % of market-cap weight in Regime A (W-RSI>=50, price>20wkMA).\nReturn ONLY JSON: {"regime_a_weight_pct":<0-100>,"bull_count":<int>,"total_count":<int>,"confidence":"HIGH|MEDIUM|LOW","note":"one sentence"}`;
@@ -18567,6 +18607,7 @@ function LDScanner() {
     }
     try {
       localStorage.setItem("ld_scn_gem_key", k);
+      localStorage.setItem("ld_gemini_api_key", k);
     } catch (e) {}
     setGemKey(k);
     setKeyIn("");
@@ -18612,7 +18653,7 @@ function LDScanner() {
     });
     setScanned(true);
     setScanning(false);
-    const k = (localStorage.getItem("ld_scn_gem_key") || "").trim();
+    const k = (localStorage.getItem("ld_scn_gem_key") || localStorage.getItem("ld_gemini_api_key") || "").trim();
     if (k && k.length >= 20) {
       baStopRef.current = false;
       const aList = toFetch.filter(i => tmp[i.symbol] && !tmp[i.symbol].error && tmp[i.symbol].regime === "A");
@@ -19081,7 +19122,7 @@ function LDScanner() {
         fontSize: 10
       }
     }, "\u2014");else if (!ba) {
-      const hk = !!(localStorage.getItem("ld_scn_gem_key") || "").trim();
+      const hk = !!(localStorage.getItem("ld_scn_gem_key") || localStorage.getItem("ld_gemini_api_key") || "").trim();
       baCell = /*#__PURE__*/React.createElement("span", {
         style: {
           fontSize: 9,

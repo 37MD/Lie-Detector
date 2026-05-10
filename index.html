@@ -7225,7 +7225,12 @@ ${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' 
                 userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
                 window.userRsiLength = userRsiLength; 
                 fullHistory = await fetchFundData();
-                if (!fullHistory || !fullHistory.length) return;  
+                if (!fullHistory || !fullHistory.length) {
+                    // fetchFundData already shows error message in overlay — ensure overlay auto-hides
+                    const _ovFail = document.getElementById('ov');
+                    if (_ovFail) setTimeout(() => { _ovFail.style.display = 'none'; }, 5000);
+                    return;
+                }
                 _cachedSimNavs = fullHistory.map(d => d.nav); 
                 const navs = _cachedSimNavs;
                 const dates = fullHistory.map(d => d.date);
@@ -8277,7 +8282,11 @@ This is exactly how the system is meant to be played.
                     const url = code.startsWith('SM') ?
                         `https://npsnav.in/api/historical/${code}` :
                         `https://api.mfapi.in/mf/${code}`;
-                    const res = await fetch(url);
+                    let res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+                    if (!res.ok) {
+                        // retry once
+                        try { res = await fetch(url, { signal: AbortSignal.timeout(8000) }); } catch(_) {}
+                    }
                     const raw = await res.json();
                     const hist = (raw.data || [])
                         .map(d => ({
@@ -8360,7 +8369,7 @@ This is exactly how the system is meant to be played.
                     `https://npsnav.in/api/historical/${code}` :
                     `https://api.mfapi.in/mf/${code}`;
                 try {
-                    const res = await fetch(url);
+                    const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
                     const raw = await res.json();
                     const hist = (raw.data || [])
                         .map(d => ({
@@ -17059,7 +17068,10 @@ Return a JSON object with this exact structure:
                 window.removeEventListener('storage', _onKeyStored);
                 const panel = document.getElementById('bgKeyPanel');
                 if (panel) panel.remove();
-                setTimeout(_runBackgroundScan, 800);
+                setTimeout(() => {
+                    if (window.bgBreadthForceRun) window.bgBreadthForceRun();
+                    else _runBackgroundScan();
+                }, 800);
             }
         });
         const _pollTimer = setInterval(() => {
@@ -17068,11 +17080,17 @@ Return a JSON object with this exact structure:
                 clearInterval(_pollTimer);
                 const panel = document.getElementById('bgKeyPanel');
                 if (panel) {
-                    panel.querySelector('#bgKeyPanelStatus').textContent = '✅ Key found — starting BA engine…';
-                    setTimeout(() => { panel.remove(); _runBackgroundScan(); }, 1200);
+                    const _st = panel.querySelector('#bgKeyPanelStatus');
+                    if (_st) _st.textContent = '✅ Key found — starting BA engine…';
+                    setTimeout(() => {
+                        if (panel.parentNode) panel.remove();
+                        // Use ForceRun to clear today-ran flags before starting
+                        if (window.bgBreadthForceRun) window.bgBreadthForceRun();
+                        else _runBackgroundScan();
+                    }, 600);
                 }
             }
-        }, 10_000);
+        }, 800);  // Fast poll — detects same-tab key save within <1s
         setTimeout(() => clearInterval(_pollTimer), 300_000);
     }
 
@@ -17157,8 +17175,13 @@ Return a JSON object with this exact structure:
                 localStorage.setItem('ld_gemini_api_key', val);
                 if (inp) inp.value = '';
                 st.style.color = '#6ee7b7';
-                st.textContent = '✅ Key saved — starting BA engine in 3s…';
-                setTimeout(() => { panel.remove(); _runBackgroundScan(); }, 3000);
+                st.textContent = '✅ Key saved — starting BA engine…';
+                setTimeout(() => {
+                    if (panel.parentNode) panel.remove();
+                    // bgBreadthForceRun clears today-ran flags so BA starts fresh
+                    if (window.bgBreadthForceRun) window.bgBreadthForceRun();
+                    else _runBackgroundScan();
+                }, 1200);
             };
             const inp = document.getElementById('bgKeyPanelInput');
             if (inp) inp.addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('bgKeyPanelSave').click(); });

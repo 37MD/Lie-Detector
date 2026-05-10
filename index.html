@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD250</title>
+        <title>Lie Detector — NPS NAV Chart · LD251</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2146,7 +2146,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD250</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD251</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2651,7 +2651,7 @@
                 </svg>
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD250 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD251 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2922,14 +2922,26 @@
                         if(window.bgBreadthForceRun){ window.bgBreadthForceRun(); }
                         function _refreshBaCount(){
                             try{
-                                var wl=JSON.parse(localStorage.getItem('ld_watchlist')||'[]');
                                 var dk=(function(){var n=new Date(Date.now()+5.5*3600000);return n.toISOString().slice(0,10).replace(/-/g,'');})();
-                                var done=0;
-                                wl.forEach(function(f){
-                                    var ck='breadth_v1_'+(f.code||'').replace(/\W/g,'_')+'_'+dk;
-                                    if(localStorage.getItem(ck))done++;
-                                });
-                                if(cntEl)cntEl.textContent=done+'/'+wl.length;
+                                // Use queue for accurate count (only Regime A watchlist funds get BA)
+                                var q=[];
+                                try{ q=JSON.parse(localStorage.getItem('bg_ba_queue_'+dk)||'[]'); }catch(_){}
+                                var wlQ=q.filter(function(it){return it.source==='watchlist';});
+                                var total=wlQ.length;
+                                if(total===0){
+                                    // Queue not built yet — fall back to raw watchlist count
+                                    var wl=JSON.parse(localStorage.getItem('ld_watchlist')||'[]');
+                                    total=wl.length;
+                                    var done=0;
+                                    wl.forEach(function(f){
+                                        var ck='breadth_v1_'+(f.code||'').replace(/\W/g,'_')+'_'+dk;
+                                        if(localStorage.getItem(ck))done++;
+                                    });
+                                    if(cntEl)cntEl.textContent=done+'/'+total;
+                                } else {
+                                    var done=wlQ.filter(function(it){return it.done&&!!localStorage.getItem('breadth_v1_'+(it.code||'').replace(/\W/g,'_')+'_'+dk);}).length;
+                                    if(cntEl)cntEl.textContent=done+'/'+total;
+                                }
                             }catch(e){}
                         }
                         _refreshBaCount();
@@ -3821,14 +3833,14 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             </div>
         </div>
         <!-- LD250: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
-        <script type="application/json" id="LD250_EMBED">null</script>
+        <script type="application/json" id="LD251_EMBED">null</script>
         <script>
             'use strict';
-            // LD250: Self-restoring config — reads from <script id="LD250_EMBED"> tag
+            // LD250: Self-restoring config — reads from <script id="LD251_EMBED"> tag
             // Base64 encoded so zero risk of HTML/JS syntax corruption
             (function _autoRestoreFromEmbed() {
                 try {
-                    const embedEl = document.getElementById('LD250_EMBED');
+                    const embedEl = document.getElementById('LD251_EMBED');
                     if (!embedEl) return;
                     const raw = (embedEl.textContent || embedEl.innerText || '').trim();
                     if (!raw || raw === 'null') return;
@@ -3842,8 +3854,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     Object.entries(config).forEach(([k, v]) => {
                         try { if (k && !k.startsWith('_')) { localStorage.setItem(k, v); restored++; } } catch(_) {}
                     });
-                    console.log('LD250: Auto-restored', restored, 'config keys from embedded backup');
-                } catch(e) { console.warn('LD250 embed restore error:', e.message); }
+                    /* LD251: Auto-restored config from embed */
+                } catch(e) { /* embed restore error — silent */ }
             })();
             const NSE_BENCHMARK_MAP = {
                 '118955': 'NIFTY 500',  
@@ -4177,7 +4189,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 ],
             };
             window.amcFunds = amcFunds;
-            // ── SECTION: CONSTANTS & GLOBAL STATE ──────────────────────────────
+            // ════ SECTION 1: CONSTANTS & GLOBAL STATE ═══════════════════════════
             const STCG_TAX_RATE      = 0.20;   
             const STCG_HOLD_DAYS     = 365;    
             const STCG_APPROX_FACTOR = 1.45;   
@@ -4371,7 +4383,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             };
             let _lastFetchTimestamp = null;
             let _lastFetchWasCached = false;
-            // ── SECTION: UI UTILITIES ───────────────────────────────────────────
+            // ════ SECTION 2: UI UTILITIES ══════════════════════════════════════
             function updateFreshnessBadge() {
                 const el = document.getElementById('dataFreshnessBadge');
                 if (!el || !_lastFetchTimestamp) return;
@@ -4422,7 +4434,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     updateLiveChartOnly(250, btn1Y);
                 }
             };
-            // ── SECTION: AMC / FUND SELECTION ──────────────────────────────────
+            // ════ SECTION 3: AMC / FUND SELECTION & SCANNING ════════════════════
             function selectAMC(amc, el, isInit = false) {
                 document.querySelectorAll('#fundGrid .fund-box').forEach(b => b.classList.remove('active'));
                 el.classList.add('active');
@@ -4726,12 +4738,12 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             const v = localStorage.getItem(prefix + _todayKey);
                             if (v !== null) _blob[prefix + _todayKey] = v;
                         });
-                        _blob['ld_last_version'] = 'LD250';
+                        _blob['ld_last_version'] = 'LD251';
                         // Base64 encode — safe from ALL HTML/JS escaping issues
                         const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(_blob))));
                         const currentHtml = document.documentElement.outerHTML;
                         const newHtml = currentHtml.replace(
-                            /(<script[^>]*id="LD250_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
+                            /(<script[^>]*id="LD251_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
                             (_, open, close) => open + configB64 + close
                         );
                         const a = document.createElement('a');
@@ -4740,11 +4752,11 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         a.click();
                         _setBanner(summaryLines.join('<br>') + '<br>💾 Daily backup saved → LD250_DAILY.html', bannerColor);
                     } catch(_e) {
-                        console.warn('Auto-backup failed:', _e);
+                        /* auto-backup failed — silent */
                     }
                 }, 4000); // 4s delay — let scan banner show first
             } // end _runMorningScan
-            // ── SECTION: SIP CONFIG ─────────────────────────────────────────────
+            // ════ SECTION 4: SIP CONFIG ══════════════════════════════════════════
             function openSipConfigModal() {
                 const m = document.getElementById('sipConfigModal');
                 if (m) { m.style.display = 'flex'; _sipConfigModeChange(); }
@@ -4780,7 +4792,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
             }
             window._getPfmRecommendation = _getPfmRecommendation;
-            // ── SECTION: SWITCH JOURNAL (_SJ) ──────────────────────────────────
+            // ════ SECTION 5: SWITCH JOURNAL ═════════════════════════════════════
             const _SJ = {
                 KEY: 'ld_switch_journal',
                 get() {
@@ -4789,7 +4801,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD250', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD251', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -5052,12 +5064,21 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 const url = code.startsWith('SM') ?
                     `https://npsnav.in/api/historical/${code}` :
                     `https://api.mfapi.in/mf/${code}`;
+                const urlAlt = code.startsWith('SM') ? null :
+                    `https://api.mfapi.in/mf/${code}/latest`; // kept for info only — real fallback below
                 const controller = new AbortController();
                 const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
                 try {
-                    const res = await fetch(url, {
-                        signal: controller.signal
-                    });
+                    let res = await fetch(url, { signal: controller.signal });
+                    // Retry with direct URL if proxied/cached response was bad
+                    if (!res.ok && !code.startsWith('SM')) {
+                        try {
+                            const ctrl2 = new AbortController();
+                            const t2 = setTimeout(() => ctrl2.abort(), 8000);
+                            res = await fetch(`https://api.mfapi.in/mf/${code}`, { signal: ctrl2.signal });
+                            clearTimeout(t2);
+                        } catch(_) { /* use original res */ }
+                    }
                     clearTimeout(timer);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const data = await res.json();
@@ -5111,12 +5132,15 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                          }
                     ovTxt.textContent = err.name === 'AbortError' ?
                         'API TIMEOUT (12s) — RETRY' :
-                        `NETWORK ERROR: ${err.message}`;
+                        err.name === 'AbortError' ? 'API TIMEOUT — TAP TO RETRY' :
+                        `NETWORK ERROR: ${err.message} — TAP TO RETRY`;
                     ovTxt.style.color = 'var(--red)';
+                    ovTxt.style.cursor = 'pointer';
+                    ovTxt.onclick = () => { ovTxt.style.cursor = ''; ovTxt.onclick = null; ovEl.style.display = 'none'; };
                     setTimeout(() => {
                         const _bo = document.getElementById('aiBreadthOverlay')?.classList.contains('open');
-                        if (!_bo) ovEl.style.display = 'none';
-                    }, 2_500);
+                        if (!_bo) { ovEl.style.display = 'none'; ovTxt.style.cursor = ''; ovTxt.onclick = null; }
+                    }, 5_000);
                     return [];
                 } finally {
                     _fetchLock = false;
@@ -5555,7 +5579,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('liveChartModal').style.display = 'flex';
-                // === Restore alert banner from stored state on modal open ===
+                // ── Restore alert banner from stored state on modal open ──
                 try {
                     if (window._lastLiveAlertText) {
                         const b = document.getElementById('liveChartAlertBanner');
@@ -5610,7 +5634,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     globalLiveData.length - 1, prices, 0,
                     globalDailyRsiCache, globalWeeklyRsiCache, globalLowessCache, 0, [], 0
                 );
-                // === LD AUDITOR STATE COLLECTOR — runs every live cockpit render ===
+                // ════ AUDITOR STATE COLLECTOR — runs every live cockpit render ═══════
                 (function collectAuditorState() {
                     try {
                         const _navs  = globalLiveData.map(d => d.nav);
@@ -5717,7 +5741,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         }
                     } catch(_e) { }
                 })();
-                // === FIX A: Export pcAlert + ncAlert to window so AI context can read them ===
+                // ── Export alert flags to window for AI context ──
                 window._lastPcAlert = snap.pcAlert || false;
                 window._lastNcAlert = snap.ncAlert || false;
                 // FIX-3: lastDate was never declared — derive it from globalLiveData
@@ -5804,7 +5828,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 banner.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
                 banner.style.color = alertText ? '#000000' : 'var(--muted2)';
                 banner.className = alertText ? `${alertClass} banner-on` : '';
-                // === FIX 1a: Sync liveAlertBanner (Analytics modal) to same alert state ===
+                // ── Alert banner sync ──
                 const bannerAnalytics = document.getElementById('liveAlertBanner');
                 if (bannerAnalytics) {
                     bannerAnalytics.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
@@ -5897,7 +5921,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
                 const niftyPrices = Object.keys(niftyMap || {}).sort()
                     .map(d => niftyMap[d]).filter(v => v > 0);
-                // === FIX C: Compute Nifty 50 W-RSI and store globally for AI macro gate ===
+                // ── Compute Nifty 50 W-RSI for AI macro gate ──
                 try {
                     if (niftyPrices.length >= 80 && window.buildWeeklyRsiFast) {
                         const niftyDates = Object.keys(niftyMap || {}).sort()
@@ -6030,8 +6054,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 document.getElementById('lcRrg2mBafA').innerHTML = baf2m != null ? fmt(mom2m - baf2m) : '--';
                 document.getElementById('lcRrg3mBafA').innerHTML = baf3m != null ? fmt(mom3m - baf3m) : '--';
             }
+            // ════ SECTION: LIVE ANALYTICS (COCKPIT) ══════════════════════════════
             async function initLiveAnalytics() {
-                saveFundSelection();
                 userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
                 window.userRsiLength = userRsiLength; 
                 document.getElementById('liveFundName').textContent = getBriefFundName();
@@ -6046,7 +6070,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('liveAnalyticsModal').style.display = 'flex';
-                // === Restore alert banner from stored state on modal open ===
+                // ── Restore alert banner from stored state on modal open ──
                 try {
                     if (window._lastLiveAlertText) {
                         const b = document.getElementById('liveAlertBanner');
@@ -6058,18 +6082,20 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         }
                     }
                 } catch(_) {}
+                if (_liveEstInterval) clearInterval(_liveEstInterval);
                 _liveEstInterval = setInterval(updateLiveEstimate, 900_000);
                 updateLiveChart(250);
                 updateLiveEstimate();
                 updateFreshnessBadge();
             }
+            // ════ SECTION: LIVE CHART & ESTIMATE UPDATERS ════════════════════
             function updateLiveChart(_days) {
                 const prices = globalLiveData.map(d => d.nav);
                 const snap = buildEngineSnapshot(
                     globalLiveData.length - 1, prices, 0,
                     globalDailyRsiCache, globalWeeklyRsiCache, globalLowessCache, 0, [], 0
                 );
-                // === FIX A (refresh): Keep pcAlert + ncAlert current on every chart update ===
+                // ── Keep alert flags current on chart update ──
                 window._lastPcAlert = snap.pcAlert || false;
                 window._lastNcAlert = snap.ncAlert || false;
                 const {
@@ -6306,7 +6332,7 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                 banner.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
                 banner.style.color = alertText ? '#000000' : 'var(--muted2)';
                 banner.className = alertText ? `${alertClass} banner-on` : '';
-                // === FIX 1a: Sync liveChartAlertBanner (Chart modal) to same alert state ===
+                // ── Chart modal alert banner sync ──
                 const bannerChart = document.getElementById('liveChartAlertBanner');
                 if (bannerChart) {
                     bannerChart.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
@@ -6612,7 +6638,7 @@ ${row('1Y %', a.r1y+'%', b.r1y+'%')}`;
                     resEl.innerHTML = `<div style="color:var(--red);padding:16px;text-align:center;font-size:0.65rem;">Error: ${e.message}</div>`;
                 }
             }
-            // ── SECTION: FUND COMPARISON ────────────────────────────────────────
+            // ════ SECTION: FUND COMPARISON ══════════════════════════════════════
             async function runDateRangeComparison() {
                 const codeA   = document.getElementById('cmpFundA').value;
                 const codeB   = document.getElementById('cmpFundB').value;
@@ -6734,7 +6760,7 @@ ${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' 
                     resEl.innerHTML = `<div style="color:var(--red);padding:12px;text-align:center;font-size:0.62rem;">Error: ${e.message}</div>`;
                 }
             }
-            // ── SECTION: TRADE REPLAY ───────────────────────────────────────────
+            // ════ SECTION: TRADE SIMULATION & REPLAY ════════════════════════════
             function showReplay() {
                 document.getElementById('reviewModal').style.display = 'none';
                 document.getElementById('replayModal').style.display = 'flex';
@@ -8151,6 +8177,7 @@ This is exactly how the system is meant to be played.
                     document.querySelectorAll('.action-bar .btn').forEach(b => b.disabled = true);
                 }
             }
+            // ── Tranche tracker, delta heatmap, SIP comparison ──
             function renderTrancheTracker() {
                 let panel = document.getElementById('tranchePanel');
                 if (!panel) return;
@@ -8869,8 +8896,8 @@ This is exactly how the system is meant to be played.
                     }
                 }
             }
+            // ════ SECTION: WATCHLIST & SWITCH BRIDGE ══════════════════════════════
             function openWatchlist() {
-                if (_watchlistRefreshTimer) { clearInterval(_watchlistRefreshTimer); _watchlistRefreshTimer = null; }
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('watchlistModal').style.display = 'flex';
                 renderWatchlistStubs();
@@ -8882,12 +8909,22 @@ This is exactly how the system is meant to be played.
                 _watchlistRefreshTimer = setInterval(refreshWatchlist, 60_000);
                 // Populate BA download counter
                 try {
-                    const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
                     const _dk = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
-                    let _done = 0;
-                    _wl.forEach(f => { if (localStorage.getItem(`breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dk}`)) _done++; });
+                    let _q = []; try { _q = JSON.parse(localStorage.getItem(`bg_ba_queue_${_dk}`)||'[]'); } catch(_){}
+                    const _wlQ = _q.filter(it => it.source === 'watchlist');
                     const _el = document.getElementById('wlBaDownloadCount');
-                    if (_el) _el.textContent = `${_done}/${_wl.length}`;
+                    if (_el) {
+                        if (_wlQ.length > 0) {
+                            const _done = _wlQ.filter(it => it.done && !!localStorage.getItem(`breadth_v1_${(it.code||'').replace(/\W/g,'_')}_${_dk}`)).length;
+                            _el.textContent = `${_done}/${_wlQ.length}`;
+                        } else {
+                            // Queue not built yet — raw watchlist count
+                            const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+                            let _done = 0;
+                            _wl.forEach(f => { if (localStorage.getItem(`breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dk}`)) _done++; });
+                            _el.textContent = `${_done}/${_wl.length}`;
+                        }
+                    }
                 } catch(_) {}
             }
             function openLiveBridge() {
@@ -8957,7 +8994,7 @@ This is exactly how the system is meant to be played.
                     amcLbl.textContent = amc;
                     box.appendChild(amcLbl);
                     if (hasData) {
-                        // === FIX 1b: Alert badge — top-right red pill if alert exists ===
+                        // ── Alert badge pill ──
                         if (entry.latestAlert) {
                             const isRed   = (entry.latestAlertClass || '').includes('danger');
                             const isGreen = (entry.latestAlertClass || '').includes('buy');
@@ -8974,7 +9011,7 @@ This is exactly how the system is meant to be played.
                             badge.textContent = isRed ? '🚨 Alert' : isGreen ? '🟢 Alert' : '⚠ Alert';
                             box.appendChild(badge);
                         }
-                        // === FIX 1c: Line 2 — fund name font +50% (0.66 → 0.99rem) ===
+                        // ── Fund name display ──
                         const nm = document.createElement('div');
                         nm.style.cssText = 'font-size:0.99rem;font-weight:400;color:var(--text);line-height:1.3;';
                         nm.textContent = (entry.name || '')
@@ -8985,7 +9022,7 @@ This is exactly how the system is meant to be played.
                             .slice(0, 32);
                         box.appendChild(nm);
                         if (entry.switchDate || entry.ts) {
-                            // === FIX 1c: Line 3 — date font +50% (0.44 → 0.66rem) ===
+                            // ── Date display ──
                             const dtEl = document.createElement('div');
                             dtEl.style.cssText = 'font-size:0.66rem;font-weight:400;color:var(--muted);';
                             const dtStr = entry.switchDate
@@ -9255,7 +9292,7 @@ This is exactly how the system is meant to be played.
                     });
                 });
             }
-            // ── LD250: TM SWAP AUTO-NOTIFICATION ──────────────────────────────────
+            // ── TM SWAP AUTO-NOTIFICATION ──────────────────────────────────────────
             window._renderTmSwapNotification = function() {
                 let snap = null;
                 try { snap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
@@ -9311,7 +9348,7 @@ This is exactly how the system is meant to be played.
                     box.style.display = 'block';
                 });
             };
-            // ── LD250: FULL CONFIG BACKUP / RESTORE ──────────────────────────────
+            // ── FULL CONFIG BACKUP / RESTORE ──────────────────────────────────────
             const CONFIG_KEYS = [
                 'ld_gemini_api_key', 'ld_gemini_api_key2', 'ld_gemini_model',
                 'ld_api_gap_sec', 'ld_watchlist', 'ld_tm_snapshot',
@@ -9333,17 +9370,17 @@ This is exactly how the system is meant to be played.
                         const v = localStorage.getItem(prefix + _todayKey);
                         if (v !== null) blob[prefix + _todayKey] = v;
                     });
-                    blob['ld_last_version'] = 'LD250';
+                    blob['ld_last_version'] = 'LD251';
                     // Base64 encode — safe from ALL HTML/JS escaping issues
                     const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
                     const currentHtml = document.documentElement.outerHTML;
                     const newHtml = currentHtml.replace(
-                        /(<script[^>]*id="LD250_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
+                        /(<script[^>]*id="LD251_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
                         (_, open, close) => open + configB64 + close
                     );
                     const wl = JSON.parse(blob['ld_watchlist'] || '[]');
                     const date = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
-                    const fname = `LD250_${date}_${wl.length}funds.html`;
+                    const fname = `LD251_${date}_${wl.length}funds.html`;
                     const a = document.createElement('a');
                     a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(newHtml);
                     a.download = fname;
@@ -9365,10 +9402,11 @@ This is exactly how the system is meant to be played.
                         let fileType = 'unknown';
 
                         if (raw.trim().startsWith('<!DOCTYPE') || raw.trim().startsWith('<html')) {
-                            // ── TYPE 1: Self-restoring HTML backup (LD250_DATE_Nfunds.html or LD250_DAILY.html)
-                            // Config is base64-encoded inside <script id="LD250_EMBED">
+                            // ── TYPE 1: Self-restoring HTML backup
+                            // Config is base64-encoded inside <script id="LD251_EMBED">
                             fileType = 'html';
-                            const match = raw.match(/<script[^>]*id="LD250_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                            const match = raw.match(/<script[^>]*id="LD251_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                                         raw.match(/<script[^>]*id="LD250_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD249A_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD248D_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD247_EMBED"[^>]*>([\s\S]*?)<\/script>/);
@@ -9383,7 +9421,7 @@ This is exactly how the system is meant to be played.
 
                             if (parsed.switches && typeof parsed.switches === 'object' &&
                                 !parsed.ld_watchlist && !parsed.ld_gemini_api_key) {
-                                // ── TYPE 2: Switch Journal export (ld_switch_journal_DATE.json)
+                                // ── TYPE 2: Switch Journal export
                                 // Structure: { version, switches:{HDFC:{...}, ICICI:{...}}, lastUpdated }
                                 // Restore ONLY the switch journal + bridge — not a full config file
                                 fileType = 'switch_journal';
@@ -9398,7 +9436,7 @@ This is exactly how the system is meant to be played.
                                 return; // no reload needed for journal-only restore
 
                             } else {
-                                // ── TYPE 3: Old full JSON config backup
+                                // ── TYPE 3: Full JSON config backup
                                 fileType = 'json_config';
                                 blob = parsed;
                             }
@@ -9414,7 +9452,7 @@ This is exactly how the system is meant to be played.
                         ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
                             if (blob[prefix + _todayKey] !== undefined) localStorage.setItem(prefix + _todayKey, blob[prefix + _todayKey]);
                         });
-                        localStorage.setItem('ld_last_version', 'LD250');
+                        localStorage.setItem('ld_last_version', 'LD251');
                         // Reload watchlist into memory
                         try { _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(_) {}
                         const wl = _watchlist.length;
@@ -9433,10 +9471,11 @@ This is exactly how the system is meant to be played.
             }
             window._configBackupExport = _configBackupExport;
             window._configBackupImport = _configBackupImport;
+            window.renderWatchlistStubs = renderWatchlistStubs;
             // ── Startup: show prominent banner if API key is missing ──────────────
             (function _checkFirstRun() {
                 // Always stamp current version into storage (for next-load comparison)
-                localStorage.setItem('ld_last_version', 'LD250');
+                localStorage.setItem('ld_last_version', 'LD251');
                 const hasKey = !!localStorage.getItem('ld_gemini_api_key');
                 const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist')||'[]')).length > 0;
                 if (!hasKey && !hasWl) {
@@ -9454,6 +9493,7 @@ This is exactly how the system is meant to be played.
                     }, 500);
                 }
             })();
+            // ── Watchlist CRUD helpers ──
             function addCurrentToWatchlist() {
                 const code = document.getElementById('fundSelect')?.value;
                 const name = document.getElementById('fundSelect')?.options[document.getElementById('fundSelect').selectedIndex]?.text || code;
@@ -9653,7 +9693,7 @@ This is exactly how the system is meant to be played.
                     };
                 }
             }
-            // ── SECTION: RSI & TECHNICAL INDICATORS (IIFE) ─────────────────────
+            // ════ SECTION: RSI & TECHNICAL INDICATORS ═══════════════════════════
             (function() {
                 'use strict';
                 function buildDailyRsiFast(allPrices, period = 4) {
@@ -10152,6 +10192,7 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
                     }
                 },
             };
+            // ── Momentum & WMA helpers ──
             function calcReturn(prices, lookback) {
                 if (prices.length <= lookback) return 0;
                 const current = prices[prices.length - 1];
@@ -10315,6 +10356,7 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
                     ctx.stroke();
                 }
             }
+            // ════ SECTION: RRG & REGIME SCANNER ══════════════════════════════════
             let currentRRGSelectedFundCode = null;
             async function runRegimeAScanner(zone) {
                 const currentToken = ++_activeScannerToken; 
@@ -10509,6 +10551,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                     return null;
                 }
             }
+            // ── Regime Change & Proxy scanner ──
             async function runRegimeChangeScanner() {
                 const currentToken = ++_activeScannerToken;
                 const ovEl = document.getElementById('ov');
@@ -10664,7 +10707,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                 for (const candidate of CANDIDATES) {
                     try {
                         const url  = `https://api.mfapi.in/mf/${candidate.code}`;
-                        const res  = await fetch(url);
+                        const res  = await fetch(url, { signal: AbortSignal.timeout(12000) });
                         if (!res.ok) continue;
                         const data = await res.json();
                         if (!data?.data || !Array.isArray(data.data) || data.data.length < 250) continue;
@@ -10753,7 +10796,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                 const processFund = async (fund) => {
                     try {
                         const url = fund.code.startsWith('SM') ? `https://npsnav.in/api/historical/${fund.code}` : `https://api.mfapi.in/mf/${fund.code}`;
-                        const res = await fetch(url);
+                        const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
                         const data = await res.json();
                         if (!data?.data) return;
                         const rawRows = data.data.slice().reverse(); 
@@ -10799,8 +10842,12 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                     await Promise.all(batch.map(processFund));
                     completed += batch.length;
                     ovTxt.textContent = `FETCHING ${Math.min(completed, fundsToScan.length)}/${fundsToScan.length}...`;
+                    await new Promise(r => setTimeout(r, 0)); // yield to UI thread between batches
                 }
                 if (currentToken !== _activeScannerToken) return;
+                // Yield before heavy synchronous computation so overlay text repaints
+                ovTxt.textContent = 'CRUNCHING RRG MATRICES...';
+                await new Promise(r => setTimeout(r, 60));
                 if (fundCache.length === 0) {
                     ovEl.style.display = 'none';
                     document.getElementById('setupScreen').style.display = 'flex';
@@ -10814,7 +10861,6 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                 const bench1m = niftyMom1m;
                 const bench2m = niftyMom2m;
                 const bench3m = niftyMom3m;
-                ovTxt.textContent = 'CRUNCHING RRG MATRICES...';
                 const allFunds = fundCache.map(({
                     fund,
                     prices,
@@ -11127,7 +11173,7 @@ ${d.tsl > 0
                         baf3m = bafData.mom3m;
                     }
                 }
-                // === FIX 2A: Store BAF comparison globally so AI context can access it ===
+                // ── Store BAF comparison for AI context ──
                 window._lastBafComparison = {
                     fundCode: fundData.code,
                     fundName: fundData.name,
@@ -11568,6 +11614,10 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 window._attachZoom = attachZoom;
             })(); 
             function _initZoom() {
+                if (typeof window._attachZoom !== 'function') {
+                    setTimeout(_initZoom, 200);
+                    return;
+                }
                 window._attachZoom('gameUI', false);
                 window._attachZoom('liveChartModal', false);
                 window._attachZoom('rrgDetailModal', true);
@@ -11730,6 +11780,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     STORE_META
                 };
             })();
+            // ════ SECTION: ASSET ALLOCATOR & TRIGGER MONITOR ═════════════════════
             function openAssetAllocator() {
                 let amc = 'HDFC';
                 const activeAmcBox = document.querySelector('#fundGrid .fund-box.active');
@@ -12421,6 +12472,9 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
             </div>
         </div>
         <script>
+    // ════ SECTION 3: ALERT SYSTEM · SOP · DEPLOYMENT METER · ALPHA STRIP ════
+    (function() {
+    'use strict';
             // ── _renderAlertResults: renders cached or fresh alert results ──
             function _renderAlertResults(results, content, headerNote) {
                 const sub = document.getElementById('alertSummarySub');
@@ -13273,6 +13327,22 @@ categories.forEach(cat => {
                 }
             });
             setTimeout(refreshAlertSummaryBadge, 8000);
+            // Expose for cross-scope calls (must be in this block where function is defined)
+            // ── Window exposures for cross-script calls ──
+        window.openAlertSummary = openAlertSummary;
+        window.refreshAlertSummaryBadge = refreshAlertSummaryBadge;
+        window.launchLiveFromAlert = launchLiveFromAlert;
+        window.renderStcgCliffAlert = renderStcgCliffAlert;
+        window.checkConcentrationGuard = checkConcentrationGuard;
+        window.renderDeploymentMeter = renderDeploymentMeter;
+        window.checkRegimeRecoveryAlert = checkRegimeRecoveryAlert;
+        window._trackPausedSip = _trackPausedSip;
+        window._deployPausedSip = _deployPausedSip;
+        window.renderAlphaStrip = renderAlphaStrip;
+        window._getHoldingAgeCheck = _getHoldingAgeCheck;
+        window.openSOP = openSOP;
+        window.closeSOP = closeSOP;
+    })();
         </script>
 <style>
     #bafNpsModal, #bafNpsModal * { font-weight: normal !important; font-family: Arial, sans-serif; color: #111111; }
@@ -13316,6 +13386,9 @@ categories.forEach(cat => {
 </style>
 <div id="bafNpsUIInjectionPoint"></div>
 <script>
+    // ════ SECTION 4: BAF NPS SWITCH TRACKER ════
+    (function() {
+    'use strict';
     const BafNpsState = { npsSwitchesUsed: 0, maxSwitches: 4 };
     document.addEventListener('DOMContentLoaded', () => { injectBafNpsUI(); });
     function injectBafNpsUI() {
@@ -13516,6 +13589,13 @@ categories.forEach(cat => {
             if (modal && modal.style.display === 'flex') closeBafNpsModal();
         }
     });
+    // ── Window exposures for cross-script calls ──
+    window.openBafNpsModal    = openBafNpsModal;
+    window.closeBafNpsModal   = closeBafNpsModal;
+    window.routeToFund        = routeToFund;
+    window.consumeNpsSwitch   = consumeNpsSwitch;
+    window.resetNpsSwitches   = resetNpsSwitches;
+    })();
 </script>
     <!-- ════════════════ AI BREADTH CODE ════════════════ -->
     <!-- LD247: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
@@ -16633,7 +16713,7 @@ Return a JSON object with this exact structure:
     
     const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'5');  return (v>=4&&v<=100?v:5)*1000;  } catch(e){ return 5_000;  } })();
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD250';
+    const ADDON_VER     = 'LD251';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
     
@@ -17171,7 +17251,8 @@ Return a JSON object with this exact structure:
             }
 
             
-            if (!it.wrsi || it.wrsi < 50) {
+            // Skip only if wrsi is explicitly null/unavailable OR below 50
+            if (it.wrsi === null || it.wrsi === undefined || it.wrsi < 50) {
                 it.skipReason = `regime_bc_wrsi_${it.wrsi}`;
                 _saveQ(q);
                 _setPillMsg(`⏭ WL: ${it.name.slice(0,26)} — Regime B/C (W-RSI ${it.wrsi}) — skipped`);
@@ -17260,10 +17341,8 @@ Return a JSON object with this exact structure:
                 localStorage.setItem(`bgbreadth_regimeA_${today}`,   JSON.stringify(rAData));
                 localStorage.setItem(`ba_regimeA_funds_${today}`,     JSON.stringify(rAData));
             } catch(e) {}
-            // LD250 FIX: Stamp intermediate completion after AMC scan finishes.
-            // If app reopens after this point and queue shows all done, _hasRanToday()
-            // Check 4 will catch it and skip re-download.
-            _markRanToday();
+            // NOTE: Do NOT _markRanToday() here — watchlist BA phase still pending.
+            // Final _markRanToday() is called only after all phases complete (line below).
 
             
             let q = _loadQ();
@@ -17422,6 +17501,9 @@ Return a JSON object with this exact structure:
         try { localStorage.removeItem(RUN_FLAG_KEY + d); } catch(e) {}
         try { localStorage.removeItem(`bg_amc_scan_done_${d}`); } catch(e) {}
         try { localStorage.removeItem(`ba_completed_funds_${d}`); } catch(e) {}
+        try { localStorage.removeItem(`ba_completed_today_${d}`); } catch(e) {}
+        // Also clear cookie so _hasRanToday() check 2 doesn't block re-run
+        try { document.cookie = `ld_ba_ran=;max-age=0;samesite=strict`; } catch(_) {}
 
         
         
@@ -17450,8 +17532,12 @@ Return a JSON object with this exact structure:
             }
         } catch(e) { try { localStorage.removeItem(_qKey()); } catch(_) {} }
 
-        
-        try { localStorage.removeItem(_cntKey()); } catch(e) {}
+        // Re-seed counter from items already cached (don't lose progress on restart)
+        try {
+            const _q = _loadQ();
+            const _alreadyCached = _q.filter(it => it.done && _cacheExists(it.code)).length;
+            localStorage.setItem(_cntKey(), String(_alreadyCached));
+        } catch(e) { try { localStorage.removeItem(_cntKey()); } catch(_) {} }
 
         setTimeout(() => _runBackgroundScan(), 300);
     };

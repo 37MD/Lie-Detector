@@ -2670,7 +2670,28 @@
             </div>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
+            <!-- LD248D: 3-col layout — SCAN (vertical, spans full height) | ALERTS+LIVE MARKET | WATCHLIST+SIMULATION -->
+            <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
+
+                <!-- SCAN BOX — vertical, spans 2 rows -->
+                <button onclick="openLDScanner()" style="
+                    grid-row: span 2;
+                    background:linear-gradient(160deg,rgba(244,162,97,0.18),rgba(244,162,97,0.06));
+                    border:2px solid #f4a261;
+                    border-radius:var(--radius);
+                    padding:10px 7px;
+                    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+                    cursor:pointer;
+                    outline:1px solid rgba(244,162,97,0.3);outline-offset:3px;
+                    transition:background 0.18s;
+                    min-width:52px;width:52px;
+                " onmouseenter="this.style.background='rgba(244,162,97,0.26)'" onmouseleave="this.style.background='linear-gradient(160deg,rgba(244,162,97,0.18),rgba(244,162,97,0.06))'">
+                    <span style="font-size:1.3rem;line-height:1;">📡</span>
+                    <!-- Vertical text via letter-by-letter spans -->
+                    <span style="font-family:var(--mono);font-size:0.62rem;font-weight:800;color:#c9622a;letter-spacing:0.12em;writing-mode:vertical-rl;text-orientation:mixed;text-transform:uppercase;line-height:1.1;">SCAN</span>
+                </button>
+
+                <!-- ALERTS -->
                 <button onclick="openAlertSummary()" style="
                     background:linear-gradient(145deg,rgba(200,16,46,0.13),rgba(200,16,46,0.05));
                     border:2px solid var(--red);
@@ -2686,6 +2707,8 @@
                     <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--red);letter-spacing:0.04em;">ALERTS</span>
                     <span id="alertSummaryBadgeTop" class="alert-badge" style="margin-top:-2px;"></span><span id="alertSummaryBadge" class="alert-badge" style="display:none;"></span>
                 </button>
+
+                <!-- WATCHLIST -->
                 <button onclick="openWatchlist()" class="setup-btn-watchlist" style="
                     background:linear-gradient(145deg,rgba(168,85,247,0.13),rgba(168,85,247,0.05));
                     border-radius:var(--radius);
@@ -2698,6 +2721,8 @@
                     <span style="font-size:1.4rem;line-height:1;">📌</span>
                     <span style="font-size:0.72rem;font-weight:700;letter-spacing:0.04em;">WATCHLIST</span>
                 </button>
+
+                <!-- LIVE MARKET -->
                 <button onclick="initLiveChart()" style="
                     background:linear-gradient(145deg,rgba(112,144,176,0.13),rgba(112,144,176,0.05));
                     border:2px solid var(--border2);
@@ -2712,6 +2737,8 @@
                     <span style="font-size:1.4rem;line-height:1;">📈</span>
                     <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--border2);letter-spacing:0.04em;">LIVE MARKET</span>
                 </button>
+
+                <!-- SIMULATION -->
                 <button onclick="initGame('random')" style="
                     background:linear-gradient(145deg,rgba(0,158,112,0.13),rgba(0,158,112,0.05));
                     border:2px solid var(--accent);
@@ -2726,6 +2753,7 @@
                     <span style="font-size:1.4rem;line-height:1;">🎮</span>
                     <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--accent);letter-spacing:0.04em;">SIMULATION</span>
                 </button>
+
             </div>
             <div class="custom-inputs" style="margin-bottom:6px;">
                 <div class="c-input-box" style="cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;border-color:var(--accent);background:var(--accent-dim);flex:1;" onclick="runRegimeChangeScanner()">
@@ -9245,7 +9273,7 @@ This is exactly how the system is meant to be played.
             const CONFIG_KEYS = [
                 'ld_gemini_api_key', 'ld_gemini_api_key2', 'ld_gemini_model',
                 'ld_api_gap_sec', 'ld_watchlist', 'ld_tm_snapshot',
-                'ld_switch_bridge', 'ld_switch_journal_v2',
+                'ld_switch_bridge', 'ld_switch_journal',
                 'ld_streak_count', 'ld_streak_best', 'ld_active_key_slot',
                 // Daily scan state — prevents BA/morning scan restarting after restore
                 'ld_v3_morning_scan_date', 'ld_last_version',
@@ -9292,27 +9320,51 @@ This is exactly how the system is meant to be played.
                     try {
                         let blob;
                         const raw = ev.target.result;
-                        
-                        // LD248D: Handle BOTH HTML (base64 embed) and old JSON restore files
+                        let fileType = 'unknown';
+
                         if (raw.trim().startsWith('<!DOCTYPE') || raw.trim().startsWith('<html')) {
-                            // HTML file — extract base64 from LD248D_EMBED tag
+                            // ── TYPE 1: Self-restoring HTML backup (LD248D_DATE_Nfunds.html or LD248D_DAILY.html)
+                            // Config is base64-encoded inside <script id="LD248D_EMBED">
+                            fileType = 'html';
                             const match = raw.match(/<script[^>]*id="LD248D_EMBED"[^>]*>([\s\S]*?)<\/script>/);
                             if (!match || !match[1] || match[1].trim() === 'null') {
-                                throw new Error('No embedded config found in HTML file');
+                                throw new Error('HTML file has no embedded config — use a full HTML backup, not the base app');
                             }
-                            // Decode base64 → UTF-8 → JSON
                             const b64 = match[1].trim();
                             blob = JSON.parse(decodeURIComponent(escape(atob(b64))));
+
                         } else {
-                            // Old JSON file
-                            blob = JSON.parse(raw);
+                            const parsed = JSON.parse(raw);
+
+                            if (parsed.switches && typeof parsed.switches === 'object' &&
+                                !parsed.ld_watchlist && !parsed.ld_gemini_api_key) {
+                                // ── TYPE 2: Switch Journal export (ld_switch_journal_DATE.json)
+                                // Structure: { version, switches:{HDFC:{...}, ICICI:{...}}, lastUpdated }
+                                // Restore ONLY the switch journal + bridge — not a full config file
+                                fileType = 'switch_journal';
+                                localStorage.setItem('ld_switch_journal', JSON.stringify(parsed));
+                                localStorage.setItem('ld_switch_bridge', JSON.stringify(parsed.switches));
+                                if (typeof renderSwitchBridgeGrid === 'function') renderSwitchBridgeGrid();
+                                if (typeof renderSwitchBridgeNpsGrid === 'function') renderSwitchBridgeNpsGrid();
+                                if (typeof refreshLiveBridgePnL === 'function') refreshLiveBridgePnL();
+                                const st = document.getElementById('configBackupStatus');
+                                const n = Object.keys(parsed.switches || {}).length;
+                                if (st) { st.style.color='#009e70'; st.textContent = `✅ Switch Journal restored: ${n} AMC entries`; }
+                                return; // no reload needed for journal-only restore
+
+                            } else {
+                                // ── TYPE 3: Old full JSON config backup
+                                fileType = 'json_config';
+                                blob = parsed;
+                            }
                         }
-                        
+
+                        // Restore full config blob (TYPE 1 or TYPE 3)
                         let count = 0;
                         CONFIG_KEYS.forEach(k => {
                             if (blob[k] !== undefined) { localStorage.setItem(k, blob[k]); count++; }
                         });
-                        // Restore today's BA-run flags
+                        // Also restore today's BA-run flags
                         const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
                         ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
                             if (blob[prefix + _todayKey] !== undefined) localStorage.setItem(prefix + _todayKey, blob[prefix + _todayKey]);
@@ -9321,9 +9373,10 @@ This is exactly how the system is meant to be played.
                         // Reload watchlist into memory
                         try { _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(_) {}
                         const wl = _watchlist.length;
-                        const hasKey = !!localStorage.getItem('ld_gemini_api_key');
+                        const hasKey   = !!localStorage.getItem('ld_gemini_api_key');
+                        const hasBridge = Object.keys(JSON.parse(localStorage.getItem('ld_switch_bridge')||'{}')).length;
                         const st = document.getElementById('configBackupStatus');
-                        if (st) { st.style.color='#009e70'; st.textContent = `✅ Restored: ${count} settings, ${wl} funds, key:${hasKey?'✓':'✗'} — Reloading…`; }
+                        if (st) { st.style.color='#009e70'; st.textContent = `✅ Restored [${fileType}]: ${count} settings · ${wl} funds · bridge:${hasBridge} AMCs · key:${hasKey?'✓':'✗'} — Reloading…`; }
                         renderWatchlistStubs();
                         setTimeout(() => location.reload(), 1800);
                     } catch(e) {
@@ -16560,15 +16613,39 @@ Return a JSON object with this exact structure:
     
     function _hasRanToday()  {
         try {
-            if (localStorage.getItem(RUN_FLAG_KEY + _istDate())) return true;
-            // LD248D: Cookie fallback — survives localStorage clear
-            return document.cookie.split(';').map(c=>c.trim()).some(c=>c===`ld_ba_ran=${_istDate()}`);
+            const d = _istDate();
+            // Check 1: localStorage run flag (fast path)
+            if (localStorage.getItem(RUN_FLAG_KEY + d)) return true;
+            // Check 2: Cookie fallback — survives localStorage wipe by Android Chrome
+            if (document.cookie.split(';').map(c=>c.trim()).some(c=>c===`ld_ba_ran=${d}`)) return true;
+            // Check 3: ba_completed_today flag — set at end of successful full run
+            if (localStorage.getItem(`ba_completed_today_${d}`) === 'true') {
+                _markRanToday(); // re-stamp fast-path flag so next check is instant
+                return true;
+            }
+            // Check 4: Queue-based completion — all funds done/skipped AND at least one
+            // cached AND AMC scan done. Handles reopen after partial run where
+            // _markRanToday() was never reached (quota hit, interrupted, etc.)
+            const q = _loadQ();
+            if (q.length > 0) {
+                const allSettled  = q.every(it => it.done || it.skipReason);
+                const anyCached   = q.some(it => it.done && _cacheExists(it.code));
+                const amcScanDone = localStorage.getItem(`bg_amc_scan_done_${d}`) === 'true';
+                if (allSettled && anyCached && amcScanDone) {
+                    _markRanToday(); // re-stamp so subsequent checks skip queue scan
+                    return true;
+                }
+            }
+            return false;
         } catch(e){ return false; }
     }
     function _markRanToday() {
-        try { localStorage.setItem(RUN_FLAG_KEY + _istDate(), '1'); } catch(e){}
-        // LD248D: Also set cookie
-        try { document.cookie = `ld_ba_ran=${_istDate()};max-age=86400;samesite=strict`; } catch(_) {}
+        const d = _istDate();
+        try { localStorage.setItem(RUN_FLAG_KEY + d, '1'); } catch(e){}
+        // Cookie survives Android Chrome localStorage wipe (max-age = 28 hours)
+        try { document.cookie = `ld_ba_ran=${d};max-age=100800;samesite=strict`; } catch(_) {}
+        // Belt-and-suspenders: also stamp ba_completed_today
+        try { localStorage.setItem(`ba_completed_today_${d}`, 'true'); } catch(e) {}
     }
 
     
@@ -17127,6 +17204,10 @@ Return a JSON object with this exact structure:
                 localStorage.setItem(`bgbreadth_regimeA_${today}`,   JSON.stringify(rAData));
                 localStorage.setItem(`ba_regimeA_funds_${today}`,     JSON.stringify(rAData));
             } catch(e) {}
+            // LD248D FIX: Stamp intermediate completion after AMC scan finishes.
+            // If app reopens after this point and queue shows all done, _hasRanToday()
+            // Check 4 will catch it and skip re-download.
+            _markRanToday();
 
             
             let q = _loadQ();
@@ -17341,3 +17422,671 @@ Return a JSON object with this exact structure:
     </script>
     <!-- ═══════════════ END BG BREADTH ADD-ON ═══════════════ -->
 
+
+
+    <!-- ═══════════════ LD SCANNER ADD-ON ═══════════════ -->
+    <!-- Full-screen Scanner overlay page, opened via SCAN button on landing -->
+
+    <style id="ld-scanner-styles">
+    /* ── LD Scanner Overlay Container ── */
+    #ld-scanner-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 29000;
+        background: #ffffff;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    #ld-scanner-overlay.ld-scanner-open {
+        display: block;
+    }
+    /* ── Close button ── */
+    #ld-scanner-close-btn {
+        position: fixed;
+        top: 10px;
+        right: 12px;
+        z-index: 29100;
+        background: #1a1a2e;
+        color: #f4a261;
+        border: 1.5px solid #f4a261;
+        border-radius: 6px;
+        padding: 6px 16px;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        display: none;
+    }
+    #ld-scanner-overlay.ld-scanner-open ~ #ld-scanner-close-btn,
+    #ld-scanner-close-btn.ld-scanner-close-visible {
+        display: block;
+    }
+
+    /* ── Scoped Scanner CSS ── */
+    
+    .ld-scanner-page {
+      /* Force Light Mode to ensure all black fonts are readable */
+      --bg:        #ffffff;
+      --surface:   #f8f9fa;
+      --surface2:  #e9ecef;
+      --border:    #dee2e6;
+      --border2:   #ced4da;
+      /* ENFORCED STRICT BLACK FONT RULE */
+      --text:      #000000;
+      --text-dim:  #000000;
+      --text-faint:#000000;
+      
+      --orange:    #f4a261;
+      --orange-dim:#fde8d7;
+      --green:     #28a745;
+      --green-bg:  #d4edda;
+      --green-dim: #c3e6cb;
+      --red:       #dc3545;
+      --red-bg:    #f8d7da;
+      --red-dim:   #f5c6cb;
+      --amber:     #ffc107;
+      --amber-bg:  #fff3cd;
+      --amber-dim: #ffe8a1;
+      --mono:      'IBM Plex Mono', monospace;
+      --sans:      'Syne', sans-serif;
+    }
+
+    .ld-scanner-page * { box-sizing: border-box; margin: 0; padding: 0; color: #000000 !important; }
+
+    .ld-scanner-page {
+      background: var(--bg);
+      color: #000000;
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Subtle grid background */
+    .ld-scanner-page::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #ld-scanner-root { position: relative; z-index: 1; }
+
+    /* ── HEADER ── */
+    .app-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border2);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      margin-bottom: 8px; /* Reduced gap */
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: #000000;
+      flex-shrink: 0;
+      clip-path: polygon(10% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0% 90%, 0% 10%);
+    }
+
+    .brand-text h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: #000000;
+      line-height: 1;
+    }
+
+    .brand-text p {
+      font-size: 11px;
+      color: #000000;
+      font-family: var(--mono);
+      margin-top: 2px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .live-dot {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #000000;
+    }
+
+    .live-dot::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #000000;
+    }
+
+    .live-dot.active::before {
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .main-wrap {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 0 20px 24px 20px;
+    }
+
+    /* ── SACRED RULE BANNER ── */
+    .sacred-rule {
+      background: linear-gradient(135deg, var(--orange-dim) 0%, transparent 60%);
+      border: 1px solid var(--orange);
+      border-left: 4px solid var(--orange);
+      padding: 10px 18px;
+      margin-bottom: 8px; /* Reduced gap */
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sacred-rule .label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: #000000;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .sacred-rule .rule-text {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #000000;
+    }
+
+    /* ── CONTROLS BAR ── */
+    .controls-bar {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      padding: 10px 18px;
+      margin-bottom: 8px; /* Reduced gap */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .filters-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: nowrap; 
+      min-width: 0; /* Enables flex shrinking for children */
+    }
+
+    .actions-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: nowrap;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0; /* Critical for inner text overflow */
+    }
+
+    .filter-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: #000000;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .filter-select {
+      background: var(--surface2);
+      color: #000000;
+      border: 1px solid var(--border2);
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 6px 28px 6px 10px;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23000000'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      width: auto;
+    }
+
+    .filter-select:focus {
+      border-color: var(--orange);
+    }
+
+    /* ── BUTTONS ── */
+    .btn-scan {
+      background: var(--orange);
+      color: #000000;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 22px;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.15s;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+      white-space: nowrap;
+    }
+
+    .btn-scan:hover {
+      background: #ffb87d;
+      transform: translateY(-1px);
+    }
+
+    .btn-stop {
+      background: var(--red-bg);
+      color: #000000;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 22px;
+      border: 1px solid var(--red);
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-stop:hover {
+      background: var(--red-dim);
+    }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-top: none;
+      padding: 10px 18px;
+      margin-top: -8px; /* Negative margin to attach to controls */
+      margin-bottom: 8px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .progress-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #000000;
+    }
+
+    .progress-pct {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #000000;
+      font-weight: 600;
+    }
+
+    .progress-track {
+      height: 3px;
+      background: var(--border2);
+      width: 100%;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--orange), #ffcc66);
+      transition: width 0.3s ease;
+      box-shadow: 0 0 8px var(--orange);
+    }
+
+    /* ── EXCEL FREEZE PANES TABLE CSS ── */
+    .table-wrap {
+      border: 1px solid var(--border2);
+      overflow: auto; /* Enables scroll in both directions */
+      max-height: 75vh; /* Mandates a scrollable area for vertical freeze */
+      background: var(--surface);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate; 
+      border-spacing: 0;
+      font-size: 12px;
+    }
+
+    /* Sortable Header Additions */
+    thead th {
+      position: sticky;
+      top: 0;
+      background: var(--surface2);
+      z-index: 10;
+      padding: 11px 12px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: #000000;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border2);
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer; /* Makes all headers show pointer */
+      user-select: none;
+      transition: background 0.15s;
+    }
+    
+    thead th:hover {
+      background: var(--border2);
+    }
+
+    /* Sticky Column (Freeze First Column) */
+    tbody td.name-col,
+    thead th.name-col {
+      position: sticky;
+      left: 0;
+      z-index: 11;
+      border-right: 2px solid var(--border2); 
+    }
+
+    /* Top-Left Corner overlap */
+    thead th.name-col {
+      z-index: 12;
+      background: var(--surface2);
+    }
+    thead th.name-col:hover { background: var(--border2); }
+
+    /* Name col Width Adjusted */
+    th.name-col, td.name-col {
+      font-family: var(--sans);
+      min-width: 155px; 
+      max-width: 200px; 
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    td.name-col {
+      font-size: 12px;
+      font-weight: 600;
+      color: #000000;
+    }
+
+    /* Alternating row backgrounds mapped onto the sticky column to prevent transparency */
+    tbody tr:nth-child(even) td.name-col { background: #f0f0f5; }
+    tbody tr:nth-child(odd)  td.name-col { background: var(--surface); }
+    tbody tr:hover td.name-col { background: var(--border2) !important; }
+
+    /* Standard cell borders */
+    tbody td {
+      padding: 9px 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #000000;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    /* Remove trailing edges */
+    tbody tr:last-child td { border-bottom: none; }
+    thead th:last-child, tbody td:last-child { border-right: none; }
+
+    /* Row Hover Effect */
+    tbody tr { transition: background 0.1s; }
+    tbody tr:hover { background: var(--border2) !important; }
+
+    /* Alternate Row Colors */
+    tbody tr:nth-child(even) { background: #f0f0f5; }
+    tbody tr:nth-child(odd)  { background: var(--surface); }
+
+    /* RSI color cells */
+    .rsi-green { background: var(--green-dim) !important; color: #000000 !important; }
+    .rsi-amber { background: var(--amber-dim) !important; color: #000000 !important; }
+    .rsi-red   { background: var(--red-dim)   !important; color: #000000 !important; }
+
+    .wma-yes { background: var(--green-dim) !important; color: #000000 !important; }
+    .wma-no  { background: var(--red-dim)   !important; color: #000000 !important; }
+
+    /* ── PILL ── */
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: 2px;
+      min-width: 44px;
+      text-align: center;
+      color: #000000;
+    }
+
+    .pill-A   { background: var(--green-dim); border: 1px solid var(--green); }
+    .pill-B   { background: var(--amber-dim); border: 1px solid var(--amber); }
+    .pill-C   { background: var(--red-dim);   border: 1px solid var(--red); }
+    .pill-BUY    { background: var(--green-dim); border: 1px solid var(--green); }
+    .pill-SELL   { background: var(--red-dim);   border: 1px solid var(--red); }
+    .pill-REDUCE { background: var(--amber-dim); border: 1px solid var(--amber); }
+    .pill-HOLD   { background: var(--surface2);  border: 1px solid var(--border2); }
+
+    /* Confluence mini pills */
+    .conf-pill {
+      display: inline-block;
+      padding: 2px 6px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      border-radius: 2px;
+      min-width: 30px;
+      text-align: center;
+      border: 1px solid transparent;
+      color: #000000;
+    }
+
+    /* Rec col */
+    td.rec-col {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #000000;
+      min-width: 220px;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .empty-state .big-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      color: #000000;
+    }
+
+    .empty-state h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #000000;
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #000000;
+    }
+
+    /* ── SCROLLBAR ── */
+    .ld-scanner-page ::-webkit-scrollbar { width: 6px; height: 6px; }
+    .ld-scanner-page ::-webkit-scrollbar-track { background: var(--surface); }
+    .ld-scanner-page ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+    .ld-scanner-page ::-webkit-scrollbar-thumb:hover { background: #000000; }
+
+    /* ── RESPONSIVE OVERRIDES ── */
+    @media (max-width: 768px) {
+      .app-header { padding: 12px 16px; }
+      .main-wrap { padding: 12px 8px; }
+      
+      /* Force UI components into mobile optimized rows while preventing overflow */
+      .controls-bar { flex-direction: column; align-items: stretch; gap: 8px; }
+      
+      .filters-wrapper { 
+        justify-content: space-between; 
+        width: 100%; 
+      }
+      .filter-group { flex: 1 1 50%; }
+      .filter-select { 
+        width: 100%; 
+        font-size: 11px; 
+        padding: 4px 20px 4px 6px; 
+        text-overflow: ellipsis; /* Solves Verdict overflow */
+        white-space: nowrap;
+      }
+      .filter-label { font-size: 10px; }
+      
+      .actions-wrapper { justify-content: space-between; width: 100%; }
+      .btn-scan, .btn-stop { font-size: 10px; padding: 7px 10px; }
+      .vix-badge { font-size: 10px !important; padding: 3px 6px !important; }
+    }
+  
+    </style>
+
+    <!-- Scanner overlay page -->
+    <div id="ld-scanner-overlay">
+        <div class="ld-scanner-page" style="min-height:100vh;">
+            <div id="ld-scanner-root"></div>
+        </div>
+    </div>
+
+    <!-- Close button (fixed, on top of overlay) -->
+    <button id="ld-scanner-close-btn" onclick="closeLDScanner()">✕ CLOSE</button>
+
+    <!-- React + Babel for Scanner (load lazily only if not already loaded) -->
+    <script>
+    (function() {
+        window.openLDScanner = function() {
+            var overlay = document.getElementById('ld-scanner-overlay');
+            var closeBtn = document.getElementById('ld-scanner-close-btn');
+            if (!overlay) return;
+            overlay.classList.add('ld-scanner-open');
+            closeBtn.classList.add('ld-scanner-close-visible');
+            document.body.style.overflow = 'hidden';
+            // Render scanner if not yet rendered
+            if (!window._ldScannerReactRoot) {
+                _ldScannerBootstrap();
+            }
+        };
+        window.closeLDScanner = function() {
+            var overlay = document.getElementById('ld-scanner-overlay');
+            var closeBtn = document.getElementById('ld-scanner-close-btn');
+            if (!overlay) return;
+            overlay.classList.remove('ld-scanner-open');
+            closeBtn.classList.remove('ld-scanner-close-visible');
+            document.body.style.overflow = '';
+        };
+        function _ldScannerBootstrap() {
+            // Check if React is already loaded (LD248D doesn't use React, so load it)
+            if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
+                var s1 = document.createElement('script');
+                s1.crossOrigin = 'anonymous';
+                s1.src = 'https://unpkg.com/react@18/umd/react.production.min.js';
+                s1.onload = function() {
+                    var s2 = document.createElement('script');
+                    s2.crossOrigin = 'anonymous';
+                    s2.src = 'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js';
+                    s2.onload = function() {
+                        _ldScannerLoadBabel();
+                    };
+                    document.head.appendChild(s2);
+                };
+                document.head.appendChild(s1);
+            } else {
+                _ldScannerLoadBabel();
+            }
+        }
+        function _ldScannerLoadBabel() {
+            if (typeof Babel === 'undefined') {
+                var s = document.createElement('script');
+                s.crossOrigin = 'anonymous';
+                s.src = 'https://unpkg.com/@babel/standalone/babel.min.js';
+                s.onload = _ldScannerCompile;
+                document.head.appendChild(s);
+            } else {
+                _ldScannerCompile();
+            }
+        }
+        function _ldScannerCompile() {
+            // Inject the scanner component code as a Babel script
+            var existing = document.getElementById('ld-scanner-babel-src');
+            if (existing) { window._ldScannerRenderFn && window._ldScannerRenderFn(); return; }
+            var sc = document.createElement('script');
+            sc.id = 'ld-scanner-babel-src';
+            sc.type = 'text/babel';
+            sc.setAttribute('data-presets', 'react');
+            sc.textContent = window._ldScannerSrc;
+            document.body.appendChild(sc);
+            // Give Babel time to transpile
+            setTimeout(function() {
+                window._ldScannerRenderFn && window._ldScannerRenderFn();
+            }, 400);
+        }
+    })();
+    </script>
+
+    <!-- Scanner source stored as JS string, compiled on first open -->
+    <script id="ld-scanner-src-store">
+    window._ldScannerSrc = '\n    const { useState, useRef, useMemo, useEffect } = React;\n\n    // ─── ALL 169 INDICES FROM CSV ────────────────────────────────────────────────\n    const ALL_INDICES = [\n      // ── BSE Broad Market ─────────────────────────────────────────────────────\n      { name:"Sensex",                                    symbol:"^BSESN",           exchange:"BSE", category:"Broad Market" },\n      { name:"Sensex Next 50 Index",                      symbol:"BSE-SNXT50.BO",    exchange:"BSE", category:"Broad Market" },\n      { name:"BSE Sensex 50",                             symbol:"^SENSEX50",        exchange:"BSE", category:"Broad Market" },\n      { name:"BSE Sensex 60",                             symbol:null,               exchange:"BSE", category:"Broad Market" },\n      { name:"BSE Sensex Next 30",                        symbol:null,               exchange:"BSE", category:"Broad Market" },\n      { name:"BSE Sensex Sixty 65:35",                    symbol:null,               exchange:"BSE", category:"Broad Market" },\n      { name:"BSE 100",                                   symbol:"BSE-100.BO",       exchange:"BSE", category:"Broad Market" },\n      { name:"BSE 200",                                   symbol:"BSE-200.BO",       exchange:"BSE", category:"Broad Market" },\n      { name:"BSE 500",                                   symbol:"0P00011L9N.BO",    exchange:"BSE", category:"Broad Market" },\n      { name:"BSE 150 MidCap",                            symbol:"BSE-MID150.BO",    exchange:"BSE", category:"Broad Market" },\n      { name:"BSE 250 Large Mid",                         symbol:"0P00011LAK.BO",    exchange:"BSE", category:"Broad Market" },\n      { name:"BSE 250 Small Cap",                         symbol:"0P0001O281.BO",    exchange:"BSE", category:"Broad Market" },\n      { name:"BSE 400 Mid Small",                         symbol:null,               exchange:"BSE", category:"Broad Market" },\n      { name:"BSE MidCap Select Index",                   symbol:null,               exchange:"BSE", category:"Broad Market" },\n      { name:"BSE SmallCap Select Index",                 symbol:null,               exchange:"BSE", category:"Broad Market" },\n      { name:"BSE Focused Midcap",                        symbol:null,               exchange:"BSE", category:"Broad Market" },\n      { name:"BSE India 150",                             symbol:null,               exchange:"BSE", category:"Broad Market" },\n      { name:"BSE BANKEX",                                symbol:"BANKEX.BO",        exchange:"BSE", category:"Banking" },\n      { name:"BSE Private Banks Index",                   symbol:null,               exchange:"BSE", category:"Banking" },\n      { name:"BSE Finance",                               symbol:"BSE-FIN.BO",       exchange:"BSE", category:"Finance" },\n      { name:"BSE IT",                                    symbol:"BSE-IT.BO",        exchange:"BSE", category:"Technology" },\n      { name:"BSE TECk",                                  symbol:"BSE-TECK.BO",      exchange:"BSE", category:"Technology" },\n      { name:"BSE Focused IT",                            symbol:null,               exchange:"BSE", category:"Technology" },\n      { name:"BSE Auto",                                  symbol:"BSE-AUTO.BO",      exchange:"BSE", category:"Auto" },\n      { name:"BSE Healthcare",                            symbol:"BSE-HC.BO",        exchange:"BSE", category:"Pharma" },\n      { name:"BSE FMCG",                                  symbol:"BSE-FMCG.BO",      exchange:"BSE", category:"FMCG" },\n      { name:"BSE Metals",                                symbol:"BSE-METAL.BO",     exchange:"BSE", category:"Metal" },\n      { name:"BSE Realty",                                symbol:"BSE-REALTY.BO",    exchange:"BSE", category:"Realty" },\n      { name:"BSE Energy",                                symbol:"BSE-ENERGY.BO",    exchange:"BSE", category:"Energy" },\n      { name:"BSE Power",                                 symbol:"BSE-POWER.BO",     exchange:"BSE", category:"Energy" },\n      { name:"BSE Oil and Gas",                           symbol:"BSE-ONG.BO",       exchange:"BSE", category:"Energy" },\n      { name:"BSE Consumer Durables",                     symbol:"BSE-CD.BO",        exchange:"BSE", category:"Consumption" },\n      { name:"Consumer Discretionary Goods & Services",   symbol:null,               exchange:"BSE", category:"Consumption" },\n      { name:"BSE Capital Goods",                         symbol:"BSE-CG.BO",        exchange:"BSE", category:"Capital Goods" },\n      { name:"BSE Capital Goods Industrial Solutions",    symbol:null,               exchange:"BSE", category:"Capital Goods" },\n      { name:"BSE Industrials",                           symbol:null,               exchange:"BSE", category:"Capital Goods" },\n      { name:"BSE India Infrastructure Index",            symbol:null,               exchange:"BSE", category:"Infrastructure" },\n      { name:"BSE Utilities",                             symbol:null,               exchange:"BSE", category:"Energy" },\n      { name:"BSE Basic Materials",                       symbol:null,               exchange:"BSE", category:"Metal" },\n      { name:"BSE Telecom",                               symbol:null,               exchange:"BSE", category:"Telecom" },\n      { name:"BSE Service Sector",                        symbol:null,               exchange:"BSE", category:"Services" },\n      { name:"BSE India Mfg",                             symbol:null,               exchange:"BSE", category:"Manufacturing" },\n      { name:"BSE PSU",                                   symbol:"BSE-PSU.BO",       exchange:"BSE", category:"PSU" },\n      { name:"BSE CPSE",                                  symbol:null,               exchange:"BSE", category:"PSU" },\n      { name:"BSE Bharat 22 Index",                       symbol:null,               exchange:"BSE", category:"PSU" },\n      { name:"BSE 100 ESG",                               symbol:null,               exchange:"BSE", category:"ESG" },\n      { name:"BSE DSI",                                   symbol:null,               exchange:"BSE", category:"ESG" },\n      { name:"BSE Enhanced Value Index",                  symbol:null,               exchange:"BSE", category:"Strategy" },\n      { name:"BSE Momentum Index",                        symbol:null,               exchange:"BSE", category:"Strategy" },\n      { name:"BSELVI",                                    symbol:null,               exchange:"BSE", category:"Strategy" },\n      { name:"BSEQUI",                                    symbol:null,               exchange:"BSE", category:"Strategy" },\n      { name:"DFRGRI",                                    symbol:null,               exchange:"BSE", category:"Strategy" },\n      { name:"BSE IPO",                                   symbol:null,               exchange:"BSE", category:"IPO" },\n      { name:"BSE SME IPO",                               symbol:null,               exchange:"BSE", category:"IPO" },\n      { name:"BSE Select IPO",                            symbol:null,               exchange:"BSE", category:"IPO" },\n      { name:"BSE Dollex 100",                            symbol:null,               exchange:"BSE", category:"Dollar Series" },\n      { name:"BSE Dollex 200",                            symbol:null,               exchange:"BSE", category:"Dollar Series" },\n      { name:"BSE Dollex 30",                             symbol:null,               exchange:"BSE", category:"Dollar Series" },\n      { name:"Nifty 50",                                  symbol:"^NSEI",            exchange:"NSE", category:"Broad Market" },\n      { name:"Nifty Next 50",                             symbol:"^NSMIDCP",      exchange:"NSE", category:"Broad Market" },\n      { name:"NIFTY 100",                                 symbol:"^CNX100",          exchange:"NSE", category:"Broad Market" },\n      { name:"NIFTY 200",                                 symbol:"^CNX200",          exchange:"NSE", category:"Broad Market" },\n      { name:"NIFTY 500",                                 symbol:"^CRSLDX",          exchange:"NSE", category:"Broad Market" },\n      { name:"NIFTY Midcap 100",                          symbol:"NIFTY_MIDCAP_100.NS",      exchange:"NSE", category:"Broad Market" },\n      { name:"NIFTY Midcap 150",                          symbol:"NIFTYMIDCAP150.NS",    exchange:"NSE", category:"Broad Market" },\n      { name:"Nifty Mid Cap 50",                          symbol:"^NSEMDCP50",     exchange:"NSE", category:"Broad Market" },\n      { name:"Nifty Midcap Select",                       symbol:"NIFTY_MID_SELECT.NS",     exchange:"NSE", category:"Broad Market" },\n      { name:"Nifty Midcap Liquid 15",                    symbol:"NIFTYMIDLIQ15.NS", exchange:"NSE", category:"Broad Market" },\n      { name:"NIFTY Smallcap 100",                        symbol:"^CNXSC",           exchange:"NSE", category:"Broad Market" },\n      { name:"NIFTY Smallcap 250",                        symbol:"NIFTYSMLCAP250.NS",        exchange:"NSE", category:"Broad Market" },\n      { name:"Nifty Smallcap 50",                         symbol:"NIFTYSMLCAP50.NS",         exchange:"NSE", category:"Broad Market" },\n      { name:"Nifty MidSmallCap 400",                     symbol:"NIFTYMIDSML400.NS",  exchange:"NSE", category:"Broad Market" },\n      { name:"Nifty Largemid250",                         symbol:"NIFTY_LARGEMID250.NS",  exchange:"NSE", category:"Broad Market" },\n      { name:"Nifty Microcap 250",                        symbol:"NIFTY_MICROCAP250.NS",exchange:"NSE", category:"Broad Market" },\n      { name:"Nifty Total mkt",                           symbol:"NIFTY_TOTAL_MKT.NS",   exchange:"NSE", category:"Broad Market" },\n      { name:"Nifty Bank",                                symbol:"^NSEBANK",         exchange:"NSE", category:"Banking" },\n      { name:"NIFTY PSU Bank",                            symbol:"^CNXPSUBNK",       exchange:"NSE", category:"Banking" },\n      { name:"NIFTY Private Bank",                        symbol:"^CNXPVTBNK",       exchange:"NSE", category:"Banking" },\n      { name:"NIFTY Financial Services",                  symbol:"NIFTY_FIN_SERVICE.NS",      exchange:"NSE", category:"Finance" },\n      { name:"Finnifty",                                  symbol:"^CNXFIN",          exchange:"NSE", category:"Finance" },\n      { name:"Nifty Financial Services 25/50",            symbol:"^CNXFIN2550",      exchange:"NSE", category:"Finance" },\n      { name:"Nifty Financial Services Ex Bank",          symbol:null,               exchange:"NSE", category:"Finance" },\n      { name:"Nifty Capital Markets",                     symbol:null,               exchange:"NSE", category:"Finance" },\n      { name:"Nifty IT",                                  symbol:"^CNXIT",           exchange:"NSE", category:"Technology" },\n      { name:"Nifty Mid Small IT Telecom",                symbol:null,               exchange:"NSE", category:"Technology" },\n      { name:"NIFTY Auto",                                symbol:"^CNXAUTO",         exchange:"NSE", category:"Auto" },\n      { name:"Nifty EV and New Age Auto",                 symbol:"EVEA.NS",          exchange:"NSE", category:"Auto" },\n      { name:"Nifty Mobility",                            symbol:null,               exchange:"NSE", category:"Auto" },\n      { name:"NIFTY Pharma",                              symbol:"^CNXPHARMA",       exchange:"NSE", category:"Pharma" },\n      { name:"Nifty Healthcare",                          symbol:"^NIFTYHC",         exchange:"NSE", category:"Pharma" },\n      { name:"Nifty MidSmall Healthcare",                 symbol:"0P0001O1ZV.BO",    exchange:"NSE", category:"Pharma" },\n      { name:"NIFTY FMCG",                                symbol:"^CNXFMCG",         exchange:"NSE", category:"FMCG" },\n      { name:"NIFTY Consumption",                         symbol:"^CNXCONSUMPTION",  exchange:"NSE", category:"Consumption" },\n      { name:"Nifty Consumer Durable",                    symbol:"^CNXCONSUMER",     exchange:"NSE", category:"Consumption" },\n      { name:"Nifty Non Cyclical Consumer",               symbol:null,               exchange:"NSE", category:"Consumption" },\n      { name:"Nifty India New Age Consumption",           symbol:null,               exchange:"NSE", category:"Consumption" },\n      { name:"Nifty Mid Small India Consumption",         symbol:null,               exchange:"NSE", category:"Consumption" },\n      { name:"NIFTY Metal",                               symbol:"^CNXMETAL",        exchange:"NSE", category:"Metal" },\n      { name:"NIFTY Realty",                              symbol:"^CNXREALTY",       exchange:"NSE", category:"Realty" },\n      { name:"Nifty Core Housing",                        symbol:null,               exchange:"NSE", category:"Realty" },\n      { name:"Nifty Housing",                             symbol:null,               exchange:"NSE", category:"Realty" },\n      { name:"NIFTY Energy",                              symbol:"^CNXENERGY",       exchange:"NSE", category:"Energy" },\n      { name:"Nifty Oil and Gas",                         symbol:"^CNXOILGAS",       exchange:"NSE", category:"Energy" },\n      { name:"Nifty CPSE",                                symbol:"^CNXCPSE",         exchange:"NSE", category:"PSU" },\n      { name:"Nifty PSE",                                 symbol:"^CNXPSE",          exchange:"NSE", category:"PSU" },\n      { name:"NIFTY Media",                               symbol:"^CNXMEDIA",        exchange:"NSE", category:"Media" },\n      { name:"NIFTY Infra",                               symbol:"^CNXINFRA",        exchange:"NSE", category:"Infrastructure" },\n      { name:"Nifty India Manufacturing",                 symbol:"NIFTY_INDIA_MFG.NS", exchange:"NSE", category:"Manufacturing" },\n      { name:"Nifty Transportation Logistics",            symbol:null,               exchange:"NSE", category:"Infrastructure" },\n      { name:"NIFTY Services Sector",                     symbol:"^CNXSERVICE",      exchange:"NSE", category:"Services" },\n      { name:"Nifty MNC",                                 symbol:"^CNXMNC",          exchange:"NSE", category:"MNC" },\n      { name:"NIFTY Commodities",                         symbol:"^CNXCOMMODITIES",  exchange:"NSE", category:"Commodities" },\n      { name:"India VIX",                                 symbol:"^INDIAVIX",        exchange:"NSE", category:"Volatility" },\n      { name:"Nifty India Defence",                       symbol:"MODEFENCE.NS",     exchange:"NSE", category:"Thematic" },\n      { name:"Nifty India Digital",                       symbol:"TNIDETF.NS",       exchange:"NSE", category:"Thematic" },\n      { name:"Nifty India Tourism",                       symbol:null,               exchange:"NSE", category:"Thematic" },\n      { name:"Nifty Rural",                               symbol:null,               exchange:"NSE", category:"Thematic" },\n      { name:"Nifty Growth Sectors 15",                   symbol:"HDFCGROWTH.NS",    exchange:"NSE", category:"Thematic" },\n      { name:"Nifty India Select 5 Corp Grps (MAATR)",    symbol:null,               exchange:"NSE", category:"Thematic" },\n      { name:"Nifty India Corporate Group Index - Tata",  symbol:null,               exchange:"NSE", category:"Thematic" },\n      { name:"Nifty Mid Small Financial Services",        symbol:null,               exchange:"NSE", category:"Finance" },\n      { name:"Nifty IPO",                                 symbol:null,               exchange:"NSE", category:"IPO" },\n      { name:"NIFTY ALPHA 50",                            symbol:"NIFTYALPHA50.NS",      exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 100 Alpha 30",                        symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty Alpha Low Volatility 30",             symbol:"NIFTYALPHALOWVOL.NS", exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 50 Equal Weight",                     symbol:"^NIFTY50EW",       exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 100 Equal Weight",                    symbol:"NIFTY100EW.NS",    exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 500 Equal Weight",                    symbol:"DSPN500EWI.NS",    exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 500 Lrg Mid Sml Equal Wtd",           symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty100 Qualty30",                         symbol:"NIFTYQUALITY30.NS",    exchange:"NSE", category:"Strategy" },\n      { name:"Nifty100 Liquid 15",                        symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 100 Low Volatility 30",               symbol:"NIFTY100LOWVOL30.NS", exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 100 Enhanced ESG",                    symbol:null,               exchange:"NSE", category:"ESG" },\n      { name:"Nifty 200 Momentum 30",                     symbol:"MOMOMENTUM.NS",    exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 200 Alpha 30",                        symbol:"ALPL30IETF.NS",    exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 200 Quality 30",                      symbol:"NIFTY200QUALTY30.NS", exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 200 Value 30",                        symbol:"VAL30IETF.NS",     exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 500 Momentum 50",                     symbol:"MOMENTUM50.NS",    exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 500 Low Volatility 50",               symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 500 Multicap 50:25:25",               symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 500 Multicap India Mfg 50:30:20",     symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 500 Multicap Infra 50:30:20",         symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 500 Multicap Momentum Quality 50",    symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 500 Multifactor MQVLv 50",            symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 500 Quality 50",                      symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty 500 Value 50",                        symbol:"0P0001O51L.BO",    exchange:"NSE", category:"Strategy" },\n      { name:"Nifty Dividend Opportunities 50",           symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty High Beta 50",                        symbol:"NIFTY_HIGHBETA_50.NS", exchange:"NSE", category:"Strategy" },\n      { name:"Nifty Quality Low Volatility 30",           symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty50 Value 20 Index",                    symbol:"NV20.NS",          exchange:"NSE", category:"Strategy" },\n      { name:"Nifty Top 10 Equal Weight",                 symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty Top 15 Equal Weight",                 symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty Top 20 Equal Weight",                 symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty Midcap150 Momentum 50",               symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"NIFTY Midcap150 Quality 50",                symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty Smallcap 250 Quality 50",             symbol:null,               exchange:"NSE", category:"Strategy" },\n      { name:"Nifty Smallcap250 Momentum Quality 100",    symbol:"SMALLCAP.NS",      exchange:"NSE", category:"Strategy" },\n      { name:"Nifty100 ESG",                              symbol:null,               exchange:"NSE", category:"ESG" },\n      { name:"Nifty100 ESG Sector Leaders",               symbol:null,               exchange:"NSE", category:"ESG" },\n      { name:"Nifty 50 Shariah",                          symbol:null,               exchange:"NSE", category:"Shariah" },\n      { name:"Nifty Shariah 25",                          symbol:null,               exchange:"NSE", category:"Shariah" },\n      { name:"Nifty 500 Shariah",                         symbol:null,               exchange:"NSE", category:"Shariah" },\n      { name:"Nifty Composite G Sec",                     symbol:null,               exchange:"NSE", category:"Debt" },\n      { name:"Nifty 4-8 Yr G Sec",                        symbol:null,               exchange:"NSE", category:"Debt" },\n      { name:"Nifty 11-15 Yr G Sec",                      symbol:null,               exchange:"NSE", category:"Debt" },\n      { name:"Nifty 15 Yr Plus G Sec",                    symbol:null,               exchange:"NSE", category:"Debt" },\n      { name:"Nifty 50 PR 1x Inverse",                    symbol:null,               exchange:"NSE", category:"Leverage/Inverse" },\n      { name:"Nifty 50 PR 2x Leverage",                   symbol:null,               exchange:"NSE", category:"Leverage/Inverse" },\n      { name:"Nifty 50 TR 1x Inverse",                    symbol:null,               exchange:"NSE", category:"Leverage/Inverse" },\n      { name:"Nifty 50 TR 2x Leverage",                   symbol:null,               exchange:"NSE", category:"Leverage/Inverse" },\n    ];\n\n    const PROXY = "https://corsproxy.io/?";\n    const sleep = ms => new Promise(r => setTimeout(r, ms));\n\n    function calcRSIHistory(closes, period) {\n      let rsis = [];\n      const v = closes.filter(x => x != null && !isNaN(x));\n      if (v.length < period + 1) return rsis;\n      let gains = 0, losses = 0;\n      for (let i = 1; i <= period; i++) {\n        const d = v[i] - v[i - 1];\n        if (d > 0) gains += d; else losses -= d;\n      }\n      let ag = gains / period, al = losses / period;\n      rsis.push(al === 0 ? 100 : parseFloat((100 - 100 / (1 + ag / al)).toFixed(2)));\n      for (let i = period + 1; i < v.length; i++) {\n        const d = v[i] - v[i - 1];\n        ag = (ag * (period - 1) + Math.max(d, 0)) / period;\n        al = (al * (period - 1) + Math.abs(Math.min(d, 0))) / period;\n        rsis.push(al === 0 ? 100 : parseFloat((100 - 100 / (1 + ag / al)).toFixed(2)));\n      }\n      return rsis;\n    }\n\n    function calcWMA(data, period) {\n      const v = data.filter(x => x != null && !isNaN(x));\n      if (!v || v.length < period) return null;\n      let sum = 0;\n      const weightSum = (period * (period + 1)) / 2;\n      const slice = v.slice(-period);\n      for (let i = 0; i < period; i++) sum += slice[i] * (i + 1);\n      return parseFloat((sum / weightSum).toFixed(2));\n    }\n\n    // TradingView\'s "Trend Strength Index" (Pearson Correlation)\n    function calcTrendStrengthIndex(closes, period=21) {\n      const v = closes.filter(x => x != null && !isNaN(x)); \n      if (!v || v.length < period) return [];\n      \n      let meanX = (period - 1) / 2;\n      let ssX = 0;\n      for (let j = 0; j < period; j++) {\n        ssX += Math.pow(j - meanX, 2);\n      }\n      \n      let tsiList = [];\n      for(let i = 0; i < v.length; i++) {\n         if (i < period - 1) {\n             tsiList.push(null);\n             continue;\n         }\n         \n         let sumY = 0;\n         for(let j = 0; j < period; j++) {\n             sumY += v[i - period + 1 + j];\n         }\n         let meanY = sumY / period;\n         \n         let sumXY = 0;\n         let ssY = 0;\n         for(let j = 0; j < period; j++) {\n             let xVal = j; \n             let yVal = v[i - period + 1 + j];\n             sumXY += (xVal - meanX) * (yVal - meanY);\n             ssY += Math.pow(yVal - meanY, 2);\n         }\n         \n         if (ssY === 0) {\n             tsiList.push(0);\n         } else {\n             let r = sumXY / Math.sqrt(ssX * ssY);\n             tsiList.push(parseFloat(r.toFixed(2)));\n         }\n      }\n      return tsiList;\n    }\n\n    async function fetchIndex(symbol) {\n      const wkUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1wk&range=2y`;\n      const dUrl  = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=6mo`;\n      const qtUrl = `https://query1.finance.yahoo.com/v8/finance/quote?symbols=${symbol}`;\n      try {\n        const [wkRes, dRes, qtRes] = await Promise.all([\n          fetch(PROXY + encodeURIComponent(wkUrl), { signal: AbortSignal.timeout(15000) }),\n          fetch(PROXY + encodeURIComponent(dUrl),  { signal: AbortSignal.timeout(15000) }),\n          fetch(PROXY + encodeURIComponent(qtUrl), { signal: AbortSignal.timeout(15000) }),\n        ]);\n        const wkData = wkRes.ok ? await wkRes.json() : null;\n        const dData  = dRes.ok  ? await dRes.json()  : null;\n        const qtData = qtRes.ok ? await qtRes.json() : null;\n        const wCloses = wkData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || [];\n        const dCloses = dData?.chart?.result?.[0]?.indicators?.quote?.[0]?.close  || [];\n        const q       = qtData?.quoteResponse?.result?.[0] || null;\n        const price   = q?.regularMarketPrice ?? (wCloses.length ? wCloses[wCloses.length-1] : null);\n\n        // % change: use last 2 valid daily closes for reliability\n        const validDCloses = dCloses.filter(x => x != null && !isNaN(x));\n        const prevClose = validDCloses.length >= 2 ? validDCloses[validDCloses.length - 2] : null;\n        const currClose = validDCloses.length >= 1 ? validDCloses[validDCloses.length - 1] : null;\n        const changePct = (prevClose && currClose && prevClose !== 0)\n          ? parseFloat((((currClose - prevClose) / prevClose) * 100).toFixed(2))\n          : null;\n        \n        const wRsiArray4  = calcRSIHistory(wCloses, 4);\n        const wRsiArray8  = calcRSIHistory(wCloses, 8);\n        const wRsiArray14 = calcRSIHistory(wCloses, 14);\n        const wRsi4  = wRsiArray4.length  ? wRsiArray4[wRsiArray4.length-1]   : null;\n        const wRsi8  = wRsiArray8.length  ? wRsiArray8[wRsiArray8.length-1]   : null;\n        const wRsi14 = wRsiArray14.length ? wRsiArray14[wRsiArray14.length-1] : null;\n        const wRsi = wRsi4;\n        const wma20Price = calcWMA(wCloses, 20);\n        const wma20Rsi   = calcWMA(wRsiArray4, 20);\n        \n        // Calculate historical Trend Strength Index (Pearson Correlation) on DAILY closes\n        const dTsiArray = calcTrendStrengthIndex(dCloses, 21);\n        const dTsiCurr  = dTsiArray.length > 0 ? dTsiArray[dTsiArray.length - 1] : null;\n        const dTsiPrev  = dTsiArray.length > 1 ? dTsiArray[dTsiArray.length - 2] : null;\n\n        // Daily RSI — all three speeds\n        const dRsiArray4  = calcRSIHistory(dCloses, 4);\n        const dRsiArray8  = calcRSIHistory(dCloses, 8);\n        const dRsiArray14 = calcRSIHistory(dCloses, 14);\n        const dRsi4  = dRsiArray4.length  ? dRsiArray4[dRsiArray4.length-1]   : null;\n        const dRsi8  = dRsiArray8.length  ? dRsiArray8[dRsiArray8.length-1]   : null;\n        const dRsi14 = dRsiArray14.length ? dRsiArray14[dRsiArray14.length-1] : null;\n        const dRsi   = dRsi14; // backward compat\n\n        // Divergence proxy: D-RSI(4) rising but price below 20WMA\n        const prevDRsi4 = dRsiArray4.length > 2 ? dRsiArray4[dRsiArray4.length-2] : null;\n        const dRsi4Rising = prevDRsi4 !== null && dRsi4 > prevDRsi4;\n        const divergence  = dRsi4Rising && wma20Price && price < wma20Price;\n\n        // Regime (4W RSI based — existing logic preserved)\n        let regime = "C";\n        if (wRsi >= 50 && wma20Price && price > wma20Price) regime = "A";\n        else if (wRsi >= 40 && wRsi < 50) regime = "B";\n\n        // TSI Resumption Trigger Logic (Scale is now -1 to +1)\n        let tsiTrigger = "—";\n        let tsiColor = "transparent";\n        let tsiBorder = "transparent";\n        if (regime === "A") {\n            if (dTsiPrev !== null && dTsiCurr !== null && dTsiPrev < 0 && dTsiCurr >= 0) {\n                tsiTrigger = "🚀 RESUMPTION"; tsiColor = "var(--green-dim)"; tsiBorder = "var(--green)";\n            } else if (dTsiCurr !== null && dTsiCurr < 0) {\n                tsiTrigger = "🎯 DIP ZONE"; tsiColor = "var(--amber-dim)"; tsiBorder = "var(--amber)";\n            } else if (dTsiCurr !== null && dTsiCurr > 0.85) {\n                tsiTrigger = "🔥 OVERHEATED"; tsiColor = "var(--red-dim)"; tsiBorder = "var(--red)";\n            } else if (dTsiCurr !== null && dTsiCurr >= 0) {\n                tsiTrigger = "✅ TRENDING"; tsiColor = "var(--surface2)"; tsiBorder = "var(--border2)";\n            }\n        } else if (regime === "B" && dTsiPrev !== null && dTsiCurr !== null && dTsiPrev > 0 && dTsiCurr < 0) {\n            tsiTrigger = "⚠️ BEAR CROSS"; tsiColor = "var(--red-dim)"; tsiBorder = "var(--red)";\n        }\n\n        let action = "HOLD", rec = "Monitor";\n        if (regime === "A" && dRsi >= 40 && dRsi <= 50) { action = "BUY";    rec = "💎 STRIKE — Optimal Entry"; }\n        else if (regime === "A" && dRsi > 70)            { action = "HOLD";   rec = "⚡ OVERHEATED — Wait for daily dip"; }\n        else if (regime === "B")                          { action = "REDUCE"; rec = "🔴 TRAP — Fatigue. Do not buy dips"; }\n        else if (regime === "C")                          { action = "SELL";   rec = "💀 AVOID — Trust Break. Never avg down"; }\n\n        return { price, changePct, wRsi, wRsi4, wRsi8, wRsi14, dRsi, dRsi4, dRsi8, dRsi14,\n                 wma20Price, wma20Rsi, regime, action, rec, divergence, dTsiCurr, tsiTrigger, tsiColor, tsiBorder };\n      } catch { return { error: true }; }\n    }\n\n    // ─── 5-PHASE EXECUTION TREE ──────────────────────────────────────────────\n    function runExecutionTree(r, vixPrice) {\n      if (!r || !r.wRsi14) return null;\n\n      // PHASE 1 — Macro Anchor (W-RSI14 ≥ 50 AND Price > 20WMA)\n      const p1Pass = r.wRsi14 >= 50 && r.wma20Price && r.price > r.wma20Price;\n      if (!p1Pass) return { phase: 1, verdict: "ABORT", label: "💀 ABORT", detail: "P1 FAIL: W-RSI(14) < 50 or Price below 20WMA", color: "red" };\n\n      // PHASE 2 — Micro Alignment (Daily RSI 4/8/14 available)\n      if (!r.dRsi4 || !r.dRsi8 || !r.dRsi14)\n        return { phase: 2, verdict: "NO DATA", label: "⚠ NO DATA", detail: "Daily RSI data insufficient", color: "dim" };\n\n      // PHASE 3 — Confluence: All 3 Daily RSIs in Strike Zone (40–50)\n      const inZone = v => v >= 40 && v <= 50;\n      const d4ok = inZone(r.dRsi4), d8ok = inZone(r.dRsi8), d14ok = inZone(r.dRsi14);\n      const allGreen = d4ok && d8ok && d14ok;\n      if (!allGreen) {\n        const count = [d4ok, d8ok, d14ok].filter(Boolean).length;\n        const detail = `D-RSI 4:${r.dRsi4} 8:${r.dRsi8} 14:${r.dRsi14} — ${count}/3 in zone`;\n        if (count >= 1)\n          return { phase: 3, verdict: "NEAR MISS", label: "🟡 NEAR MISS", detail, color: "amber" };\n        return { phase: 3, verdict: "NOT READY", label: "⏳ NOT READY", detail: `Daily RSI not in zone. ${detail}`, color: "dim" };\n      }\n\n      // PHASE 4 — Trapdoor Clues (5 checks)\n      const trapdoors = [];\n      // 1. Trapdoor Weekly: W-RSI(14) barely holding (50–52)\n      if (r.wRsi14 >= 50 && r.wRsi14 <= 52)\n        trapdoors.push("TD1: W-RSI(14) barely holding (" + r.wRsi14 + ")");\n      // 2. Anchor Breach: price below 20WMA\n      if (r.wma20Price && r.price < r.wma20Price)\n        trapdoors.push("TD2: Price below 20WMA");\n      // 3. D-RSI(4) Divergence: bouncing while price < 20WMA\n      if (r.divergence)\n        trapdoors.push("TD3: RSI(4) rising but price below 20WMA");\n      // 4. Volatility Override: VIX > 20\n      if (vixPrice && vixPrice > 20)\n        trapdoors.push("TD4: India VIX > 20 (" + vixPrice?.toFixed(1) + ")");\n      // 5. Constituent Rot: manual check flag\n      // (Cannot auto-detect without individual stock data — flagged for manual review)\n\n      // PHASE 5 — Final Verdict\n      if (trapdoors.length > 0)\n        return { phase: 5, verdict: "FAKE SUPPORT", label: "🔴 FAKE SUPPORT", detail: trapdoors.join(" | "), color: "red" };\n\n      return { phase: 5, verdict: "VERIFIED STRIKE", label: "💎 VERIFIED STRIKE", detail: `All 3 D-RSI in zone. No trapdoors triggered.`, color: "green" };\n    }\n\n\n    const getRsiClass = (val) => {\n      if (val == null) return "";\n      if (val >= 50) return "rsi-green";\n      if (val >= 40) return "rsi-amber";\n      return "rsi-red";\n    };\n\n    // ── Pill component ──\n    function Pill({ v, logic }) {\n      const cls = `pill pill-${logic || v}`;\n      return <span className={cls}>{v}</span>;\n    }\n\n    // ── Confluence mini pill ──\n    function ConfPill({ val }) {\n      const cls = `conf-pill ${getRsiClass(val)}`;\n      return <span className={cls}>{val ?? "—"}</span>;\n    }\n\n    // ── Main Dashboard ──\n    const AuditorDashboard = () => {\n      const [scanning,     setScanning]     = useState(false);\n      const [scanned,      setScanned]      = useState(false);\n      const [progress,     setProgress]     = useState({ done: 0, total: 0, label: "" });\n      const [results,      setResults]      = useState({});\n      const [regimeFilter, setRegimeFilter] = useState("ALL");\n      const [phaseFilter,  setPhaseFilter]  = useState("ALL");\n      const [lastUpdated,  setLastUpdated]  = useState(null);\n      const [showExecutionTree, setShowExecutionTree] = useState(false);\n      \n      // Sorting State\n      const [sortConfig, setSortConfig] = useState({ key: null, direction: \'asc\' });\n      const stopRef = useRef(false);\n\n      // Live VIX from results\n      const vixPrice = results["^INDIAVIX"]?.price ?? null;\n\n      const handleScan = async () => {\n        stopRef.current = false;\n        setScanning(true);\n        const toFetch = ALL_INDICES.filter(i => i.symbol);\n        const total   = toFetch.length;\n        let done = 0;\n        let tempResults = { ...results };\n        for (const idx of toFetch) {\n          if (stopRef.current) break;\n          setProgress({ done, total, label: `Scanning ${idx.name}…` });\n          const data = await fetchIndex(idx.symbol);\n          done++;\n          tempResults[idx.symbol] = data;\n          setResults({ ...tempResults });\n          setProgress({ done, total, label: `${idx.name}` });\n          await sleep(500);\n        }\n        setProgress({ done: total, total, label: "Scan complete" });\n        setLastUpdated(new Date());\n        setScanned(true);\n        setScanning(false);\n      };\n\n      const requestSort = (key) => {\n        let direction = \'asc\';\n        if (sortConfig.key === key && sortConfig.direction === \'asc\') {\n          direction = \'desc\';\n        }\n        setSortConfig({ key, direction });\n      };\n\n      const sortedRows = useMemo(() => {\n        let list = ALL_INDICES.filter(i => i.symbol).map(idx => ({ ...idx, ...(results[idx.symbol] || {}) }));\n        \n        // Filtering\n        if (regimeFilter !== "ALL") list = list.filter(r => r.regime === regimeFilter);\n        if (phaseFilter !== "ALL") {\n          list = list.filter(r => {\n            const et = runExecutionTree(r, vixPrice);\n            return et && et.verdict === phaseFilter;\n          });\n        }\n        \n        // Sorting Logic\n        if (sortConfig.key) {\n          list.sort((a, b) => {\n            let aVal, bVal;\n            \n            if (sortConfig.key === \'priceVsWma\') {\n              aVal = (a.price && a.wma20Price) ? (a.price > a.wma20Price ? 1 : -1) : 0;\n              bVal = (b.price && b.wma20Price) ? (b.price > b.wma20Price ? 1 : -1) : 0;\n            } else if (sortConfig.key === \'verdict\' || sortConfig.key === \'detail\') {\n              const etA = runExecutionTree(a, vixPrice);\n              const etB = runExecutionTree(b, vixPrice);\n              aVal = etA ? etA[sortConfig.key === \'verdict\' ? \'label\' : \'detail\'] : \'\';\n              bVal = etB ? etB[sortConfig.key === \'verdict\' ? \'label\' : \'detail\'] : \'\';\n            } else if (sortConfig.key === \'tsiTrigger\') {\n              aVal = a.tsiTrigger || \'\';\n              bVal = b.tsiTrigger || \'\';\n            } else {\n              aVal = a[sortConfig.key];\n              bVal = b[sortConfig.key];\n            }\n\n            if (aVal == null) return 1;\n            if (bVal == null) return -1;\n\n            if (aVal < bVal) return sortConfig.direction === \'asc\' ? -1 : 1;\n            if (aVal > bVal) return sortConfig.direction === \'asc\' ? 1 : -1;\n            return 0;\n          });\n          return list;\n        }\n\n        // Default Sort\n        return list.sort((a, b) => {\n          const ord = { A:1, B:2, C:3 };\n          const ra = ord[a.regime] || 4, rb = ord[b.regime] || 4;\n          if (ra !== rb) return ra - rb;\n          return (b.wRsi ?? -Infinity) - (a.wRsi ?? -Infinity);\n        });\n      }, [results, regimeFilter, phaseFilter, vixPrice, sortConfig]);\n\n      const pct = progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0;\n      const hasData = sortedRows.length > 0 && Object.keys(results).length > 0;\n\n      const getSortIcon = (key) => {\n        if (sortConfig.key !== key) return "";\n        return sortConfig.direction === \'asc\' ? " ▲" : " ▼";\n      };\n\n      return (\n        <div>\n          {/* ── HEADER ── */}\n          <header className="app-header">\n            <div className="brand">\n              <div className="brand-icon">LD</div>\n              <div className="brand-text">\n                <h1>Lie Detector Scanner</h1>\n                <p>Sacred RSI Regime Auditor · NSE / BSE</p>\n              </div>\n            </div>\n            <div className="header-right">\n              {lastUpdated && (\n                <span style={{fontFamily:"var(--mono)",fontSize:11,color:"#000000"}}>\n                  Updated {lastUpdated.toLocaleTimeString(\'en-IN\',{hour:\'2-digit\',minute:\'2-digit\',second:\'2-digit\'})}\n                  &nbsp;·&nbsp;{lastUpdated.toLocaleDateString(\'en-IN\',{day:\'2-digit\',month:\'short\',year:\'numeric\'})}\n                </span>\n              )}\n              <span className={`live-dot ${scanning ? \'active\' : \'\'}`}>\n                {scanning ? `SCANNING ${pct}%` : scanned ? \'LAST SCAN DONE\' : \'READY\'}\n              </span>\n            </div>\n          </header>\n\n          <div className="main-wrap">\n\n            {/* ── SACRED RULE ── */}\n            <div className="sacred-rule">\n              <span className="label">Sacred Rule</span>\n              <span className="rule-text">True compounders do NOT stay below 40 RSI — Base = 4W RSI</span>\n            </div>\n\n            {/* ── 5-PHASE EXECUTION TREE LEGEND (ACCORDION) ── */}\n            <div style={{\n              background:"var(--surface)", border:"1px solid var(--border2)",\n              padding:"10px 18px", marginBottom:8, cursor: "pointer", userSelect: "none"\n            }} onClick={() => setShowExecutionTree(!showExecutionTree)}>\n              <div style={{fontFamily:"var(--mono)",fontSize:10,fontWeight:600,color:"#000000",\n                letterSpacing:"1.5px",textTransform:"uppercase", display: "flex", justifyContent: "space-between", alignItems: "center"}}>\n                <span>5-Phase Execution Tree & TSI Triggers</span>\n                <span>{showExecutionTree ? "▼" : "▶"}</span>\n              </div>\n              \n              {showExecutionTree && (\n                <div style={{display:"flex",gap:8,flexDirection:"column", marginTop: 12}}>\n                  <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>\n                    {[\n                      { label:"P1: Macro Anchor",    desc:"W-RSI(14) ≥ 50 + P > 20WMA" },\n                      { label:"P2: Micro Align",     desc:"Daily RSI 4/8/14 computed" },\n                      { label:"P3: Confluence",      desc:"All 3 Daily RSIs in 40–50 zone" },\n                      { label:"P4: Trapdoor Audit",  desc:"5 clues: VIX, Divergence, WMA breach" },\n                      { label:"P5: Final Verdict",   desc:"VERIFIED STRIKE or FAKE SUPPORT" },\n                    ].map((p,i) => (\n                      <div key={i} style={{\n                        display:"flex",alignItems:"center",gap:8,\n                        background:"var(--surface2)",border:"1px solid var(--border)",\n                        padding:"6px 12px",fontSize:11\n                      }}>\n                        <span style={{fontFamily:"var(--mono)",fontSize:10,fontWeight:600,color:"#000000",whiteSpace:"nowrap"}}>{p.label}</span>\n                        <span style={{fontFamily:"var(--mono)",fontSize:10,color:"#000000"}}>{p.desc}</span>\n                      </div>\n                    ))}\n                    <div style={{fontFamily:"var(--mono)",fontSize:10,color:"#000000",marginLeft:4}}>\n                      ⚠ TD5 (Constituent Rot) requires manual verification\n                    </div>\n                  </div>\n                  \n                  {/* TSI TRIGGER LINE ITEM */}\n                  <div style={{width: "100%", height: 1, background: "var(--border2)", margin: "4px 0"}}></div>\n                  <div style={{display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center"}}>\n                    <span style={{fontFamily:"var(--mono)",fontSize:10,fontWeight:700,color:"#000000"}}>TSI TRIGGERS:</span>\n                    <div style={{display:"flex", gap:"6px 12px", flexWrap:"wrap"}}>\n                      <span style={{fontFamily:"var(--mono)",fontSize:10,color:"#000000"}}>🚀 <b>RESUMPTION:</b> 0-Line Cross</span>\n                      <span style={{fontFamily:"var(--mono)",fontSize:10,color:"#000000"}}>🎯 <b>DIP ZONE:</b> &lt; 0</span>\n                      <span style={{fontFamily:"var(--mono)",fontSize:10,color:"#000000"}}>🔥 <b>OVERHEATED:</b> &gt; 0.85</span>\n                      <span style={{fontFamily:"var(--mono)",fontSize:10,color:"#000000"}}>✅ <b>TRENDING:</b> &gt; 0</span>\n                      <span style={{fontFamily:"var(--mono)",fontSize:10,color:"#000000"}}>⚠️ <b>BEAR CROSS:</b> Drop &lt; 0</span>\n                    </div>\n                  </div>\n                </div>\n              )}\n            </div>\n\n            <div className="controls-bar">\n              <div className="filters-wrapper">\n                <div className="filter-group">\n                  <span className="filter-label">Regime</span>\n                  <select className="filter-select" value={regimeFilter} onChange={e => setRegimeFilter(e.target.value)}>\n                    <option value="ALL">All Regimes</option>\n                    <option value="A">Regime A</option>\n                    <option value="B">Regime B</option>\n                    <option value="C">Regime C</option>\n                  </select>\n                </div>\n                <div className="filter-group">\n                  <span className="filter-label">Verdict</span>\n                  <select className="filter-select" value={phaseFilter} onChange={e => setPhaseFilter(e.target.value)}>\n                    <option value="ALL">All Verdicts</option>\n                    <option value="VERIFIED STRIKE">💎 Verified Strike</option>\n                    <option value="NEAR MISS">🟡 Near Miss</option>\n                    <option value="FAKE SUPPORT">🔴 Fake Support</option>\n                    <option value="ABORT">💀 Abort</option>\n                  </select>\n                </div>\n              </div>\n\n              <div className="actions-wrapper">\n                {vixPrice && (\n                  <div style={{display:"flex",alignItems:"center",gap:6,fontFamily:"var(--mono)",fontSize:11}}>\n                    <span style={{color:"#000000",letterSpacing:"1px",textTransform:"uppercase",whiteSpace:"nowrap"}}>India VIX</span>\n                    <span className="vix-badge" style={{\n                      padding:"3px 10px", borderRadius:2, fontWeight:600, whiteSpace:"nowrap",\n                      background: vixPrice > 20 ? "var(--red-dim)" : "var(--green-dim)",\n                      color: "#000000",\n                      border: `1px solid ${vixPrice > 20 ? "var(--red)" : "var(--green)"}`,\n                    }}>{vixPrice.toFixed(1)} {vixPrice > 20 ? "⚠ HIGH" : "✓ OK"}</span>\n                  </div>\n                )}\n                {!scanning\n                  ? <button className="btn-scan" onClick={handleScan}>⚡ Execute Audit</button>\n                  : <button className="btn-stop" onClick={() => { stopRef.current = true; }}>■ Stop Scan ({pct}%)</button>\n                }\n              </div>\n            </div>\n\n            {/* ── PROGRESS ── */}\n            {scanning && (\n              <div className="progress-wrap">\n                <div className="progress-top">\n                  <span className="progress-label">{progress.label}</span>\n                  <span className="progress-pct">{progress.done} / {progress.total}</span>\n                </div>\n                <div className="progress-track">\n                  <div className="progress-fill" style={{ width: `${pct}%` }} />\n                </div>\n              </div>\n            )}\n\n            {/* ── TABLE ── */}\n            {hasData ? (\n              <div className="table-wrap">\n                <table>\n                  <thead>\n                    <tr>\n                      <th className="name-col" onClick={() => requestSort(\'name\')}>\n                        Index / Scheme{getSortIcon(\'name\')}\n                      </th>\n                      <th onClick={() => requestSort(\'price\')}>\n                        Price{getSortIcon(\'price\')}\n                      </th>\n                      <th style={{textAlign:"center"}} onClick={() => requestSort(\'changePct\')}>\n                        % Change{getSortIcon(\'changePct\')}\n                      </th>\n                      <th style={{textAlign:"center"}} onClick={() => requestSort(\'dRsi\')}>\n                        Daily RSI 4·8·14{getSortIcon(\'dRsi\')}\n                      </th>\n                      <th style={{textAlign:"center"}} onClick={() => requestSort(\'wRsi\')}>\n                        Weekly RSI 4·8·14{getSortIcon(\'wRsi\')}\n                      </th>\n                      <th onClick={() => requestSort(\'wma20Rsi\')}>\n                        WMA20 RSI{getSortIcon(\'wma20Rsi\')}\n                      </th>\n                      <th style={{textAlign:"center"}} onClick={() => requestSort(\'priceVsWma\')}>\n                        P &gt; 20WMA{getSortIcon(\'priceVsWma\')}\n                      </th>\n                      <th style={{textAlign:"center"}} onClick={() => requestSort(\'dTsiCurr\')}>\n                        TSI 21 (Daily){getSortIcon(\'dTsiCurr\')}\n                      </th>\n                      <th style={{textAlign:"center"}} onClick={() => requestSort(\'tsiTrigger\')}>\n                        TSI Trigger{getSortIcon(\'tsiTrigger\')}\n                      </th>\n                      <th style={{textAlign:"center"}} onClick={() => requestSort(\'regime\')}>\n                        Regime{getSortIcon(\'regime\')}\n                      </th>\n                      <th style={{textAlign:"center"}} onClick={() => requestSort(\'action\')}>\n                        Action{getSortIcon(\'action\')}\n                      </th>\n                      <th style={{minWidth:180}} onClick={() => requestSort(\'verdict\')}>\n                        Execution Verdict{getSortIcon(\'verdict\')}\n                      </th>\n                      <th style={{minWidth:220}} onClick={() => requestSort(\'detail\')}>\n                        Trapdoor / Detail{getSortIcon(\'detail\')}\n                      </th>\n                    </tr>\n                  </thead>\n                  <tbody>\n                    {sortedRows.map((r, i) => {\n                      if (!r.wRsi) return null;\n                      const wmaClass = r.price && r.wma20Price\n                        ? (r.price > r.wma20Price ? \'wma-yes\' : \'wma-no\') : \'\';\n                      const wmaText = r.price && r.wma20Price\n                        ? (r.price > r.wma20Price ? \'YES\' : \'NO\') : \'—\';\n\n                      const et = runExecutionTree(r, vixPrice);\n                      const verdictStyle = {\n                        green: { bg:"var(--green-dim)", color:"#000000", border:"var(--green)" },\n                        amber: { bg:"var(--amber-dim)", color:"#000000", border:"var(--amber)" },\n                        red:   { bg:"var(--red-dim)",   color:"#000000", border:"var(--red)" },\n                        dim:   { bg:"var(--surface2)",  color:"#000000", border:"var(--border2)" },\n                      }[et?.color || "dim"];\n\n                      return (\n                        <tr key={i}>\n                          <td className="name-col" title={r.name}>\n                            <span style={{fontSize:10,color:"#000000",marginRight:6,fontFamily:"var(--mono)"}}>{r.exchange}</span>\n                            {r.name}\n                          </td>\n                          <td>{r.price?.toFixed(2) ?? "—"}</td>\n\n                          {/* % Change */}\n                          <td style={{\n                            textAlign:"center", fontFamily:"var(--mono)", fontWeight:600,\n                            color: "#000000",\n                            background: r.changePct > 0 ? "var(--green-bg)" : r.changePct < 0 ? "var(--red-bg)" : "transparent"\n                          }}>\n                            {r.changePct == null ? "—"\n                              : `${r.changePct > 0 ? "▲" : r.changePct < 0 ? "▼" : ""}${r.changePct.toFixed(2)}%`}\n                          </td>\n\n                          {/* Daily RSI 4 · 8 · 14 */}\n                          <td style={{textAlign:"center"}}>\n                            <div style={{display:"flex",gap:"4px",justifyContent:"center"}}>\n                              <ConfPill val={r.dRsi4} />\n                              <ConfPill val={r.dRsi8} />\n                              <ConfPill val={r.dRsi14} />\n                            </div>\n                          </td>\n\n                          {/* Weekly RSI 4 · 8 · 14 */}\n                          <td style={{textAlign:"center"}}>\n                            <div style={{display:"flex",gap:"4px",justifyContent:"center"}}>\n                              <ConfPill val={r.wRsi4} />\n                              <ConfPill val={r.wRsi8} />\n                              <ConfPill val={r.wRsi14} />\n                            </div>\n                          </td>\n\n                          <td>{r.wma20Rsi ?? "—"}</td>\n                          <td className={wmaClass} style={{textAlign:"center",fontWeight:600}}>{wmaText}</td>\n                          \n                          {/* TSI 21 Column */}\n                          <td style={{\n                            textAlign:"center", \n                            fontWeight:600, \n                            background: r.dTsiCurr > 0 ? "var(--green-dim)" : r.dTsiCurr < 0 ? "var(--red-dim)" : "transparent",\n                            color: "#000000"\n                          }}>\n                            {r.dTsiCurr !== null ? r.dTsiCurr.toFixed(2) : "—"}\n                          </td>\n\n                          {/* TSI Trigger Column */}\n                          <td style={{textAlign:"center"}}>\n                            <span style={{\n                              display:"inline-block", padding:"3px 8px", borderRadius:2,\n                              fontFamily:"var(--mono)", fontSize:10, fontWeight:600,\n                              background: r.tsiColor, border: `1px solid ${r.tsiBorder}`, color: "#000000"\n                            }}>\n                              {r.tsiTrigger}\n                            </span>\n                          </td>\n\n                          <td style={{textAlign:"center"}}><Pill v={r.regime} logic={r.regime} /></td>\n                          <td style={{textAlign:"center"}}><Pill v={r.action} logic={r.action} /></td>\n\n                          {/* Execution Verdict */}\n                          <td style={{textAlign:"center"}}>\n                            {et ? (\n                              <span style={{\n                                display:"inline-block", padding:"3px 10px", borderRadius:2,\n                                fontFamily:"var(--mono)", fontSize:10, fontWeight:600,\n                                letterSpacing:"0.5px", whiteSpace:"nowrap",\n                                background: verdictStyle.bg,\n                                color: verdictStyle.color,\n                                border: `1px solid ${verdictStyle.border}`,\n                              }}>{et.label}</span>\n                            ) : "—"}\n                          </td>\n\n                          {/* Trapdoor Detail */}\n                          <td className="rec-col" style={{fontSize:10,color:"#000000"}}>\n                            {et?.detail ?? "—"}\n                          </td>\n                        </tr>\n                      );\n                    })}\n                  </tbody>\n                </table>\n              </div>\n            ) : !scanning && (\n              <div className="empty-state">\n                <div className="big-icon">📡</div>\n                <h2>Ready to Scan</h2>\n                <p>Hit Execute X-Ray Audit to analyse all {ALL_INDICES.filter(i=>i.symbol).length} indices across NSE &amp; BSE</p>\n              </div>\n            )}\n\n          </div>\n        </div>\n      );\n    };\n\n    window._ldScannerRenderFn = function() {\n      if (!document.getElementById(\'ld-scanner-root\')) return;\n      const _scanRoot = ReactDOM.createRoot(document.getElementById(\'ld-scanner-root\'));\n      window._ldScannerReactRoot = _scanRoot;\n      _scanRoot.render(<AuditorDashboard />);\n    };\n  ';
+    </script>
+
+    <!-- ═══════════════ END LD SCANNER ADD-ON ═══════════════ -->

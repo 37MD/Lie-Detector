@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD251</title>
+        <title>Lie Detector — NPS NAV Chart · LD252A</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2146,7 +2146,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD251</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD252A</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2573,85 +2573,8 @@
                     Rotate via Asset Allocator Trigger Monitor.&nbsp; Never buy in B or C.&nbsp;
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
-                <!-- LD250: DECISION FLOW CHART -->
-                <div class="sop-part sop-part-muted" style="margin-top:14px;">DECISION FLOW — Analysis to Buy / Sell</div>
-                <div style="overflow-x:auto;margin-bottom:8px;">
-                <svg viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:360px;display:block;margin:0 auto;font-family:'Space Mono',monospace;">
-                  <!-- Arrows defs -->
-                  <defs>
-                    <marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                      <path d="M0,0 L0,6 L8,3 z" fill="#7090b0"/>
-                    </marker>
-                    <marker id="ahg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                      <path d="M0,0 L0,6 L8,3 z" fill="#009e70"/>
-                    </marker>
-                    <marker id="ahr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                      <path d="M0,0 L0,6 L8,3 z" fill="#c8102e"/>
-                    </marker>
-                    <marker id="aha" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                      <path d="M0,0 L0,6 L8,3 z" fill="#c97a00"/>
-                    </marker>
-                  </defs>
-                  <!-- STEP 1: Morning Analysis -->
-                  <rect x="60" y="10" width="240" height="40" rx="6" fill="#f2f5f9" stroke="#7090b0" stroke-width="1.5"/>
-                  <text x="180" y="27" text-anchor="middle" font-size="8.5" fill="#304058" font-weight="700" letter-spacing="0.06em">STEP 1 — MORNING ANALYSIS</text>
-                  <text x="180" y="42" text-anchor="middle" font-size="7" fill="#404060">Open App · Run Alert Scan · Check Regime</text>
-                  <!-- Arrow 1 -->
-                  <line x1="180" y1="50" x2="180" y2="78" stroke="#7090b0" stroke-width="1.5" marker-end="url(#ah)"/>
-                  <!-- STEP 2: BA Analysis Check -->
-                  <rect x="60" y="80" width="240" height="44" rx="6" fill="rgba(124,58,237,0.07)" stroke="#7c3aed" stroke-width="1.5"/>
-                  <text x="180" y="98" text-anchor="middle" font-size="8.5" fill="#7c3aed" font-weight="700" letter-spacing="0.06em">STEP 2 — BA BREADTH ANALYSIS</text>
-                  <text x="180" y="112" text-anchor="middle" font-size="7" fill="#404060">Open BA Results · Check Breadth Score</text>
-                  <text x="180" y="122" text-anchor="middle" font-size="7" fill="#7c3aed">CONFIRMED / MARGINAL / WEAK</text>
-                  <!-- Arrow 2 -->
-                  <line x1="180" y1="124" x2="180" y2="152" stroke="#7090b0" stroke-width="1.5" marker-end="url(#ah)"/>
-                  <!-- DECISION DIAMOND: Regime Check -->
-                  <polygon points="180,155 300,195 180,235 60,195" fill="rgba(201,122,0,0.10)" stroke="#c97a00" stroke-width="1.5"/>
-                  <text x="180" y="189" text-anchor="middle" font-size="8" fill="#c97a00" font-weight="700">REGIME CHECK</text>
-                  <text x="180" y="202" text-anchor="middle" font-size="7" fill="#404060">W-RSI ≥ 50 ?</text>
-                  <!-- Arrow YES (down) -->
-                  <line x1="180" y1="235" x2="180" y2="263" stroke="#009e70" stroke-width="1.5" marker-end="url(#ahg)"/>
-                  <text x="190" y="253" font-size="7" fill="#009e70" font-weight="700">YES → HOPE</text>
-                  <!-- Arrow NO (right) -->
-                  <line x1="300" y1="195" x2="340" y2="195" stroke="#c8102e" stroke-width="1.5" marker-end="url(#ahr)"/>
-                  <text x="303" y="190" font-size="7" fill="#c8102e" font-weight="700">NO</text>
-                  <!-- SELL ALL box (right) -->
-                  <rect x="305" y="180" width="50" height="30" rx="4" fill="rgba(200,16,46,0.10)" stroke="#c8102e" stroke-width="1.5"/>
-                  <text x="330" y="197" text-anchor="middle" font-size="7.5" fill="#c8102e" font-weight="700">SELL ALL</text>
-                  <text x="330" y="207" text-anchor="middle" font-size="6.5" fill="#c8102e">100% Cash</text>
-                  <!-- STEP 3: Incremental Invest/Divest Check -->
-                  <rect x="60" y="265" width="240" height="52" rx="6" fill="rgba(0,158,112,0.08)" stroke="#009e70" stroke-width="1.5"/>
-                  <text x="180" y="282" text-anchor="middle" font-size="8.5" fill="#009e70" font-weight="700" letter-spacing="0.06em">STEP 3 — INVEST / DIVEST CHECK</text>
-                  <text x="180" y="297" text-anchor="middle" font-size="7" fill="#404060">D-RSI &lt; 40? Delta &lt; −15? PC Breakout?</text>
-                  <text x="180" y="311" text-anchor="middle" font-size="7" fill="#404060">TSL Breach? WMA20 Break? Delta &gt; +15?</text>
-                  <!-- Arrow 3 -->
-                  <line x1="180" y1="317" x2="180" y2="345" stroke="#7090b0" stroke-width="1.5" marker-end="url(#ah)"/>
-                  <!-- DIAMOND: Signal Decision -->
-                  <polygon points="180,348 300,380 180,412 60,380" fill="#f2f5f9" stroke="#7090b0" stroke-width="1.5"/>
-                  <text x="180" y="375" text-anchor="middle" font-size="8" fill="#304058" font-weight="700">SIGNAL?</text>
-                  <text x="180" y="388" text-anchor="middle" font-size="7" fill="#404060">Buy / Hold / Profit / Sell?</text>
-                  <!-- Arrow BUY (left) -->
-                  <line x1="60" y1="380" x2="20" y2="380" stroke="#009e70" stroke-width="1.5" marker-end="url(#ahg)"/>
-                  <rect x="2" y="365" width="46" height="30" rx="4" fill="rgba(0,158,112,0.12)" stroke="#009e70" stroke-width="1.5"/>
-                  <text x="25" y="382" text-anchor="middle" font-size="7.5" fill="#009e70" font-weight="700">BUY</text>
-                  <text x="25" y="392" text-anchor="middle" font-size="6.5" fill="#009e70">10–50%</text>
-                  <!-- Arrow SELL (right) -->
-                  <line x1="300" y1="380" x2="340" y2="380" stroke="#c8102e" stroke-width="1.5" marker-end="url(#ahr)"/>
-                  <rect x="305" y="365" width="50" height="30" rx="4" fill="rgba(200,16,46,0.10)" stroke="#c8102e" stroke-width="1.5"/>
-                  <text x="330" y="382" text-anchor="middle" font-size="7.5" fill="#c8102e" font-weight="700">SELL / TRIM</text>
-                  <text x="330" y="392" text-anchor="middle" font-size="6.5" fill="#c8102e">TSL/Regime</text>
-                  <!-- Arrow HOLD (down) -->
-                  <line x1="180" y1="412" x2="180" y2="440" stroke="#7090b0" stroke-width="1.5" marker-end="url(#ah)"/>
-                  <!-- STEP 4: Log & Hold -->
-                  <rect x="60" y="442" width="240" height="40" rx="6" fill="#f2f5f9" stroke="#b0bece" stroke-width="1.5"/>
-                  <text x="180" y="458" text-anchor="middle" font-size="8.5" fill="#304058" font-weight="700" letter-spacing="0.06em">STEP 4 — LOG &amp; HOLD</text>
-                  <text x="180" y="474" text-anchor="middle" font-size="7" fill="#404060">Record Rationale · Monitor 60s Refresh · Repeat Tomorrow</text>
-                  <!-- HOLD label on arrow down -->
-                  <text x="190" y="430" font-size="7" fill="#7090b0">HOLD</text>
-                </svg>
-                </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD251 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD252A &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2663,19 +2586,17 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD250 📋</span></h1>
-            <div id="firstRunBanner" style="display:none;background:rgba(245,158,11,0.12);border:1.5px solid #f59e0b;border-radius:6px;padding:8px 10px;margin-bottom:8px;text-align:center;">
-                <div class="firstRunTitle" style="font-size:0.58rem;font-weight:700;color:#c97a00;margin-bottom:3px;">⚠ Storage cleared by browser — open your backup HTML</div>
-                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);margin-bottom:6px;">Android Chrome clears file storage after hours in background. Open the <b>LD250_date_Xfunds.html</b> backup file you saved — config will auto-load instantly.</div>
-            </div>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD252A 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
+            <div id="firstRunBanner" style="display:none;background:rgba(245,158,11,0.12);border:1.5px solid #f59e0b;border-radius:6px;padding:8px 10px;margin-bottom:8px;text-align:center;">
+                <div class="firstRunTitle" style="font-size:0.58rem;font-weight:700;color:#c97a00;margin-bottom:3px;">⚠ Storage cleared — open your backup HTML to restore</div>
+                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);">Android Chrome clears storage after hours in background. Open your saved <b>LD252A_date.html</b> backup — config auto-loads.</div>
+            </div>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
-            <!-- LD250: 3-col layout — SCAN (vertical, spans full height) | ALERTS+LIVE MARKET | WATCHLIST+SIMULATION -->
             <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
-
-                <!-- SCAN BOX — vertical, spans 2 rows -->
+                <!-- SCAN BOX — vertical pill, spans 2 rows -->
                 <button onclick="openLDScanner()" style="
-                    grid-row: span 2;
+                    grid-row:span 2;
                     background:linear-gradient(160deg,rgba(244,162,97,0.18),rgba(244,162,97,0.06));
                     border:2px solid #f4a261;
                     border-radius:var(--radius);
@@ -2687,10 +2608,8 @@
                     min-width:52px;width:52px;
                 " onmouseenter="this.style.background='rgba(244,162,97,0.26)'" onmouseleave="this.style.background='linear-gradient(160deg,rgba(244,162,97,0.18),rgba(244,162,97,0.06))'">
                     <span style="font-size:1.3rem;line-height:1;">📡</span>
-                    <!-- Vertical text via letter-by-letter spans -->
                     <span style="font-family:var(--mono);font-size:0.62rem;font-weight:800;color:#c9622a;letter-spacing:0.12em;writing-mode:vertical-rl;text-orientation:mixed;text-transform:uppercase;line-height:1.1;">SCAN</span>
                 </button>
-
                 <!-- ALERTS -->
                 <button onclick="openAlertSummary()" style="
                     background:linear-gradient(145deg,rgba(200,16,46,0.13),rgba(200,16,46,0.05));
@@ -2707,7 +2626,6 @@
                     <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--red);letter-spacing:0.04em;">ALERTS</span>
                     <span id="alertSummaryBadgeTop" class="alert-badge" style="margin-top:-2px;"></span><span id="alertSummaryBadge" class="alert-badge" style="display:none;"></span>
                 </button>
-
                 <!-- WATCHLIST -->
                 <button onclick="openWatchlist()" class="setup-btn-watchlist" style="
                     background:linear-gradient(145deg,rgba(168,85,247,0.13),rgba(168,85,247,0.05));
@@ -2721,7 +2639,6 @@
                     <span style="font-size:1.4rem;line-height:1;">📌</span>
                     <span style="font-size:0.72rem;font-weight:700;letter-spacing:0.04em;">WATCHLIST</span>
                 </button>
-
                 <!-- LIVE MARKET -->
                 <button onclick="initLiveChart()" style="
                     background:linear-gradient(145deg,rgba(112,144,176,0.13),rgba(112,144,176,0.05));
@@ -2737,7 +2654,6 @@
                     <span style="font-size:1.4rem;line-height:1;">📈</span>
                     <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--border2);letter-spacing:0.04em;">LIVE MARKET</span>
                 </button>
-
                 <!-- SIMULATION -->
                 <button onclick="initGame('random')" style="
                     background:linear-gradient(145deg,rgba(0,158,112,0.13),rgba(0,158,112,0.05));
@@ -2753,7 +2669,6 @@
                     <span style="font-size:1.4rem;line-height:1;">🎮</span>
                     <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:var(--accent);letter-spacing:0.04em;">SIMULATION</span>
                 </button>
-
             </div>
             <div class="custom-inputs" style="margin-bottom:6px;">
                 <div class="c-input-box" style="cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;border-color:var(--accent);background:var(--accent-dim);flex:1;" onclick="runRegimeChangeScanner()">
@@ -2886,7 +2801,7 @@
                         </div>
                         <div id="tmCond2" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
                         </div>
-                        <div id="tmCond3combined" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+                        <div id="tmCond3" style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);">
                         </div>
                     </div>
                 </div>
@@ -2908,56 +2823,9 @@
                     <span class="modal-close-btn" onclick="document.getElementById('watchlistModal').style.display='none';document.getElementById('setupScreen').style.display='flex';">[ X ]</span>
                 </div>
             </div>
-            <div style="padding:6px 8px;font-size:0.5rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:6px;">
-                <span>Start BA download · Tap row to open Live Cockpit</span>
-                <span style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
-                    <span id="wlBaDownloadCount" style="font-size:0.48rem;font-family:var(--mono);color:var(--accent);font-weight:700;white-space:nowrap;"></span>
-                    <button id="wlBaDownloadBtn" onclick="
-                        var btn=document.getElementById('wlBaDownloadBtn');
-                        var cntEl=document.getElementById('wlBaDownloadCount');
-                        if(btn.disabled)return;
-                        btn.textContent='⬇ …';
-                        btn.disabled=true;
-                        btn.style.opacity='0.5';
-                        if(window.bgBreadthForceRun){ window.bgBreadthForceRun(); }
-                        function _refreshBaCount(){
-                            try{
-                                var dk=(function(){var n=new Date(Date.now()+5.5*3600000);return n.toISOString().slice(0,10).replace(/-/g,'');})();
-                                // Use queue for accurate count (only Regime A watchlist funds get BA)
-                                var q=[];
-                                try{ q=JSON.parse(localStorage.getItem('bg_ba_queue_'+dk)||'[]'); }catch(_){}
-                                var wlQ=q.filter(function(it){return it.source==='watchlist';});
-                                var total=wlQ.length;
-                                if(total===0){
-                                    // Queue not built yet — fall back to raw watchlist count
-                                    var wl=JSON.parse(localStorage.getItem('ld_watchlist')||'[]');
-                                    total=wl.length;
-                                    var done=0;
-                                    wl.forEach(function(f){
-                                        var ck='breadth_v1_'+(f.code||'').replace(/\W/g,'_')+'_'+dk;
-                                        if(localStorage.getItem(ck))done++;
-                                    });
-                                    if(cntEl)cntEl.textContent=done+'/'+total;
-                                } else {
-                                    var done=wlQ.filter(function(it){return it.done&&!!localStorage.getItem('breadth_v1_'+(it.code||'').replace(/\W/g,'_')+'_'+dk);}).length;
-                                    if(cntEl)cntEl.textContent=done+'/'+total;
-                                }
-                            }catch(e){}
-                        }
-                        _refreshBaCount();
-                        setTimeout(function(){
-                            btn.textContent='⬇ BA';
-                            btn.disabled=false;
-                            btn.style.opacity='1';
-                            _refreshBaCount();
-                            if(window._buildWlBaList) window._buildWlBaList();
-                        }, 3000);"
-                    style="font-size:0.48rem;padding:3px 9px;border:1px solid var(--accent);border-radius:8px;
-                    background:transparent;color:var(--accent);cursor:pointer;font-family:var(--mono);font-weight:700;white-space:nowrap;">⬇ BA</button>
-                </span>
+            <div style="padding:6px 8px;font-size:0.5rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
+                Auto-refreshes every 60s · Tap row to open Live Cockpit
             </div>
-            <!-- LD250: TM Swap Auto-Notification -->
-            <div id="wlSwapNotification" style="display:none;flex-shrink:0;margin:5px 8px 0;border-radius:6px;overflow:hidden;"></div>
             <!-- BA Results view (toggles with watchlist body) -->
             <div id="wlBaView" style="display:none;flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 8px;flex-direction:column;gap:6px;">
                 <div style="font-size:0.52rem;color:var(--muted);padding:4px 0 6px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:6px;">
@@ -2996,17 +2864,32 @@
                 <div id="switchBridgeNpsGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"></div>
             </div>
             </div><!-- end watchlistScrollArea -->
+            <div style="padding:6px 8px 4px;border-top:1px solid var(--border);flex-shrink:0;">
+                <div style="font-size:0.48rem;color:var(--muted);margin-bottom:5px;text-align:center;letter-spacing:0.06em;">SWITCH JOURNAL BACKUP (JSON ← Mobile Storage)</div>
+                <div style="display:flex;gap:5px;">
+                    <button class="setup-btn" style="flex:1;font-size:0.52rem;border-color:#a855f7;color:#a855f7;" onclick="_SJ.export()">⬇ EXPORT JSON</button>
+                    <label class="setup-btn" style="flex:1;font-size:0.52rem;border-color:#00b4d8;color:#00b4d8;cursor:pointer;text-align:center;padding:5px 4px;">
+                        ⬆ IMPORT JSON
+                        <input type="file" accept=".json" style="display:none;" onchange="_SJ.import(this.files[0]);this.value='';">
+                    </label>
+                </div>
+            </div>
+            <!-- LD252A: Full config backup/restore panel -->
             <div style="padding:6px 8px 4px;border-top:2px solid #f59e0b;flex-shrink:0;background:rgba(245,158,11,0.06);">
-                <div style="font-size:0.52rem;color:#c97a00;margin-bottom:5px;text-align:center;letter-spacing:0.06em;font-weight:700;">💾 BACKUP — Save config into new HTML file</div>
-                <div style="font-size:0.42rem;color:var(--muted);text-align:center;margin-bottom:5px;">Backup downloads a new HTML with config baked in. Open that file next time — config loads automatically. No restore needed.</div>
+                <div style="font-size:0.52rem;color:#c97a00;margin-bottom:4px;text-align:center;letter-spacing:0.06em;font-weight:700;">💾 FULL CONFIG BACKUP — Keys · Watchlist · Settings</div>
+                <div style="font-size:0.42rem;color:var(--muted);text-align:center;margin-bottom:5px;">Saves a new HTML with everything baked in. Open that file next time — auto-loads instantly.</div>
                 <div style="display:flex;gap:5px;margin-bottom:5px;">
-                    <button class="setup-btn" style="flex:1;font-size:0.55rem;font-weight:700;border-color:#f59e0b;color:#c97a00;min-height:40px;" onclick="_configBackupExport()">⬇ BACKUP → SAVE NEW HTML</button>
+                    <button class="setup-btn" style="flex:1;font-size:0.55rem;font-weight:700;border-color:#f59e0b;color:#c97a00;min-height:40px;" onclick="_configBackupExport()">⬇ BACKUP → NEW HTML</button>
                     <label class="setup-btn" style="flex:1;font-size:0.55rem;font-weight:700;border-color:#009e70;color:#009e70;cursor:pointer;text-align:center;padding:5px 4px;min-height:40px;">
-                        ⬆ RESTORE (old JSON)
+                        ⬆ RESTORE (HTML/JSON)
                         <input type="file" accept=".json,.html" style="display:none;" onchange="_configBackupImport(this.files[0]);this.value='';">
                     </label>
                 </div>
                 <div id="configBackupStatus" style="font-size:0.44rem;color:var(--muted);text-align:center;min-height:14px;"></div>
+            </div>
+            <div style="padding:6px 8px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:6px;">
+                <button class="setup-btn" style="border-color:var(--border2);color:var(--muted2);flex:1;font-size:0.55rem;min-height:44px;padding:8px 6px;" onclick="refreshWatchlist()">↺ REFRESH ALL</button>
+                <button class="setup-btn" style="border-color:var(--red);color:var(--red);flex:1;font-size:0.55rem;min-height:44px;padding:8px 6px;" onclick="clearWatchlist()">🗑 CLEAR</button>
             </div>
         </div>
         <div id="liveChartModal" class="modal-overlay">
@@ -3832,31 +3715,29 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 </div>
             </div>
         </div>
-        <!-- LD250: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
-        <script type="application/json" id="LD251_EMBED">null</script>
+        <!-- LD252A: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
+        <script type="application/json" id="LD252A_EMBED">null</script>
         <script>
             'use strict';
-            // LD250: Self-restoring config — reads from <script id="LD251_EMBED"> tag
-            // Base64 encoded so zero risk of HTML/JS syntax corruption
+            // Auto-restore from embed on startup (fires before main script)
             (function _autoRestoreFromEmbed() {
                 try {
-                    const embedEl = document.getElementById('LD251_EMBED');
+                    const embedEl = document.getElementById('LD252A_EMBED');
                     if (!embedEl) return;
                     const raw = (embedEl.textContent || embedEl.innerText || '').trim();
                     if (!raw || raw === 'null') return;
-                    // Only restore if localStorage is empty (Chrome cleared it)
                     const hasKey = !!localStorage.getItem('ld_gemini_api_key');
                     const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist') || '[]')).length > 0;
-                    if (hasKey || hasWl) return;
-                    // Decode base64 → UTF-8 → JSON
+                    if (hasKey || hasWl) return; // localStorage intact — skip
                     const config = JSON.parse(decodeURIComponent(escape(atob(raw))));
-                    let restored = 0;
                     Object.entries(config).forEach(([k, v]) => {
-                        try { if (k && !k.startsWith('_')) { localStorage.setItem(k, v); restored++; } } catch(_) {}
+                        try { if (k && !k.startsWith('_')) localStorage.setItem(k, v); } catch(_) {}
                     });
-                    /* LD251: Auto-restored config from embed */
-                } catch(e) { /* embed restore error — silent */ }
+                } catch(e) { /* silent */ }
             })();
+        </script>
+        <script>
+            'use strict';
             const NSE_BENCHMARK_MAP = {
                 '118955': 'NIFTY 500',  
                 '148990': 'NIFTY 500',  
@@ -4189,7 +4070,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 ],
             };
             window.amcFunds = amcFunds;
-            // ════ SECTION 1: CONSTANTS & GLOBAL STATE ═══════════════════════════
+            // ── SECTION: CONSTANTS & GLOBAL STATE ──────────────────────────────
             const STCG_TAX_RATE      = 0.20;   
             const STCG_HOLD_DAYS     = 365;    
             const STCG_APPROX_FACTOR = 1.45;   
@@ -4383,7 +4264,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             };
             let _lastFetchTimestamp = null;
             let _lastFetchWasCached = false;
-            // ════ SECTION 2: UI UTILITIES ══════════════════════════════════════
+            // ── SECTION: UI UTILITIES ───────────────────────────────────────────
             function updateFreshnessBadge() {
                 const el = document.getElementById('dataFreshnessBadge');
                 if (!el || !_lastFetchTimestamp) return;
@@ -4434,7 +4315,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     updateLiveChartOnly(250, btn1Y);
                 }
             };
-            // ════ SECTION 3: AMC / FUND SELECTION & SCANNING ════════════════════
+            // ── SECTION: AMC / FUND SELECTION ──────────────────────────────────
             function selectAMC(amc, el, isInit = false) {
                 document.querySelectorAll('#fundGrid .fund-box').forEach(b => b.classList.remove('active'));
                 el.classList.add('active');
@@ -4491,23 +4372,6 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 _initWatchlistCloseBtn();
                 _initZoom();
                 populateAutoStressScenarios();
-                // LD250: Show persistent config status on every load (no re-entry needed)
-                (function _showConfigStatus() {
-                    try {
-                        const k1 = localStorage.getItem('ld_gemini_api_key');
-                        const k2 = localStorage.getItem('ld_gemini_api_key2');
-                        const model = localStorage.getItem('ld_gemini_model') || 'gemini-3.1-flash-lite';
-                        const wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
-                        const gap = localStorage.getItem('ld_api_gap_sec') || '5';
-                        const ks = document.getElementById('ld-ai-key-status');
-                        if (ks) {
-                            const kStr = k1
-                                ? `<span style="color:#009e70;font-weight:700;">✅ K1 ready</span>` + (k2 ? ` <span style="color:#009e70;">+ K2 backup</span>` : '')
-                                : `<span style="color:#c8102e;font-weight:700;">⚠ No API Key — tap 🔑 to add</span>`;
-                            ks.innerHTML = `${kStr} &nbsp;·&nbsp; <span style="color:var(--muted);">Model: ${model.replace('gemini-','').replace('-preview-','·')}</span> &nbsp;·&nbsp; <span style="color:var(--muted);">Gap: ${gap}s</span> &nbsp;·&nbsp; <span style="color:var(--muted);">WL: ${wl.length} funds</span>`;
-                        }
-                    } catch(_) {}
-                })();
                 setTimeout(async () => {
                     try {
                         const amc   = localStorage.getItem('ld_v3_amc') || 'ICICI';
@@ -4559,11 +4423,9 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     } catch(_) {}
                 }, 5500); 
                 setTimeout(() => {
-                    const today = new Date(Date.now()+5.5*3600000).toISOString().slice(0, 10);
-                    const lastScanLS  = localStorage.getItem('ld_v3_morning_scan_date') || '';
-                    // LD250: Cookie as secondary guard — survives localStorage clear
-                    const lastScanCk  = document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith('ld_scan_date='))?.split('=')[1] || '';
-                    if (lastScanLS !== today && lastScanCk !== today) {
+                    const today = new Date().toISOString().slice(0, 10);
+                    const lastScan = localStorage.getItem('ld_v3_morning_scan_date') || '';
+                    if (lastScan !== today) {
                         _runMorningScan();
                     }
                 }, 3000);
@@ -4583,7 +4445,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 const types    = ['MF', 'NPS_T1', 'NPS_T2'];
                 const months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
                 const fmtTime  = () => { const n=new Date(); return `${n.getDate()}-${months[n.getMonth()]} ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; };
-                let totalScanned = 0, fearFlags = 0;
+                let totalScanned = 0, addedToWatchlist = 0, fearFlags = 0;
                 const scanResults = {}; 
                 for (const amc of amcKeys) {
                     const fundsList = window.amcFunds[amc] || [];
@@ -4634,14 +4496,6 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                                 const regime  = wrsi >= 50 ? 'A' : wrsi >= 40 ? 'B' : 'C';
                                 const r1m     = last >= 21 ? (prices[last] - prices[last-21]) / prices[last-21] * 100 : 0;
                                 fundScores.push({ code: f.code, name: f.name, r1m, regime, wrsi: Math.round(wrsi) });
-                                // LD250: Save per-fund data for NPS grid _getLive and BA meta
-                                try {
-                                    const _todayStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
-                                    localStorage.setItem(`ld_morning_${f.code}_${_todayStr}`, JSON.stringify({ wrsi: Math.round(wrsi), regime, r1m, ts: Date.now() }));
-                                    if (f.code.startsWith('SM')) {
-                                        localStorage.setItem(`ld_nps_live_${f.code}`, JSON.stringify({ wrsi: Math.round(wrsi), regime, r1m, ts: Date.now() }));
-                                    }
-                                } catch(_) {}
                                 totalScanned++;
                             } catch(_) {  }
                         }
@@ -4674,8 +4528,11 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             }
                         } catch(_) {}
                         if (rank1 && rank1.regime === 'A') {
-                            // LD250: Do NOT auto-add to watchlist — user manages watchlist manually
-                            // (previously this silently added random rank-1 funds like "Nifty200 Value 30")
+                            if (!_watchlist.find(w => w.code === rank1.code) && _watchlist.length < 20) {
+                                _watchlist.push({ code: rank1.code, name: rank1.name, morningAdd: true, portfolio: false });
+                                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+                                addedToWatchlist++;
+                            }
                         }
                         fundScores.filter(f => f.regime === 'C').forEach(fearFund => {
                             const wIdx = _watchlist.findIndex(w => w.code === fearFund.code);
@@ -4688,10 +4545,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         _setBanner(`🌅 Morning scan in progress… ${amc} / ${type} ✓`, '#f59e0b');
                     }
                 }
-                const today = new Date(Date.now()+5.5*3600000).toISOString().slice(0, 10);
+                const today = new Date().toISOString().slice(0, 10);
                 localStorage.setItem('ld_v3_morning_scan_date', today);
-                // LD250: Also save to cookie — survives Android Chrome localStorage clear
-                try { document.cookie = `ld_scan_date=${today};max-age=86400;samesite=strict`; } catch(_) {}
                 try { renderWatchlistStubs(); } catch(_) {}
                 const hopeCount = Object.values(scanResults).filter(r => r.rank1?.regime === 'A').length;
                 const fearCount = Object.values(scanResults).filter(r => r.rank1?.regime === 'C').length;
@@ -4699,7 +4554,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     `🌅 Morning scan complete · ${fmtTime()}`,
                     `${totalScanned} funds · ${hopeCount} buckets in Hope · ${fearCount} in Fear`,
                 ];
-                if (fearFlags > 0) summaryLines.push(`⚠ ${fearFlags} watchlisted fund${fearFlags>1?'s':''} flagged Regime Fear`);
+                if (addedToWatchlist > 0) summaryLines.push(`📌 ${addedToWatchlist} fund${addedToWatchlist>1?'s':''} auto-added to Watchlist`);
+                if (fearFlags > 0)        summaryLines.push(`⚠ ${fearFlags} watchlisted fund${fearFlags>1?'s':''} flagged Regime Fear`);
                 const bannerColor = fearFlags > 0 ? '#c8102e' : hopeCount > 0 ? '#00e8a2' : '#f59e0b';
                 _setBanner(summaryLines.join('<br>'), bannerColor);
                 // ── Update Investment Switch Bridge last-update timestamp ──────
@@ -4712,51 +4568,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     }
                 } catch(_) {}
                 setTimeout(() => { if (banner) banner.style.display = 'none'; }, 18000);
-                // LD250: Daily alert auto-validation
-                try {
-                    const _alertDate = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
-                    const _alertRanKey = `ld_alert_ran_${_alertDate}`;
-                    if (!localStorage.getItem(_alertRanKey) && window.refreshAlertSummaryBadge) {
-                        setTimeout(async () => {
-                            await window.refreshAlertSummaryBadge();
-                            localStorage.setItem(_alertRanKey, '1');
-                        }, 2000);
-                    }
-                } catch(_) {}
-                // LD250: AUTO-BACKUP — always save fixed-name self-restoring HTML after scan
-                // Fixed filename LD250_DAILY.html — tap "Replace" when Android asks
-                // Bookmark that file. Every morning it auto-updates with today's config baked in.
-                setTimeout(() => {
-                    try {
-                        const _blob = {};
-                        CONFIG_KEYS.forEach(k => {
-                            const v = localStorage.getItem(k);
-                            if (v !== null) _blob[k] = v;
-                        });
-                        const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
-                        ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
-                            const v = localStorage.getItem(prefix + _todayKey);
-                            if (v !== null) _blob[prefix + _todayKey] = v;
-                        });
-                        _blob['ld_last_version'] = 'LD251';
-                        // Base64 encode — safe from ALL HTML/JS escaping issues
-                        const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(_blob))));
-                        const currentHtml = document.documentElement.outerHTML;
-                        const newHtml = currentHtml.replace(
-                            /(<script[^>]*id="LD251_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
-                            (_, open, close) => open + configB64 + close
-                        );
-                        const a = document.createElement('a');
-                        a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(newHtml);
-                        a.download = 'LD250_DAILY.html';  // Fixed name — always overwrites
-                        a.click();
-                        _setBanner(summaryLines.join('<br>') + '<br>💾 Daily backup saved → LD250_DAILY.html', bannerColor);
-                    } catch(_e) {
-                        /* auto-backup failed — silent */
-                    }
-                }, 4000); // 4s delay — let scan banner show first
-            } // end _runMorningScan
-            // ════ SECTION 4: SIP CONFIG ══════════════════════════════════════════
+            }
+            // ── SECTION: SIP CONFIG ─────────────────────────────────────────────
             function openSipConfigModal() {
                 const m = document.getElementById('sipConfigModal');
                 if (m) { m.style.display = 'flex'; _sipConfigModeChange(); }
@@ -4792,7 +4605,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
             }
             window._getPfmRecommendation = _getPfmRecommendation;
-            // ════ SECTION 5: SWITCH JOURNAL ═════════════════════════════════════
+            // ── SECTION: SWITCH JOURNAL (_SJ) ──────────────────────────────────
             const _SJ = {
                 KEY: 'ld_switch_journal',
                 get() {
@@ -4801,7 +4614,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD251', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD252A', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -4878,6 +4691,130 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
             };
             window._SJ = _SJ;
+
+            // ── LD252A: FULL CONFIG BACKUP / RESTORE ─────────────────────────────
+            const CONFIG_KEYS = [
+                'ld_gemini_api_key', 'ld_gemini_api_key2', 'ld_gemini_model',
+                'ld_api_gap_sec', 'ld_active_key_slot',
+                'ld_watchlist', 'ld_tm_snapshot',
+                'ld_switch_bridge', 'ld_switch_journal',
+                'ld_streak_count', 'ld_streak_best',
+                'ld_v3_morning_scan_date', 'ld_last_version',
+                'ld_v3_amc', 'ld_v3_fund', 'ld_v3_rsi_length'
+            ];
+            function _configBackupExport() {
+                try {
+                    const blob = {};
+                    CONFIG_KEYS.forEach(k => {
+                        const v = localStorage.getItem(k);
+                        if (v !== null) blob[k] = v;
+                    });
+                    // Also preserve today's BA/alert run flags
+                    const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                    ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
+                        const v = localStorage.getItem(prefix + _todayKey);
+                        if (v !== null) blob[prefix + _todayKey] = v;
+                    });
+                    blob['ld_last_version'] = 'LD252A';
+                    const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
+                    const currentHtml = document.documentElement.outerHTML;
+                    const newHtml = currentHtml.replace(
+                        /(<script[^>]*id="LD252A_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
+                        (_, open, close) => open + configB64 + close
+                    );
+                    const wl = JSON.parse(blob['ld_watchlist'] || '[]');
+                    const date = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
+                    const fname = `LD252A_${date}_${wl.length}funds.html`;
+                    const a = document.createElement('a');
+                    a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(newHtml);
+                    a.download = fname;
+                    a.click();
+                    const st = document.getElementById('configBackupStatus');
+                    if (st) { st.style.color='#009e70'; st.textContent = `✅ Saved: ${fname} — ${wl.length} funds baked in`; }
+                } catch(e) {
+                    const st = document.getElementById('configBackupStatus');
+                    if (st) { st.style.color='#c8102e'; st.textContent = '⚠ Backup failed: '+e.message; }
+                }
+            }
+            function _configBackupImport(file) {
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        let blob;
+                        const raw = ev.target.result;
+                        let fileType = 'unknown';
+                        if (raw.trim().startsWith('<!DOCTYPE') || raw.trim().startsWith('<html')) {
+                            fileType = 'html';
+                            const match = raw.match(/<script[^>]*id="LD252A_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                                         raw.match(/<script[^>]*id="LD251_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                                         raw.match(/<script[^>]*id="LD250_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                                         raw.match(/<script[^>]*id="LD249A_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                                         raw.match(/<script[^>]*id="LD247_EMBED"[^>]*>([\s\S]*?)<\/script>/);
+                            if (!match || !match[1] || match[1].trim() === 'null') {
+                                throw new Error('HTML file has no embedded config — use a backup HTML, not the base app');
+                            }
+                            blob = JSON.parse(decodeURIComponent(escape(atob(match[1].trim()))));
+                        } else {
+                            const parsed = JSON.parse(raw);
+                            if (parsed.switches && typeof parsed.switches === 'object' &&
+                                !parsed.ld_watchlist && !parsed.ld_gemini_api_key) {
+                                // Switch Journal only
+                                fileType = 'switch_journal';
+                                localStorage.setItem('ld_switch_journal', JSON.stringify(parsed));
+                                localStorage.setItem('ld_switch_bridge', JSON.stringify(parsed.switches));
+                                if (typeof renderSwitchBridgeGrid === 'function') renderSwitchBridgeGrid();
+                                if (typeof renderSwitchBridgeNpsGrid === 'function') renderSwitchBridgeNpsGrid();
+                                if (typeof refreshLiveBridgePnL === 'function') refreshLiveBridgePnL();
+                                const st = document.getElementById('configBackupStatus');
+                                const n = Object.keys(parsed.switches||{}).length;
+                                if (st) { st.style.color='#009e70'; st.textContent = `✅ Switch Journal restored: ${n} AMC entries`; }
+                                return;
+                            } else {
+                                fileType = 'json_config';
+                                blob = parsed;
+                            }
+                        }
+                        let count = 0;
+                        CONFIG_KEYS.forEach(k => {
+                            if (blob[k] !== undefined) { localStorage.setItem(k, blob[k]); count++; }
+                        });
+                        const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                        ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
+                            if (blob[prefix + _todayKey] !== undefined) localStorage.setItem(prefix + _todayKey, blob[prefix + _todayKey]);
+                        });
+                        localStorage.setItem('ld_last_version', 'LD252A');
+                        try { _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(_) {}
+                        const wl = _watchlist.length;
+                        const hasKey = !!localStorage.getItem('ld_gemini_api_key');
+                        const st = document.getElementById('configBackupStatus');
+                        if (st) { st.style.color='#009e70'; st.textContent = `✅ Restored [${fileType}]: ${count} settings · ${wl} funds · key:${hasKey?'✓':'✗'} — Reloading…`; }
+                        if (typeof renderWatchlistStubs === 'function') renderWatchlistStubs();
+                        setTimeout(() => location.reload(), 1800);
+                    } catch(e) {
+                        const st = document.getElementById('configBackupStatus');
+                        if (st) { st.style.color='#c8102e'; st.textContent = '⚠ Import failed: '+e.message; }
+                    }
+                };
+                reader.readAsText(file);
+            }
+            window._configBackupExport = _configBackupExport;
+            window._configBackupImport = _configBackupImport;
+            // First-run check: show banner if storage cleared
+            (function _checkFirstRun() {
+                localStorage.setItem('ld_last_version', 'LD252A');
+                const hasKey = !!localStorage.getItem('ld_gemini_api_key');
+                const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist')||'[]')).length > 0;
+                if (!hasKey && !hasWl) {
+                    setTimeout(() => {
+                        const banner = document.getElementById('firstRunBanner');
+                        if (banner) banner.style.display = 'block';
+                        const st = document.getElementById('configBackupStatus');
+                        if (st) { st.style.color='#c97a00'; st.textContent='⚠ Storage was cleared. Tap RESTORE CONFIG to reload your backup.'; }
+                    }, 500);
+                }
+            })();
+
             function _addTradingDays(date, n) {
                 const d = new Date(date);
                 let added = 0;
@@ -5064,21 +5001,12 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 const url = code.startsWith('SM') ?
                     `https://npsnav.in/api/historical/${code}` :
                     `https://api.mfapi.in/mf/${code}`;
-                const urlAlt = code.startsWith('SM') ? null :
-                    `https://api.mfapi.in/mf/${code}/latest`; // kept for info only — real fallback below
                 const controller = new AbortController();
                 const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
                 try {
-                    let res = await fetch(url, { signal: controller.signal });
-                    // Retry with direct URL if proxied/cached response was bad
-                    if (!res.ok && !code.startsWith('SM')) {
-                        try {
-                            const ctrl2 = new AbortController();
-                            const t2 = setTimeout(() => ctrl2.abort(), 8000);
-                            res = await fetch(`https://api.mfapi.in/mf/${code}`, { signal: ctrl2.signal });
-                            clearTimeout(t2);
-                        } catch(_) { /* use original res */ }
-                    }
+                    const res = await fetch(url, {
+                        signal: controller.signal
+                    });
                     clearTimeout(timer);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const data = await res.json();
@@ -5132,15 +5060,12 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                          }
                     ovTxt.textContent = err.name === 'AbortError' ?
                         'API TIMEOUT (12s) — RETRY' :
-                        err.name === 'AbortError' ? 'API TIMEOUT — TAP TO RETRY' :
-                        `NETWORK ERROR: ${err.message} — TAP TO RETRY`;
+                        `NETWORK ERROR: ${err.message}`;
                     ovTxt.style.color = 'var(--red)';
-                    ovTxt.style.cursor = 'pointer';
-                    ovTxt.onclick = () => { ovTxt.style.cursor = ''; ovTxt.onclick = null; ovEl.style.display = 'none'; };
                     setTimeout(() => {
                         const _bo = document.getElementById('aiBreadthOverlay')?.classList.contains('open');
-                        if (!_bo) { ovEl.style.display = 'none'; ovTxt.style.cursor = ''; ovTxt.onclick = null; }
-                    }, 5_000);
+                        if (!_bo) ovEl.style.display = 'none';
+                    }, 2_500);
                     return [];
                 } finally {
                     _fetchLock = false;
@@ -5579,7 +5504,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('liveChartModal').style.display = 'flex';
-                // ── Restore alert banner from stored state on modal open ──
+                // === Restore alert banner from stored state on modal open ===
                 try {
                     if (window._lastLiveAlertText) {
                         const b = document.getElementById('liveChartAlertBanner');
@@ -5634,7 +5559,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     globalLiveData.length - 1, prices, 0,
                     globalDailyRsiCache, globalWeeklyRsiCache, globalLowessCache, 0, [], 0
                 );
-                // ════ AUDITOR STATE COLLECTOR — runs every live cockpit render ═══════
+                // === LD AUDITOR STATE COLLECTOR — runs every live cockpit render ===
                 (function collectAuditorState() {
                     try {
                         const _navs  = globalLiveData.map(d => d.nav);
@@ -5741,7 +5666,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         }
                     } catch(_e) { }
                 })();
-                // ── Export alert flags to window for AI context ──
+                // === FIX A: Export pcAlert + ncAlert to window so AI context can read them ===
                 window._lastPcAlert = snap.pcAlert || false;
                 window._lastNcAlert = snap.ncAlert || false;
                 // FIX-3: lastDate was never declared — derive it from globalLiveData
@@ -5828,7 +5753,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 banner.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
                 banner.style.color = alertText ? '#000000' : 'var(--muted2)';
                 banner.className = alertText ? `${alertClass} banner-on` : '';
-                // ── Alert banner sync ──
+                // === FIX 1a: Sync liveAlertBanner (Analytics modal) to same alert state ===
                 const bannerAnalytics = document.getElementById('liveAlertBanner');
                 if (bannerAnalytics) {
                     bannerAnalytics.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
@@ -5921,7 +5846,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
                 const niftyPrices = Object.keys(niftyMap || {}).sort()
                     .map(d => niftyMap[d]).filter(v => v > 0);
-                // ── Compute Nifty 50 W-RSI for AI macro gate ──
+                // === FIX C: Compute Nifty 50 W-RSI and store globally for AI macro gate ===
                 try {
                     if (niftyPrices.length >= 80 && window.buildWeeklyRsiFast) {
                         const niftyDates = Object.keys(niftyMap || {}).sort()
@@ -6054,8 +5979,8 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 document.getElementById('lcRrg2mBafA').innerHTML = baf2m != null ? fmt(mom2m - baf2m) : '--';
                 document.getElementById('lcRrg3mBafA').innerHTML = baf3m != null ? fmt(mom3m - baf3m) : '--';
             }
-            // ════ SECTION: LIVE ANALYTICS (COCKPIT) ══════════════════════════════
             async function initLiveAnalytics() {
+                saveFundSelection();
                 userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
                 window.userRsiLength = userRsiLength; 
                 document.getElementById('liveFundName').textContent = getBriefFundName();
@@ -6070,7 +5995,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('liveAnalyticsModal').style.display = 'flex';
-                // ── Restore alert banner from stored state on modal open ──
+                // === Restore alert banner from stored state on modal open ===
                 try {
                     if (window._lastLiveAlertText) {
                         const b = document.getElementById('liveAlertBanner');
@@ -6082,20 +6007,18 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         }
                     }
                 } catch(_) {}
-                if (_liveEstInterval) clearInterval(_liveEstInterval);
                 _liveEstInterval = setInterval(updateLiveEstimate, 900_000);
                 updateLiveChart(250);
                 updateLiveEstimate();
                 updateFreshnessBadge();
             }
-            // ════ SECTION: LIVE CHART & ESTIMATE UPDATERS ════════════════════
             function updateLiveChart(_days) {
                 const prices = globalLiveData.map(d => d.nav);
                 const snap = buildEngineSnapshot(
                     globalLiveData.length - 1, prices, 0,
                     globalDailyRsiCache, globalWeeklyRsiCache, globalLowessCache, 0, [], 0
                 );
-                // ── Keep alert flags current on chart update ──
+                // === FIX A (refresh): Keep pcAlert + ncAlert current on every chart update ===
                 window._lastPcAlert = snap.pcAlert || false;
                 window._lastNcAlert = snap.ncAlert || false;
                 const {
@@ -6332,7 +6255,7 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                 banner.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
                 banner.style.color = alertText ? '#000000' : 'var(--muted2)';
                 banner.className = alertText ? `${alertClass} banner-on` : '';
-                // ── Chart modal alert banner sync ──
+                // === FIX 1a: Sync liveChartAlertBanner (Chart modal) to same alert state ===
                 const bannerChart = document.getElementById('liveChartAlertBanner');
                 if (bannerChart) {
                     bannerChart.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
@@ -6638,7 +6561,7 @@ ${row('1Y %', a.r1y+'%', b.r1y+'%')}`;
                     resEl.innerHTML = `<div style="color:var(--red);padding:16px;text-align:center;font-size:0.65rem;">Error: ${e.message}</div>`;
                 }
             }
-            // ════ SECTION: FUND COMPARISON ══════════════════════════════════════
+            // ── SECTION: FUND COMPARISON ────────────────────────────────────────
             async function runDateRangeComparison() {
                 const codeA   = document.getElementById('cmpFundA').value;
                 const codeB   = document.getElementById('cmpFundB').value;
@@ -6760,7 +6683,7 @@ ${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' 
                     resEl.innerHTML = `<div style="color:var(--red);padding:12px;text-align:center;font-size:0.62rem;">Error: ${e.message}</div>`;
                 }
             }
-            // ════ SECTION: TRADE SIMULATION & REPLAY ════════════════════════════
+            // ── SECTION: TRADE REPLAY ───────────────────────────────────────────
             function showReplay() {
                 document.getElementById('reviewModal').style.display = 'none';
                 document.getElementById('replayModal').style.display = 'flex';
@@ -7225,12 +7148,7 @@ ${Math.abs(diff) < 0.05 ? 'Tied' : (aWins ? nameA : nameB) + ' outperforms by ' 
                 userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
                 window.userRsiLength = userRsiLength; 
                 fullHistory = await fetchFundData();
-                if (!fullHistory || !fullHistory.length) {
-                    // fetchFundData already shows error message in overlay — ensure overlay auto-hides
-                    const _ovFail = document.getElementById('ov');
-                    if (_ovFail) setTimeout(() => { _ovFail.style.display = 'none'; }, 5000);
-                    return;
-                }
+                if (!fullHistory || !fullHistory.length) return;  
                 _cachedSimNavs = fullHistory.map(d => d.nav); 
                 const navs = _cachedSimNavs;
                 const dates = fullHistory.map(d => d.date);
@@ -8182,7 +8100,6 @@ This is exactly how the system is meant to be played.
                     document.querySelectorAll('.action-bar .btn').forEach(b => b.disabled = true);
                 }
             }
-            // ── Tranche tracker, delta heatmap, SIP comparison ──
             function renderTrancheTracker() {
                 let panel = document.getElementById('tranchePanel');
                 if (!panel) return;
@@ -8282,11 +8199,7 @@ This is exactly how the system is meant to be played.
                     const url = code.startsWith('SM') ?
                         `https://npsnav.in/api/historical/${code}` :
                         `https://api.mfapi.in/mf/${code}`;
-                    let res = await fetch(url, { signal: AbortSignal.timeout(12000) });
-                    if (!res.ok) {
-                        // retry once
-                        try { res = await fetch(url, { signal: AbortSignal.timeout(8000) }); } catch(_) {}
-                    }
+                    const res = await fetch(url);
                     const raw = await res.json();
                     const hist = (raw.data || [])
                         .map(d => ({
@@ -8369,7 +8282,7 @@ This is exactly how the system is meant to be played.
                     `https://npsnav.in/api/historical/${code}` :
                     `https://api.mfapi.in/mf/${code}`;
                 try {
-                    const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+                    const res = await fetch(url);
                     const raw = await res.json();
                     const hist = (raw.data || [])
                         .map(d => ({
@@ -8905,36 +8818,16 @@ This is exactly how the system is meant to be played.
                     }
                 }
             }
-            // ════ SECTION: WATCHLIST & SWITCH BRIDGE ══════════════════════════════
             function openWatchlist() {
+                if (_watchlistRefreshTimer) { clearInterval(_watchlistRefreshTimer); _watchlistRefreshTimer = null; }
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('watchlistModal').style.display = 'flex';
                 renderWatchlistStubs();
                 refreshWatchlist();
-                renderSwitchBridgeGrid();
-                renderSwitchBridgeNpsGrid();
-                refreshLiveBridgePnL();
-                if (window._renderTmSwapNotification) window._renderTmSwapNotification();
+                renderSwitchBridgeGrid();       
+                renderSwitchBridgeNpsGrid();    
+                refreshLiveBridgePnL();         
                 _watchlistRefreshTimer = setInterval(refreshWatchlist, 60_000);
-                // Populate BA download counter
-                try {
-                    const _dk = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
-                    let _q = []; try { _q = JSON.parse(localStorage.getItem(`bg_ba_queue_${_dk}`)||'[]'); } catch(_){}
-                    const _wlQ = _q.filter(it => it.source === 'watchlist');
-                    const _el = document.getElementById('wlBaDownloadCount');
-                    if (_el) {
-                        if (_wlQ.length > 0) {
-                            const _done = _wlQ.filter(it => it.done && !!localStorage.getItem(`breadth_v1_${(it.code||'').replace(/\W/g,'_')}_${_dk}`)).length;
-                            _el.textContent = `${_done}/${_wlQ.length}`;
-                        } else {
-                            // Queue not built yet — raw watchlist count
-                            const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
-                            let _done = 0;
-                            _wl.forEach(f => { if (localStorage.getItem(`breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dk}`)) _done++; });
-                            _el.textContent = `${_done}/${_wl.length}`;
-                        }
-                    }
-                } catch(_) {}
             }
             function openLiveBridge() {
                 openWatchlist();
@@ -8952,24 +8845,6 @@ This is exactly how the system is meant to be played.
                     }
                 } catch(_) {
                     try { bridge = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}'); } catch(_) {}
-                }
-                // LD250: Auto-populate from TM snapshot if bridge is empty
-                if (!Object.keys(bridge).length) {
-                    try {
-                        const snap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null');
-                        if (snap && snap.top2 && snap.top2.length) {
-                            const amcOrder = ['ABSL','KOTAK','ICICI','HDFC'];
-                            snap.top2.forEach((f, idx) => {
-                                const amc = (f.name || '').toUpperCase().includes('ABSL') || (f.name||'').toUpperCase().includes('ADITYA') ? 'ABSL'
-                                          : (f.name||'').toUpperCase().includes('KOTAK') ? 'KOTAK'
-                                          : (f.name||'').toUpperCase().includes('ICICI') ? 'ICICI'
-                                          : (f.name||'').toUpperCase().includes('HDFC') ? 'HDFC' : amcOrder[idx] || null;
-                                if (amc && f.code) {
-                                    bridge[amc] = { code: f.code, name: f.name, r1m: f.r1m, wrsi: f.wrsi, regime: f.regime, ts: snap.ts, _fromTm: true };
-                                }
-                            });
-                        }
-                    } catch(_) {}
                 }
                 const amcOrder = [
                     ['ABSL',  '#00b4d8'],
@@ -9003,7 +8878,7 @@ This is exactly how the system is meant to be played.
                     amcLbl.textContent = amc;
                     box.appendChild(amcLbl);
                     if (hasData) {
-                        // ── Alert badge pill ──
+                        // === FIX 1b: Alert badge — top-right red pill if alert exists ===
                         if (entry.latestAlert) {
                             const isRed   = (entry.latestAlertClass || '').includes('danger');
                             const isGreen = (entry.latestAlertClass || '').includes('buy');
@@ -9020,7 +8895,7 @@ This is exactly how the system is meant to be played.
                             badge.textContent = isRed ? '🚨 Alert' : isGreen ? '🟢 Alert' : '⚠ Alert';
                             box.appendChild(badge);
                         }
-                        // ── Fund name display ──
+                        // === FIX 1c: Line 2 — fund name font +50% (0.66 → 0.99rem) ===
                         const nm = document.createElement('div');
                         nm.style.cssText = 'font-size:0.99rem;font-weight:400;color:var(--text);line-height:1.3;';
                         nm.textContent = (entry.name || '')
@@ -9031,7 +8906,7 @@ This is exactly how the system is meant to be played.
                             .slice(0, 32);
                         box.appendChild(nm);
                         if (entry.switchDate || entry.ts) {
-                            // ── Date display ──
+                            // === FIX 1c: Line 3 — date font +50% (0.44 → 0.66rem) ===
                             const dtEl = document.createElement('div');
                             dtEl.style.cssText = 'font-size:0.66rem;font-weight:400;color:var(--muted);';
                             const dtStr = entry.switchDate
@@ -9063,7 +8938,7 @@ This is exactly how the system is meant to be played.
                     } else {
                         const none = document.createElement('div');
                         none.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--muted2);margin-top:6px;line-height:1.5;';
-                        none.textContent = '— Run Allocator or open TM to auto-populate';
+                        none.textContent = '— Run Allocator to populate';
                         box.appendChild(none);
                     }
                     grid.appendChild(box);
@@ -9078,11 +8953,6 @@ This is exactly how the system is meant to be played.
                     bridge = (j.switches && Object.keys(j.switches).length) ? j.switches
                            : JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}');
                 } catch(_) {}
-                // LD250: load TM snapshot for BAF hurdle + auto-populate
-                let tmSnap = null;
-                try { tmSnap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
-                const bafR1m       = tmSnap?.bafR1m   ?? null;
-                const bafThreshold = tmSnap?.bafThreshold ?? null;
 
                 // ── NPS Fund Universe ──────────────────────────────────────────
                 // Code pattern: SM[pfm][type] where last digit = fund type
@@ -9108,70 +8978,25 @@ This is exactly how the system is meant to be played.
                 // Helper: live data from Asset Allocator cache or switch bridge
                 function _getLive(code) {
                     const today = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
-                    // LD250 Priority 1: per-fund morning scan cache (key written during _runMorningScan)
                     try {
                         const c = localStorage.getItem(`ld_morning_${code}_${today}`);
                         if (c) return JSON.parse(c);
                     } catch(_) {}
-                    // Priority 2: NPS live cache (saved by TM snapshot)
+                    // Try NPS allocator result cache
                     try {
                         const ac = localStorage.getItem(`ld_nps_live_${code}`);
-                        if (ac) {
-                            const _d = JSON.parse(ac);
-                            // Only use if fresh (today)
-                            const _ts = _d.ts || 0;
-                            const _tsDate = new Date(_ts+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
-                            if (_tsDate === today) return _d;
-                        }
+                        if (ac) return JSON.parse(ac);
                     } catch(_) {}
-                    // Priority 3: Alert scan cache
-                    try {
-                        const _alertRaw = localStorage.getItem(`ld_alerts_${today}`);
-                        if (_alertRaw) {
-                            const _alertData = JSON.parse(_alertRaw);
-                            const _allItems = Object.values(_alertData.results || {}).flat().filter(Boolean);
-                            const _match = _allItems.find(it => it && it.code === code);
-                            if (_match) return { wrsi: _match.wrsi, regime: _match.regime, r1m: _match.r1m };
-                        }
-                    } catch(_) {}
-                    // Priority 4: switch bridge fallback
+                    // Fallback: switch bridge
                     for (const k of Object.keys(bridge)) {
                         if (bridge[k]?.code === code) return bridge[k];
                     }
                     return null;
                 }
 
-                // LD250: Use TM snapshot for NPS PFM selection (not static formula)
-                const _PFM_NAMES = { 'SM008':'HDFC', 'SM007':'ICICI', 'SM005':'KOTAK', 'SM010':'ABSL' };
-                let _tmNpsEquityPfm = null, _tmNpsDebtPfm = null;
-                if (tmSnap) {
-                    // If TM was run in NPS mode, top2 contains E and C selections
-                    if (tmSnap.allocType === 'NPS' && tmSnap.top2?.length) {
-                        tmSnap.top2.forEach(f => {
-                            const _d = (f.code||'').slice(-1);
-                            if (_d==='1'||_d==='4') _tmNpsEquityPfm = (f.code||'').slice(0,5); // prefix = PFM
-                            if (_d==='2'||_d==='5') _tmNpsDebtPfm   = (f.code||'').slice(0,5);
-                        });
-                    }
-                    // Also check held1/held2 from TM for NPS
-                    if (!_tmNpsEquityPfm && tmSnap.held1?.code?.startsWith('SM')) {
-                        const _d = (tmSnap.held1.code||'').slice(-1);
-                        if (_d==='1'||_d==='4') _tmNpsEquityPfm = tmSnap.held1.code.slice(0,5);
-                    }
-                    if (!_tmNpsDebtPfm && tmSnap.held2?.code?.startsWith('SM')) {
-                        const _d = (tmSnap.held2.code||'').slice(-1);
-                        if (_d==='2'||_d==='5') _tmNpsDebtPfm = tmSnap.held2.code.slice(0,5);
-                    }
-                }
-                // Fallback to static formula only if TM snapshot has no NPS data
-                const pfmRec = (_tmNpsEquityPfm || _tmNpsDebtPfm) ? {
-                    equity:   { pfm: _PFM_NAMES[_tmNpsEquityPfm] || '—' },
-                    corpDebt: { pfm: _PFM_NAMES[_tmNpsDebtPfm]   || '—' }
-                } : (typeof _getPfmRecommendation === 'function'
+                const pfmRec = typeof _getPfmRecommendation === 'function'
                     ? _getPfmRecommendation()
-                    : { equity:{pfm:'—'}, corpDebt:{pfm:'—'} });
-                // isRec: match by PFM code prefix (more reliable than name string matching)
-                const _isRecByPrefix = (fCode, selPrefix) => selPrefix && (fCode||'').startsWith(selPrefix);
+                    : { equity:{pfm:'—',color:'var(--muted)',rationale:''}, corpDebt:{pfm:'—',color:'var(--muted)',rationale:''} };
 
                 grid.innerHTML = '';
 
@@ -9185,10 +9010,7 @@ This is exactly how the system is meant to be played.
                     // Section header
                     const hdr = document.createElement('div');
                     hdr.style.cssText = 'display:flex;align-items:center;gap:8px;margin:6px 0 3px;grid-column:1/-1;';
-                    const bafHurdleTag = (bafThreshold !== null)
-                        ? `<span style="font-size:0.38rem;color:#f59e0b;border:1px solid #f59e0b55;padding:1px 5px;border-radius:3px;font-family:var(--mono);">BAF Hurdle ≥ ${bafThreshold.toFixed(1)}% | ★=Selected</span>`
-                        : `<span style="font-size:0.38rem;color:var(--muted);font-family:var(--mono);">Run TM for hurdle rate | ★=Selected</span>`;
-                    hdr.innerHTML = `<span style="font-size:0.44rem;font-weight:700;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;font-family:var(--mono);">${label}</span><div style="flex:1;height:1px;background:var(--border);"></div>${bafHurdleTag}`;
+                    hdr.innerHTML = `<span style="font-size:0.44rem;font-weight:700;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;font-family:var(--mono);">${label}</span><div style="flex:1;height:1px;background:var(--border);"></div>`;
                     grid.appendChild(hdr);
 
                     // One card per PFM
@@ -9238,13 +9060,10 @@ This is exactly how the system is meant to be played.
                             const r1m    = live?.r1m   != null ? live.r1m.toFixed(1)  : '—';
                             const rc     = regime==='A'?'#00916e':regime==='C'?'#c8102e':regime==='B'?'#f59e0b':'var(--muted)';
 
-                            // LD250: isRec via TM prefix match (E → equity selection, C → debt selection)
-                            const isRecE = fType==='E' && _isRecByPrefix(f.code, _tmNpsEquityPfm);
-                            const isRecC = fType==='C' && _isRecByPrefix(f.code, _tmNpsDebtPfm);
-                            // Fallback to name match if TM snapshot has no NPS data
-                            const isRecE_fb = !_tmNpsEquityPfm && fType==='E' && pfmRec.equity?.pfm?.toUpperCase().includes(pfmName.toUpperCase());
-                            const isRecC_fb = !_tmNpsDebtPfm   && fType==='C' && pfmRec.corpDebt?.pfm?.toUpperCase().includes(pfmName.toUpperCase());
-                            const isRec  = isRecE || isRecC || isRecE_fb || isRecC_fb;
+                            // Is this the recommended type?
+                            const isRecE = fType==='E' && pfmRec.equity?.pfm?.toUpperCase().includes(pfmName.toUpperCase());
+                            const isRecC = fType==='C' && pfmRec.corpDebt?.pfm?.toUpperCase().includes(pfmName.toUpperCase());
+                            const isRec  = isRecE || isRecC;
 
                             const row = document.createElement('div');
                             row.style.cssText = `
@@ -9254,24 +9073,12 @@ This is exactly how the system is meant to be played.
                                 border:${isRec ? `1px solid ${fColor}44` : '1px solid transparent'};
                             `;
                             row.onclick = (e) => { e.stopPropagation(); launchLiveFromAlert(f.code); };
-                            // LD250: BAF hurdle rate comparison for E and C fund types
-                            let hurdleHtml = '';
-                            if ((fType === 'E' || fType === 'C') && r1m !== '—' && bafThreshold !== null) {
-                                const r1mNum = parseFloat(r1m);
-                                const beatsHurdle = r1mNum >= bafThreshold;
-                                const hurdleColor = beatsHurdle ? '#00916e' : '#c8102e';
-                                const hurdleIcon = beatsHurdle ? '✓' : '✗';
-                                hurdleHtml = `<span style="font-size:0.38rem;color:${hurdleColor};font-family:var(--mono);flex-shrink:0;" title="BAF Hurdle: ${bafThreshold.toFixed(1)}%">${hurdleIcon}${bafThreshold.toFixed(1)}%</span>`;
-                            }
-                            const selectedMark = isRec ? `<span style="font-size:0.44rem;color:${fColor};font-family:var(--mono);flex-shrink:0;">★ SEL</span>` : '';
                             row.innerHTML = `
                                 <span style="font-size:0.48rem;font-weight:700;color:${fColor};min-width:20px;font-family:var(--mono);">${fType}</span>
                                 <span style="font-size:0.44rem;color:${isRec?fColor:'var(--muted)'};flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${fLabel}</span>
                                 ${wrsi!=='—' ? `<span style="font-size:0.4rem;color:var(--muted);font-family:var(--mono);">RSI ${wrsi}</span>` : ''}
                                 <span style="font-size:0.38rem;color:${rc};border:1px solid ${rc}44;padding:0 3px;border-radius:2px;flex-shrink:0;">${regime}</span>
                                 ${r1m!=='—' ? `<span style="font-size:0.4rem;color:${parseFloat(r1m)>=0?'#00916e':'var(--red)'};font-family:var(--mono);">${parseFloat(r1m)>=0?'+':''}${r1m}%</span>` : ''}
-                                ${hurdleHtml}
-                                ${selectedMark}
                                 <span style="font-size:0.44rem;color:var(--muted2);flex-shrink:0;">📈</span>
                             `;
                             card.appendChild(row);
@@ -9280,16 +9087,13 @@ This is exactly how the system is meant to be played.
                         // ── Bottom: recommended PFM for this type ──
                         const recRow = document.createElement('div');
                         recRow.style.cssText = 'display:flex;gap:4px;margin-top:2px;flex-wrap:wrap;';
-                        const recE = _isRecByPrefix(pfx+'1', _tmNpsEquityPfm) || _isRecByPrefix(pfx+'4', _tmNpsEquityPfm)
-                                  || (!_tmNpsEquityPfm && pfmRec.equity?.pfm?.toUpperCase().includes(pfmName.toUpperCase()));
-                        const recC = _isRecByPrefix(pfx+'2', _tmNpsDebtPfm)   || _isRecByPrefix(pfx+'5', _tmNpsDebtPfm)
-                                  || (!_tmNpsDebtPfm && pfmRec.corpDebt?.pfm?.toUpperCase().includes(pfmName.toUpperCase()));
-                        const _recSrc = (_tmNpsEquityPfm || _tmNpsDebtPfm) ? 'TM' : 'formula';
+                        const recE = pfmRec.equity?.pfm?.toUpperCase().includes(pfmName.toUpperCase());
+                        const recC = pfmRec.corpDebt?.pfm?.toUpperCase().includes(pfmName.toUpperCase());
                         if (recE) {
-                            recRow.innerHTML += `<span style="font-size:0.38rem;color:#00916e;border:1px solid #00916e44;padding:1px 4px;border-radius:3px;">▶ Equity pick (${_recSrc})</span>`;
+                            recRow.innerHTML += `<span style="font-size:0.38rem;color:#00916e;border:1px solid #00916e44;padding:1px 4px;border-radius:3px;">▶ Equity pick</span>`;
                         }
                         if (recC) {
-                            recRow.innerHTML += `<span style="font-size:0.38rem;color:#3b82f6;border:1px solid #3b82f644;padding:1px 4px;border-radius:3px;">▶ Debt pick (${_recSrc})</span>`;
+                            recRow.innerHTML += `<span style="font-size:0.38rem;color:#3b82f6;border:1px solid #3b82f644;padding:1px 4px;border-radius:3px;">▶ Debt pick</span>`;
                         }
                         if (recRow.innerHTML) card.appendChild(recRow);
 
@@ -9301,208 +9105,7 @@ This is exactly how the system is meant to be played.
                     });
                 });
             }
-            // ── TM SWAP AUTO-NOTIFICATION ──────────────────────────────────────────
-            window._renderTmSwapNotification = function() {
-                let snap = null;
-                try { snap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
-
-                // Build swaps list — support both new format (snap.swaps) and old (snap.c3a/c3b)
-                let triggeredSwaps = [];
-                if (snap?.swaps?.length) {
-                    triggeredSwaps = snap.swaps.filter(s => s.triggered);
-                } else if (snap) {
-                    // Backwards compat: old snapshot has c3a / c3b
-                    if (snap.c3a?.triggered) {
-                        triggeredSwaps.push({ slot: 1, triggered: true, held: snap.held1, unowned: snap.c3a, spread: snap.c3a.spread });
-                    }
-                    if (snap.c3b?.triggered) {
-                        triggeredSwaps.push({ slot: 2, triggered: true, held: snap.held2, unowned: snap.c3b, spread: snap.c3b.spread });
-                    }
-                }
-
-                ['wlSwapNotification', 'alertSwapNotification'].forEach(id => {
-                    const box = document.getElementById(id);
-                    if (!box) return;
-                    if (!triggeredSwaps.length) {
-                        box.style.display = 'none';
-                        box.innerHTML = '';
-                        return;
-                    }
-                    const _istDate = snap.istDate || '—';
-                    const _allocType = snap.allocType || 'MF';
-                    let html = `<div style="background:rgba(0,158,112,0.10);border:1.5px solid #009e70;border-radius:6px;padding:7px 10px;margin:0 0 4px;">
-                        <div style="font-size:0.52rem;font-weight:700;color:#009e70;margin-bottom:2px;letter-spacing:0.06em;">
-                            ⚡ MOMENTUM SWAP ALERT &nbsp;·&nbsp; ${_istDate} &nbsp;·&nbsp; ${_allocType}
-                        </div>`;
-                    triggeredSwaps.forEach(s => {
-                        const heldName = (s.held?.name || '—').replace(/ - Growth| - Direct/gi, '').trim();
-                        const unwnName = (s.unowned?.name || '—').replace(/ - Growth| - Direct/gi, '').trim();
-                        const heldR1m  = typeof s.held?.r1m   === 'number' ? s.held.r1m.toFixed(1)   : '--';
-                        const unwnR1m  = typeof s.unowned?.r1m === 'number' ? s.unowned.r1m.toFixed(1) : '--';
-                        const spread   = typeof s.spread === 'number' ? s.spread.toFixed(1) : '--';
-                        html += `<div style="margin-top:5px;padding:5px 7px;background:rgba(255,255,255,0.06);border-radius:4px;border-left:3px solid #009e70;">
-                            <div style="font-size:0.48rem;color:var(--muted);font-family:var(--mono);margin-bottom:2px;">SLOT ${s.slot}</div>
-                            <div style="font-size:0.54rem;line-height:1.8;">
-                                Switch from&nbsp; <span style="color:#c8102e;font-weight:700;">${heldName}</span>&nbsp;
-                                <span style="color:var(--muted);font-size:0.46rem;">(1M: ${heldR1m}%)</span>
-                            </div>
-                            <div style="font-size:0.54rem;line-height:1.8;">
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp; <span style="color:#009e70;font-weight:700;">${unwnName}</span>&nbsp;
-                                <span style="color:var(--muted);font-size:0.46rem;">(1M: ${unwnR1m}% · +${spread}% better)</span>
-                            </div>
-                        </div>`;
-                    });
-                    html += `</div>`;
-                    box.innerHTML = html;
-                    box.style.display = 'block';
-                });
-            };
-            // ── FULL CONFIG BACKUP / RESTORE ──────────────────────────────────────
-            const CONFIG_KEYS = [
-                'ld_gemini_api_key', 'ld_gemini_api_key2', 'ld_gemini_model',
-                'ld_api_gap_sec', 'ld_watchlist', 'ld_tm_snapshot',
-                'ld_switch_bridge', 'ld_switch_journal',
-                'ld_streak_count', 'ld_streak_best', 'ld_active_key_slot',
-                // Daily scan state — prevents BA/morning scan restarting after restore
-                'ld_v3_morning_scan_date', 'ld_last_version',
-                'ld_v3_amc', 'ld_v3_fund', 'ld_v3_rsi_length'
-            ];
-            function _configBackupExport() {
-                try {
-                    const blob = {};
-                    CONFIG_KEYS.forEach(k => {
-                        const v = localStorage.getItem(k);
-                        if (v !== null) blob[k] = v;
-                    });
-                    const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
-                    ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
-                        const v = localStorage.getItem(prefix + _todayKey);
-                        if (v !== null) blob[prefix + _todayKey] = v;
-                    });
-                    blob['ld_last_version'] = 'LD251';
-                    // Base64 encode — safe from ALL HTML/JS escaping issues
-                    const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
-                    const currentHtml = document.documentElement.outerHTML;
-                    const newHtml = currentHtml.replace(
-                        /(<script[^>]*id="LD251_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
-                        (_, open, close) => open + configB64 + close
-                    );
-                    const wl = JSON.parse(blob['ld_watchlist'] || '[]');
-                    const date = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
-                    const fname = `LD251_${date}_${wl.length}funds.html`;
-                    const a = document.createElement('a');
-                    a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(newHtml);
-                    a.download = fname;
-                    a.click();
-                    const st = document.getElementById('configBackupStatus');
-                    if (st) { st.style.color='#009e70'; st.textContent = `✅ Self-restoring HTML saved: ${fname}  (${wl.length} funds baked in — no restore step needed)`; }
-                } catch(e) {
-                    const st = document.getElementById('configBackupStatus');
-                    if (st) { st.style.color='#c8102e'; st.textContent = '⚠ Backup failed: '+e.message; }
-                }
-            }
-            function _configBackupImport(file) {
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    try {
-                        let blob;
-                        const raw = ev.target.result;
-                        let fileType = 'unknown';
-
-                        if (raw.trim().startsWith('<!DOCTYPE') || raw.trim().startsWith('<html')) {
-                            // ── TYPE 1: Self-restoring HTML backup
-                            // Config is base64-encoded inside <script id="LD251_EMBED">
-                            fileType = 'html';
-                            const match = raw.match(/<script[^>]*id="LD251_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
-                                         raw.match(/<script[^>]*id="LD250_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
-                                         raw.match(/<script[^>]*id="LD249A_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
-                                         raw.match(/<script[^>]*id="LD248D_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
-                                         raw.match(/<script[^>]*id="LD247_EMBED"[^>]*>([\s\S]*?)<\/script>/);
-                            if (!match || !match[1] || match[1].trim() === 'null') {
-                                throw new Error('HTML file has no embedded config — use a full HTML backup, not the base app');
-                            }
-                            const b64 = match[1].trim();
-                            blob = JSON.parse(decodeURIComponent(escape(atob(b64))));
-
-                        } else {
-                            const parsed = JSON.parse(raw);
-
-                            if (parsed.switches && typeof parsed.switches === 'object' &&
-                                !parsed.ld_watchlist && !parsed.ld_gemini_api_key) {
-                                // ── TYPE 2: Switch Journal export
-                                // Structure: { version, switches:{HDFC:{...}, ICICI:{...}}, lastUpdated }
-                                // Restore ONLY the switch journal + bridge — not a full config file
-                                fileType = 'switch_journal';
-                                localStorage.setItem('ld_switch_journal', JSON.stringify(parsed));
-                                localStorage.setItem('ld_switch_bridge', JSON.stringify(parsed.switches));
-                                if (typeof renderSwitchBridgeGrid === 'function') renderSwitchBridgeGrid();
-                                if (typeof renderSwitchBridgeNpsGrid === 'function') renderSwitchBridgeNpsGrid();
-                                if (typeof refreshLiveBridgePnL === 'function') refreshLiveBridgePnL();
-                                const st = document.getElementById('configBackupStatus');
-                                const n = Object.keys(parsed.switches || {}).length;
-                                if (st) { st.style.color='#009e70'; st.textContent = `✅ Switch Journal restored: ${n} AMC entries`; }
-                                return; // no reload needed for journal-only restore
-
-                            } else {
-                                // ── TYPE 3: Full JSON config backup
-                                fileType = 'json_config';
-                                blob = parsed;
-                            }
-                        }
-
-                        // Restore full config blob (TYPE 1 or TYPE 3)
-                        let count = 0;
-                        CONFIG_KEYS.forEach(k => {
-                            if (blob[k] !== undefined) { localStorage.setItem(k, blob[k]); count++; }
-                        });
-                        // Also restore today's BA-run flags
-                        const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
-                        ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
-                            if (blob[prefix + _todayKey] !== undefined) localStorage.setItem(prefix + _todayKey, blob[prefix + _todayKey]);
-                        });
-                        localStorage.setItem('ld_last_version', 'LD251');
-                        // Reload watchlist into memory
-                        try { _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(_) {}
-                        const wl = _watchlist.length;
-                        const hasKey   = !!localStorage.getItem('ld_gemini_api_key');
-                        const hasBridge = Object.keys(JSON.parse(localStorage.getItem('ld_switch_bridge')||'{}')).length;
-                        const st = document.getElementById('configBackupStatus');
-                        if (st) { st.style.color='#009e70'; st.textContent = `✅ Restored [${fileType}]: ${count} settings · ${wl} funds · bridge:${hasBridge} AMCs · key:${hasKey?'✓':'✗'} — Reloading…`; }
-                        renderWatchlistStubs();
-                        setTimeout(() => location.reload(), 1800);
-                    } catch(e) {
-                        const st = document.getElementById('configBackupStatus');
-                        if (st) { st.style.color='#c8102e'; st.textContent = '⚠ Import failed: '+e.message; }
-                    }
-                };
-                reader.readAsText(file);
-            }
-            window._configBackupExport = _configBackupExport;
-            window._configBackupImport = _configBackupImport;
-            window.renderWatchlistStubs = renderWatchlistStubs;
-            // ── Startup: show prominent banner if API key is missing ──────────────
-            (function _checkFirstRun() {
-                // Always stamp current version into storage (for next-load comparison)
-                localStorage.setItem('ld_last_version', 'LD251');
-                const hasKey = !!localStorage.getItem('ld_gemini_api_key');
-                const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist')||'[]')).length > 0;
-                if (!hasKey && !hasWl) {
-                    setTimeout(() => {
-                        const banner = document.getElementById('firstRunBanner');
-                        const bannerTitle = banner?.querySelector('.firstRunTitle');
-                        const bannerMsg   = banner?.querySelector('.firstRunMsg');
-                        // Storage was cleared by Android Chrome (same file, different session)
-                        // Show correct message — NOT "New Version"
-                        if (bannerTitle) bannerTitle.textContent = '⚠ Config not found — Browser cleared storage';
-                        if (bannerMsg) bannerMsg.textContent = 'Android Chrome clears file storage after a few hours in background. Open your LD_Config backup to restore keys, watchlist & settings.';
-                        if (banner) banner.style.display = 'block';
-                        const st = document.getElementById('configBackupStatus');
-                        if (st) { st.style.color='#c97a00'; st.textContent='⚠ Storage was cleared. Tap RESTORE CONFIG to reload your backup.'; }
-                    }, 500);
-                }
-            })();
-            // ── Watchlist CRUD helpers ──
+            // ── SECTION: WATCHLIST ──────────────────────────────────────────────
             function addCurrentToWatchlist() {
                 const code = document.getElementById('fundSelect')?.value;
                 const name = document.getElementById('fundSelect')?.options[document.getElementById('fundSelect').selectedIndex]?.text || code;
@@ -9702,7 +9305,7 @@ This is exactly how the system is meant to be played.
                     };
                 }
             }
-            // ════ SECTION: RSI & TECHNICAL INDICATORS ═══════════════════════════
+            // ── SECTION: RSI & TECHNICAL INDICATORS (IIFE) ─────────────────────
             (function() {
                 'use strict';
                 function buildDailyRsiFast(allPrices, period = 4) {
@@ -10201,7 +9804,6 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
                     }
                 },
             };
-            // ── Momentum & WMA helpers ──
             function calcReturn(prices, lookback) {
                 if (prices.length <= lookback) return 0;
                 const current = prices[prices.length - 1];
@@ -10365,7 +9967,6 @@ function buildWeeklyRsiFast(allPrices, period = 4, allDates = null) {
                     ctx.stroke();
                 }
             }
-            // ════ SECTION: RRG & REGIME SCANNER ══════════════════════════════════
             let currentRRGSelectedFundCode = null;
             async function runRegimeAScanner(zone) {
                 const currentToken = ++_activeScannerToken; 
@@ -10560,7 +10161,6 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                     return null;
                 }
             }
-            // ── Regime Change & Proxy scanner ──
             async function runRegimeChangeScanner() {
                 const currentToken = ++_activeScannerToken;
                 const ovEl = document.getElementById('ov');
@@ -10716,7 +10316,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                 for (const candidate of CANDIDATES) {
                     try {
                         const url  = `https://api.mfapi.in/mf/${candidate.code}`;
-                        const res  = await fetch(url, { signal: AbortSignal.timeout(12000) });
+                        const res  = await fetch(url);
                         if (!res.ok) continue;
                         const data = await res.json();
                         if (!data?.data || !Array.isArray(data.data) || data.data.length < 250) continue;
@@ -10805,7 +10405,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                 const processFund = async (fund) => {
                     try {
                         const url = fund.code.startsWith('SM') ? `https://npsnav.in/api/historical/${fund.code}` : `https://api.mfapi.in/mf/${fund.code}`;
-                        const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+                        const res = await fetch(url);
                         const data = await res.json();
                         if (!data?.data) return;
                         const rawRows = data.data.slice().reverse(); 
@@ -10851,12 +10451,8 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                     await Promise.all(batch.map(processFund));
                     completed += batch.length;
                     ovTxt.textContent = `FETCHING ${Math.min(completed, fundsToScan.length)}/${fundsToScan.length}...`;
-                    await new Promise(r => setTimeout(r, 0)); // yield to UI thread between batches
                 }
                 if (currentToken !== _activeScannerToken) return;
-                // Yield before heavy synchronous computation so overlay text repaints
-                ovTxt.textContent = 'CRUNCHING RRG MATRICES...';
-                await new Promise(r => setTimeout(r, 60));
                 if (fundCache.length === 0) {
                     ovEl.style.display = 'none';
                     document.getElementById('setupScreen').style.display = 'flex';
@@ -10870,6 +10466,7 @@ border-radius:var(--radius);padding:8px 10px;cursor:pointer;margin-bottom:6px;`;
                 const bench1m = niftyMom1m;
                 const bench2m = niftyMom2m;
                 const bench3m = niftyMom3m;
+                ovTxt.textContent = 'CRUNCHING RRG MATRICES...';
                 const allFunds = fundCache.map(({
                     fund,
                     prices,
@@ -11182,7 +10779,7 @@ ${d.tsl > 0
                         baf3m = bafData.mom3m;
                     }
                 }
-                // ── Store BAF comparison for AI context ──
+                // === FIX 2A: Store BAF comparison globally so AI context can access it ===
                 window._lastBafComparison = {
                     fundCode: fundData.code,
                     fundName: fundData.name,
@@ -11623,10 +11220,6 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 window._attachZoom = attachZoom;
             })(); 
             function _initZoom() {
-                if (typeof window._attachZoom !== 'function') {
-                    setTimeout(_initZoom, 200);
-                    return;
-                }
                 window._attachZoom('gameUI', false);
                 window._attachZoom('liveChartModal', false);
                 window._attachZoom('rrgDetailModal', true);
@@ -11789,7 +11382,6 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     STORE_META
                 };
             })();
-            // ════ SECTION: ASSET ALLOCATOR & TRIGGER MONITOR ═════════════════════
             function openAssetAllocator() {
                 let amc = 'HDFC';
                 const activeAmcBox = document.querySelector('#fundGrid .fund-box.active');
@@ -12251,12 +11843,12 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const c1Label    = c1trigger ? '🚨 EXIT — FEAR' : c1WatchWarn ? '⚠ WATCH — REDUCE' : '✓ SAFE';
                 const c1Color    = c1trigger ? '#c8102e' : c1WatchWarn ? '#c97a00' : '#009e70';
                 const c1Html = c1trigger || !c1WatchWarn
-                    ? condHTML('🔴', 'HAS THE CURRENT HOLDING EXITED REGIME HOPE?', c1detail, c1trigger, '🚨 EXIT — FEAR', '✓ SAFE')
+                    ? condHTML('🔴', 'CONDITION 1 — REGIME EXIT', c1detail, c1trigger, '🚨 EXIT — FEAR', '✓ SAFE')
                     : (() => {
                         return `<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);border:1px solid rgba(201,122,0,0.4);background:rgba(201,122,0,0.08);">
                             <div style="font-size:0.9rem;flex-shrink:0;margin-top:1px;">🟡</div>
                             <div style="flex:1;">
-                                <div style="font-size:0.6rem;font-weight:700;color:var(--text);margin-bottom:2px;">HAS THE CURRENT HOLDING EXITED REGIME HOPE?</div>
+                                <div style="font-size:0.6rem;font-weight:700;color:var(--text);margin-bottom:2px;">CONDITION 1 — REGIME EXIT</div>
                                 <div style="font-size:0.56rem;color:var(--muted2);line-height:1.5;">${c1detail}</div>
                             </div>
                             <div style="flex-shrink:0;font-size:0.52rem;font-weight:700;color:#c97a00;border:1px solid #c97a00;border-radius:3px;padding:2px 5px;white-space:nowrap;margin-top:1px;">⚠ WATCH — REDUCE</div>
@@ -12266,7 +11858,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const c2detail = bafLive ? `AMC BAF (${bafLive.name}): 1M = ${bafLiveMom.toFixed(1)}%<br>Hurdle Rate (+2%) = <strong>${bafThreshold.toFixed(1)}%</strong><br>` +
                     `${held1?.name ?? '—'}: 1M = ${held1?.r1m?.toFixed(1) ?? '--'}% ${held1BeatsBAF ? '✓' : '✗'}<br>` +
                     `${held2?.name ?? '—'}: 1M = ${held2?.r1m?.toFixed(1) ?? '--'}% ${held2BeatsBAF ? '✓' : '✗'}` : 'BAF not found in AMC universe.';
-                document.getElementById('tmCond2').outerHTML = `<div id="tmCond2">${condHTML('🛡️', 'IS THE CURRENT HOLDING BEATING THE HURDLE RATE?', c2detail, c2trigger, '⚠ RETREAT TO BAF', '✓ BEATING BAF')}</div>`;
+                document.getElementById('tmCond2').outerHTML = `<div id="tmCond2">${condHTML('🛡️', 'CONDITION 2 — BAF ALPHA GATE', c2detail, c2trigger, '⚠ RETREAT TO BAF', '✓ BEATING BAF')}</div>`;
                 const _c3FundLink = (fund, triggered) => {
                     if (!fund) return '—';
                     const style = triggered
@@ -12277,12 +11869,22 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                         : `launchLiveFromAlert('${fund.code}')`;
                     return `<span style="${style}" onclick="${onclick}">${fund.name.replace(/ - Growth| - Direct/gi,'').trim()}</span>`;
                 };
+                let c3detail = `<em style="font-size:0.5rem;color:var(--muted);">Only Regime Hope funds considered as swap candidates.</em><br>`;
                 const _settlingSuffix = (fund) => {
                     if (fund && _lpPendingCodes.has(fund.code)) {
-                        return ` <span style="color:#f59e0b;font-size:0.5rem;">⏳ settling</span>`;
+                        return ` <span style="color:#f59e0b;font-size:0.5rem;">⏳ settling — badge suppressed</span>`;
                     }
                     return '';
                 };
+                if (c3aSpread !== null) {
+                    c3detail += `C3a — Best unowned: ${_c3FundLink(bestUnowned, c3aDisplay)}: 1M = ${bestUnowned?.r1m?.toFixed(1) ?? '--'}%${_settlingSuffix(bestUnowned)}<br>`;
+                    c3detail += `Held rank-1 (${held1?.name ?? '—'}): 1M = ${held1?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3aSpread.toFixed(1)}%</strong> ${c3aTrigger ? (c3aDisplay ? '⚠ >2%' : '⏳ >2% — settling') : '✓ ≤2%'}<br>`;
+                }
+                if (c3bSpread !== null) {
+                    c3detail += `C3b — 2nd unowned: ${_c3FundLink(secondUnowned, c3bDisplay)}: 1M = ${secondUnowned?.r1m?.toFixed(1) ?? '--'}%${_settlingSuffix(secondUnowned)}<br>`;
+                    c3detail += `Held rank-2 (${held2?.name ?? '—'}): 1M = ${held2?.r1m?.toFixed(1) ?? '--'}%  Spread = <strong>${c3bSpread.toFixed(1)}%</strong> ${c3bTrigger ? (c3bDisplay ? '⚠ >2%' : '⏳ >2% — settling') : '✓ ≤2%'}`;
+                }
+                if (c3aSpread === null && c3bSpread === null) c3detail += 'Insufficient Regime Hope candidates for comparison.';
                 const c3NewFunds = [c3aDisplay ? bestUnowned : null, c3bDisplay ? secondUnowned : null].filter(Boolean);
                 const c3Badge = document.getElementById('assetAllocC3Badge');
                 if (c3Badge) {
@@ -12290,80 +11892,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     c3Badge.style.display = c3NewFunds.length > 0 ? 'inline' : 'none';
                 }
                 try { window._c3NewFundCount = c3NewFunds.length; } catch(_){}
-                // LD250: COMBINED C3 — single box for Slot 1 AND Slot 2 candidates
-                const _c3Swaps = []; // all triggered/near swaps
-                if (c3aSpread !== null) {
-                    _c3Swaps.push({ slot: 1, unowned: bestUnowned, held: held1, spread: c3aSpread, triggered: c3aTrigger, display: c3aDisplay });
-                }
-                if (c3bSpread !== null) {
-                    _c3Swaps.push({ slot: 2, unowned: secondUnowned, held: held2, spread: c3bSpread, triggered: c3bTrigger, display: c3bDisplay });
-                }
-                const _anyTriggered = _c3Swaps.some(s => s.display);
-                // Build combined box content
-                let c3combinedBody = `<em style="font-size:0.5rem;color:var(--muted);">Only Regime Hope funds considered. Swap triggers when unowned beats held by &gt;2%.</em><br><br>`;
-                if (_c3Swaps.length === 0) {
-                    c3combinedBody += 'Insufficient Regime Hope candidates for comparison.';
-                } else {
-                    _c3Swaps.forEach(s => {
-                        const _heldName  = (s.held?.name||'—').replace(/ - Growth| - Direct/gi,'').trim();
-                        const _unwnName  = (s.unowned?.name||'—').replace(/ - Growth| - Direct/gi,'').trim();
-                        const _heldR1m   = s.held?.r1m?.toFixed(1) ?? '--';
-                        const _unwnR1m   = s.unowned?.r1m?.toFixed(1) ?? '--';
-                        const _spreadStr = s.spread?.toFixed(1) ?? '--';
-                        const _settling  = s.unowned && _lpPendingCodes.has(s.unowned.code) ? ' <span style="color:#f59e0b;font-size:0.48rem;">⏳ settling</span>' : '';
-                        if (s.display) {
-                            // TRIGGERED — show Switch from RED → GREEN prominently
-                            c3combinedBody += `<div style="background:rgba(0,158,112,0.08);border:1px solid #009e7055;border-radius:5px;padding:5px 7px;margin:4px 0;">
-                                <div style="font-size:0.52rem;font-weight:700;color:#009e70;margin-bottom:3px;">⚡ SLOT ${s.slot} — SWAP TRIGGERED</div>
-                                <div style="font-size:0.54rem;line-height:1.6;">
-                                    Switch from <span style="color:#c8102e;font-weight:700;cursor:pointer;" onclick="launchLiveFromAlert('${s.held?.code||''}')">${_heldName}</span> <span style="color:var(--muted);">(1M: ${_heldR1m}%)</span><br>
-                                    ↓ to &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#009e70;font-weight:700;cursor:pointer;text-decoration:underline;" onclick="launchBridgeSimulation('${s.unowned?.code||''}',null)">${_unwnName}</span> <span style="color:var(--muted);">(1M: ${_unwnR1m}%)${_settling}</span><br>
-                                    <span style="color:#009e70;font-size:0.48rem;">Spread: +${_spreadStr}% above slot ${s.slot} holding</span>
-                                </div>
-                            </div>`;
-                        } else {
-                            // Not triggered — compact summary
-                            c3combinedBody += `<div style="padding:3px 0;font-size:0.5rem;color:var(--muted);">
-                                Slot ${s.slot}: <span style="color:#c8102e;">${_heldName}</span> (${_heldR1m}%) vs <span style="color:var(--muted2);">${_unwnName}</span> (${_unwnR1m}%) — Spread <strong>${_spreadStr}%</strong> ✓ ≤2%
-                            </div>`;
-                        }
-                    });
-                }
-                const _c3combEl = document.getElementById('tmCond3combined');
-                if (_c3combEl) {
-                    _c3combEl.outerHTML = `<div id="tmCond3combined">${condHTML('🔄', 'ANY UNOWNED FUND WITH BETTER 1-MONTH MOMENTUM THAN SLOT 1 OR SLOT 2?', c3combinedBody, _anyTriggered, '⚠ SWAP AVAILABLE', '✓ HOLD — NO SWAP NEEDED')}</div>`;
-                }
-                // LD250: Save TM snapshot to localStorage for persistent Switch Bridge + Alerts
-                try {
-                    const _tmSnap = {
-                        ts: Date.now(),
-                        istDate: new Date(Date.now()+5.5*3600000).toISOString().slice(0,10),
-                        top2: lastAlloc.top2 ? lastAlloc.top2.map(f => ({
-                            code: f.code, name: f.name, r1m: f.r1m, wrsi: f.wrsi, regime: f.regime
-                        })) : [],
-                        swaps: _c3Swaps.map(s => ({
-                            slot: s.slot,
-                            triggered: s.display,
-                            held:    s.held    ? { code: s.held.code,    name: s.held.name,    r1m: s.held.r1m    } : null,
-                            unowned: s.unowned ? { code: s.unowned.code, name: s.unowned.name, r1m: s.unowned.r1m } : null,
-                            spread:  s.spread
-                        })),
-                        c3a: bestUnowned ? { code: bestUnowned.code, name: bestUnowned.name, r1m: bestUnowned.r1m, wrsi: bestUnowned.wrsi, regime: bestUnowned.regime, spread: c3aSpread, triggered: c3aTrigger } : null,
-                        c3b: secondUnowned ? { code: secondUnowned.code, name: secondUnowned.name, r1m: secondUnowned.r1m, wrsi: secondUnowned.wrsi, regime: secondUnowned.regime, spread: c3bSpread, triggered: c3bTrigger } : null,
-                        bafName: bafLive?.name || '—',
-                        bafR1m: bafLiveMom,
-                        bafThreshold: bafThreshold,
-                        held1: held1 ? { code: held1.code, name: held1.name, r1m: held1.r1m, wrsi: held1.wrsi, regime: held1.regime } : null,
-                        held2: held2 ? { code: held2.code, name: held2.name, r1m: held2.r1m, wrsi: held2.wrsi, regime: held2.regime } : null,
-                        allocType: document.getElementById('assetAllocType')?.value || 'MF'
-                    };
-                    localStorage.setItem('ld_tm_snapshot', JSON.stringify(_tmSnap));
-                    for (const f of snapshot) {
-                        try { localStorage.setItem(`ld_nps_live_${f.code}`, JSON.stringify({ wrsi: f.wrsi, regime: f.regime, r1m: f.r1m, ts: Date.now() })); } catch(_) {}
-                    }
-                } catch(_) {}
-                // Render swap notifications in Watchlist + Alerts panels
-                if (window._renderTmSwapNotification) window._renderTmSwapNotification();
+                document.getElementById('tmCond3').outerHTML = `<div id="tmCond3">${condHTML('🔄', 'CONDITION 3 — MOMENTUM SWAP (Regime Hope only)', c3detail, c3triggerDisplay, '⚠ TRIGGER SWAP', '✓ HOLD')}</div>`;
                 el.style.display = 'block';
             }
             function renderAssetAllocatorBoxes(allocs) {
@@ -12475,15 +12004,10 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 </div>
                 <span class="modal-close-btn" onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';">[ CLOSE ]</span>
             </div>
-            <!-- LD250: TM Swap Auto-Notification — OUTSIDE content div so it survives scan redraws -->
-            <div id="alertSwapNotification" style="display:none;flex-shrink:0;margin:4px 8px 0;border-radius:6px;overflow:hidden;"></div>
             <div id="alertSummaryContent" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 96px;display:block;">
             </div>
         </div>
         <script>
-    // ════ SECTION 3: ALERT SYSTEM · SOP · DEPLOYMENT METER · ALPHA STRIP ════
-    (function() {
-    'use strict';
             // ── _renderAlertResults: renders cached or fresh alert results ──
             function _renderAlertResults(results, content, headerNote) {
                 const sub = document.getElementById('alertSummarySub');
@@ -12561,14 +12085,11 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const content = document.getElementById('alertSummaryContent');
                 modal.style.display = 'flex';
                 document.getElementById('setupScreen').style.display = 'none';
-                // LD250: Render TM swap notification immediately (no wait for scan)
-                if (window._renderTmSwapNotification) window._renderTmSwapNotification();
 
                 // ── Check daily cache first — never rescan same day ──────────
                 const _cached = _alertCacheLoad();
                 if (_cached && _cached.results) {
                     _renderAlertResults(_cached.results, content, `✅ Stored alerts — ${_cached.ts}`);
-                    if (window._renderTmSwapNotification) window._renderTmSwapNotification();
                     return;
                 }
 
@@ -12914,35 +12435,6 @@ categories.forEach(cat => {
                 ];
                 npsTierDefs.forEach(({ key, label, accent }) => {
                     const entry = (res.SHORTLISTED || []).find(e => e.amc === key);
-                    // LD250: Pull TM snapshot for NPS selected fund/PFM per Tier
-                    let tmSnapNps = null;
-                    try { tmSnapNps = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
-                    const tmBafR1m       = tmSnapNps?.bafR1m ?? null;
-                    const tmBafThreshold = tmSnapNps?.bafThreshold ?? null;
-                    // Build per-fund TM data lookup
-                    const _getNpsLive = (code) => {
-                        try {
-                            const d = localStorage.getItem(`ld_nps_live_${code}`);
-                            return d ? JSON.parse(d) : null;
-                        } catch(_) { return null; }
-                    };
-                    // Determine PFM from fund code prefix
-                    const _pfmFromCode = (code) => {
-                        if (!code) return '—';
-                        if (code.startsWith('SM008')) return 'HDFC';
-                        if (code.startsWith('SM007')) return 'ICICI';
-                        if (code.startsWith('SM005')) return 'KOTAK';
-                        if (code.startsWith('SM010')) return 'ABSL';
-                        return code.slice(0,5);
-                    };
-                    // Fund type from last digit
-                    const _typeFromCode = (code) => {
-                        const d = code?.slice(-1);
-                        if (d==='1'||d==='4') return 'E';
-                        if (d==='2'||d==='5') return 'C';
-                        if (d==='3'||d==='6') return 'H';
-                        return '?';
-                    };
                     const npsBox = document.createElement('div');
                     npsBox.style.cssText = `
                         background:var(--surface);
@@ -12972,45 +12464,6 @@ categories.forEach(cat => {
                         npsName.style.cssText = 'font-size:0.62rem;font-weight:400;color:var(--text);line-height:1.3;';
                         npsName.textContent = entry.fund.name.replace(/\[NPS\] /gi,'').replace(/ - Growth| - Direct/gi,'').trim().slice(0, 34);
                         npsBox.appendChild(npsName);
-                        // LD250: Show E and C rows with PFM + BAF hurdle
-                        const entryType = _typeFromCode(entry.fund.code);
-                        const entryPfm  = _pfmFromCode(entry.fund.code);
-                        const entryLive = _getNpsLive(entry.fund.code);
-                        const _makeECRow = (fType, fCode, fName, fR1m, fWrsi) => {
-                            const pfm = _pfmFromCode(fCode);
-                            const col = fType==='E' ? '#00916e' : '#3b82f6';
-                            const beatsHurdle = tmBafThreshold !== null && typeof fR1m==='number' ? fR1m >= tmBafThreshold : null;
-                            const hBadge = beatsHurdle !== null
-                                ? `<span style="font-size:0.38rem;color:${beatsHurdle?'#00916e':'#c8102e'};font-family:var(--mono);">${beatsHurdle?'✓':'✗'}${tmBafThreshold.toFixed(1)}%</span>`
-                                : '';
-                            const r1mStr = typeof fR1m==='number' ? `${fR1m>=0?'+':''}${fR1m.toFixed(1)}%` : '—';
-                            const shortName = (fName||'').replace(/\[NPS\] /gi,'').replace(/ - Growth| - Direct/gi,'').trim().slice(0,22);
-                            return `<div style="display:flex;align-items:center;gap:4px;background:${col}11;border:1px solid ${col}33;border-radius:3px;padding:2px 5px;cursor:pointer;" onclick="event.stopPropagation();launchLiveFromAlert('${fCode}')">
-                                <span style="font-size:0.46rem;font-weight:700;color:${col};font-family:var(--mono);min-width:14px;">${fType}</span>
-                                <span style="font-size:0.42rem;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${fName}">${pfm} · ${shortName}</span>
-                                <span style="font-size:0.4rem;color:${parseFloat(r1mStr)>=0?'#00916e':'var(--red)'};font-family:var(--mono);">${r1mStr}</span>
-                                ${hBadge}
-                            </div>`;
-                        };
-                        // Primary (shortlisted fund row)
-                        npsBox.innerHTML += _makeECRow(entryType, entry.fund.code, entry.fund.name, entry.fund.r1m, entry.fund.wrsi);
-                        // Try to find the complementary E or C fund for same PFM
-                        const allNpsFunds = Object.values(window.amcFunds||{}).flat().filter(f=>f.code?.startsWith('SM'));
-                        const tierFilter = key==='NPS_T1'
-                            ? f => (f.name.includes('Tier I') && !f.name.includes('Tier II'))
-                            : f => f.name.includes('Tier II');
-                        const complementType = entryType==='E' ? 'C' : 'E';
-                        const compFund = allNpsFunds.find(f => f.code.startsWith(entry.fund.code.slice(0,5)) && tierFilter(f) && _typeFromCode(f.code)===complementType);
-                        if (compFund) {
-                            const compLive = _getNpsLive(compFund.code);
-                            npsBox.innerHTML += _makeECRow(complementType, compFund.code, compFund.name, compLive?.r1m ?? null, compLive?.wrsi ?? null);
-                        }
-                        if (tmBafThreshold !== null) {
-                            const hurdleNote = document.createElement('div');
-                            hurdleNote.style.cssText = 'font-size:0.38rem;color:var(--muted);font-family:var(--mono);margin-top:1px;';
-                            hurdleNote.textContent = `BAF Hurdle: ${tmBafThreshold.toFixed(1)}%  ·  PFM: ${entryPfm}`;
-                            npsBox.appendChild(hurdleNote);
-                        }
                         const npsStats = document.createElement('div');
                         npsStats.style.cssText = 'font-size:0.5rem;font-weight:400;color:var(--text);display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;';
                         npsStats.innerHTML = `<span style="color:#00916e;">1M: ${entry.fund.r1m.toFixed(1)}%</span><span style="color:var(--muted);">wRSI ${entry.fund.wrsi}</span>`;
@@ -13029,7 +12482,8 @@ categories.forEach(cat => {
                         npsAiBtn.style.cssText = 'margin-top:4px;width:100%;font-size:0.44rem;padding:3px 0;border:1px solid #7c3aed;border-radius:4px;background:rgba(124,58,237,0.07);color:#7c3aed;cursor:pointer;font-family:var(--mono);font-weight:700;letter-spacing:0.04em;text-transform:uppercase;';
                         npsAiBtn.onclick = (ev) => {
                             ev.stopPropagation();
-                            openAIBreadthModal({ code: entry.fund.code, name: entry.fund.name, wrsi: entry.fund.wrsi, drsi: entry.fund.drsi, r1m: entry.fund.r1m });
+                            const fundForAI = { code: entry.fund.code, name: entry.fund.name, wrsi: entry.fund.wrsi, drsi: entry.fund.drsi, r1m: entry.fund.r1m };
+                            openAIBreadthModal(fundForAI);
                         };
                         npsBox.appendChild(npsAiBtn);
                     } else {
@@ -13336,22 +12790,6 @@ categories.forEach(cat => {
                 }
             });
             setTimeout(refreshAlertSummaryBadge, 8000);
-            // Expose for cross-scope calls (must be in this block where function is defined)
-            // ── Window exposures for cross-script calls ──
-        window.openAlertSummary = openAlertSummary;
-        window.refreshAlertSummaryBadge = refreshAlertSummaryBadge;
-        window.launchLiveFromAlert = launchLiveFromAlert;
-        window.renderStcgCliffAlert = renderStcgCliffAlert;
-        window.checkConcentrationGuard = checkConcentrationGuard;
-        window.renderDeploymentMeter = renderDeploymentMeter;
-        window.checkRegimeRecoveryAlert = checkRegimeRecoveryAlert;
-        window._trackPausedSip = _trackPausedSip;
-        window._deployPausedSip = _deployPausedSip;
-        window.renderAlphaStrip = renderAlphaStrip;
-        window._getHoldingAgeCheck = _getHoldingAgeCheck;
-        window.openSOP = openSOP;
-        window.closeSOP = closeSOP;
-    })();
         </script>
 <style>
     #bafNpsModal, #bafNpsModal * { font-weight: normal !important; font-family: Arial, sans-serif; color: #111111; }
@@ -13395,9 +12833,6 @@ categories.forEach(cat => {
 </style>
 <div id="bafNpsUIInjectionPoint"></div>
 <script>
-    // ════ SECTION 4: BAF NPS SWITCH TRACKER ════
-    (function() {
-    'use strict';
     const BafNpsState = { npsSwitchesUsed: 0, maxSwitches: 4 };
     document.addEventListener('DOMContentLoaded', () => { injectBafNpsUI(); });
     function injectBafNpsUI() {
@@ -13598,13 +13033,6 @@ categories.forEach(cat => {
             if (modal && modal.style.display === 'flex') closeBafNpsModal();
         }
     });
-    // ── Window exposures for cross-script calls ──
-    window.openBafNpsModal    = openBafNpsModal;
-    window.closeBafNpsModal   = closeBafNpsModal;
-    window.routeToFund        = routeToFund;
-    window.consumeNpsSwitch   = consumeNpsSwitch;
-    window.resetNpsSwitches   = resetNpsSwitches;
-    })();
 </script>
     <!-- ════════════════ AI BREADTH CODE ════════════════ -->
     <!-- LD247: AI Breadth Confirmation Modal — Fund-scoped, one-tap from Alert page & Live Cockpit -->
@@ -14027,15 +13455,12 @@ categories.forEach(cat => {
                         ? ' ⚡ Auto-cached (estimates) — Refresh for full analysis.'
                         : '';
                     const _ts = cached._cachedAtDisplay || cached._cachedAt?.slice(0,16).replace('T',' ') || '';
-                    const _stale = _ts ? ` Last updated: ${_ts} IST.` : '';
-                    // LD250: Use same breadth_v1_ key as watchlist list for consistent count
-                    const _wlAll = (() => { try { return JSON.parse(localStorage.getItem('ld_watchlist')||'[]'); } catch(_){return [];} })();
-                    const _dateKey = (() => { const n=new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
-                    const _wlTotal = _wlAll.length;
-                    const _wlDone  = _wlAll.filter(f => {
-                        try { return !!localStorage.getItem(`breadth_v1_${(f.code||'').replace(/\W/g,'_')}_${_dateKey}`); } catch(_){return false;}
-                    }).length;
-                    const _baCounter = _wlTotal > 0 ? ` Storage: ${_wlDone}/${_wlTotal} BA done today.` : '';
+                    const _stale = _ts ? ` Last updated: ${_ts}.` : '';
+                    const _baComp = _baGetCompleted();
+                    const _baRgmA = _baLoadRegimeA() || [];
+                    const _baCount = _baComp.length;
+                    const _baTotal = _baRgmA.length;
+                    const _baCounter = _baTotal > 0 ? ` Storage: ${_baCount}/${_baTotal} BA done today.` : '';
                     cacheNote.textContent = '✅ Stored analysis — zero tokens used.' + bgBadge + lockNote + _stale + _baCounter;
                     cacheNote.style.color = cached._bgSource ? '#c97a00' : '#64748b';
                 }
@@ -14113,77 +13538,14 @@ categories.forEach(cat => {
 
         
         function _populateFundMeta(fund) {
-            // LD250: Build RSI from the most accurate source available, in priority order
-            const fCode = fund.code || '';
-            let wrsiVal = fund.wrsi ?? null;
-            let drsiVal = fund.drsi ?? null;
-
-            // Priority 1: If same fund is currently live on Page 1 → use Page 1 DOM values (most current)
-            const liveCode = document.getElementById('fundSelect')?.value;
-            if (liveCode && liveCode === fCode) {
-                const liveWrsiEl = document.getElementById('liveWRsi');
-                const liveDrsiEl = document.getElementById('liveDRsi');
-                const _wTxt = liveWrsiEl?.textContent?.trim();
-                const _dTxt = liveDrsiEl?.textContent?.trim();
-                if (_wTxt && _wTxt !== '--' && !isNaN(parseInt(_wTxt))) wrsiVal = parseInt(_wTxt);
-                if (_dTxt && _dTxt !== '--' && !isNaN(parseInt(_dTxt))) drsiVal = parseInt(_dTxt);
-            }
-
-            // Priority 2: Alert scan cache (covers ALL funds scanned today)
-            if ((wrsiVal == null) || (drsiVal == null)) {
-                try {
-                    const _alertDate = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
-                    const _alertRaw = localStorage.getItem(`ld_alerts_${_alertDate}`);
-                    if (_alertRaw) {
-                        const _alertData = JSON.parse(_alertRaw);
-                        const _allAlertItems = Object.values(_alertData.results || {}).flat().filter(Boolean);
-                        const _match = _allAlertItems.find(it => it && it.code === fCode);
-                        if (_match) {
-                            if (wrsiVal == null && _match.wrsi != null) wrsiVal = Math.round(_match.wrsi);
-                            if (drsiVal == null && _match.drsi != null) drsiVal = Math.round(_match.drsi);
-                        }
-                    }
-                } catch(_) {}
-            }
-
-            // Priority 3: NPS live cache (saved by TM run)
-            if ((wrsiVal == null) || (drsiVal == null)) {
-                try {
-                    const _npsRaw = localStorage.getItem(`ld_nps_live_${fCode}`);
-                    if (_npsRaw) {
-                        const _nps = JSON.parse(_npsRaw);
-                        if (wrsiVal == null && _nps.wrsi != null) wrsiVal = Math.round(_nps.wrsi);
-                        // d-RSI not stored separately in NPS cache; derive from wrsi if needed
-                    }
-                } catch(_) {}
-            }
-
-            // Priority 4: Morning scan rank1 (covers rank-1 fund per AMC bucket)
-            if (wrsiVal == null) {
-                try {
-                    const _dateKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
-                    const _amcKeys = Object.keys(window.amcFunds || {});
-                    for (const amc of _amcKeys) {
-                        for (const type of ['MF','NPS_T1','NPS_T2']) {
-                            const _raw = localStorage.getItem(`ld_v3_morning_${amc}_${type}`);
-                            if (!_raw) continue;
-                            const _d = JSON.parse(_raw);
-                            if (_d.rank1?.code === fCode) {
-                                if (wrsiVal == null) wrsiVal = Math.round(_d.rank1.wrsi ?? 0);
-                                break;
-                            }
-                        }
-                    }
-                } catch(_) {}
-            }
-            const regime = parseFloat(wrsiVal) >= 50 ? 'A — HOPE'
-                         : parseFloat(wrsiVal) >= 40 ? 'B — WATCH' : 'C — FEAR';
-            const regimeClass = parseFloat(wrsiVal) >= 50 ? 'regime-a'
-                              : parseFloat(wrsiVal) >= 40 ? 'regime-b' : 'regime-c';
+            const regime = parseFloat(fund.wrsi) >= 50 ? 'A — HOPE'
+                         : parseFloat(fund.wrsi) >= 40 ? 'B — WATCH' : 'C — FEAR';
+            const regimeClass = parseFloat(fund.wrsi) >= 50 ? 'regime-a'
+                              : parseFloat(fund.wrsi) >= 40 ? 'regime-b' : 'regime-c';
             const cells = [
                 { label: 'Regime', val: regime, cls: regimeClass },
-                { label: 'W-RSI', val: wrsiVal ?? '—', cls: '' },
-                { label: 'D-RSI', val: drsiVal ?? '—', cls: '' },
+                { label: 'W-RSI', val: fund.wrsi ?? '—', cls: '' },
+                { label: 'D-RSI', val: fund.drsi ?? '—', cls: '' },
             ];
             const meta = document.getElementById('abpFundMeta');
             meta.innerHTML = cells.map(c => `
@@ -14429,7 +13791,7 @@ categories.forEach(cat => {
         }
 
         
-        const geminiModel = window.getGeminiModel ? window.getGeminiModel() : 'gemini-3.1-flash-lite';
+        const geminiModel = window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash-lite';
 
         
         const _tripleAligned = typeof window._tripleRsiAligned === 'number' ? window._tripleRsiAligned : null;
@@ -14445,12 +13807,12 @@ categories.forEach(cat => {
         
         
         const GEMINI_CASCADE = [
-            geminiModel,                                      
-            'gemini-3.1-flash-lite',                          
-            'gemini-3-flash',                                 
-            'gemini-3.1-pro',                                 
-            'gemini-2.5-flash-lite',                          
-            'gemini-2.5-flash',                               
+            geminiModel,                        // user-selected (default: 3.1-flash-lite)
+            'gemini-3.1-flash-lite',            // tier 1 fallback
+            'gemini-3-flash',                   // tier 2
+            'gemini-3.1-pro',                   // tier 3
+            'gemini-2.5-flash-lite',            // tier 4 legacy fallback
+            'gemini-2.5-flash',                 // tier 5 legacy fallback
         ];
 
         async function callGemini(prompt, useSearch = false) {
@@ -15156,8 +14518,8 @@ Return a JSON object with this exact structure:
                     <option value="gemini-3.1-flash-lite">3.1 Flash-Lite ⚡ (default)</option>
                     <option value="gemini-3-flash">3.0 Flash 🚀</option>
                     <option value="gemini-3.1-pro">3.1 Pro 🔬</option>
-                    <option value="gemini-2.5-flash-lite">2.5 Flash-Lite (1,000 RPD)</option>
-                    <option value="gemini-2.5-flash">2.5 Flash (500 RPD)</option>
+                    <option value="gemini-2.5-flash-lite">2.5 Flash-Lite (fallback)</option>
+                    <option value="gemini-2.5-flash">2.5 Flash (fallback)</option>
                 </select>
                 <button type="button" id="ld-ai-key-btn" title="Change API Key" style="
                     background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);
@@ -15211,14 +14573,14 @@ Return a JSON object with this exact structure:
             <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
                 <select id="ld-api-gap-select" style="flex:1;font-size:0.52rem;padding:5px 8px;border-radius:5px;
                         border:1.5px solid #b0bece;background:#f2f5f9;color:#000;outline:none;font-family:var(--mono);">
-                    <option value="100">🐢 Slow — 100s gap (quota-safe)</option>
-                    <option value="60">🐇 Conservative — 60s gap</option>
-                    <option value="30">⚡ Standard — 30s gap</option>
+                    <option value="30" selected>⚡ Standard — 30s gap (default)</option>
                     <option value="25">🚀 Fast — 25s gap</option>
-                    <option value="15">⚡ Quick — 15s gap</option>
-                    <option value="10">⚡ Faster — 10s gap</option>
-                    <option value="5" selected>⚡ Default — 5s gap</option>
-                    <option value="4">🔥 Scanner — 4.2s gap (Gemini 3 only)</option>
+                    <option value="60">🐇 Conservative — 60s gap</option>
+                    <option value="100">🐢 Slow Access — 100s gap (quota-safe)</option>
+                    <option value="15">🔬 Testing — 15s gap</option>
+                    <option value="10">🔬 Testing — 10s gap</option>
+                    <option value="5">🔬 Testing — 5s gap</option>
+                    <option value="3">⚠ Testing — 3s gap (quota risk)</option>
                 </select>
                 <button id="ld-gap-save" style="background:#ffffff;color:#000;border:1.5px solid #b0bece;
                         border-radius:5px;padding:6px 11px;font-size:0.5rem;cursor:pointer;
@@ -15238,15 +14600,6 @@ Return a JSON object with this exact structure:
             </div>
             <div style="font-size:0.44rem;color:#7090b0;margin-top:6px;">
                 Get free keys at <span style="color:#009e70;font-weight:600;">aistudio.google.com/apikey</span> &nbsp;·&nbsp; Buttons turn green when key is verified &amp; saved
-            </div>
-            <!-- Debug button moved here from bottom-left corner -->
-            <div style="margin-top:8px;padding-top:8px;border-top:1px solid #d6deeb;">
-                <button onclick="window._ldToggleDebug()" title="View Live Cockpit internal state for debugging" style="
-                    width:100%;background:#1a1a2e;color:#00e8a2;border:1px solid #00e8a2;
-                    border-radius:6px;padding:6px 8px;font-size:0.55rem;font-weight:700;
-                    cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;">
-                    🔬 Debug Auditor State
-                </button>
             </div>
         </div>
         <!-- ── End API Key Manager ── -->
@@ -15273,12 +14626,11 @@ Return a JSON object with this exact structure:
         const input = document.getElementById('ld-ai-input');
         const submit = document.getElementById('ld-ai-submit');
         
-        const GEMINI_MODEL_DEFAULT = 'gemini-3.1-flash-lite'; 
+        const GEMINI_MODEL_DEFAULT = 'gemini-3.1-flash-lite';
 
-        
         const modelSelect = document.getElementById('ld-gemini-model-select');
         let savedModel = localStorage.getItem('ld_gemini_model') || GEMINI_MODEL_DEFAULT;
-        // Migrate: if stored model no longer exists in dropdown, reset to new default
+        // Migrate old 2.5 default → new 3.1 default
         const _validModels = ['gemini-3.1-flash-lite','gemini-3-flash','gemini-3.1-pro','gemini-2.5-flash-lite','gemini-2.5-flash'];
         if (!_validModels.includes(savedModel)) { savedModel = GEMINI_MODEL_DEFAULT; try { localStorage.setItem('ld_gemini_model', savedModel); } catch(_){} }
         if (modelSelect) {
@@ -15300,8 +14652,7 @@ Return a JSON object with this exact structure:
             const gapSel  = document.getElementById('ld-api-gap-select');
             const gapSave = document.getElementById('ld-gap-save');
             if (gapSel) {
-                let saved = localStorage.getItem('ld_api_gap_sec') || '5';
-                if (saved === '15') { saved = '5'; try { localStorage.setItem('ld_api_gap_sec','5'); } catch(_){} }
+                const saved = localStorage.getItem('ld_api_gap_sec') || '30';
                 gapSel.value = saved;
             }
             if (gapSave && gapSel) {
@@ -15624,7 +14975,7 @@ Return a JSON object with this exact structure:
             return { fundName, fundCode };
         }
         function gatherLeanContext() {
-            let ctx = "=== LD247 LEAN TARGET FUND DUMP ===\n";
+            let ctx = "=== LD252A LEAN TARGET FUND DUMP ===\n";
             ctx += `Timestamp: ${new Date().toISOString()}\n`;
             const { fundName, fundCode } = getFundInfo();
             const regime = document.getElementById('liveRegimeBlock')?.textContent || document.getElementById('regimeBlock')?.textContent || 'N/A';
@@ -15749,7 +15100,7 @@ Return a JSON object with this exact structure:
             return ctx;
         }
         function gatherContext() {
-            let ctx = "=== LD247 SIGNAL DEEP DUMP ===\n";
+            let ctx = "=== LD252A SIGNAL DEEP DUMP ===\n";
             ctx += `Timestamp: ${new Date().toISOString()}\n`;
             const activeModal = document.querySelector('.modal[style*="display: flex"]');
             ctx += `\n[UI SURFACE]\nVisible Screen: ${activeModal ? activeModal.id : 'Main Dashboard'}\n`;
@@ -16280,7 +15631,7 @@ Return a JSON object with this exact structure:
             try { ctx = gatherLeanContext(); } catch(e) { ctx = '(Fund context unavailable — open Live Cockpit first)'; }
 
             const systemPrompt =
-                'You are the LD247 System Brain — an expert NPS/MF fund analyst embedded in the Lie Detector app.\n' +
+                'You are the LD252A System Brain — an expert NPS/MF fund analyst embedded in the Lie Detector app.\n' +
                 'You analyse Indian NPS and Mutual Fund NAV data using RSI, W-RSI, regime classification (A/B/C), TSL floors, WMA20, and momentum signals.\n' +
                 'Rules: Regime A (W-RSI≥50)=Bull, B (40-50)=Transition, C (<40)=Bear. D-RSI<40=oversold BUY zone. TSL breach=SELL ALL.\n' +
                 'Answer concisely. Use ₹ for prices. Highlight BUY/SELL signals clearly. Below is the current fund data:\n\n' +
@@ -16360,7 +15711,7 @@ Return a JSON object with this exact structure:
         
         let _pdfBase64    = null;   
         let _pdfFilename  = '';
-        const GEMINI_PDF_MODEL = (window.getGeminiModel ? window.getGeminiModel() : 'gemini-3.1-flash-lite');
+        const GEMINI_PDF_MODEL = (window.getGeminiModel ? window.getGeminiModel() : 'gemini-2.5-flash-lite');
 
         
         function init() {
@@ -16594,6 +15945,11 @@ Return a JSON object with this exact structure:
     <!-- Hidden PDF file input -->
     <input type="file" id="ld-pdf-file-input" accept="application/pdf" style="display:none;">
 
+    <div id="ld-debug-btn" onclick="window._ldToggleDebug()" title="Auditor State Debug" style="
+        position:fixed;bottom:72px;left:8px;z-index:19999;
+        background:#1a1a2e;color:#00e8a2;border:1px solid #00e8a2;
+        border-radius:6px;padding:4px 8px;font-size:0.55rem;font-weight:700;
+        cursor:pointer;letter-spacing:0.05em;opacity:0.85;user-select:none;">🔬 DEBUG</div>
     <div id="ld-debug-panel" style="
         display:none;position:fixed;bottom:100px;left:8px;z-index:19998;
         width:320px;max-height:70vh;overflow-y:auto;
@@ -16705,7 +16061,7 @@ Return a JSON object with this exact structure:
     })();
     </script>
     <!-- ═══════════════════════════════════════════════════════════════════
-         LD247 — BACKGROUND BA ENGINE v2
+         LD252A — BACKGROUND BA ENGINE v2
          ─────────────────────────────────────────────────────────────────
          Priority Order:
            1. Watchlist funds (in order) — check Regime A, run BA, store.
@@ -16720,9 +16076,9 @@ Return a JSON object with this exact structure:
     'use strict';
 
     
-    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'5');  return (v>=4&&v<=100?v:5)*1000;  } catch(e){ return 5_000;  } })();
+    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'30');  return (v>=3&&v<=100?v:30)*1000;  } catch(e){ return 30_000;  } })();
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD251';
+    const ADDON_VER     = 'LD252A';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
     
@@ -16756,42 +16112,8 @@ Return a JSON object with this exact structure:
     }
 
     
-    function _hasRanToday()  {
-        try {
-            const d = _istDate();
-            // Check 1: localStorage run flag (fast path)
-            if (localStorage.getItem(RUN_FLAG_KEY + d)) return true;
-            // Check 2: Cookie fallback — survives localStorage wipe by Android Chrome
-            if (document.cookie.split(';').map(c=>c.trim()).some(c=>c===`ld_ba_ran=${d}`)) return true;
-            // Check 3: ba_completed_today flag — set at end of successful full run
-            if (localStorage.getItem(`ba_completed_today_${d}`) === 'true') {
-                _markRanToday(); // re-stamp fast-path flag so next check is instant
-                return true;
-            }
-            // Check 4: Queue-based completion — all funds done/skipped AND at least one
-            // cached AND AMC scan done. Handles reopen after partial run where
-            // _markRanToday() was never reached (quota hit, interrupted, etc.)
-            const q = _loadQ();
-            if (q.length > 0) {
-                const allSettled  = q.every(it => it.done || it.skipReason);
-                const anyCached   = q.some(it => it.done && _cacheExists(it.code));
-                const amcScanDone = localStorage.getItem(`bg_amc_scan_done_${d}`) === 'true';
-                if (allSettled && anyCached && amcScanDone) {
-                    _markRanToday(); // re-stamp so subsequent checks skip queue scan
-                    return true;
-                }
-            }
-            return false;
-        } catch(e){ return false; }
-    }
-    function _markRanToday() {
-        const d = _istDate();
-        try { localStorage.setItem(RUN_FLAG_KEY + d, '1'); } catch(e){}
-        // Cookie survives Android Chrome localStorage wipe (max-age = 28 hours)
-        try { document.cookie = `ld_ba_ran=${d};max-age=100800;samesite=strict`; } catch(_) {}
-        // Belt-and-suspenders: also stamp ba_completed_today
-        try { localStorage.setItem(`ba_completed_today_${d}`, 'true'); } catch(e) {}
-    }
+    function _hasRanToday()  { try { return !!localStorage.getItem(RUN_FLAG_KEY + _istDate()); } catch(e){ return false; } }
+    function _markRanToday() { try { localStorage.setItem(RUN_FLAG_KEY + _istDate(), '1');      } catch(e){} }
 
     
     
@@ -16858,7 +16180,7 @@ Return a JSON object with this exact structure:
     
     async function _callGeminiBreadth(fund, wrsi, resolvedApiKey) {
         const getKey2  = () => localStorage.getItem('ld_gemini_api_key2');
-        const getModel = window.getGeminiModel || (() => 'gemini-3.1-flash-lite');
+        const getModel = window.getGeminiModel || (() => 'gemini-2.5-flash-lite');
         const n = (fund.name || '').toLowerCase();
         let idxName = 'Nifty 50 (proxy)';
         const MAP = [
@@ -16883,10 +16205,9 @@ Return a JSON object with this exact structure:
 
         
         
-        const userModel = getModel(); 
+        const userModel = getModel();
         const MODEL_CASCADE = (() => {
-            
-            const ALL = ['gemini-3.1-flash-lite', 'gemini-3-flash', 'gemini-3.1-pro', 'gemini-2.5-flash-lite', 'gemini-2.5-flash'];
+            const ALL = ['gemini-3.1-flash-lite','gemini-3-flash','gemini-3.1-pro','gemini-2.5-flash-lite','gemini-2.5-flash'];
             const startIdx = ALL.indexOf(userModel);
             return startIdx === -1 ? ALL : ALL.slice(startIdx);
         })();
@@ -17068,10 +16389,7 @@ Return a JSON object with this exact structure:
                 window.removeEventListener('storage', _onKeyStored);
                 const panel = document.getElementById('bgKeyPanel');
                 if (panel) panel.remove();
-                setTimeout(() => {
-                    if (window.bgBreadthForceRun) window.bgBreadthForceRun();
-                    else _runBackgroundScan();
-                }, 800);
+                setTimeout(_runBackgroundScan, 800);
             }
         });
         const _pollTimer = setInterval(() => {
@@ -17080,17 +16398,11 @@ Return a JSON object with this exact structure:
                 clearInterval(_pollTimer);
                 const panel = document.getElementById('bgKeyPanel');
                 if (panel) {
-                    const _st = panel.querySelector('#bgKeyPanelStatus');
-                    if (_st) _st.textContent = '✅ Key found — starting BA engine…';
-                    setTimeout(() => {
-                        if (panel.parentNode) panel.remove();
-                        // Use ForceRun to clear today-ran flags before starting
-                        if (window.bgBreadthForceRun) window.bgBreadthForceRun();
-                        else _runBackgroundScan();
-                    }, 600);
+                    panel.querySelector('#bgKeyPanelStatus').textContent = '✅ Key found — starting BA engine…';
+                    setTimeout(() => { panel.remove(); _runBackgroundScan(); }, 1200);
                 }
             }
-        }, 800);  // Fast poll — detects same-tab key save within <1s
+        }, 10_000);
         setTimeout(() => clearInterval(_pollTimer), 300_000);
     }
 
@@ -17175,13 +16487,8 @@ Return a JSON object with this exact structure:
                 localStorage.setItem('ld_gemini_api_key', val);
                 if (inp) inp.value = '';
                 st.style.color = '#6ee7b7';
-                st.textContent = '✅ Key saved — starting BA engine…';
-                setTimeout(() => {
-                    if (panel.parentNode) panel.remove();
-                    // bgBreadthForceRun clears today-ran flags so BA starts fresh
-                    if (window.bgBreadthForceRun) window.bgBreadthForceRun();
-                    else _runBackgroundScan();
-                }, 1200);
+                st.textContent = '✅ Key saved — starting BA engine in 3s…';
+                setTimeout(() => { panel.remove(); _runBackgroundScan(); }, 3000);
             };
             const inp = document.getElementById('bgKeyPanelInput');
             if (inp) inp.addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('bgKeyPanelSave').click(); });
@@ -17274,8 +16581,7 @@ Return a JSON object with this exact structure:
             }
 
             
-            // Skip only if wrsi is explicitly null/unavailable OR below 50
-            if (it.wrsi === null || it.wrsi === undefined || it.wrsi < 50) {
+            if (!it.wrsi || it.wrsi < 50) {
                 it.skipReason = `regime_bc_wrsi_${it.wrsi}`;
                 _saveQ(q);
                 _setPillMsg(`⏭ WL: ${it.name.slice(0,26)} — Regime B/C (W-RSI ${it.wrsi}) — skipped`);
@@ -17364,8 +16670,6 @@ Return a JSON object with this exact structure:
                 localStorage.setItem(`bgbreadth_regimeA_${today}`,   JSON.stringify(rAData));
                 localStorage.setItem(`ba_regimeA_funds_${today}`,     JSON.stringify(rAData));
             } catch(e) {}
-            // NOTE: Do NOT _markRanToday() here — watchlist BA phase still pending.
-            // Final _markRanToday() is called only after all phases complete (line below).
 
             
             let q = _loadQ();
@@ -17524,9 +16828,6 @@ Return a JSON object with this exact structure:
         try { localStorage.removeItem(RUN_FLAG_KEY + d); } catch(e) {}
         try { localStorage.removeItem(`bg_amc_scan_done_${d}`); } catch(e) {}
         try { localStorage.removeItem(`ba_completed_funds_${d}`); } catch(e) {}
-        try { localStorage.removeItem(`ba_completed_today_${d}`); } catch(e) {}
-        // Also clear cookie so _hasRanToday() check 2 doesn't block re-run
-        try { document.cookie = `ld_ba_ran=;max-age=0;samesite=strict`; } catch(_) {}
 
         
         
@@ -17555,12 +16856,8 @@ Return a JSON object with this exact structure:
             }
         } catch(e) { try { localStorage.removeItem(_qKey()); } catch(_) {} }
 
-        // Re-seed counter from items already cached (don't lose progress on restart)
-        try {
-            const _q = _loadQ();
-            const _alreadyCached = _q.filter(it => it.done && _cacheExists(it.code)).length;
-            localStorage.setItem(_cntKey(), String(_alreadyCached));
-        } catch(e) { try { localStorage.removeItem(_cntKey()); } catch(_) {} }
+        
+        try { localStorage.removeItem(_cntKey()); } catch(e) {}
 
         setTimeout(() => _runBackgroundScan(), 300);
     };
@@ -17588,8 +16885,22 @@ Return a JSON object with this exact structure:
     <!-- ═══════════════ END BG BREADTH ADD-ON ═══════════════ -->
 
 
-
     <!-- ═══════════════ LD SCANNER ADD-ON ═══════════════ -->
+    <script>
+    window.openLDScanner = function() {
+      document.getElementById('ld-scn-overlay').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      if (!window._scnMounted && window.LDScannerComponent) {
+        window._scnMounted = true;
+        ReactDOM.createRoot(document.getElementById('ld-scn-root'))
+                .render(React.createElement(LDScannerComponent, null));
+      }
+    };
+    window.closeLDScanner = function() {
+      document.getElementById('ld-scn-overlay').style.display = 'none';
+      document.body.style.overflow = '';
+    };
+    </script>
     <div id="ld-scn-overlay" style="display:none;position:fixed;inset:0;z-index:9999;overflow-y:auto;background:#fff;">
       <div style="position:sticky;top:0;text-align:right;padding:4px 8px;background:rgba(242,245,249,0.97);border-bottom:1px solid #b0bece;z-index:200;">
         <button onclick="window.closeLDScanner()" style="background:#c8102e;color:#fff;border:none;padding:4px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:'Space Mono',monospace;">&#x2715; CLOSE</button>

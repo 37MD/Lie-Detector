@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD248A</title>
+        <title>Lie Detector — NPS NAV Chart · LD248C</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2146,7 +2146,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD248A</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD248C</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2573,7 +2573,7 @@
                     Rotate via Asset Allocator Trigger Monitor.&nbsp; Never buy in B or C.&nbsp;
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
-                <!-- LD248A: DECISION FLOW CHART -->
+                <!-- LD248C: DECISION FLOW CHART -->
                 <div class="sop-part sop-part-muted" style="margin-top:14px;">DECISION FLOW — Analysis to Buy / Sell</div>
                 <div style="overflow-x:auto;margin-bottom:8px;">
                 <svg viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:360px;display:block;margin:0 auto;font-family:'Space Mono',monospace;">
@@ -2651,7 +2651,7 @@
                 </svg>
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD248A &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD248C &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2663,14 +2663,10 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD248A 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD248C 📋</span></h1>
             <div id="firstRunBanner" style="display:none;background:rgba(245,158,11,0.12);border:1.5px solid #f59e0b;border-radius:6px;padding:8px 10px;margin-bottom:8px;text-align:center;">
-                <div class="firstRunTitle" style="font-size:0.58rem;font-weight:700;color:#c97a00;margin-bottom:3px;">⚠ Config not found — Browser cleared storage</div>
-                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);margin-bottom:6px;">Android Chrome clears file storage after hours in background. Open your LD_Config backup to restore instantly.</div>
-                <label style="display:inline-block;background:#009e70;color:#fff;padding:6px 16px;border-radius:5px;cursor:pointer;font-size:0.56rem;font-weight:700;letter-spacing:0.05em;">
-                    📂 RESTORE CONFIG NOW
-                    <input type="file" accept=".json" style="display:none;" onchange="_configBackupImport(this.files[0]);this.value='';">
-                </label>
+                <div class="firstRunTitle" style="font-size:0.58rem;font-weight:700;color:#c97a00;margin-bottom:3px;">⚠ Storage cleared by browser — open your backup HTML</div>
+                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);margin-bottom:6px;">Android Chrome clears file storage after hours in background. Open the <b>LD248C_date_Xfunds.html</b> backup file you saved — config will auto-load instantly.</div>
             </div>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
@@ -2887,7 +2883,7 @@
             <div style="padding:6px 8px;font-size:0.5rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
                 Auto-refreshes every 60s · Tap row to open Live Cockpit
             </div>
-            <!-- LD248A: TM Swap Auto-Notification -->
+            <!-- LD248C: TM Swap Auto-Notification -->
             <div id="wlSwapNotification" style="display:none;flex-shrink:0;margin:5px 8px 0;border-radius:6px;overflow:hidden;"></div>
             <!-- BA Results view (toggles with watchlist body) -->
             <div id="wlBaView" style="display:none;flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 8px;flex-direction:column;gap:6px;">
@@ -2928,13 +2924,13 @@
             </div>
             </div><!-- end watchlistScrollArea -->
             <div style="padding:6px 8px 4px;border-top:2px solid #f59e0b;flex-shrink:0;background:rgba(245,158,11,0.06);">
-                <div style="font-size:0.52rem;color:#c97a00;margin-bottom:5px;text-align:center;letter-spacing:0.06em;font-weight:700;">💾 FULL CONFIG BACKUP — Keys · Watchlist · Portfolio · Settings</div>
-                <div style="font-size:0.42rem;color:var(--muted);text-align:center;margin-bottom:5px;">⚠ New file download = new storage. Always RESTORE after upgrading.</div>
+                <div style="font-size:0.52rem;color:#c97a00;margin-bottom:5px;text-align:center;letter-spacing:0.06em;font-weight:700;">💾 BACKUP — Save config into new HTML file</div>
+                <div style="font-size:0.42rem;color:var(--muted);text-align:center;margin-bottom:5px;">Backup downloads a new HTML with config baked in. Open that file next time — config loads automatically. No restore needed.</div>
                 <div style="display:flex;gap:5px;margin-bottom:5px;">
-                    <button class="setup-btn" style="flex:1;font-size:0.55rem;font-weight:700;border-color:#f59e0b;color:#c97a00;min-height:40px;" onclick="_configBackupExport()">⬇ BACKUP ALL CONFIG</button>
+                    <button class="setup-btn" style="flex:1;font-size:0.55rem;font-weight:700;border-color:#f59e0b;color:#c97a00;min-height:40px;" onclick="_configBackupExport()">⬇ BACKUP → SAVE NEW HTML</button>
                     <label class="setup-btn" style="flex:1;font-size:0.55rem;font-weight:700;border-color:#009e70;color:#009e70;cursor:pointer;text-align:center;padding:5px 4px;min-height:40px;">
-                        ⬆ RESTORE CONFIG
-                        <input type="file" accept=".json" style="display:none;" onchange="_configBackupImport(this.files[0]);this.value='';">
+                        ⬆ RESTORE (old JSON)
+                        <input type="file" accept=".json,.html" style="display:none;" onchange="_configBackupImport(this.files[0]);this.value='';">
                     </label>
                 </div>
                 <div id="configBackupStatus" style="font-size:0.44rem;color:var(--muted);text-align:center;min-height:14px;"></div>
@@ -3767,8 +3763,31 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 </div>
             </div>
         </div>
+        <!-- LD248C: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
+        <script type="application/json" id="LD248C_EMBED">null</script>
         <script>
             'use strict';
+            // LD248C: Self-restoring config — reads from <script id="LD248C_EMBED"> tag
+            // Base64 encoded so zero risk of HTML/JS syntax corruption
+            (function _autoRestoreFromEmbed() {
+                try {
+                    const embedEl = document.getElementById('LD248C_EMBED');
+                    if (!embedEl) return;
+                    const raw = (embedEl.textContent || embedEl.innerText || '').trim();
+                    if (!raw || raw === 'null') return;
+                    // Only restore if localStorage is empty (Chrome cleared it)
+                    const hasKey = !!localStorage.getItem('ld_gemini_api_key');
+                    const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist') || '[]')).length > 0;
+                    if (hasKey || hasWl) return;
+                    // Decode base64 → UTF-8 → JSON
+                    const config = JSON.parse(decodeURIComponent(escape(atob(raw))));
+                    let restored = 0;
+                    Object.entries(config).forEach(([k, v]) => {
+                        try { if (k && !k.startsWith('_')) { localStorage.setItem(k, v); restored++; } } catch(_) {}
+                    });
+                    console.log('LD248C: Auto-restored', restored, 'config keys from embedded backup');
+                } catch(e) { console.warn('LD248C embed restore error:', e.message); }
+            })();
             const NSE_BENCHMARK_MAP = {
                 '118955': 'NIFTY 500',  
                 '148990': 'NIFTY 500',  
@@ -4403,7 +4422,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 _initWatchlistCloseBtn();
                 _initZoom();
                 populateAutoStressScenarios();
-                // LD248A: Show persistent config status on every load (no re-entry needed)
+                // LD248C: Show persistent config status on every load (no re-entry needed)
                 (function _showConfigStatus() {
                     try {
                         const k1 = localStorage.getItem('ld_gemini_api_key');
@@ -4471,9 +4490,11 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     } catch(_) {}
                 }, 5500); 
                 setTimeout(() => {
-                    const today = new Date().toISOString().slice(0, 10);
-                    const lastScan = localStorage.getItem('ld_v3_morning_scan_date') || '';
-                    if (lastScan !== today) {
+                    const today = new Date(Date.now()+5.5*3600000).toISOString().slice(0, 10);
+                    const lastScanLS  = localStorage.getItem('ld_v3_morning_scan_date') || '';
+                    // LD248C: Cookie as secondary guard — survives localStorage clear
+                    const lastScanCk  = document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith('ld_scan_date='))?.split('=')[1] || '';
+                    if (lastScanLS !== today && lastScanCk !== today) {
                         _runMorningScan();
                     }
                 }, 3000);
@@ -4544,7 +4565,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                                 const regime  = wrsi >= 50 ? 'A' : wrsi >= 40 ? 'B' : 'C';
                                 const r1m     = last >= 21 ? (prices[last] - prices[last-21]) / prices[last-21] * 100 : 0;
                                 fundScores.push({ code: f.code, name: f.name, r1m, regime, wrsi: Math.round(wrsi) });
-                                // LD248A: Save per-fund data for NPS grid _getLive and BA meta
+                                // LD248C: Save per-fund data for NPS grid _getLive and BA meta
                                 try {
                                     const _todayStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
                                     localStorage.setItem(`ld_morning_${f.code}_${_todayStr}`, JSON.stringify({ wrsi: Math.round(wrsi), regime, r1m, ts: Date.now() }));
@@ -4584,7 +4605,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             }
                         } catch(_) {}
                         if (rank1 && rank1.regime === 'A') {
-                            // LD248A: Do NOT auto-add to watchlist — user manages watchlist manually
+                            // LD248C: Do NOT auto-add to watchlist — user manages watchlist manually
                             // (previously this silently added random rank-1 funds like "Nifty200 Value 30")
                         }
                         fundScores.filter(f => f.regime === 'C').forEach(fearFund => {
@@ -4598,8 +4619,10 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         _setBanner(`🌅 Morning scan in progress… ${amc} / ${type} ✓`, '#f59e0b');
                     }
                 }
-                const today = new Date().toISOString().slice(0, 10);
+                const today = new Date(Date.now()+5.5*3600000).toISOString().slice(0, 10);
                 localStorage.setItem('ld_v3_morning_scan_date', today);
+                // LD248C: Also save to cookie — survives Android Chrome localStorage clear
+                try { document.cookie = `ld_scan_date=${today};max-age=86400;samesite=strict`; } catch(_) {}
                 try { renderWatchlistStubs(); } catch(_) {}
                 const hopeCount = Object.values(scanResults).filter(r => r.rank1?.regime === 'A').length;
                 const fearCount = Object.values(scanResults).filter(r => r.rank1?.regime === 'C').length;
@@ -4620,7 +4643,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     }
                 } catch(_) {}
                 setTimeout(() => { if (banner) banner.style.display = 'none'; }, 18000);
-                // LD248A: Daily alert auto-validation — refresh alert badge after morning scan
+                // LD248C: Daily alert auto-validation
                 try {
                     const _alertDate = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
                     const _alertRanKey = `ld_alert_ran_${_alertDate}`;
@@ -4631,7 +4654,39 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         }, 2000);
                     }
                 } catch(_) {}
-            }
+                // LD248C: AUTO-BACKUP — always save fixed-name self-restoring HTML after scan
+                // Fixed filename LD248C_DAILY.html — tap "Replace" when Android asks
+                // Bookmark that file. Every morning it auto-updates with today's config baked in.
+                setTimeout(() => {
+                    try {
+                        const _blob = {};
+                        CONFIG_KEYS.forEach(k => {
+                            const v = localStorage.getItem(k);
+                            if (v !== null) _blob[k] = v;
+                        });
+                        const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                        ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
+                            const v = localStorage.getItem(prefix + _todayKey);
+                            if (v !== null) _blob[prefix + _todayKey] = v;
+                        });
+                        _blob['ld_last_version'] = 'LD248C';
+                        // Base64 encode — safe from ALL HTML/JS escaping issues
+                        const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(_blob))));
+                        const currentHtml = document.documentElement.outerHTML;
+                        const newHtml = currentHtml.replace(
+                            /(<script[^>]*id="LD248C_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
+                            (_, open, close) => open + configB64 + close
+                        );
+                        const a = document.createElement('a');
+                        a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(newHtml);
+                        a.download = 'LD248C_DAILY.html';  // Fixed name — always overwrites
+                        a.click();
+                        _setBanner(summaryLines.join('<br>') + '<br>💾 Daily backup saved → LD248C_DAILY.html', bannerColor);
+                    } catch(_e) {
+                        console.warn('Auto-backup failed:', _e);
+                    }
+                }, 4000); // 4s delay — let scan banner show first
+            } // end _runMorningScan
             // ── SECTION: SIP CONFIG ─────────────────────────────────────────────
             function openSipConfigModal() {
                 const m = document.getElementById('sipConfigModal');
@@ -4677,7 +4732,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD248A', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD248C', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -8786,7 +8841,7 @@ This is exactly how the system is meant to be played.
                 } catch(_) {
                     try { bridge = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}'); } catch(_) {}
                 }
-                // LD248A: Auto-populate from TM snapshot if bridge is empty
+                // LD248C: Auto-populate from TM snapshot if bridge is empty
                 if (!Object.keys(bridge).length) {
                     try {
                         const snap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null');
@@ -8911,7 +8966,7 @@ This is exactly how the system is meant to be played.
                     bridge = (j.switches && Object.keys(j.switches).length) ? j.switches
                            : JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}');
                 } catch(_) {}
-                // LD248A: load TM snapshot for BAF hurdle + auto-populate
+                // LD248C: load TM snapshot for BAF hurdle + auto-populate
                 let tmSnap = null;
                 try { tmSnap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
                 const bafR1m       = tmSnap?.bafR1m   ?? null;
@@ -8941,7 +8996,7 @@ This is exactly how the system is meant to be played.
                 // Helper: live data from Asset Allocator cache or switch bridge
                 function _getLive(code) {
                     const today = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
-                    // LD248A Priority 1: per-fund morning scan cache (key written during _runMorningScan)
+                    // LD248C Priority 1: per-fund morning scan cache (key written during _runMorningScan)
                     try {
                         const c = localStorage.getItem(`ld_morning_${code}_${today}`);
                         if (c) return JSON.parse(c);
@@ -8974,7 +9029,7 @@ This is exactly how the system is meant to be played.
                     return null;
                 }
 
-                // LD248A: Use TM snapshot for NPS PFM selection (not static formula)
+                // LD248C: Use TM snapshot for NPS PFM selection (not static formula)
                 const _PFM_NAMES = { 'SM008':'HDFC', 'SM007':'ICICI', 'SM005':'KOTAK', 'SM010':'ABSL' };
                 let _tmNpsEquityPfm = null, _tmNpsDebtPfm = null;
                 if (tmSnap) {
@@ -9071,7 +9126,7 @@ This is exactly how the system is meant to be played.
                             const r1m    = live?.r1m   != null ? live.r1m.toFixed(1)  : '—';
                             const rc     = regime==='A'?'#00916e':regime==='C'?'#c8102e':regime==='B'?'#f59e0b':'var(--muted)';
 
-                            // LD248A: isRec via TM prefix match (E → equity selection, C → debt selection)
+                            // LD248C: isRec via TM prefix match (E → equity selection, C → debt selection)
                             const isRecE = fType==='E' && _isRecByPrefix(f.code, _tmNpsEquityPfm);
                             const isRecC = fType==='C' && _isRecByPrefix(f.code, _tmNpsDebtPfm);
                             // Fallback to name match if TM snapshot has no NPS data
@@ -9087,7 +9142,7 @@ This is exactly how the system is meant to be played.
                                 border:${isRec ? `1px solid ${fColor}44` : '1px solid transparent'};
                             `;
                             row.onclick = (e) => { e.stopPropagation(); launchLiveFromAlert(f.code); };
-                            // LD248A: BAF hurdle rate comparison for E and C fund types
+                            // LD248C: BAF hurdle rate comparison for E and C fund types
                             let hurdleHtml = '';
                             if ((fType === 'E' || fType === 'C') && r1m !== '—' && bafThreshold !== null) {
                                 const r1mNum = parseFloat(r1m);
@@ -9134,7 +9189,7 @@ This is exactly how the system is meant to be played.
                     });
                 });
             }
-            // ── LD248A: TM SWAP AUTO-NOTIFICATION ──────────────────────────────────
+            // ── LD248C: TM SWAP AUTO-NOTIFICATION ──────────────────────────────────
             window._renderTmSwapNotification = function() {
                 let snap = null;
                 try { snap = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
@@ -9190,7 +9245,7 @@ This is exactly how the system is meant to be played.
                     box.style.display = 'block';
                 });
             };
-            // ── LD248A: FULL CONFIG BACKUP / RESTORE ──────────────────────────────
+            // ── LD248C: FULL CONFIG BACKUP / RESTORE ──────────────────────────────
             const CONFIG_KEYS = [
                 'ld_gemini_api_key', 'ld_gemini_api_key2', 'ld_gemini_model',
                 'ld_api_gap_sec', 'ld_watchlist', 'ld_tm_snapshot',
@@ -9207,28 +9262,31 @@ This is exactly how the system is meant to be played.
                         const v = localStorage.getItem(k);
                         if (v !== null) blob[k] = v;
                     });
-                    // Save today's BA-run flags so they survive restore
                     const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
                     ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
                         const v = localStorage.getItem(prefix + _todayKey);
                         if (v !== null) blob[prefix + _todayKey] = v;
                     });
-                    // Write version stamp into storage
-                    localStorage.setItem('ld_last_version', 'LD248A');
-                    blob['_exportedAt'] = new Date(Date.now()+5.5*3600000).toISOString().slice(0,16).replace('T',' ') + ' IST';
-                    blob['_version'] = 'LD248A';
+                    blob['ld_last_version'] = 'LD248C';
+                    // Base64 encode — safe from ALL HTML/JS escaping issues
+                    const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
+                    const currentHtml = document.documentElement.outerHTML;
+                    const newHtml = currentHtml.replace(
+                        /(<script[^>]*id="LD248C_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
+                        (_, open, close) => open + configB64 + close
+                    );
                     const wl = JSON.parse(blob['ld_watchlist'] || '[]');
-                    const hasMaskedKey = blob['ld_gemini_api_key'] ? blob['ld_gemini_api_key'].slice(0,4) : 'none';
-                    const fname = `LD_Config_${new Date(Date.now()+5.5*3600000).toISOString().slice(0,10)}_${wl.length}funds.json`;
+                    const date = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
+                    const fname = `LD248C_${date}_${wl.length}funds.html`;
                     const a = document.createElement('a');
-                    a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(blob, null, 2));
+                    a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(newHtml);
                     a.download = fname;
                     a.click();
                     const st = document.getElementById('configBackupStatus');
-                    if (st) { st.style.color='#009e70'; st.textContent = `✅ Exported: ${wl.length} funds, key:${hasMaskedKey}…`; }
+                    if (st) { st.style.color='#009e70'; st.textContent = `✅ Self-restoring HTML saved: ${fname}  (${wl.length} funds baked in — no restore step needed)`; }
                 } catch(e) {
                     const st = document.getElementById('configBackupStatus');
-                    if (st) { st.style.color='#c8102e'; st.textContent = '⚠ Export failed: '+e.message; }
+                    if (st) { st.style.color='#c8102e'; st.textContent = '⚠ Backup failed: '+e.message; }
                 }
             }
             function _configBackupImport(file) {
@@ -9246,7 +9304,7 @@ This is exactly how the system is meant to be played.
                         ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
                             if (blob[prefix + _todayKey] !== undefined) localStorage.setItem(prefix + _todayKey, blob[prefix + _todayKey]);
                         });
-                        localStorage.setItem('ld_last_version', 'LD248A');
+                        localStorage.setItem('ld_last_version', 'LD248C');
                         // Reload watchlist into memory
                         try { _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(_) {}
                         const wl = _watchlist.length;
@@ -9267,7 +9325,7 @@ This is exactly how the system is meant to be played.
             // ── Startup: show prominent banner if API key is missing ──────────────
             (function _checkFirstRun() {
                 // Always stamp current version into storage (for next-load comparison)
-                localStorage.setItem('ld_last_version', 'LD248A');
+                localStorage.setItem('ld_last_version', 'LD248C');
                 const hasKey = !!localStorage.getItem('ld_gemini_api_key');
                 const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist')||'[]')).length > 0;
                 if (!hasKey && !hasWl) {
@@ -12061,7 +12119,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                     c3Badge.style.display = c3NewFunds.length > 0 ? 'inline' : 'none';
                 }
                 try { window._c3NewFundCount = c3NewFunds.length; } catch(_){}
-                // LD248A: COMBINED C3 — single box for Slot 1 AND Slot 2 candidates
+                // LD248C: COMBINED C3 — single box for Slot 1 AND Slot 2 candidates
                 const _c3Swaps = []; // all triggered/near swaps
                 if (c3aSpread !== null) {
                     _c3Swaps.push({ slot: 1, unowned: bestUnowned, held: held1, spread: c3aSpread, triggered: c3aTrigger, display: c3aDisplay });
@@ -12104,7 +12162,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 if (_c3combEl) {
                     _c3combEl.outerHTML = `<div id="tmCond3combined">${condHTML('🔄', 'ANY UNOWNED FUND WITH BETTER 1-MONTH MOMENTUM THAN SLOT 1 OR SLOT 2?', c3combinedBody, _anyTriggered, '⚠ SWAP AVAILABLE', '✓ HOLD — NO SWAP NEEDED')}</div>`;
                 }
-                // LD248A: Save TM snapshot to localStorage for persistent Switch Bridge + Alerts
+                // LD248C: Save TM snapshot to localStorage for persistent Switch Bridge + Alerts
                 try {
                     const _tmSnap = {
                         ts: Date.now(),
@@ -12246,7 +12304,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 </div>
                 <span class="modal-close-btn" onclick="document.getElementById('alertSummaryModal').style.display='none'; document.getElementById('setupScreen').style.display='flex';">[ CLOSE ]</span>
             </div>
-            <!-- LD248A: TM Swap Auto-Notification — OUTSIDE content div so it survives scan redraws -->
+            <!-- LD248C: TM Swap Auto-Notification — OUTSIDE content div so it survives scan redraws -->
             <div id="alertSwapNotification" style="display:none;flex-shrink:0;margin:4px 8px 0;border-radius:6px;overflow:hidden;"></div>
             <div id="alertSummaryContent" style="flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 96px;display:block;">
             </div>
@@ -12329,7 +12387,7 @@ WMA20: ₹${d.wma20 ? d.wma20.toFixed(2) : '--'}
                 const content = document.getElementById('alertSummaryContent');
                 modal.style.display = 'flex';
                 document.getElementById('setupScreen').style.display = 'none';
-                // LD248A: Render TM swap notification immediately (no wait for scan)
+                // LD248C: Render TM swap notification immediately (no wait for scan)
                 if (window._renderTmSwapNotification) window._renderTmSwapNotification();
 
                 // ── Check daily cache first — never rescan same day ──────────
@@ -12682,7 +12740,7 @@ categories.forEach(cat => {
                 ];
                 npsTierDefs.forEach(({ key, label, accent }) => {
                     const entry = (res.SHORTLISTED || []).find(e => e.amc === key);
-                    // LD248A: Pull TM snapshot for NPS selected fund/PFM per Tier
+                    // LD248C: Pull TM snapshot for NPS selected fund/PFM per Tier
                     let tmSnapNps = null;
                     try { tmSnapNps = JSON.parse(localStorage.getItem('ld_tm_snapshot') || 'null'); } catch(_) {}
                     const tmBafR1m       = tmSnapNps?.bafR1m ?? null;
@@ -12740,7 +12798,7 @@ categories.forEach(cat => {
                         npsName.style.cssText = 'font-size:0.62rem;font-weight:400;color:var(--text);line-height:1.3;';
                         npsName.textContent = entry.fund.name.replace(/\[NPS\] /gi,'').replace(/ - Growth| - Direct/gi,'').trim().slice(0, 34);
                         npsBox.appendChild(npsName);
-                        // LD248A: Show E and C rows with PFM + BAF hurdle
+                        // LD248C: Show E and C rows with PFM + BAF hurdle
                         const entryType = _typeFromCode(entry.fund.code);
                         const entryPfm  = _pfmFromCode(entry.fund.code);
                         const entryLive = _getNpsLive(entry.fund.code);
@@ -13770,7 +13828,7 @@ categories.forEach(cat => {
                         : '';
                     const _ts = cached._cachedAtDisplay || cached._cachedAt?.slice(0,16).replace('T',' ') || '';
                     const _stale = _ts ? ` Last updated: ${_ts} IST.` : '';
-                    // LD248A: Use same breadth_v1_ key as watchlist list for consistent count
+                    // LD248C: Use same breadth_v1_ key as watchlist list for consistent count
                     const _wlAll = (() => { try { return JSON.parse(localStorage.getItem('ld_watchlist')||'[]'); } catch(_){return [];} })();
                     const _dateKey = (() => { const n=new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
                     const _wlTotal = _wlAll.length;
@@ -13855,7 +13913,7 @@ categories.forEach(cat => {
 
         
         function _populateFundMeta(fund) {
-            // LD248A: Build RSI from the most accurate source available, in priority order
+            // LD248C: Build RSI from the most accurate source available, in priority order
             const fCode = fund.code || '';
             let wrsiVal = fund.wrsi ?? null;
             let drsiVal = fund.drsi ?? null;
@@ -16449,7 +16507,7 @@ Return a JSON object with this exact structure:
     
     const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'15');  return (v>=10&&v<=100?v:15)*1000;  } catch(e){ return 15_000;  } })();
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD248A';
+    const ADDON_VER     = 'LD248C';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
     
@@ -16483,8 +16541,18 @@ Return a JSON object with this exact structure:
     }
 
     
-    function _hasRanToday()  { try { return !!localStorage.getItem(RUN_FLAG_KEY + _istDate()); } catch(e){ return false; } }
-    function _markRanToday() { try { localStorage.setItem(RUN_FLAG_KEY + _istDate(), '1');      } catch(e){} }
+    function _hasRanToday()  {
+        try {
+            if (localStorage.getItem(RUN_FLAG_KEY + _istDate())) return true;
+            // LD248C: Cookie fallback — survives localStorage clear
+            return document.cookie.split(';').map(c=>c.trim()).some(c=>c===`ld_ba_ran=${_istDate()}`);
+        } catch(e){ return false; }
+    }
+    function _markRanToday() {
+        try { localStorage.setItem(RUN_FLAG_KEY + _istDate(), '1'); } catch(e){}
+        // LD248C: Also set cookie
+        try { document.cookie = `ld_ba_ran=${_istDate()};max-age=86400;samesite=strict`; } catch(_) {}
+    }
 
     
     

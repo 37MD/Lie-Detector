@@ -5218,42 +5218,71 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 }
                 return trSum / period;
             }
-            window.buildLowessGaussianFast = function(prices, gLen = 8, lowessLen = 10) {
-                const gmaArray = new Array(prices.length).fill(null);
-                const smoothedArray = new Array(prices.length).fill(null);
-                for (let idx = 1; idx < prices.length; idx++) {
+            window.buildLowessGaussianFast = function(prices, gLen = 8, lowessLen = 10, atrMult = 1.5) {
+                const n = prices.length;
+                const gmaArray      = new Array(n).fill(null);
+                const smoothedArray = new Array(n).fill(null);
+                const tslArray      = new Array(n).fill(null);
+
+                for (let idx = 1; idx < n; idx++) {
                     if (idx <= gLen) {
-                        gmaArray[idx] = prices[idx];
+                        gmaArray[idx]      = prices[idx];
                         smoothedArray[idx] = prices[idx];
                         continue;
                     }
-                    const slice = prices.slice(idx - gLen, idx + 1); 
-                    const atr = calcMFATR(slice, gLen);
-                    const stdev = calcStdev(slice, gLen);
-                    let sigma = (atr + stdev) / 2.0;
-                    if (sigma === 0) sigma = MIN_SIGMA_FLOOR;
-                    let gma = 0.0;
-                    let sumOfWeights = 0.0;
+
+                    // ── GAUSSIAN (matches Pine: exp(-i² / 2σ²)) ──────────────
+                    const slice = prices.slice(idx - gLen, idx + 1);
+                    const atr   = calcMFATR(slice, gLen);
+                    const std   = calcStdev(slice, gLen);
+                    let sigma   = (atr + std) / 2.0;
+                    if (sigma < MIN_SIGMA_FLOOR) sigma = MIN_SIGMA_FLOOR;
+                    const twoSigmaSq = 2 * sigma * sigma;
+                    let gma = 0.0, sumW = 0.0;
                     for (let i = 0; i < gLen; i++) {
-                        const weight = Math.exp(-Math.pow(((i - (gLen - 1)) / (2 * sigma)), 2) / 2.0);
-                        gma += slice[slice.length - 1 - i] * weight;
-                        sumOfWeights += weight;
+                        // i=0 → most recent bar (src[0] in Pine)
+                        const w = Math.exp(-(i * i) / twoSigmaSq);
+                        gma  += slice[slice.length - 1 - i] * w;
+                        sumW += w;
                     }
-                    gmaArray[idx] = gma / sumOfWeights;
+                    gmaArray[idx] = gma / sumW;
+
+                    // ── LOWESS linear regression (matches Pine lowess_fit) ────
                     if (idx < lowessLen) {
                         smoothedArray[idx] = gmaArray[idx];
                     } else {
-                        let sum_w = 0.0,
-                            sum_wy = 0.0; 
+                        let sw = 0, sx = 0, sy = 0, sx2 = 0, sxy = 0;
                         for (let i = 0; i < lowessLen; i++) {
-                            const w = Math.pow(1 - Math.pow(i / lowessLen, 3), 3);
-                            sum_w += w;
-                            sum_wy += w * (gmaArray[idx - i] ?? gmaArray[idx]);
+                            const norm = i / lowessLen;
+                            const w    = Math.pow(1 - Math.pow(norm, 3), 3); // tricube
+                            const g    = gmaArray[idx - i] ?? gmaArray[idx];
+                            sw  += w;
+                            sx  += w * i;
+                            sy  += w * g;
+                            sx2 += w * i * i;
+                            sxy += w * i * g;
                         }
-                        smoothedArray[idx] = sum_wy / sum_w;
+                        const det = sw * sx2 - sx * sx;
+                        smoothedArray[idx] = det !== 0
+                            ? (sy * sx2 - sx * sxy) / det   // intercept of linear fit
+                            : sy / sw;                       // fallback: weighted mean
                     }
+
+                    // ── ATR BUFFER + RATCHET (matches Pine final_tsl logic) ───
+                    const baseLine = smoothedArray[idx];
+                    const prevBase = smoothedArray[idx - 1] ?? baseLine;
+                    const atrVal   = calcMFATR(slice, gLen);
+                    const isUp     = baseLine > prevBase;
+                    const tslRaw   = isUp
+                        ? baseLine - atrVal * atrMult
+                        : baseLine + atrVal * atrMult;
+                    const prevTsl  = tslArray[idx - 1] ?? tslRaw;
+                    tslArray[idx]  = isUp
+                        ? Math.max(tslRaw, prevTsl)   // ratchet up
+                        : Math.min(tslRaw, prevTsl);  // ratchet down
                 }
-                return smoothedArray;
+
+                return tslArray;
             };
             function calculateConsolidation(prices) {
                 let pcAlert = false;

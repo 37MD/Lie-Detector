@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD252A7</title>
+        <title>Lie Detector — NPS NAV Chart · LD252A11</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2146,7 +2146,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD252A7</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD252A11</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2574,7 +2574,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD252A7 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD252A11 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2586,11 +2586,11 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD252A7 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD252A11 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="firstRunBanner" style="display:none;background:rgba(245,158,11,0.12);border:1.5px solid #f59e0b;border-radius:6px;padding:8px 10px;margin-bottom:8px;text-align:center;">
                 <div class="firstRunTitle" style="font-size:0.58rem;font-weight:700;color:#c97a00;margin-bottom:3px;">⚠ Storage cleared — open your backup HTML to restore</div>
-                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);">Android Chrome clears storage after hours in background. Open your saved <b>LD252A7_date.html</b> backup — config auto-loads.</div>
+                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);">Android Chrome clears storage after hours in background. Open your saved <b>LD252_backup.html</b> backup — config auto-loads.</div>
             </div>
             <!-- ── UNIFIED BA STATUS BAR ── (replaces morningScanBanner + bottom pill + panel counter) -->
             <div id="baGlobalStatusBar" style="
@@ -2868,8 +2868,18 @@
                     <span class="modal-close-btn" onclick="document.getElementById('watchlistModal').style.display='none';document.getElementById('setupScreen').style.display='flex';">[ X ]</span>
                 </div>
             </div>
-            <div style="padding:6px 8px;font-size:0.5rem;color:var(--muted);border-bottom:1px solid var(--border);flex-shrink:0;">
-                Auto-refreshes every 60s · Tap row to open Live Cockpit
+            <div id="wlStatusBar" style="padding:5px 8px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:6px;">
+                <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:0.48rem;font-family:var(--mono);line-height:1.4;">
+                    <span style="color:var(--muted);">BA SCAN:</span>
+                    <span style="color:var(--fg);">Total: <b id="wlStatTotalN" style="color:#a855f7;">–</b></span>
+                    <span style="color:var(--border);">|</span>
+                    <span style="color:var(--fg);">Done: <b id="wlStatDoneN" style="color:#009e70;">–</b></span>
+                    <span style="color:var(--border);">|</span>
+                    <span style="color:var(--fg);">Pending: <b id="wlStatPendN" style="color:#f59e0b;">–</b></span>
+                </div>
+                <button id="wlRestartBABtn"
+                    onclick="(function(){var btn=document.getElementById('wlRestartBABtn');if(!btn||btn.disabled)return;btn.textContent='↺…';btn.disabled=true;btn.style.opacity='0.5';if(window.bgBreadthForceRun){window.bgBreadthForceRun();}setTimeout(function(){var b=document.getElementById('wlRestartBABtn');if(b){b.textContent='↺ BA';b.disabled=false;b.style.opacity='1';}if(window._refreshWlStatusBar)window._refreshWlStatusBar();},3500);})()"
+                    style="font-size:0.48rem;padding:3px 8px;border:1px solid #f59e0b;border-radius:6px;background:transparent;color:#f59e0b;cursor:pointer;flex-shrink:0;font-family:var(--mono);white-space:nowrap;">↺ BA</button>
             </div>
             <!-- BA Results view (toggles with watchlist body) -->
             <div id="wlBaView" style="display:none;flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 8px;flex-direction:column;gap:6px;">
@@ -2908,7 +2918,7 @@
                 </div>
                 <div id="switchBridgeNpsGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"></div>
             </div>
-            <!-- ── LD252A7: Watchlist Backup / Restore ─────────────────── -->
+            <!-- ── LD252A11: Watchlist Backup / Restore ─────────────────── -->
             <div id="wlBackupBar" style="flex-shrink:0;padding:8px 8px 10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px;">
                 <div style="display:flex;gap:6px;">
                     <button onclick="_wlBackup()" style="flex:1;padding:9px 4px;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-family:var(--mono);background:rgba(168,85,247,0.1);border:1.5px solid #a855f7;border-radius:6px;color:#a855f7;cursor:pointer;">
@@ -3747,7 +3757,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 </div>
             </div>
         </div>
-        <!-- LD252A7: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
+        <!-- LD252A11: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
         <script type="application/json" id="LD252A7_EMBED">null</script>
         <script>
             'use strict';
@@ -3768,7 +3778,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 } catch(e) { /* silent */ }
             })();
         </script>
-        <!-- LD252A7: IndexedDB permanent watchlist + fund-box storage — survives Chrome background clearing -->
+        <!-- LD252A11: IndexedDB permanent watchlist + fund-box storage — survives Chrome background clearing -->
         <script>
             'use strict';
             // ── PERMANENT STORAGE via IndexedDB ─────────────────────────────────────
@@ -4784,7 +4794,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD252A7', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD252A11', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -4885,7 +4895,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const v = localStorage.getItem(prefix + _todayKey);
                         if (v !== null) blob[prefix + _todayKey] = v;
                     });
-                    blob['ld_last_version'] = 'LD252A7';
+                    blob['ld_last_version'] = 'LD252A11';
                     const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
                     const currentHtml = document.documentElement.outerHTML;
                     const newHtml = currentHtml.replace(
@@ -4982,7 +4992,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const v = localStorage.getItem(prefix + _todayKey);
                         if (v !== null) blob[prefix + _todayKey] = v;
                     });
-                    blob['ld_last_version'] = 'LD252A7';
+                    blob['ld_last_version'] = 'LD252A11';
                     const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
                     const currentHtml = document.documentElement.outerHTML;
                     const newHtml = currentHtml.replace(
@@ -9145,6 +9155,8 @@ This is exactly how the system is meant to be played.
                 renderSwitchBridgeNpsGrid();    
                 refreshLiveBridgePnL();         
                 _watchlistRefreshTimer = setInterval(refreshWatchlist, 60_000);
+                // Populate BA status bar immediately on open
+                setTimeout(function(){ if(window._refreshWlStatusBar) window._refreshWlStatusBar(); }, 100);
             }
             function openLiveBridge() {
                 openWatchlist();
@@ -13686,6 +13698,15 @@ categories.forEach(cat => {
                 try { if (localStorage.getItem(_ck)) _cachedCount++; } catch(e2) {}
             });
             if (cnt) cnt.textContent = `${_cachedCount}/${showFunds.length} BA done today`;
+            // Update top status bar
+            (function(){
+                const tn=document.getElementById('wlStatTotalN');
+                const dn=document.getElementById('wlStatDoneN');
+                const pn=document.getElementById('wlStatPendN');
+                if(tn) tn.textContent=showFunds.length;
+                if(dn) dn.textContent=_cachedCount;
+                if(pn) pn.textContent=showFunds.length-_cachedCount;
+            })();
 
             if (!showFunds.length) {
                 list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No funds pinned. Open any fund → tap + PIN THIS FUND.</div>';
@@ -14438,6 +14459,22 @@ Return a JSON object with this exact structure:
     
     window._openWatchlistBaView  = _openWatchlistBaView;
     window._buildWlBaList        = _buildWlBaList;
+    window._refreshWlStatusBar   = function() {
+        const _wl2 = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
+        const _dk2 = (function(){ var n=new Date(Date.now()+5.5*3600000); return n.toISOString().slice(0,10).replace(/-/g,''); })();
+        const tot = _wl2.length;
+        let done = 0;
+        _wl2.forEach(function(f){
+            var ck='breadth_v1_'+(f.code||'').replace(/\W/g,'_')+'_'+_dk2;
+            try{ if(localStorage.getItem(ck)) done++; }catch(e){}
+        });
+        var tn=document.getElementById('wlStatTotalN');
+        var dn=document.getElementById('wlStatDoneN');
+        var pn=document.getElementById('wlStatPendN');
+        if(tn) tn.textContent=tot;
+        if(dn) dn.textContent=done;
+        if(pn) pn.textContent=tot-done;
+    };
     window._launchBaFromWatchlist= _launchBaFromWatchlist;
     window._abpAddToWatchlist    = _abpAddToWatchlist;
     })(); 
@@ -17127,9 +17164,31 @@ Return a JSON object with this exact structure:
     };
     </script>
     <div id="ld-scn-overlay" style="display:none;position:fixed;inset:0;z-index:9999;overflow-y:auto;background:#fff;">
-      <div style="position:sticky;top:0;text-align:right;padding:4px 8px;background:rgba(242,245,249,0.97);border-bottom:1px solid #b0bece;z-index:200;">
-        <button onclick="window.closeLDScanner()" style="background:#c8102e;color:#fff;border:none;padding:4px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:'Space Mono',monospace;">&#x2715; CLOSE</button>
+      <div id="scn-top-bar" style="position:sticky;top:0;display:flex;align-items:center;gap:5px;padding:4px 8px;background:rgba(242,245,249,0.97);border-bottom:2px solid #7090b0;z-index:200;flex-wrap:nowrap;">
+        <span style="font-size:11px;font-weight:700;font-family:'Space Mono',monospace;color:#000;white-space:nowrap;flex-shrink:0;">SCANNER</span>
+        <span id="scn-cache-date" style="font-size:8px;color:#7090b0;font-family:'Space Mono',monospace;white-space:nowrap;flex-shrink:0;display:none;"></span>
+        <div id="scn-key-box" style="display:flex;align-items:center;gap:2px;border:1px solid #c8102e;padding:1px 4px;background:#fff;flex-shrink:0;" data-has-key="0">
+          <span id="scn-key-dot" style="font-size:9px;font-weight:700;color:#c8102e;font-family:'Space Mono',monospace;">○</span>
+          <input id="scn-key-input" type="password" placeholder="Gemini key..." style="width:70px;background:transparent;border:none;font-size:9px;outline:none;font-family:'Space Mono',monospace;padding:1px 2px;" />
+          <button onclick="window.scnSaveKey()" style="background:transparent;border:none;cursor:pointer;font-size:11px;color:#009e70;font-weight:700;padding:0 2px;">✓</button>
+          <button id="scn-key-clear" onclick="window.scnClearKey()" style="display:none;background:transparent;border:none;cursor:pointer;font-size:11px;color:#c8102e;font-weight:700;padding:0 2px;">✕</button>
+        </div>
+        <span id="scn-key-st" style="font-size:8px;color:#009e70;font-family:'Space Mono',monospace;display:none;flex-shrink:0;"></span>
+        <div style="margin-left:auto;flex-shrink:0;">
+          <button onclick="window.closeLDScanner()" style="background:#c8102e;color:#fff;border:none;padding:4px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:'Space Mono',monospace;">&#x2715; CLOSE</button>
+        </div>
       </div>
+      <script>
+        (function(){
+          var GK_KEY = "ld_scn_gem_key", GK_KEY2 = "ld_gemini_api_key";
+          function _dot(has){ var el=document.getElementById('scn-key-dot'); if(!el)return; el.textContent=has?'●':'○'; el.style.color=has?'#009e70':'#c8102e'; var box=document.getElementById('scn-key-box'); if(box)box.style.borderColor=has?'#009e70':'#c8102e'; var clr=document.getElementById('scn-key-clear'); if(clr)clr.style.display=has?'':'none'; }
+          function _sync(){ try{ var k=localStorage.getItem(GK_KEY)||localStorage.getItem(GK_KEY2)||''; _dot(k.length>20); var cd=document.getElementById('scn-cache-date'); if(cd && window._scnCacheDate){ cd.textContent='💾 '+window._scnCacheDate; cd.style.display=''; } }catch(e){} }
+          window.scnSaveKey=function(){ var inp=document.getElementById('scn-key-input'); if(!inp)return; var k=inp.value.trim(); if(k.length<20){ var st=document.getElementById('scn-key-st'); if(st){st.textContent='Too short';st.style.display='';setTimeout(function(){st.style.display='none';},2000);} return; } try{localStorage.setItem(GK_KEY,k);localStorage.setItem(GK_KEY2,k);}catch(e){} inp.value=''; _dot(true); var st=document.getElementById('scn-key-st'); if(st){st.textContent='Saved ✓';st.style.display='';setTimeout(function(){st.style.display='none';},2500);} if(window._scnReactSync)window._scnReactSync(k); };
+          window.scnClearKey=function(){ try{localStorage.removeItem(GK_KEY);localStorage.removeItem(GK_KEY2);}catch(e){} _dot(false); if(window._scnReactSync)window._scnReactSync(''); };
+          document.addEventListener('DOMContentLoaded',_sync);
+          setTimeout(_sync,500);
+        })();
+      </script>
       <div id="ld-scn-root"></div>
     </div>
     <style>@keyframes scn-spin{to{transform:rotate(360deg);}}</style>
@@ -18278,6 +18337,20 @@ function LDScanner() {
     }
     return null;
   }
+  // Bridge: expose React key setter to DOM key handler in top bar
+  useEffect(() => {
+    window._scnReactSync = (k) => {
+      setGemKey(k);
+      setKeyIn("");
+    };
+    // sync cache date to top bar
+    if (cacheDate) {
+      window._scnCacheDate = cacheDate;
+      const cd = document.getElementById('scn-cache-date');
+      if (cd) { cd.textContent = '\uD83D\uDCBE ' + cacheDate; cd.style.display = ''; }
+    }
+    return () => { window._scnReactSync = null; };
+  }, [cacheDate]);
   function saveKey() {
     const k = keyIn.trim();
     if (!k || k.length < 20) {
@@ -18496,109 +18569,34 @@ function LDScanner() {
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       background: surf,
-      borderBottom: `2px solid ${bdr2}`,
-      padding: "5px 10px",
+      borderBottom: `1px solid ${bdr}`,
+      padding: "3px 6px",
       position: "sticky",
-      top: 0,
-      zIndex: 100,
-      display: "flex",
-      alignItems: "center",
-      gap: 6,
-      flexWrap: "wrap"
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 13,
-      fontWeight: 700,
-      letterSpacing: 0.5,
-      ...F,
-      whiteSpace: "nowrap"
-    }
-  }, "REGIME SCANNER"), cacheDate && /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 9,
-      color: bdr2,
-      ...F,
-      whiteSpace: "nowrap"
-    }
-  }, "\uD83D\uDCBE", " ", cacheDate), /*#__PURE__*/React.createElement("div", {
-    style: {
+      top: 44,
+      zIndex: 99,
       display: "flex",
       alignItems: "center",
       gap: 4,
-      border: `1px solid ${gemKey ? accent : red}`,
-      padding: "2px 6px",
-      background: "#fff"
+      flexWrap: "nowrap",
+      overflowX: "auto",
+      overflowY: "hidden",
+      WebkitOverflowScrolling: "touch"
     }
-  }, /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("select", {
     style: {
       fontSize: 9,
-      fontWeight: 700,
-      color: gemKey ? accent : red,
-      ...F,
-      whiteSpace: "nowrap"
-    }
-  }, gemKey ? "●" : "○"), /*#__PURE__*/React.createElement("input", {
-    style: {
-      width: 130,
-      background: "transparent",
-      border: "none",
-      fontSize: 10,
-      outline: "none",
-      ...F,
-      padding: "1px 3px"
-    },
-    type: "password",
-    placeholder: "Gemini key...",
-    value: keyIn,
-    onChange: e => setKeyIn(e.target.value),
-    onKeyDown: e => e.key === "Enter" && saveKey()
-  }), /*#__PURE__*/React.createElement("button", {
-    onClick: saveKey,
-    style: {
-      background: "transparent",
-      border: "none",
-      cursor: "pointer",
-      fontSize: 11,
-      color: accent,
-      fontWeight: 700,
-      padding: "0 2px"
-    }
-  }, "\u2713"), gemKey && /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      try {
-        localStorage.removeItem("ld_scn_gem_key");
-      } catch (e) {}
-      setGemKey("");
-    },
-    style: {
-      background: "transparent",
-      border: "none",
-      cursor: "pointer",
-      fontSize: 11,
-      color: red,
-      fontWeight: 700,
-      padding: "0 2px"
-    }
-  }, "\u2715"), keySt && /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 9,
-      color: accent,
-      ...F
-    }
-  }, keySt)), /*#__PURE__*/React.createElement("select", {
-    style: {
-      fontSize: 10,
-      padding: "3px 5px",
+      padding: "2px 3px",
       background: "#fff",
       border: `1px solid ${bdr}`,
-      fontFamily: "'Space Mono','Courier New',monospace"
+      fontFamily: "'Space Mono','Courier New',monospace",
+      flexShrink: 0,
+      maxWidth: 80
     },
     value: regF,
     onChange: e => setRegF(e.target.value)
   }, /*#__PURE__*/React.createElement("option", {
     value: "ALL"
-  }, "All Regimes"), /*#__PURE__*/React.createElement("option", {
+  }, "Regime"), /*#__PURE__*/React.createElement("option", {
     value: "A"
   }, "A \u2014 Hope"), /*#__PURE__*/React.createElement("option", {
     value: "B"
@@ -18606,17 +18604,19 @@ function LDScanner() {
     value: "C"
   }, "C \u2014 Fear")), /*#__PURE__*/React.createElement("select", {
     style: {
-      fontSize: 10,
-      padding: "3px 5px",
+      fontSize: 9,
+      padding: "2px 3px",
       background: "#fff",
       border: `1px solid ${bdr}`,
-      fontFamily: "'Space Mono','Courier New',monospace"
+      fontFamily: "'Space Mono','Courier New',monospace",
+      flexShrink: 0,
+      maxWidth: 80
     },
     value: phaseF,
     onChange: e => setPhaseF(e.target.value)
   }, /*#__PURE__*/React.createElement("option", {
     value: "ALL"
-  }, "All Verdicts"), /*#__PURE__*/React.createElement("option", {
+  }, "Verdict"), /*#__PURE__*/React.createElement("option", {
     value: "VERIFIED STRIKE"
   }, "\uD83D\uDC8E Strike"), /*#__PURE__*/React.createElement("option", {
     value: "NEAR MISS"
@@ -18628,13 +18628,12 @@ function LDScanner() {
     style: {
       background: accent,
       border: "none",
-      padding: "4px 12px",
-      fontSize: 10,
+      padding: "3px 8px",
+      fontSize: 12,
       fontWeight: 700,
       cursor: "pointer",
       color: "#fff",
-      letterSpacing: 1,
-      ...F,
+      flexShrink: 0,
       whiteSpace: "nowrap"
     },
     onClick: doScan
@@ -18642,30 +18641,65 @@ function LDScanner() {
     style: {
       background: "#fde8e8",
       border: `1px solid ${red}`,
-      padding: "4px 12px",
+      padding: "3px 8px",
       fontSize: 10,
       fontWeight: 700,
       cursor: "pointer",
       color: red,
-      ...F,
+      flexShrink: 0,
       whiteSpace: "nowrap"
     },
     onClick: () => {
       stopRef.current = true;
       baStopRef.current = true;
     }
-  }, "\u25A0 ", pct, "%"), scanning && /*#__PURE__*/React.createElement("span", {
+  }, "\u25A0 ", pct, "%"), /*#__PURE__*/React.createElement("span", {
+    title: "Scanned / Total",
     style: {
       fontSize: 9,
+      fontWeight: 700,
+      padding: "2px 5px",
+      background: Object.keys(results).length > 0 ? "#d4edda" : surf2,
+      border: `1px solid ${Object.keys(results).length > 0 ? accent : bdr}`,
+      whiteSpace: "nowrap",
+      flexShrink: 0,
+      fontFamily: "'Space Mono','Courier New',monospace",
+      color: "#000",
+      lineHeight: 1.5
+    }
+  }, Object.keys(results).length, "/", ALL_INDICES.filter(i => i.symbol).length, /*#__PURE__*/React.createElement("span", {
+    style: {fontSize: 7, color: bdr2, marginLeft: 2, fontWeight: 400, fontFamily: "'Space Mono','Courier New',monospace"}
+  }, "scn")), /*#__PURE__*/React.createElement("span", {
+    title: "Displayed / Total",
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      padding: "2px 5px",
+      background: rows.length > 0 && rows.length < ALL_INDICES.filter(i => i.symbol).length ? "#fff3cd" : surf2,
+      border: `1px solid ${rows.length > 0 && rows.length < ALL_INDICES.filter(i => i.symbol).length ? "#c97a00" : bdr}`,
+      whiteSpace: "nowrap",
+      flexShrink: 0,
+      fontFamily: "'Space Mono','Courier New',monospace",
+      color: "#000",
+      lineHeight: 1.5
+    }
+  }, rows.length, "/", ALL_INDICES.filter(i => i.symbol).length, /*#__PURE__*/React.createElement("span", {
+    style: {fontSize: 7, color: bdr2, marginLeft: 2, fontWeight: 400, fontFamily: "'Space Mono','Courier New',monospace"}
+  }, "dsp")), scanning && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 8,
       color: bdr2,
-      ...F
+      fontFamily: "'Space Mono','Courier New',monospace",
+      whiteSpace: "nowrap",
+      flexShrink: 0
     }
   }, progress.label), /*#__PURE__*/React.createElement("div", {
     style: {
       marginLeft: "auto",
       display: "flex",
       alignItems: "center",
-      gap: 6
+      gap: 4,
+      flexShrink: 0
     }
   }, vix != null && /*#__PURE__*/React.createElement("span", {
     style: {

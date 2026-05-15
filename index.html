@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD252A</title>
+        <title>Lie Detector — NPS NAV Chart · LD252A6</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2146,7 +2146,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD252A</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD252A6</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2574,7 +2574,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD252A &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD252A6 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2586,13 +2586,58 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD252A 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD252A6 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="firstRunBanner" style="display:none;background:rgba(245,158,11,0.12);border:1.5px solid #f59e0b;border-radius:6px;padding:8px 10px;margin-bottom:8px;text-align:center;">
                 <div class="firstRunTitle" style="font-size:0.58rem;font-weight:700;color:#c97a00;margin-bottom:3px;">⚠ Storage cleared — open your backup HTML to restore</div>
-                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);">Android Chrome clears storage after hours in background. Open your saved <b>LD252A_date.html</b> backup — config auto-loads.</div>
+                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);">Android Chrome clears storage after hours in background. Open your saved <b>LD252A6_date.html</b> backup — config auto-loads.</div>
             </div>
-            <div id="morningScanBanner" style="display:none;margin:2px 12px 6px;padding:6px 10px;border-radius:8px;font-size:0.52rem;font-family:var(--mono);letter-spacing:0.04em;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-align:center;line-height:1.6;"></div>
+            <!-- ── UNIFIED BA STATUS BAR ── (replaces morningScanBanner + bottom pill + panel counter) -->
+            <div id="baGlobalStatusBar" style="
+                display:none;
+                margin:0 0 8px 0;
+                padding:0;
+                border-radius:8px;
+                overflow:hidden;
+                border:1.5px solid var(--accent);
+                background:linear-gradient(135deg,rgba(0,158,112,0.08),rgba(0,158,112,0.03));
+                font-family:var(--mono);
+            ">
+                <!-- Top row: counter + status message -->
+                <div style="display:flex;align-items:center;gap:8px;padding:7px 10px 5px;">
+                    <span id="baStatusDot" style="
+                        width:9px;height:9px;border-radius:50%;
+                        background:var(--accent);flex-shrink:0;
+                        animation:baPulseDot 1.4s ease-in-out infinite;
+                    "></span>
+                    <span id="baStatusCounter" style="
+                        font-size:0.7rem;font-weight:700;color:var(--accent);
+                        white-space:nowrap;flex-shrink:0;letter-spacing:0.04em;
+                        background:rgba(0,158,112,0.12);padding:2px 7px;border-radius:10px;
+                        border:1px solid var(--accent);
+                    ">0/0</span>
+                    <span id="baStatusMsg" style="
+                        flex:1;font-size:0.55rem;color:var(--muted2);
+                        overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+                        letter-spacing:0.03em;
+                    ">✨ BA engine ready</span>
+                    <span id="baStatusNextLabel" style="
+                        font-size:0.48rem;color:var(--muted);white-space:nowrap;flex-shrink:0;
+                    "></span>
+                </div>
+                <!-- Progress bar -->
+                <div style="height:3px;background:var(--surface3);margin:0 10px 7px;">
+                    <div id="baStatusProgress" style="
+                        height:100%;background:var(--accent);width:0%;
+                        border-radius:2px;transition:width 0.4s ease;
+                    "></div>
+                </div>
+            </div>
+            <style>
+                @keyframes baPulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.35;transform:scale(0.8)}}
+            </style>
+            <!-- keep morningScanBanner for legacy JS refs but hide it -->
+            <div id="morningScanBanner" style="display:none;"></div>
             <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;margin-bottom:10px;padding:0 2px;">
                 <!-- SCAN BOX — vertical pill, spans 2 rows -->
                 <button onclick="openLDScanner()" style="
@@ -2864,33 +2909,7 @@
                 <div id="switchBridgeNpsGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"></div>
             </div>
             </div><!-- end watchlistScrollArea -->
-            <div style="padding:6px 8px 4px;border-top:1px solid var(--border);flex-shrink:0;">
-                <div style="font-size:0.48rem;color:var(--muted);margin-bottom:5px;text-align:center;letter-spacing:0.06em;">SWITCH JOURNAL BACKUP (JSON ← Mobile Storage)</div>
-                <div style="display:flex;gap:5px;">
-                    <button class="setup-btn" style="flex:1;font-size:0.52rem;border-color:#a855f7;color:#a855f7;" onclick="_SJ.export()">⬇ EXPORT JSON</button>
-                    <label class="setup-btn" style="flex:1;font-size:0.52rem;border-color:#00b4d8;color:#00b4d8;cursor:pointer;text-align:center;padding:5px 4px;">
-                        ⬆ IMPORT JSON
-                        <input type="file" accept=".json" style="display:none;" onchange="_SJ.import(this.files[0]);this.value='';">
-                    </label>
-                </div>
-            </div>
-            <!-- LD252A: Full config backup/restore panel -->
-            <div style="padding:6px 8px 4px;border-top:2px solid #f59e0b;flex-shrink:0;background:rgba(245,158,11,0.06);">
-                <div style="font-size:0.52rem;color:#c97a00;margin-bottom:4px;text-align:center;letter-spacing:0.06em;font-weight:700;">💾 FULL CONFIG BACKUP — Keys · Watchlist · Settings</div>
-                <div style="font-size:0.42rem;color:var(--muted);text-align:center;margin-bottom:5px;">Saves a new HTML with everything baked in. Open that file next time — auto-loads instantly.</div>
-                <div style="display:flex;gap:5px;margin-bottom:5px;">
-                    <button class="setup-btn" style="flex:1;font-size:0.55rem;font-weight:700;border-color:#f59e0b;color:#c97a00;min-height:40px;" onclick="_configBackupExport()">⬇ BACKUP → NEW HTML</button>
-                    <label class="setup-btn" style="flex:1;font-size:0.55rem;font-weight:700;border-color:#009e70;color:#009e70;cursor:pointer;text-align:center;padding:5px 4px;min-height:40px;">
-                        ⬆ RESTORE (HTML/JSON)
-                        <input type="file" accept=".json,.html" style="display:none;" onchange="_configBackupImport(this.files[0]);this.value='';">
-                    </label>
-                </div>
-                <div id="configBackupStatus" style="font-size:0.44rem;color:var(--muted);text-align:center;min-height:14px;"></div>
-            </div>
-            <div style="padding:6px 8px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:6px;">
-                <button class="setup-btn" style="border-color:var(--border2);color:var(--muted2);flex:1;font-size:0.55rem;min-height:44px;padding:8px 6px;" onclick="refreshWatchlist()">↺ REFRESH ALL</button>
-                <button class="setup-btn" style="border-color:var(--red);color:var(--red);flex:1;font-size:0.55rem;min-height:44px;padding:8px 6px;" onclick="clearWatchlist()">🗑 CLEAR</button>
-            </div>
+
         </div>
         <div id="liveChartModal" class="modal-overlay">
             <div class="modal-close" style="padding-left: 4px; padding-right: 4px;">
@@ -3715,14 +3734,14 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 </div>
             </div>
         </div>
-        <!-- LD252A: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
-        <script type="application/json" id="LD252A_EMBED">null</script>
+        <!-- LD252A6: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
+        <script type="application/json" id="LD252A6_EMBED">null</script>
         <script>
             'use strict';
             // Auto-restore from embed on startup (fires before main script)
             (function _autoRestoreFromEmbed() {
                 try {
-                    const embedEl = document.getElementById('LD252A_EMBED');
+                    const embedEl = document.getElementById('LD252A6_EMBED');
                     if (!embedEl) return;
                     const raw = (embedEl.textContent || embedEl.innerText || '').trim();
                     if (!raw || raw === 'null') return;
@@ -4614,7 +4633,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD252A', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD252A6', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -4692,7 +4711,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             };
             window._SJ = _SJ;
 
-            // ── LD252A: FULL CONFIG BACKUP / RESTORE ─────────────────────────────
+            // ── LD252A6: FULL CONFIG BACKUP / RESTORE ─────────────────────────────
             const CONFIG_KEYS = [
                 'ld_gemini_api_key', 'ld_gemini_api_key2', 'ld_gemini_model',
                 'ld_api_gap_sec', 'ld_active_key_slot',
@@ -4715,16 +4734,16 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const v = localStorage.getItem(prefix + _todayKey);
                         if (v !== null) blob[prefix + _todayKey] = v;
                     });
-                    blob['ld_last_version'] = 'LD252A';
+                    blob['ld_last_version'] = 'LD252A6';
                     const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
                     const currentHtml = document.documentElement.outerHTML;
                     const newHtml = currentHtml.replace(
-                        /(<script[^>]*id="LD252A_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
+                        /(<script[^>]*id="LD252A6_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
                         (_, open, close) => open + configB64 + close
                     );
                     const wl = JSON.parse(blob['ld_watchlist'] || '[]');
                     const date = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
-                    const fname = `LD252A_${date}_${wl.length}funds.html`;
+                    const fname = `LD252A6_${date}_${wl.length}funds.html`;
                     const a = document.createElement('a');
                     a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(newHtml);
                     a.download = fname;
@@ -4746,7 +4765,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         let fileType = 'unknown';
                         if (raw.trim().startsWith('<!DOCTYPE') || raw.trim().startsWith('<html')) {
                             fileType = 'html';
-                            const match = raw.match(/<script[^>]*id="LD252A_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                            const match = raw.match(/<script[^>]*id="LD252A6_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD251_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD250_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD249A_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
@@ -4783,7 +4802,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
                             if (blob[prefix + _todayKey] !== undefined) localStorage.setItem(prefix + _todayKey, blob[prefix + _todayKey]);
                         });
-                        localStorage.setItem('ld_last_version', 'LD252A');
+                        localStorage.setItem('ld_last_version', 'LD252A6');
                         try { _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(_) {}
                         const wl = _watchlist.length;
                         const hasKey = !!localStorage.getItem('ld_gemini_api_key');
@@ -4802,7 +4821,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             window._configBackupImport = _configBackupImport;
             // First-run check: show banner if storage cleared
             (function _checkFirstRun() {
-                localStorage.setItem('ld_last_version', 'LD252A');
+                localStorage.setItem('ld_last_version', 'LD252A6');
                 const hasKey = !!localStorage.getItem('ld_gemini_api_key');
                 const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist')||'[]')).length > 0;
                 if (!hasKey && !hasWl) {
@@ -5569,9 +5588,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             window.LD_AUDITOR_STATE.niftyWrsi = Math.round(window._niftyWrsi);
                             window.LD_AUDITOR_STATE.macroVeto = window._niftyWrsi < 40;
                             // Refresh debug panel if it is open
-                            if (document.getElementById('ld-debug-panel')?.style.display !== 'none') {
-                                window._ldRefreshDebug && window._ldRefreshDebug();
-                            }
+
                         }
                     })
                     .catch(() => {});
@@ -5690,9 +5707,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         window._lastNav    = snap.nav;
 
                         // Refresh debug panel if open
-                        if (document.getElementById('ld-debug-panel')?.style.display !== 'none') {
-                            window._ldRefreshDebug && window._ldRefreshDebug();
-                        }
+
                     } catch(_e) { }
                 })();
                 // === FIX A: Export pcAlert + ncAlert to window so AI context can read them ===
@@ -6269,7 +6284,10 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                     alertText = '🚨 NC BREAKDOWN ➔ DO NOT BUY';
                     alertClass = 'alert-danger';
                 } else if (lastRegime === 'A') {
-                    if (snap.pcAlert) {
+                    if (window._tripleRsiAligned === 3) {
+                        alertText = `🔥 TRIPLE RSI CONFLUENCE W4·W8·W14 ≥50 ➔ HIGH CONVICTION BUY`;
+                        alertClass = 'alert-buy';
+                    } else if (snap.pcAlert) {
                         alertText = `🟢 PC BREAKOUT ➔ BUY TRANCHE`;
                         alertClass = 'alert-buy';
                     } else if (lastDRsi < 40) {
@@ -6280,6 +6298,9 @@ ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div></div>`;
                         alertClass = 'alert-buy';
                     }
                 }
+                // === SYNC: Store canonical alert state for cross-modal consistency ===
+                window._lastLiveAlertText = alertText;
+                window._lastLiveAlertClass = alertClass;
                 const banner = document.getElementById('liveAlertBanner');
                 banner.textContent = alertText || 'WAITING FOR SIGNS : HOLD ...';
                 banner.style.color = alertText ? '#000000' : 'var(--muted2)';
@@ -13492,6 +13513,13 @@ categories.forEach(cat => {
                     const _baCounter = _baTotal > 0 ? ` Storage: ${_baCount}/${_baTotal} BA done today.` : '';
                     cacheNote.textContent = '✅ Stored analysis — zero tokens used.' + bgBadge + lockNote + _stale + _baCounter;
                     cacheNote.style.color = cached._bgSource ? '#c97a00' : '#64748b';
+                    // Sync the unified Page 1 status bar
+                    if (typeof _updateUnifiedBAStatus === 'function') {
+                        _updateUnifiedBAStatus(
+                            _baTotal > 0 ? `✅ BA: ${_baCount}/${_baTotal} done today` : '✅ Stored analysis loaded',
+                            '#009e70'
+                        );
+                    }
                 }
                 _renderVerdict(cached);
                 _renderStocks(cached.stocks);
@@ -14602,14 +14630,10 @@ Return a JSON object with this exact structure:
             <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
                 <select id="ld-api-gap-select" style="flex:1;font-size:0.52rem;padding:5px 8px;border-radius:5px;
                         border:1.5px solid #b0bece;background:#f2f5f9;color:#000;outline:none;font-family:var(--mono);">
-                    <option value="30" selected>⚡ Standard — 30s gap (default)</option>
-                    <option value="25">🚀 Fast — 25s gap</option>
-                    <option value="60">🐇 Conservative — 60s gap</option>
-                    <option value="100">🐢 Slow Access — 100s gap (quota-safe)</option>
-                    <option value="15">🔬 Testing — 15s gap</option>
-                    <option value="10">🔬 Testing — 10s gap</option>
-                    <option value="5">🔬 Testing — 5s gap</option>
-                    <option value="3">⚠ Testing — 3s gap (quota risk)</option>
+                    <option value="5" selected>⚡ Turbo — 5s gap (default)</option>
+                    <option value="10">🚀 Fast — 10s gap</option>
+                    <option value="25">🐇 Standard — 25s gap</option>
+                    <option value="50">🐢 Safe — 50s gap (quota-safe)</option>
                 </select>
                 <button id="ld-gap-save" style="background:#ffffff;color:#000;border:1.5px solid #b0bece;
                         border-radius:5px;padding:6px 11px;font-size:0.5rem;cursor:pointer;
@@ -14681,7 +14705,7 @@ Return a JSON object with this exact structure:
             const gapSel  = document.getElementById('ld-api-gap-select');
             const gapSave = document.getElementById('ld-gap-save');
             if (gapSel) {
-                const saved = localStorage.getItem('ld_api_gap_sec') || '30';
+                const saved = localStorage.getItem('ld_api_gap_sec') || '5';
                 gapSel.value = saved;
             }
             if (gapSave && gapSel) {
@@ -15004,7 +15028,7 @@ Return a JSON object with this exact structure:
             return { fundName, fundCode };
         }
         function gatherLeanContext() {
-            let ctx = "=== LD252A LEAN TARGET FUND DUMP ===\n";
+            let ctx = "=== LD252A6 LEAN TARGET FUND DUMP ===\n";
             ctx += `Timestamp: ${new Date().toISOString()}\n`;
             const { fundName, fundCode } = getFundInfo();
             const regime = document.getElementById('liveRegimeBlock')?.textContent || document.getElementById('regimeBlock')?.textContent || 'N/A';
@@ -15129,7 +15153,7 @@ Return a JSON object with this exact structure:
             return ctx;
         }
         function gatherContext() {
-            let ctx = "=== LD252A SIGNAL DEEP DUMP ===\n";
+            let ctx = "=== LD252A6 SIGNAL DEEP DUMP ===\n";
             ctx += `Timestamp: ${new Date().toISOString()}\n`;
             const activeModal = document.querySelector('.modal[style*="display: flex"]');
             ctx += `\n[UI SURFACE]\nVisible Screen: ${activeModal ? activeModal.id : 'Main Dashboard'}\n`;
@@ -15660,7 +15684,7 @@ Return a JSON object with this exact structure:
             try { ctx = gatherLeanContext(); } catch(e) { ctx = '(Fund context unavailable — open Live Cockpit first)'; }
 
             const systemPrompt =
-                'You are the LD252A System Brain — an expert NPS/MF fund analyst embedded in the Lie Detector app.\n' +
+                'You are the LD252A6 System Brain — an expert NPS/MF fund analyst embedded in the Lie Detector app.\n' +
                 'You analyse Indian NPS and Mutual Fund NAV data using RSI, W-RSI, regime classification (A/B/C), TSL floors, WMA20, and momentum signals.\n' +
                 'Rules: Regime A (W-RSI≥50)=Bull, B (40-50)=Transition, C (<40)=Bear. D-RSI<40=oversold BUY zone. TSL breach=SELL ALL.\n' +
                 'Answer concisely. Use ₹ for prices. Highlight BUY/SELL signals clearly. Below is the current fund data:\n\n' +
@@ -15974,123 +15998,8 @@ Return a JSON object with this exact structure:
     <!-- Hidden PDF file input -->
     <input type="file" id="ld-pdf-file-input" accept="application/pdf" style="display:none;">
 
-    <div id="ld-debug-btn" onclick="window._ldToggleDebug()" title="Auditor State Debug" style="
-        position:fixed;bottom:72px;left:8px;z-index:19999;
-        background:#1a1a2e;color:#00e8a2;border:1px solid #00e8a2;
-        border-radius:6px;padding:4px 8px;font-size:0.55rem;font-weight:700;
-        cursor:pointer;letter-spacing:0.05em;opacity:0.85;user-select:none;">🔬 DEBUG</div>
-    <div id="ld-debug-panel" style="
-        display:none;position:fixed;bottom:100px;left:8px;z-index:19998;
-        width:320px;max-height:70vh;overflow-y:auto;
-        background:#0d0d1a;border:1px solid #00e8a2;border-radius:8px;
-        font-family:monospace;font-size:0.6rem;color:#e0e0e0;padding:10px 12px;
-        box-shadow:0 4px 24px rgba(0,232,162,0.15);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <span style="color:#00e8a2;font-weight:700;font-size:0.65rem;">🔬 LD AUDITOR STATE</span>
-            <span onclick="window._ldToggleDebug()" style="cursor:pointer;color:#888;font-size:0.7rem;">✕</span>
-        </div>
-        <div id="ld-debug-content" style="line-height:1.8;white-space:pre-wrap;"></div>
-    </div>
-    <script>
-    (function() {
-        window._ldToggleDebug = function() {
-            const p = document.getElementById('ld-debug-panel');
-            const showing = p.style.display !== 'none';
-            p.style.display = showing ? 'none' : 'block';
-            if (!showing) window._ldRefreshDebug();
-        };
-        window._ldRefreshDebug = function() {
-            const el = document.getElementById('ld-debug-content');
-            if (!el) return;
-            const S = window.LD_AUDITOR_STATE;
-            if (!S) {
-                el.innerHTML = '<span style="color:#f04060">⚠ No state yet.\nOpen Live Cockpit first.</span>';
-                return;
-            }
-            const row = (label, val, color) =>
-                `<span style="color:#888">${label.padEnd(18)}</span><span style="color:${color||'#e0e0e0'}">${val}</span>\n`;
-            const regColor  = S.regime === 'A' ? '#00e8a2' : S.regime === 'B' ? '#f5a623' : '#f04060';
-            const convColor = S.conviction?.startsWith('HIGH') ? '#00e8a2'
-                            : S.conviction?.startsWith('MEDIUM') ? '#f5a623' : '#f04060';
-            const drsiColor = S.drsi < 35 ? '#00e8a2' : S.drsi < 40 ? '#f5a623' : '#e0e0e0';
-
-            
-            let liveSignal = 'HOLD', liveTier = '—', liveColor = '#f5a623';
-            try {
-                const { wrsi, drsi, delta, tslHit, ncAlert, pcAlert,
-                        crossover, wma20, nav, macroVeto, niftyWrsi, tripleRsiAligned } = S;
-                const regA = wrsi >= 50, regB = wrsi >= 40 && wrsi < 50, regC = wrsi < 40;
-                if (macroVeto === true) {
-                    liveSignal = 'WAIT'; liveTier = 'MACRO GATE'; liveColor = '#f04060';
-                } else if (tslHit) {
-                    liveSignal = 'SELL ALL'; liveTier = 'TSL BREACH'; liveColor = '#f04060';
-                } else if (ncAlert) {
-                    liveSignal = 'SELL ALERT'; liveTier = 'NC BREAKDOWN'; liveColor = '#f04060';
-                } else if (regC) {
-                    liveSignal = 'SELL ALL'; liveTier = 'REGIME C FEAR'; liveColor = '#f04060';
-                } else if (wma20 && nav < wma20 && regA) {
-                    liveSignal = 'TRIM 20%'; liveTier = 'WMA BREACH'; liveColor = '#f5a623';
-                } else if (regA && tripleRsiAligned === 3) {
-                    liveSignal = 'BUY'; liveTier = 'TRIPLE CONFLUENCE'; liveColor = '#00e8a2';
-                } else if (regA && drsi < 40) {
-                    liveSignal = 'BUY'; liveTier = drsi < 35 ? 'DEEP OVERSOLD' : 'OVERSOLD'; liveColor = '#00e8a2';
-                } else if (regA && delta < -15) {
-                    liveSignal = 'BUY'; liveTier = 'SLINGSHOT'; liveColor = '#00e8a2';
-                } else if (regA && pcAlert) {
-                    liveSignal = 'BUY'; liveTier = 'PC BREAKOUT'; liveColor = '#00e8a2';
-                } else if (crossover === 'BREAKOUT') {
-                    liveSignal = 'BUY'; liveTier = 'REGIME BREAKOUT'; liveColor = '#00e8a2';
-                } else if (regB) {
-                    liveSignal = 'HOLD'; liveTier = 'REGIME WATCH'; liveColor = '#f5a623';
-                } else {
-                    liveSignal = 'HOLD'; liveTier = 'NO TRIGGER'; liveColor = '#f5a623';
-                }
-            } catch(_) {}
-
-            el.innerHTML =
-                row('Fund',        S.fund || '—') +
-                row('Code',        S.code || '—') +
-                row('Snap time',   S.ts ? S.ts.slice(11,19)+' UTC' : '—') +
-                '─────────────────────\n' +
-                row('NAV',         S.nav  != null ? `₹${S.nav.toFixed(2)}`  : '—') +
-                row('TSL Floor',   S.tslVal > 0 ? `₹${S.tslVal.toFixed(2)}` : 'N/A', S.tslHit ? '#f04060' : '#e0e0e0') +
-                row('TSL Hit?',    S.tslHit  ? '🚨 YES' : 'NO',  S.tslHit  ? '#f04060' : '#00e8a2') +
-                row('WMA20',       S.wma20  != null ? `₹${S.wma20.toFixed(2)}` : 'N/A') +
-                '─────────────────────\n' +
-                row('Regime',      S.regime || '—',  regColor) +
-                row('W-RSI (4W)',  S.w4  != null ? String(S.w4)  : '—', S.w4  >= 50 ? '#00e8a2' : S.w4  >= 40 ? '#f5a623' : '#f04060') +
-                row('W-RSI (8W)',  S.w8  != null ? String(S.w8)  : '—', S.w8  >= 50 ? '#00e8a2' : S.w8  >= 40 ? '#f5a623' : '#f04060') +
-                row('W-RSI (14W)', S.w14 != null ? String(S.w14) : '—', S.w14 >= 50 ? '#00e8a2' : S.w14 >= 40 ? '#f5a623' : '#f04060') +
-                row('D-RSI',       S.drsi != null ? String(S.drsi) : '—', drsiColor) +
-                row('Delta',       S.delta != null ? String(S.delta) : '—', S.delta < -15 ? '#00e8a2' : S.delta < 0 ? '#f5a623' : '#e0e0e0') +
-                row('Crossover',   S.crossover || '—', S.crossover === 'BREAKOUT' ? '#00e8a2' : S.crossover === 'BREAKDOWN' ? '#f04060' : '#e0e0e0') +
-                '─────────────────────\n' +
-                row('Conviction',  S.conviction || '—', convColor) +
-                row('Triple RSI',  S.tripleRsiAligned === 3 ? '🔥 ALL 3 ≥50 (T0 BUY)'
-                                 : S.tripleRsiAligned === 2 ? '⚡ 2/3 ≥50 (Medium)'
-                                 : S.tripleRsiAligned === 1 ? '1/3 ≥50 (Low)'
-                                 : S.tripleRsiAligned === 0 ? 'None ≥50 (Bear)'
-                                 : '—',
-                    S.tripleRsiAligned === 3 ? '#00e8a2' : S.tripleRsiAligned === 2 ? '#f5a623' : '#f04060') +
-                row('PC Alert',    S.pcAlert ? '🟢 YES' : 'NO', S.pcAlert ? '#00e8a2' : '#888') +
-                row('NC Alert',    S.ncAlert ? '🚨 YES' : 'NO', S.ncAlert ? '#f04060' : '#888') +
-                '─────────────────────\n' +
-                row('Nifty W-RSI', S.niftyWrsi != null ? String(S.niftyWrsi) : 'N/A (loading…)',
-                    S.niftyWrsi >= 50 ? '#00e8a2' : S.niftyWrsi >= 40 ? '#f5a623' : S.niftyWrsi != null ? '#f04060' : '#888') +
-                row('Macro Veto',  S.macroVeto === true ? '🚨 YES — BUY BLOCKED'
-                                 : S.macroVeto === false ? 'NO — BUY permitted'
-                                 : 'N/A (awaiting Nifty)',
-                    S.macroVeto === true ? '#f04060' : S.macroVeto === false ? '#00e8a2' : '#888') +
-                '─────────────────────\n' +
-                `<span style="color:#888">${'LIVE SIGNAL'.padEnd(18)}</span>` +
-                `<span style="color:${liveColor};font-weight:bold">${liveSignal}</span>` +
-                `<span style="color:#666"> [${liveTier}]</span>\n` +
-                `<span style="color:#555;font-size:0.72em">  ↑ mirrors ⚡ Lean Analysis output\n</span>`;
-        };
-    })();
-    </script>
-    <!-- ═══════════════════════════════════════════════════════════════════
-         LD252A — BACKGROUND BA ENGINE v2
+        <!-- ═══════════════════════════════════════════════════════════════════
+         LD252A6 — BACKGROUND BA ENGINE v2
          ─────────────────────────────────────────────────────────────────
          Priority Order:
            1. Watchlist funds (in order) — check Regime A, run BA, store.
@@ -16105,9 +16014,9 @@ Return a JSON object with this exact structure:
     'use strict';
 
     
-    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'30');  return (v>=3&&v<=100?v:30)*1000;  } catch(e){ return 30_000;  } })();
+    const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'5');  return (v>=5&&v<=50?v:5)*1000;  } catch(e){ return 5_000;  } })();
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD252A';
+    const ADDON_VER     = 'LD252A6';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
     
@@ -16310,84 +16219,99 @@ Return a JSON object with this exact structure:
         throw lastErr || new Error('All Gemini models and keys exhausted.');
     }
 
-    // ── Status pill UI ────────────────────────────────────────────────
-    function _makePill() {
-        if (document.getElementById('bgBreadthPill')) return;
-        const el = document.createElement('div');
-        el.id = 'bgBreadthPill';
-        el.style.cssText = `
-            position:fixed;bottom:14px;left:12px;z-index:25000;
-            background:#1a2332;color:#e2e8f0;font-size:0.62rem;
-            font-family:'Space Mono',monospace;font-weight:600;
-            padding:7px 12px 7px 10px;border-radius:20px;
-            border:1.5px solid #009e70;box-shadow:0 3px 14px rgba(0,0,0,0.35);
-            max-width:300px;line-height:1.4;cursor:pointer;
-            display:flex;align-items:center;gap:6px;transition:opacity 0.3s;`;
-        el.innerHTML = `
-            <span id="bgBreadthDot" style="width:8px;height:8px;border-radius:50%;
-                background:#009e70;flex-shrink:0;
-                animation:bgPillPulse 1.2s ease-in-out infinite;"></span>
-            <span id="bgBreadthCounter" style="font-size:0.58rem;color:#009e70;
-                white-space:nowrap;flex-shrink:0;min-width:36px;"></span>
-            <span id="bgBreadthMsg" style="flex:1;overflow:hidden;text-overflow:ellipsis;
-                white-space:nowrap;">⏳ BA engine starting…</span>
-            <span onclick="document.getElementById('bgBreadthPill').style.display='none'"
-                style="opacity:0.4;font-size:0.8rem;flex-shrink:0;">✕</span>`;
-        const style = document.createElement('style');
-        style.textContent = `@keyframes bgPillPulse{0%,100%{opacity:1}50%{opacity:0.3}}`;
-        document.head.appendChild(style);
-        document.body.appendChild(el);
-    }
-
-    // Update counter badge — counts actual cached BA analyses for today
-    function _updatePillCounter() {
-        const el = document.getElementById('bgBreadthCounter');
-        if (!el) return;
+    // ── UNIFIED BA STATUS BAR (Page 1 top row) ────────────────────────
+    function _updateUnifiedBAStatus(msg, colour, nextLabel) {
         try {
+            const bar      = document.getElementById('baGlobalStatusBar');
+            const dot      = document.getElementById('baStatusDot');
+            const counter  = document.getElementById('baStatusCounter');
+            const msgEl    = document.getElementById('baStatusMsg');
+            const prog     = document.getElementById('baStatusProgress');
+            const nextLbl  = document.getElementById('baStatusNextLabel');
+            if (!bar) return;
+
+            // Compute done/total from queue (same logic as _updatePillCounter)
             const _dateKey = _istDate();
-            // Total = today's queue length (funds queued for BA today)
-            const q = _loadQ();
-            const total = q.length;
-            if (total === 0) { el.textContent = ''; return; }
-            
-            let cached = 0;
+            const q        = _loadQ();
+            const total    = q.length;
+            let cached     = 0;
             q.forEach(item => {
                 const ck = `breadth_v1_${(item.code||'').replace(/\W/g,'_')}_${_dateKey}`;
                 try { if (localStorage.getItem(ck)) cached++; } catch(_) {}
             });
-            el.textContent = `${cached}/${total}`;
-        } catch(e) { el.textContent = ''; }
+
+            // Show bar
+            bar.style.display = 'block';
+
+            // Counter badge
+            if (counter) {
+                counter.textContent = total > 0 ? `${cached}/${total}` : '0/0';
+                const allDone = total > 0 && cached >= total;
+                counter.style.color        = allDone ? '#009e70' : (colour || '#009e70');
+                counter.style.borderColor  = allDone ? '#009e70' : (colour || '#009e70');
+                counter.style.background   = allDone ? 'rgba(0,158,112,0.12)' : `${colour||'rgba(0,158,112,'}0.10)`;
+            }
+
+            // Dot colour
+            if (dot) {
+                dot.style.background  = colour || '#009e70';
+                const allDone = total > 0 && cached >= total;
+                dot.style.animation   = allDone ? 'none' : 'baPulseDot 1.4s ease-in-out infinite';
+            }
+
+            // Message
+            if (msgEl && msg) msgEl.textContent = msg;
+
+            // Progress bar
+            if (prog) {
+                const pct = total > 0 ? Math.round((cached / total) * 100) : 0;
+                prog.style.width          = pct + '%';
+                prog.style.background     = colour || '#009e70';
+            }
+
+            // Next label
+            if (nextLbl) nextLbl.textContent = nextLabel || '';
+
+        } catch(e) {}
+    }
+
+    // ── Status pill UI ────────────────────────────────────────────────
+    function _makePill() {
+        // Pill is now replaced by the unified status bar on Page 1.
+        // Keep function to avoid errors — status bar already exists in HTML.
+        _updateUnifiedBAStatus('⏳ BA engine starting…');
+    }
+
+    // Update counter — now delegates to unified status bar
+    function _updatePillCounter() {
+        _updateUnifiedBAStatus();
     }
 
     function _setPillMsg(msg, colour) {
-        const m = document.getElementById('bgBreadthMsg');
-        const d = document.getElementById('bgBreadthDot');
-        if (m) m.textContent = msg;
-        if (d) d.style.background = colour || '#009e70';
-        _updatePillCounter();
+        _updateUnifiedBAStatus(msg, colour);
     }
 
     function _donePill(msg) {
-        _setPillMsg(msg, '#009e70');
-        const d = document.getElementById('bgBreadthDot');
-        const c = document.getElementById('bgBreadthCounter');
-        if (d) d.style.animation = 'none';
-        if (c) c.style.color = '#009e70';
-        setTimeout(() => {
-            const p = document.getElementById('bgBreadthPill');
-            if (p) { p.style.opacity = '0'; setTimeout(() => p.remove(), 800); }
-        }, 7000);
+        _updateUnifiedBAStatus(msg, '#009e70');
+        // Stop dot pulse on completion
+        const dot = document.getElementById('baStatusDot');
+        if (dot) dot.style.animation = 'none';
+        const counter = document.getElementById('baStatusCounter');
+        if (counter) counter.style.color = '#009e70';
     }
 
     
     function _updateBanner(text, color) {
         try {
+            // Update the hidden legacy banner (kept for compat)
             const mb = document.getElementById('morningScanBanner');
             if (mb) {
-                mb.style.display = 'block';
+                mb.style.display = 'none'; // always hidden; unified bar is used
                 mb.style.color   = color || '#f59e0b';
                 mb.textContent   = text;
             }
+            // Mirror to unified status bar
+            _updateUnifiedBAStatus(text, color || '#f59e0b');
         } catch(_) {}
     }
 
@@ -16808,23 +16732,12 @@ Return a JSON object with this exact structure:
             
             
             _setPillMsg(`⚠ ${finalCnt} stored · ${stillPending.length} pending`, '#f59e0b');
-            const _pillEl = document.getElementById('bgBreadthPill');
-            if (_pillEl) {
-                
-                const _oldBtn = _pillEl.querySelector('.bg-restart-btn');
-                if (_oldBtn) _oldBtn.remove();
-                const _restartBtn = document.createElement('span');
-                _restartBtn.className = 'bg-restart-btn';
-                _restartBtn.textContent = '↺ RESTART';
-                _restartBtn.style.cssText =
-                    'margin-left:4px;padding:2px 7px;border-radius:10px;border:1px solid #f59e0b;' +
-                    'color:#f59e0b;font-size:0.55rem;cursor:pointer;flex-shrink:0;white-space:nowrap;';
-                _restartBtn.onclick = function() {
-                    _restartBtn.textContent = '↺ …';
-                    _restartBtn.style.opacity = '0.5';
-                    if (window.bgBreadthForceRun) window.bgBreadthForceRun();
-                };
-                _pillEl.appendChild(_restartBtn);
+            // Show restart button in the unified status bar
+            const _nextLbl = document.getElementById('baStatusNextLabel');
+            if (_nextLbl) {
+                _nextLbl.innerHTML = `<span onclick="if(window.bgBreadthForceRun)window.bgBreadthForceRun();"
+                    style="padding:2px 7px;border-radius:10px;border:1px solid #f59e0b;
+                    color:#f59e0b;font-size:0.52rem;cursor:pointer;white-space:nowrap;">↺ RESTART</span>`;
             }
             _updateBanner(`⚠ BA partial: ${finalCnt} stored · ${stillPending.length} pending — tap ↺ RESTART pill`, '#c97a00');
         }
@@ -16850,8 +16763,10 @@ Return a JSON object with this exact structure:
         _scanToken++;
 
         
-        const _oldPill = document.getElementById('bgBreadthPill');
-        if (_oldPill) _oldPill.remove();
+        // Reset unified status bar for fresh run
+        _updateUnifiedBAStatus('⏳ BA engine restarting…', '#f59e0b');
+        const _nextLbl = document.getElementById('baStatusNextLabel');
+        if (_nextLbl) _nextLbl.innerHTML = '';
 
         
         try { localStorage.removeItem(RUN_FLAG_KEY + d); } catch(e) {}
@@ -16905,6 +16820,20 @@ Return a JSON object with this exact structure:
 
     
     window.addEventListener('load', () => {
+        // Show unified BA status bar if there is any BA data today
+        try {
+            const _q = _loadQ();
+            if (_q && _q.length > 0) {
+                _updateUnifiedBAStatus('⏳ BA engine initialising…', '#009e70');
+            } else {
+                // Check if any breadth cache exists today (manually done analyses)
+                const _d = _istDate();
+                const _hasAny = Object.keys(localStorage).some(k =>
+                    k.startsWith('breadth_v1_') && k.endsWith(`_${_d}`)
+                );
+                if (_hasAny) _updateUnifiedBAStatus('✅ BA data available', '#009e70');
+            }
+        } catch(_) {}
         setTimeout(_runBackgroundScan, BOOT_DELAY_MS);
     });
 

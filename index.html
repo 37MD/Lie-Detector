@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD252A6</title>
+        <title>Lie Detector — NPS NAV Chart · LD252A7</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2146,7 +2146,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD252A6</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD252A7</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2574,7 +2574,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD252A6 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD252A7 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2586,11 +2586,11 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD252A6 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD252A7 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="firstRunBanner" style="display:none;background:rgba(245,158,11,0.12);border:1.5px solid #f59e0b;border-radius:6px;padding:8px 10px;margin-bottom:8px;text-align:center;">
                 <div class="firstRunTitle" style="font-size:0.58rem;font-weight:700;color:#c97a00;margin-bottom:3px;">⚠ Storage cleared — open your backup HTML to restore</div>
-                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);">Android Chrome clears storage after hours in background. Open your saved <b>LD252A6_date.html</b> backup — config auto-loads.</div>
+                <div class="firstRunMsg" style="font-size:0.5rem;color:var(--muted);">Android Chrome clears storage after hours in background. Open your saved <b>LD252A7_date.html</b> backup — config auto-loads.</div>
             </div>
             <!-- ── UNIFIED BA STATUS BAR ── (replaces morningScanBanner + bottom pill + panel counter) -->
             <div id="baGlobalStatusBar" style="
@@ -2857,14 +2857,14 @@
             </div>
         </div>
         <div id="watchlistModal" class="modal-overlay" style="z-index:610;">
-            <div class="modal-close">
-                <div style="display:flex;flex-direction:column;">
+            <div class="modal-close" style="flex-wrap:nowrap;align-items:center;">
+                <div style="display:flex;flex-direction:column;flex-shrink:0;min-width:0;">
                     <span class="modal-title" style="color:#a855f7;">📌 WATCHLIST</span>
-                    <span style="font-size:0.48rem;color:var(--muted);margin-top:1px;">Pinned funds — live Regime · D-RSI · Alert</span>
+                    <span style="font-size:0.46rem;color:var(--muted);margin-top:1px;white-space:nowrap;">Pinned — Regime · RSI · Alert · IDB ✓</span>
                 </div>
-                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-                    <button class="setup-btn" style="border-color:#a855f7;color:#a855f7;padding:4px 8px;font-size:0.55rem;" onclick="addCurrentToWatchlist()">+ PIN THIS FUND</button>
-                    <button class="setup-btn" id="wlBaViewBtn" style="border-color:#009e70;color:#009e70;padding:4px 8px;font-size:0.55rem;" onclick="_openWatchlistBaView()">📊 BA Results</button>
+                <div style="display:flex;gap:5px;align-items:center;flex-shrink:0;margin-left:auto;">
+                    <button class="setup-btn" style="border-color:#a855f7;color:#a855f7;padding:4px 7px;font-size:0.52rem;white-space:nowrap;" onclick="addCurrentToWatchlist()">+ PIN</button>
+                    <button class="setup-btn" id="wlBaViewBtn" style="border-color:#009e70;color:#009e70;padding:4px 7px;font-size:0.52rem;white-space:nowrap;" onclick="_openWatchlistBaView()">📊 BA</button>
                     <span class="modal-close-btn" onclick="document.getElementById('watchlistModal').style.display='none';document.getElementById('setupScreen').style.display='flex';">[ X ]</span>
                 </div>
             </div>
@@ -2907,6 +2907,19 @@
                     <div style="flex:1;height:1px;background:var(--border);"></div>
                 </div>
                 <div id="switchBridgeNpsGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"></div>
+            </div>
+            <!-- ── LD252A7: Watchlist Backup / Restore ─────────────────── -->
+            <div id="wlBackupBar" style="flex-shrink:0;padding:8px 8px 10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px;">
+                <div style="display:flex;gap:6px;">
+                    <button onclick="_wlBackup()" style="flex:1;padding:9px 4px;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-family:var(--mono);background:rgba(168,85,247,0.1);border:1.5px solid #a855f7;border-radius:6px;color:#a855f7;cursor:pointer;">
+                        ↓ BACKUP WATCHLIST
+                    </button>
+                    <label style="flex:1;padding:9px 4px;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-family:var(--mono);background:rgba(0,158,112,0.1);border:1.5px solid #009e70;border-radius:6px;color:#009e70;cursor:pointer;text-align:center;">
+                        ↑ RESTORE CONFIG
+                        <input type="file" accept=".html,.json" style="display:none;" onchange="_wlRestore(this.files[0]);this.value='';">
+                    </label>
+                </div>
+                <div id="wlBackupStatus" style="font-size:0.48rem;color:var(--muted);font-family:var(--mono);min-height:1em;text-align:center;padding:0 4px;"></div>
             </div>
             </div><!-- end watchlistScrollArea -->
 
@@ -3734,14 +3747,14 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 </div>
             </div>
         </div>
-        <!-- LD252A6: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
-        <script type="application/json" id="LD252A6_EMBED">null</script>
+        <!-- LD252A7: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
+        <script type="application/json" id="LD252A7_EMBED">null</script>
         <script>
             'use strict';
             // Auto-restore from embed on startup (fires before main script)
             (function _autoRestoreFromEmbed() {
                 try {
-                    const embedEl = document.getElementById('LD252A6_EMBED');
+                    const embedEl = document.getElementById('LD252A7_EMBED');
                     if (!embedEl) return;
                     const raw = (embedEl.textContent || embedEl.innerText || '').trim();
                     if (!raw || raw === 'null') return;
@@ -3753,6 +3766,129 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         try { if (k && !k.startsWith('_')) localStorage.setItem(k, v); } catch(_) {}
                     });
                 } catch(e) { /* silent */ }
+            })();
+        </script>
+        <!-- LD252A7: IndexedDB permanent watchlist + fund-box storage — survives Chrome background clearing -->
+        <script>
+            'use strict';
+            // ── PERMANENT STORAGE via IndexedDB ─────────────────────────────────────
+            // Android Chrome clears localStorage after hours in background.
+            // IndexedDB persists permanently. We use it as the source of truth.
+            // API: window.PStorage.get(key) → Promise<value|null>
+            //      window.PStorage.set(key, value) → Promise<void>
+            //      window.PStorage.getAll() → Promise<{key:value,...}>
+            // Falls back gracefully to localStorage if IDB unavailable.
+            window.PStorage = (() => {
+                const DB_NAME = 'LD252A7_PStore';
+                const DB_VER  = 1;
+                const STORE   = 'kv';
+                let _db = null;
+                function _open() {
+                    if (_db) return Promise.resolve(_db);
+                    return new Promise((res, rej) => {
+                        try {
+                            const req = indexedDB.open(DB_NAME, DB_VER);
+                            req.onupgradeneeded = e => {
+                                const db = e.target.result;
+                                if (!db.objectStoreNames.contains(STORE)) {
+                                    db.createObjectStore(STORE, { keyPath: 'k' });
+                                }
+                            };
+                            req.onsuccess = e => { _db = e.target.result; res(_db); };
+                            req.onerror   = e => rej(e.target.error);
+                        } catch(err) { rej(err); }
+                    });
+                }
+                async function get(key) {
+                    try {
+                        const db = await _open();
+                        return new Promise((res, rej) => {
+                            const tx = db.transaction(STORE, 'readonly');
+                            const req = tx.objectStore(STORE).get(key);
+                            req.onsuccess = () => res(req.result ? req.result.v : null);
+                            req.onerror   = e => rej(e.target.error);
+                        });
+                    } catch(e) {
+                        // Fallback to localStorage
+                        return localStorage.getItem(key);
+                    }
+                }
+                async function set(key, value) {
+                    // Always write to localStorage too for fast sync reads
+                    try { localStorage.setItem(key, value); } catch(_) {}
+                    try {
+                        const db = await _open();
+                        return new Promise((res, rej) => {
+                            const tx = db.transaction(STORE, 'readwrite');
+                            const req = tx.objectStore(STORE).put({ k: key, v: value });
+                            req.onsuccess = () => res();
+                            req.onerror   = e => rej(e.target.error);
+                        });
+                    } catch(e) { /* localStorage already updated */ }
+                }
+                async function getAll() {
+                    try {
+                        const db = await _open();
+                        return new Promise((res, rej) => {
+                            const tx = db.transaction(STORE, 'readonly');
+                            const req = tx.objectStore(STORE).getAll();
+                            req.onsuccess = () => {
+                                const out = {};
+                                (req.result || []).forEach(r => { out[r.k] = r.v; });
+                                res(out);
+                            };
+                            req.onerror = e => rej(e.target.error);
+                        });
+                    } catch(e) { return {}; }
+                }
+                return { get, set, getAll };
+            })();
+
+            // ── IDB → localStorage sync on startup ──────────────────────────────────
+            // If localStorage was cleared but IDB survived, restore from IDB silently.
+            (function _syncIdbToLs() {
+                window.PStorage.getAll().then(all => {
+                    const SYNC_KEYS = [
+                        'ld_gemini_api_key','ld_gemini_api_key2','ld_gemini_model',
+                        'ld_api_gap_sec','ld_active_key_slot',
+                        'ld_watchlist','ld_tm_snapshot',
+                        'ld_switch_bridge','ld_switch_journal',
+                        'ld_streak_count','ld_streak_best',
+                        'ld_v3_morning_scan_date','ld_last_version',
+                        'ld_v3_amc','ld_v3_fund','ld_v3_rsi_length'
+                    ];
+                    let restored = 0;
+                    SYNC_KEYS.forEach(k => {
+                        if (all[k] != null && !localStorage.getItem(k)) {
+                            try { localStorage.setItem(k, all[k]); restored++; } catch(_) {}
+                        }
+                    });
+                    // Also restore today's BA/alert flags
+                    const today = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                    ['bgbreadth_ran_','ld_alert_ran_'].forEach(pfx => {
+                        const k = pfx + today;
+                        if (all[k] != null && !localStorage.getItem(k)) {
+                            try { localStorage.setItem(k, all[k]); restored++; } catch(_) {}
+                        }
+                    });
+                    if (restored > 0) {
+                        // Reload watchlist into memory if available
+                        try {
+                            const wlRaw = localStorage.getItem('ld_watchlist');
+                            if (wlRaw && window._watchlist !== undefined) {
+                                const parsed = JSON.parse(wlRaw);
+                                if (parsed.length > 0) {
+                                    window._watchlist = parsed;
+                                    if (typeof renderWatchlistStubs === 'function') renderWatchlistStubs();
+                                }
+                            }
+                        } catch(_) {}
+                        // Hide the "storage cleared" banner if it was shown
+                        const banner = document.getElementById('firstRunBanner');
+                        if (banner) banner.style.display = 'none';
+                        console.log('[LD252A7] IDB→LS sync: restored', restored, 'keys');
+                    }
+                }).catch(() => {});
             })();
         </script>
         <script>
@@ -4178,6 +4314,21 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                     return Array.isArray(v) ? v : [];
                 } catch(e) { return []; }
             })();
+            // Async IDB check — if LS was empty but IDB has data, silently populate
+            (function _wlIdbCheck() {
+                if (_watchlist.length > 0) return;
+                window.PStorage.get('ld_watchlist').then(raw => {
+                    if (!raw) return;
+                    try {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            _watchlist = parsed;
+                            try { localStorage.setItem('ld_watchlist', raw); } catch(_) {}
+                            if (typeof renderWatchlistStubs === 'function') renderWatchlistStubs();
+                        }
+                    } catch(_) {}
+                }).catch(() => {});
+            })();
             let _watchlistRefreshTimer = null; 
             const _streak = {
                 get count() {
@@ -4352,12 +4503,12 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 const activeBtn = document.querySelector('#fundGrid .fund-box.active');
                 const sel = document.getElementById('fundSelect');
                 if (activeBtn && sel && sel.value) {
-                    localStorage.setItem('ld_v3_amc', activeBtn.textContent.trim());
-                    localStorage.setItem('ld_v3_fund', sel.value);
+                    localStorage.setItem('ld_v3_amc', activeBtn.textContent.trim()); window.PStorage.set('ld_v3_amc', activeBtn.textContent.trim()).catch(()=>{});
+                    localStorage.setItem('ld_v3_fund', sel.value); window.PStorage.set('ld_v3_fund', sel.value).catch(()=>{});
                 }
                 userRsiLength = parseInt(document.getElementById('rsiLengthIn').value) || 4;
                 window.userRsiLength = userRsiLength; 
-                localStorage.setItem('ld_v3_rsi_length', userRsiLength);
+                localStorage.setItem('ld_v3_rsi_length', userRsiLength); window.PStorage.set('ld_v3_rsi_length', userRsiLength).catch(()=>{});
             }
             function getBriefFundName() {
                 const sel = document.getElementById('fundSelect');
@@ -4549,7 +4700,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         if (rank1 && rank1.regime === 'A') {
                             if (!_watchlist.find(w => w.code === rank1.code) && _watchlist.length < 20) {
                                 _watchlist.push({ code: rank1.code, name: rank1.name, morningAdd: true, portfolio: false });
-                                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+                                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist)); window.PStorage.set('ld_watchlist', JSON.stringify(_watchlist)).catch(()=>{});
                                 addedToWatchlist++;
                             }
                         }
@@ -4560,7 +4711,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                                 fearFlags++;
                             }
                         });
-                        localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+                        localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist)); window.PStorage.set('ld_watchlist', JSON.stringify(_watchlist)).catch(()=>{});
                         _setBanner(`🌅 Morning scan in progress… ${amc} / ${type} ✓`, '#f59e0b');
                     }
                 }
@@ -4633,7 +4784,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD252A6', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD252A7', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -4711,7 +4862,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
             };
             window._SJ = _SJ;
 
-            // ── LD252A6: FULL CONFIG BACKUP / RESTORE ─────────────────────────────
+            // ── LD252A7: FULL CONFIG BACKUP / RESTORE ─────────────────────────────
             const CONFIG_KEYS = [
                 'ld_gemini_api_key', 'ld_gemini_api_key2', 'ld_gemini_model',
                 'ld_api_gap_sec', 'ld_active_key_slot',
@@ -4734,16 +4885,16 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const v = localStorage.getItem(prefix + _todayKey);
                         if (v !== null) blob[prefix + _todayKey] = v;
                     });
-                    blob['ld_last_version'] = 'LD252A6';
+                    blob['ld_last_version'] = 'LD252A7';
                     const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
                     const currentHtml = document.documentElement.outerHTML;
                     const newHtml = currentHtml.replace(
-                        /(<script[^>]*id="LD252A6_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
+                        /(<script[^>]*id="LD252A7_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
                         (_, open, close) => open + configB64 + close
                     );
                     const wl = JSON.parse(blob['ld_watchlist'] || '[]');
                     const date = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
-                    const fname = `LD252A6_${date}_${wl.length}funds.html`;
+                    const fname = `LD252A7_${date}_${wl.length}funds.html`;
                     const a = document.createElement('a');
                     a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(newHtml);
                     a.download = fname;
@@ -4765,7 +4916,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         let fileType = 'unknown';
                         if (raw.trim().startsWith('<!DOCTYPE') || raw.trim().startsWith('<html')) {
                             fileType = 'html';
-                            const match = raw.match(/<script[^>]*id="LD252A6_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                            const match = raw.match(/<script[^>]*id="LD252A7_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD251_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD250_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
                                          raw.match(/<script[^>]*id="LD249A_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
@@ -4802,7 +4953,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
                             if (blob[prefix + _todayKey] !== undefined) localStorage.setItem(prefix + _todayKey, blob[prefix + _todayKey]);
                         });
-                        localStorage.setItem('ld_last_version', 'LD252A6');
+                        localStorage.setItem('ld_last_version', 'LD252A7');
                         try { _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(_) {}
                         const wl = _watchlist.length;
                         const hasKey = !!localStorage.getItem('ld_gemini_api_key');
@@ -4817,20 +4968,136 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 };
                 reader.readAsText(file);
             }
+            // ── LD252A7: Watchlist-level Backup / Restore (2 buttons in WL modal) ──
+            function _wlBackup() {
+                try {
+                    // Collect all config from LS + IDB mirror
+                    const blob = {};
+                    CONFIG_KEYS.forEach(k => {
+                        const v = localStorage.getItem(k);
+                        if (v !== null) blob[k] = v;
+                    });
+                    const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                    ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
+                        const v = localStorage.getItem(prefix + _todayKey);
+                        if (v !== null) blob[prefix + _todayKey] = v;
+                    });
+                    blob['ld_last_version'] = 'LD252A7';
+                    const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
+                    const currentHtml = document.documentElement.outerHTML;
+                    const newHtml = currentHtml.replace(
+                        /(<script[^>]*id="LD252A7_EMBED"[^>]*>)[\s\S]*?(<\/script>)/,
+                        (_, open, close) => open + configB64 + close
+                    );
+                    const wl = JSON.parse(blob['ld_watchlist'] || '[]');
+                    const date = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10);
+                    const fname = `LD252A7_${date}_${wl.length}funds.html`;
+                    const a = document.createElement('a');
+                    a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(newHtml);
+                    a.download = fname;
+                    a.click();
+                    const st = document.getElementById('wlBackupStatus');
+                    if (st) { st.style.color='#009e70'; st.textContent = `✅ Saved: ${fname} — ${wl.length} funds baked in`; }
+                    // Also sync all keys to IDB
+                    Object.entries(blob).forEach(([k, v]) => { window.PStorage.set(k, v).catch(()=>{}); });
+                } catch(e) {
+                    const st = document.getElementById('wlBackupStatus');
+                    if (st) { st.style.color='#c8102e'; st.textContent = '⚠ Backup failed: '+e.message; }
+                }
+            }
+            function _wlRestore(file) {
+                if (!file) return;
+                const st = document.getElementById('wlBackupStatus');
+                if (st) { st.style.color='var(--muted)'; st.textContent = '⏳ Reading…'; }
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        let blob;
+                        const raw = ev.target.result;
+                        if (raw.trim().startsWith('<!DOCTYPE') || raw.trim().startsWith('<html')) {
+                            const match = raw.match(/<script[^>]*id="LD252A7_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                                         raw.match(/<script[^>]*id="LD252A6_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                                         raw.match(/<script[^>]*id="LD251_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                                         raw.match(/<script[^>]*id="LD250_EMBED"[^>]*>([\s\S]*?)<\/script>/) ||
+                                         raw.match(/<script[^>]*id="LD247_EMBED"[^>]*>([\s\S]*?)<\/script>/);
+                            if (!match || !match[1] || match[1].trim() === 'null') {
+                                throw new Error('HTML has no embedded config — use a backup HTML file');
+                            }
+                            blob = JSON.parse(decodeURIComponent(escape(atob(match[1].trim()))));
+                        } else {
+                            blob = JSON.parse(raw);
+                            if (blob.switches && !blob.ld_watchlist) {
+                                // Switch journal only
+                                localStorage.setItem('ld_switch_journal', JSON.stringify(blob));
+                                localStorage.setItem('ld_switch_bridge', JSON.stringify(blob.switches));
+                                window.PStorage.set('ld_switch_journal', JSON.stringify(blob)).catch(()=>{});
+                                window.PStorage.set('ld_switch_bridge', JSON.stringify(blob.switches)).catch(()=>{});
+                                if (typeof renderSwitchBridgeGrid === 'function') renderSwitchBridgeGrid();
+                                if (typeof renderSwitchBridgeNpsGrid === 'function') renderSwitchBridgeNpsGrid();
+                                if (st) { st.style.color='#009e70'; st.textContent = `✅ Switch Journal restored: ${Object.keys(blob.switches||{}).length} AMC entries`; }
+                                return;
+                            }
+                        }
+                        let count = 0;
+                        CONFIG_KEYS.forEach(k => {
+                            if (blob[k] !== undefined) {
+                                localStorage.setItem(k, blob[k]);
+                                window.PStorage.set(k, blob[k]).catch(()=>{});
+                                count++;
+                            }
+                        });
+                        const _todayKey = new Date(Date.now()+5.5*3600000).toISOString().slice(0,10).replace(/-/g,'');
+                        ['bgbreadth_ran_','ld_alert_ran_'].forEach(prefix => {
+                            const fk = prefix + _todayKey;
+                            if (blob[fk] !== undefined) {
+                                localStorage.setItem(fk, blob[fk]);
+                                window.PStorage.set(fk, blob[fk]).catch(()=>{});
+                            }
+                        });
+                        localStorage.setItem('ld_last_version', 'LD252A7');
+                        try { _watchlist = JSON.parse(localStorage.getItem('ld_watchlist') || '[]'); } catch(_) {}
+                        const wl = _watchlist.length;
+                        const hasKey = !!localStorage.getItem('ld_gemini_api_key');
+                        if (st) { st.style.color='#009e70'; st.textContent = `✅ Restored: ${count} settings · ${wl} funds · key:${hasKey?'✓':'✗'} — Reloading…`; }
+                        if (typeof renderWatchlistStubs === 'function') renderWatchlistStubs();
+                        setTimeout(() => location.reload(), 1800);
+                    } catch(e) {
+                        if (st) { st.style.color='#c8102e'; st.textContent = '⚠ Restore failed: '+e.message; }
+                    }
+                };
+                reader.readAsText(file);
+            }
+            window._wlBackup  = _wlBackup;
+            window._wlRestore = _wlRestore;
             window._configBackupExport = _configBackupExport;
             window._configBackupImport = _configBackupImport;
             // First-run check: show banner if storage cleared
             (function _checkFirstRun() {
-                localStorage.setItem('ld_last_version', 'LD252A6');
+                localStorage.setItem('ld_last_version', 'LD252A7');
                 const hasKey = !!localStorage.getItem('ld_gemini_api_key');
                 const hasWl  = (JSON.parse(localStorage.getItem('ld_watchlist')||'[]')).length > 0;
                 if (!hasKey && !hasWl) {
-                    setTimeout(() => {
-                        const banner = document.getElementById('firstRunBanner');
-                        if (banner) banner.style.display = 'block';
-                        const st = document.getElementById('configBackupStatus');
-                        if (st) { st.style.color='#c97a00'; st.textContent='⚠ Storage was cleared. Tap RESTORE CONFIG to reload your backup.'; }
-                    }, 500);
+                    // Check IDB before showing warning — IDB may have survived
+                    window.PStorage.getAll().then(all => {
+                        const idbHasKey = !!(all['ld_gemini_api_key']);
+                        const idbHasWl  = (() => { try { return (JSON.parse(all['ld_watchlist']||'[]')).length > 0; } catch(_) { return false; } })();
+                        if (idbHasKey || idbHasWl) {
+                            // IDB intact — restore silently, no banner needed
+                            console.log('[LD252A7] Storage cleared but IDB intact — auto-restoring');
+                        } else {
+                            setTimeout(() => {
+                                const banner = document.getElementById('firstRunBanner');
+                                if (banner) banner.style.display = 'block';
+                                const st = document.getElementById('wlBackupStatus');
+                                if (st) { st.style.color='#c97a00'; st.textContent='⚠ Storage cleared. Tap RESTORE CONFIG above.'; }
+                            }, 500);
+                        }
+                    }).catch(() => {
+                        setTimeout(() => {
+                            const banner = document.getElementById('firstRunBanner');
+                            if (banner) banner.style.display = 'block';
+                        }, 500);
+                    });
                 }
             })();
 
@@ -9173,7 +9440,7 @@ This is exactly how the system is meant to be played.
                 }
                 const _isPortfolio = confirm(`Add "${name.replace(/\[NPS\] | - Growth| - Direct/gi,'').trim()}" to Portfolio as well?\n\nTap OK = In Portfolio (✓)\nTap Cancel = Watchlist only`);
                 _watchlist.push({ code, name, portfolio: _isPortfolio });
-                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist)); window.PStorage.set('ld_watchlist', JSON.stringify(_watchlist)).catch(()=>{});
                 renderWatchlistStubs();
                 refreshWatchlist();
             }
@@ -9187,7 +9454,7 @@ This is exactly how the system is meant to be played.
                     return;
                 }
                 _watchlist.push({ code, name: name || code });
-                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist)); window.PStorage.set('ld_watchlist', JSON.stringify(_watchlist)).catch(()=>{});
                 renderWatchlistStubs();
                 refreshWatchlist();
                 const _ovEl = document.getElementById('ov'), _ovTxt = document.getElementById('ovTxt');
@@ -9198,7 +9465,7 @@ This is exactly how the system is meant to be played.
             function clearWatchlist() {
                 if (!confirm('Clear all pinned funds?')) return;
                 _watchlist = [];
-                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist)); window.PStorage.set('ld_watchlist', JSON.stringify(_watchlist)).catch(()=>{});
                 document.getElementById('watchlistBody').innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No funds pinned. Select a fund and tap "+ PIN THIS FUND".</div>';
             }
             function renderWatchlistStubs() {
@@ -9246,7 +9513,7 @@ This is exactly how the system is meant to be played.
             function _togglePortfolio(i) {
                 if (!_watchlist[i]) return;
                 _watchlist[i].portfolio = !_watchlist[i].portfolio;
-                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist)); window.PStorage.set('ld_watchlist', JSON.stringify(_watchlist)).catch(()=>{});
                 renderWatchlistStubs();
                 refreshWatchlist();
             }
@@ -9319,7 +9586,7 @@ This is exactly how the system is meant to be played.
             }
             function _removeWatchlistItem(i) {
                 _watchlist.splice(i, 1);
-                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+                localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist)); window.PStorage.set('ld_watchlist', JSON.stringify(_watchlist)).catch(()=>{});
                 renderWatchlistStubs();
             }
             function _launchFromWatchlist(code) {
@@ -13469,7 +13736,7 @@ categories.forEach(cat => {
             if (_wl.some(w => (w.code||w.name) === (f.code||f.name))) { alert('Already in watchlist'); return; }
             const _isPortfolio = confirm(`Add "${(f.name||'').replace(/\[NPS\] | - Growth| - Direct/gi,'').trim()}" to Portfolio as well?\n\nOK = In Portfolio ✓   Cancel = Watchlist only`);
             _wl.push({ code: f.code, name: f.name, portfolio: _isPortfolio });
-            localStorage.setItem('ld_watchlist', JSON.stringify(_wl));
+            localStorage.setItem('ld_watchlist', JSON.stringify(_wl)); window.PStorage.set('ld_watchlist', JSON.stringify(_wl)).catch(()=>{});
             const _btn = document.getElementById('abpAddWatchBtn');
             if (_btn) { _btn.style.display = 'none'; }
             if (window._watchlist) { window._watchlist = _wl; if (window.renderWatchlistStubs) window.renderWatchlistStubs(); }
@@ -15028,7 +15295,7 @@ Return a JSON object with this exact structure:
             return { fundName, fundCode };
         }
         function gatherLeanContext() {
-            let ctx = "=== LD252A6 LEAN TARGET FUND DUMP ===\n";
+            let ctx = "=== LD252A7 LEAN TARGET FUND DUMP ===\n";
             ctx += `Timestamp: ${new Date().toISOString()}\n`;
             const { fundName, fundCode } = getFundInfo();
             const regime = document.getElementById('liveRegimeBlock')?.textContent || document.getElementById('regimeBlock')?.textContent || 'N/A';
@@ -15153,7 +15420,7 @@ Return a JSON object with this exact structure:
             return ctx;
         }
         function gatherContext() {
-            let ctx = "=== LD252A6 SIGNAL DEEP DUMP ===\n";
+            let ctx = "=== LD252A7 SIGNAL DEEP DUMP ===\n";
             ctx += `Timestamp: ${new Date().toISOString()}\n`;
             const activeModal = document.querySelector('.modal[style*="display: flex"]');
             ctx += `\n[UI SURFACE]\nVisible Screen: ${activeModal ? activeModal.id : 'Main Dashboard'}\n`;
@@ -15684,7 +15951,7 @@ Return a JSON object with this exact structure:
             try { ctx = gatherLeanContext(); } catch(e) { ctx = '(Fund context unavailable — open Live Cockpit first)'; }
 
             const systemPrompt =
-                'You are the LD252A6 System Brain — an expert NPS/MF fund analyst embedded in the Lie Detector app.\n' +
+                'You are the LD252A7 System Brain — an expert NPS/MF fund analyst embedded in the Lie Detector app.\n' +
                 'You analyse Indian NPS and Mutual Fund NAV data using RSI, W-RSI, regime classification (A/B/C), TSL floors, WMA20, and momentum signals.\n' +
                 'Rules: Regime A (W-RSI≥50)=Bull, B (40-50)=Transition, C (<40)=Bear. D-RSI<40=oversold BUY zone. TSL breach=SELL ALL.\n' +
                 'Answer concisely. Use ₹ for prices. Highlight BUY/SELL signals clearly. Below is the current fund data:\n\n' +
@@ -15999,7 +16266,7 @@ Return a JSON object with this exact structure:
     <input type="file" id="ld-pdf-file-input" accept="application/pdf" style="display:none;">
 
         <!-- ═══════════════════════════════════════════════════════════════════
-         LD252A6 — BACKGROUND BA ENGINE v2
+         LD252A7 — BACKGROUND BA ENGINE v2
          ─────────────────────────────────────────────────────────────────
          Priority Order:
            1. Watchlist funds (in order) — check Regime A, run BA, store.
@@ -16016,7 +16283,7 @@ Return a JSON object with this exact structure:
     
     const GAP_MS        = (() => { try { const v=parseInt(localStorage.getItem('ld_api_gap_sec')||'5');  return (v>=5&&v<=50?v:5)*1000;  } catch(e){ return 5_000;  } })();
     const BOOT_DELAY_MS = 6_000;
-    const ADDON_VER     = 'LD252A6';
+    const ADDON_VER     = 'LD252A7';
     const RUN_FLAG_KEY  = 'bgbreadth_ran_';
 
     
@@ -16437,7 +16704,7 @@ Return a JSON object with this exact structure:
                     st.textContent = '⚠ Too short — paste full AIza… key (39 chars)';
                     return;
                 }
-                localStorage.setItem('ld_gemini_api_key', val);
+                localStorage.setItem('ld_gemini_api_key', val); window.PStorage.set('ld_gemini_api_key', val).catch(()=>{});
                 if (inp) inp.value = '';
                 st.style.color = '#6ee7b7';
                 st.textContent = '✅ Key saved — starting BA engine in 3s…';

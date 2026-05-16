@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>Lie Detector — NPS NAV Chart · LD252A11</title>
+        <title>Lie Detector — NPS NAV Chart · LD252A14</title>
         <link rel="manifest" href="manifest.json">
         <meta name="theme-color" content="#0d0d0d">
         <meta name="mobile-web-app-capable" content="yes">
@@ -2146,7 +2146,7 @@
         <div id="sopModal">
             <div class="sop-header">
                 <div class="sop-header-left">
-                    <span class="sop-logo">Sacred RSI Regime System · LD252A11</span>
+                    <span class="sop-logo">Sacred RSI Regime System · LD252A14</span>
                     <span class="sop-title">Lie Detector SOP</span>
                     <span class="sop-subtitle">Standard Operating Procedure — Buy · Sell · Monitor · Review</span>
                 </div>
@@ -2574,7 +2574,7 @@
                     Let the STCG clock run.&nbsp; Everything else is noise."
                 </div>
                 <div class="sop-note" style="text-align:center;margin-top:8px;">
-                    Sacred RSI Regime System · LD252A11 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
+                    Sacred RSI Regime System · LD252A14 &nbsp;|&nbsp; Data: mfapi.in / npsnav.in &nbsp;|&nbsp;
                     STCG: 20% on gains held &lt; 365 days &nbsp;|&nbsp; For simulation and discipline training only.
                 </div>
             </div>
@@ -2586,7 +2586,7 @@
         <div id="setupScreen">
             <div class="setup-logo">Sacred RSI Regime System</div>
             <div class="streak-badge" id="streakBadge"></div>
-            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD252A11 📋</span></h1>
+            <h1 class="setup-title">Lie Detector <span onclick="openSOP()" class="version-badge-link" title="Open SOP / Operating Procedure" style="color:var(--muted);font-size:0.45em;font-weight:400;cursor:pointer;">LD252A14 📋</span></h1>
             <p class="setup-sub">Train your discipline before real money does.</p>
             <div id="firstRunBanner" style="display:none;background:rgba(245,158,11,0.12);border:1.5px solid #f59e0b;border-radius:6px;padding:8px 10px;margin-bottom:8px;text-align:center;">
                 <div class="firstRunTitle" style="font-size:0.58rem;font-weight:700;color:#c97a00;margin-bottom:3px;">⚠ Storage cleared — open your backup HTML to restore</div>
@@ -2918,7 +2918,7 @@
                 </div>
                 <div id="switchBridgeNpsGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"></div>
             </div>
-            <!-- ── LD252A11: Watchlist Backup / Restore ─────────────────── -->
+            <!-- ── LD252A14: Watchlist Backup / Restore ─────────────────── -->
             <div id="wlBackupBar" style="flex-shrink:0;padding:8px 8px 10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px;">
                 <div style="display:flex;gap:6px;">
                     <button onclick="_wlBackup()" style="flex:1;padding:9px 4px;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-family:var(--mono);background:rgba(168,85,247,0.1);border:1.5px solid #a855f7;border-radius:6px;color:#a855f7;cursor:pointer;">
@@ -3757,7 +3757,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 </div>
             </div>
         </div>
-        <!-- LD252A11: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
+        <!-- LD252A14: Self-restoring config store — base64 encoded, written by BACKUP, read on startup -->
         <script type="application/json" id="LD252A7_EMBED">null</script>
         <script>
             'use strict';
@@ -3778,7 +3778,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                 } catch(e) { /* silent */ }
             })();
         </script>
-        <!-- LD252A11: IndexedDB permanent watchlist + fund-box storage — survives Chrome background clearing -->
+        <!-- LD252A14: IndexedDB permanent watchlist + fund-box storage — survives Chrome background clearing -->
         <script>
             'use strict';
             // ── PERMANENT STORAGE via IndexedDB ─────────────────────────────────────
@@ -4708,7 +4708,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                             }
                         } catch(_) {}
                         if (rank1 && rank1.regime === 'A') {
-                            if (!_watchlist.find(w => w.code === rank1.code) && _watchlist.length < 20) {
+                            if (!_watchlist.find(w => w.code === rank1.code) && _watchlist.length < 30) {
                                 _watchlist.push({ code: rank1.code, name: rank1.name, morningAdd: true, portfolio: false });
                                 localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist)); window.PStorage.set('ld_watchlist', JSON.stringify(_watchlist)).catch(()=>{});
                                 addedToWatchlist++;
@@ -4794,7 +4794,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const j = raw ? JSON.parse(raw) : null;
                         if (j && j.switches) return j;
                     } catch(_) {}
-                    return { version: 'LD252A11', switches: {}, lastUpdated: 0 };
+                    return { version: 'LD252A14', switches: {}, lastUpdated: 0 };
                 },
                 save(j) {
                     try {
@@ -4895,7 +4895,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const v = localStorage.getItem(prefix + _todayKey);
                         if (v !== null) blob[prefix + _todayKey] = v;
                     });
-                    blob['ld_last_version'] = 'LD252A11';
+                    blob['ld_last_version'] = 'LD252A14';
                     const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
                     const currentHtml = document.documentElement.outerHTML;
                     const newHtml = currentHtml.replace(
@@ -4992,7 +4992,7 @@ text-align:center;display:flex;flex-direction:column;justify-content:center;">
                         const v = localStorage.getItem(prefix + _todayKey);
                         if (v !== null) blob[prefix + _todayKey] = v;
                     });
-                    blob['ld_last_version'] = 'LD252A11';
+                    blob['ld_last_version'] = 'LD252A14';
                     const configB64 = btoa(unescape(encodeURIComponent(JSON.stringify(blob))));
                     const currentHtml = document.documentElement.outerHTML;
                     const newHtml = currentHtml.replace(
@@ -9145,8 +9145,37 @@ This is exactly how the system is meant to be played.
                     }
                 }
             }
+            // LD252A14: Auto-add Investment Switch Bridge recommended funds to Watchlist
+            function _autoAddSwitchBridgeToWatchlist() {
+                let bridge = {};
+                try {
+                    const j = _SJ.get();
+                    bridge = (j.switches && Object.keys(j.switches).length) ? j.switches
+                           : JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}');
+                } catch(_) {
+                    try { bridge = JSON.parse(localStorage.getItem('ld_switch_bridge') || '{}'); } catch(_) {}
+                }
+                let addedCount = 0;
+                Object.values(bridge).forEach(entry => {
+                    if (!entry || !entry.code || !entry.name) return;
+                    if (_watchlist.length >= 30) return;
+                    if (_watchlist.find(w => w.code === entry.code)) return;
+                    _watchlist.push({ code: entry.code, name: entry.name, portfolio: false, fromBridge: true });
+                    addedCount++;
+                });
+                if (addedCount > 0) {
+                    localStorage.setItem('ld_watchlist', JSON.stringify(_watchlist));
+                    window.PStorage.set('ld_watchlist', JSON.stringify(_watchlist)).catch(()=>{});
+                    const _ovEl = document.getElementById('ov'), _ovTxt = document.getElementById('ovTxt');
+                    if (_ovEl) _ovEl.style.display = 'flex';
+                    if (_ovTxt) { _ovTxt.textContent = `\uD83D\uDD00 ${addedCount} Switch Bridge fund${addedCount>1?'s':''} auto-added`; _ovTxt.style.color = 'var(--accent)'; }
+                    setTimeout(() => { if (_ovEl) _ovEl.style.display = 'none'; }, 2000);
+                }
+            }
+
             function openWatchlist() {
                 if (_watchlistRefreshTimer) { clearInterval(_watchlistRefreshTimer); _watchlistRefreshTimer = null; }
+                _autoAddSwitchBridgeToWatchlist(); // LD252A14: auto-add Switch Bridge funds
                 document.getElementById('setupScreen').style.display = 'none';
                 document.getElementById('watchlistModal').style.display = 'flex';
                 renderWatchlistStubs();
@@ -9446,8 +9475,8 @@ This is exactly how the system is meant to be played.
                     setTimeout(() => { if (_ovEl) _ovEl.style.display = 'none'; }, 1500);
                     return;
                 }
-                if (_watchlist.length >= 20) {
-                    if (_ovTxt) { _ovTxt.textContent = 'WATCHLIST FULL (max 20 funds)'; _ovTxt.style.color = 'var(--red)'; }
+                if (_watchlist.length >= 30) {
+                    if (_ovTxt) { _ovTxt.textContent = 'WATCHLIST FULL (max 30 funds)'; _ovTxt.style.color = 'var(--red)'; }
                     return;
                 }
                 const _isPortfolio = confirm(`Add "${name.replace(/\[NPS\] | - Growth| - Direct/gi,'').trim()}" to Portfolio as well?\n\nTap OK = In Portfolio (✓)\nTap Cancel = Watchlist only`);
@@ -9484,7 +9513,7 @@ This is exactly how the system is meant to be played.
                 const body = document.getElementById('watchlistBody');
                 if (!body) return;
                 if (_watchlist.length === 0) {
-                    body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No funds pinned (max 20). Select a fund and tap "+ PIN THIS FUND".</div>';
+                    body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:0.6rem;">No funds pinned (max 30). Select a fund and tap "+ PIN THIS FUND".</div>';
                     return;
                 }
                 // Header row
@@ -13753,7 +13782,7 @@ categories.forEach(cat => {
             if (!window._abpFund) return;
             const f = window._abpFund;
             const _wl = JSON.parse(localStorage.getItem('ld_watchlist') || '[]');
-            if (_wl.length >= 20) { alert('Watchlist full (max 20 funds)'); return; }
+            if (_wl.length >= 30) { alert('Watchlist full (max 30 funds)'); return; }
             if (_wl.some(w => (w.code||w.name) === (f.code||f.name))) { alert('Already in watchlist'); return; }
             const _isPortfolio = confirm(`Add "${(f.name||'').replace(/\[NPS\] | - Growth| - Direct/gi,'').trim()}" to Portfolio as well?\n\nOK = In Portfolio ✓   Cancel = Watchlist only`);
             _wl.push({ code: f.code, name: f.name, portfolio: _isPortfolio });
@@ -13765,6 +13794,7 @@ categories.forEach(cat => {
 
                 window.openAIBreadthModal = function(fund) {
             _abpFund = fund;
+            window._abpFund = fund;   // LD252A14: expose for _abpAddToWatchlist
             _resetPanel();
             _populateFundMeta(fund);
             document.getElementById('abpFundTag').textContent = fund.name || fund.code;
@@ -18089,6 +18119,77 @@ function calcTSI(closes, period = 21) {
   }
   return out;
 }
+
+// ── LD252A14: STOOQ FALLBACK FOR SCANNER ─────────────────────────────────────
+// Stooq uses different tickers for NSE/BSE indices. This map covers the major ones.
+// Pattern for NSE indices on Stooq: lowercase, no ^ prefix, .in suffix
+const STOOQ_SYMBOL_MAP = {
+  // NSE Broad
+  "^NSEI":                    "^nsei",
+  "^NSMIDCP":                 "^nsmidcp",
+  "^CNX100":                  "^cnx100",
+  "^CNX200":                  "^cnx200",
+  "^CRSLDX":                  "^crsldx",
+  "^CNXSC":                   "^cnxsc",
+  "^NSEMDCP50":               "^nsemdcp50",
+  // NSE Sectoral
+  "^NSEBANK":                 "^nsebank",
+  "^CNXPSUBNK":               "^cnxpsubnk",
+  "^CNXPVTBNK":               "^cnxpvtbnk",
+  "^CNXFIN":                  "^cnxfin",
+  "^CNXFIN2550":              "^cnxfin2550",
+  "^CNXIT":                   "^cnxit",
+  "^CNXAUTO":                 "^cnxauto",
+  "^CNXENERGY":               "^cnxenergy",
+  "^CNXOILGAS":               "^cnxoilgas",
+  "^CNXCPSE":                 "^cnxcpse",
+  "^CNXPSE":                  "^cnxpse",
+  "^CNXMEDIA":                "^cnxmedia",
+  "^CNXINFRA":                "^cnxinfra",
+  "^CNXSERVICE":              "^cnxservice",
+  "^CNXMNC":                  "^cnxmnc",
+  "^CNXCOMMODITIES":          "^cnxcommodities",
+  "^INDIAVIX":                "^indiavix",
+  "^NIFTY50EW":               "^nifty50ew",
+  // BSE
+  "^BSESN":                   "^bsesn",
+  "^SENSEX50":                "^sensex50",
+  // .NS suffix → replace .NS with .in for stooq
+  // .BO suffix → replace .BO with .bo for stooq (some work, some don't)
+};
+function _toStooqSymbol(yahooSymbol) {
+  if (STOOQ_SYMBOL_MAP[yahooSymbol]) return STOOQ_SYMBOL_MAP[yahooSymbol];
+  // .NS → .in  (NSE individual stocks/ETFs/indices with .NS suffix)
+  if (yahooSymbol.endsWith(".NS")) return yahooSymbol.replace(/\.NS$/, ".in").toLowerCase();
+  // .BO → .bo  (BSE — partial coverage on Stooq)
+  if (yahooSymbol.endsWith(".BO")) return yahooSymbol.replace(/\.BO$/, ".bo").toLowerCase();
+  return null; // no known mapping — skip stooq
+}
+async function _fetchStooqWeekly(yahooSymbol) {
+  const stooqSym = _toStooqSymbol(yahooSymbol);
+  if (!stooqSym) throw new Error("No Stooq mapping");
+  const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(stooqSym)}&i=w`;
+  // Try direct first, then proxy
+  const tryFetch = async (fetchUrl) => {
+    const res = await fetch(fetchUrl, { signal: AbortSignal.timeout(10000) });
+    if (!res.ok) throw new Error(`Stooq HTTP ${res.status}`);
+    const text = await res.text();
+    if (!text || text.includes("No data") || text.trim().length < 50) throw new Error("Stooq: no data");
+    const lines = text.trim().split("\n").slice(1).filter(l => l.trim());
+    if (lines.length < 10) throw new Error("Stooq: too few rows");
+    // CSV columns: Date,Open,High,Low,Close,Volume — we need Close (index 4)
+    const closes = lines.map(l => parseFloat(l.split(",")[4])).filter(v => !isNaN(v) && v > 0);
+    if (closes.length < 10) throw new Error("Stooq: parse failed");
+    return closes; // oldest→newest
+  };
+  try { return await tryFetch(url); } catch(e) {
+    // proxy fallback
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    return await tryFetch(proxyUrl);
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function fetchIdx(symbol) {
   const wkUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1wk&range=2y`;
   const dUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=6mo`;
@@ -18103,8 +18204,15 @@ async function fetchIdx(symbol) {
     const wkD = wkR?.ok ? await wkR.json() : null,
       dD = dR?.ok ? await dR.json() : null,
       qtD = qtR?.ok ? await qtR.json() : null;
-    const wC = wkD?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || [];
+    let wC = wkD?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || [];
     const dC = dD?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || [];
+    // LD252A14: Stooq fallback — if Yahoo returned no weekly closes, try Stooq
+    if (wC.filter(x => x != null && !isNaN(x)).length < 10) {
+      try {
+        const stooqCloses = await _fetchStooqWeekly(symbol);
+        if (stooqCloses && stooqCloses.length >= 10) wC = stooqCloses;
+      } catch(_) { /* Stooq also failed — proceed with empty wC */ }
+    }
     const q = qtD?.quoteResponse?.result?.[0] || null;
     const price = q?.regularMarketPrice ?? (wC.length ? wC[wC.length - 1] : null);
     const vd = dC.filter(x => x != null && !isNaN(x));
@@ -18280,6 +18388,7 @@ function LDScanner() {
     dir: "asc"
   });
   const [baRes, setBaRes] = useState({});
+  const [retrying, setRetrying] = useState(false); // LD252A14: retry failed fetches
   const [gemKey, setGemKey] = useState(() => {
     try {
       return localStorage.getItem("ld_scn_gem_key") || localStorage.getItem("ld_gemini_api_key") || "";
@@ -18451,6 +18560,34 @@ function LDScanner() {
       });
     }
   }
+  // LD252A14: Retry only failed / empty rows — no full re-scan needed
+  async function doRetry() {
+    const failedSymbols = ALL_INDICES.filter(i => {
+      if (!i.symbol) return false;
+      const r = results[i.symbol];
+      // retry: never fetched, fetch error, or fetched but no wRsi (CORS silent fail)
+      return !r || r.error || (!r.wRsi && !r.error);
+    });
+    if (!failedSymbols.length) return;
+    setRetrying(true);
+    stopRef.current = false;
+    let tmp = { ...results };
+    let done = 0;
+    for (const idx of failedSymbols) {
+      if (stopRef.current) break;
+      setProgress({ done, total: failedSymbols.length, label: "Retry " + idx.name + "..." });
+      const d = await fetchIdx(idx.symbol);
+      done++;
+      tmp = { ...tmp, [idx.symbol]: d };
+      setResults({ ...tmp });
+      setProgress({ done, total: failedSymbols.length, label: "Retry: " + idx.name });
+      await sleep(700);
+    }
+    const savedDate = saveCache(tmp);
+    setCacheDate(savedDate);
+    setProgress({ done: failedSymbols.length, total: failedSymbols.length, label: `Retry done — ${done} refetched` });
+    setRetrying(false);
+  }
   function reqSort(k) {
     setSortCfg(p => ({
       key: k,
@@ -18515,6 +18652,8 @@ function LDScanner() {
   }, [results, regF, phaseF, vix, sortCfg, baRes]);
   const pct = progress.total > 0 ? Math.round(progress.done / progress.total * 100) : 0;
   const hasData = rows.length > 0 && Object.keys(results).length > 0;
+  // LD252A14 fix: count only rows that actually render (have wRsi data or error)
+  const displayedRows = rows.filter(r => r.wRsi || r.error);
   const thS = {
     position: "sticky",
     top: 0,
@@ -18653,7 +18792,35 @@ function LDScanner() {
       stopRef.current = true;
       baStopRef.current = true;
     }
-  }, "\u25A0 ", pct, "%"), /*#__PURE__*/React.createElement("span", {
+  }, "\u25A0 ", pct, "%"), !scanning && !retrying && Object.keys(results).length > 0 && ALL_INDICES.filter(i => { const r = results[i.symbol]; return !r || r.error || (!r.wRsi && !r.error); }).length > 0 && /*#__PURE__*/React.createElement("button", {
+    title: "Retry failed / empty rows",
+    style: {
+      background: "#fff3cd",
+      border: "1px solid #c97a00",
+      padding: "3px 7px",
+      fontSize: 10,
+      fontWeight: 700,
+      cursor: "pointer",
+      color: "#7a4800",
+      flexShrink: 0,
+      whiteSpace: "nowrap",
+      fontFamily: "'Space Mono','Courier New',monospace"
+    },
+    onClick: doRetry
+  }, "↺ ", ALL_INDICES.filter(i => { const r = results[i.symbol]; return !r || r.error || (!r.wRsi && !r.error); }).length, " failed"), retrying && /*#__PURE__*/React.createElement("button", {
+    style: {
+      background: "#fff3cd",
+      border: "1px solid #c97a00",
+      padding: "3px 8px",
+      fontSize: 10,
+      fontWeight: 700,
+      cursor: "pointer",
+      color: "#7a4800",
+      flexShrink: 0,
+      whiteSpace: "nowrap"
+    },
+    onClick: () => { stopRef.current = true; }
+  }, "■ Stop retry"), /*#__PURE__*/React.createElement("span", {
     title: "Scanned / Total",
     style: {
       fontSize: 9,
@@ -18675,15 +18842,15 @@ function LDScanner() {
       fontSize: 9,
       fontWeight: 700,
       padding: "2px 5px",
-      background: rows.length > 0 && rows.length < ALL_INDICES.filter(i => i.symbol).length ? "#fff3cd" : surf2,
-      border: `1px solid ${rows.length > 0 && rows.length < ALL_INDICES.filter(i => i.symbol).length ? "#c97a00" : bdr}`,
+      background: displayedRows.length > 0 && displayedRows.length < ALL_INDICES.filter(i => i.symbol).length ? "#fff3cd" : surf2,
+      border: `1px solid ${displayedRows.length > 0 && displayedRows.length < ALL_INDICES.filter(i => i.symbol).length ? "#c97a00" : bdr}`,
       whiteSpace: "nowrap",
       flexShrink: 0,
       fontFamily: "'Space Mono','Courier New',monospace",
       color: "#000",
       lineHeight: 1.5
     }
-  }, rows.length, "/", ALL_INDICES.filter(i => i.symbol).length, /*#__PURE__*/React.createElement("span", {
+  }, displayedRows.length, "/", ALL_INDICES.filter(i => i.symbol).length, /*#__PURE__*/React.createElement("span", {
     style: {fontSize: 7, color: bdr2, marginLeft: 2, fontWeight: 400, fontFamily: "'Space Mono','Courier New',monospace"}
   }, "dsp")), scanning && /*#__PURE__*/React.createElement("span", {
     style: {
